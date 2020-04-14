@@ -1,0 +1,20 @@
+<!--sub-comp from ../sub-->
+<div o-click="this.increase('arg1', 'arg2')">
+  ${ this.content }
+  <sub-comp></sub-comp>
+</div>
+<!--scripts-->
+<script abstract>
+  this.increase = (arg1, arg2) => {
+    this.content = `${arg1}, ${arg2}`;
+  };
+  setTimeout(() => {
+    this.content = 'test';
+  }, 500);
+  </script>
+<!--styles-->
+<style>
+  body {
+    background: purple;
+  }
+</style>

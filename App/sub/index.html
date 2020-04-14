@@ -1,0 +1,30 @@
+<div>
+  <h1> ${ this.content } ${ this.text } </h1>
+  <button o-click="this.stopInt(30)"> stop interval </button>
+  <input
+    o-input="this.debugg(this.text)"
+    o-model="text"/>
+</div>
+<!--script-->
+<script abstract>
+  this.debugg = (value) => {
+    console.log(value)
+  };
+  const interval = setInterval(() => {
+    this.content += Math.random() ** Math.random() * 3;
+    if (this.content > 100) {
+      // clearInterval(interval);
+    }
+  }, 1000);
+  this.stopInt = (int = 1) => {
+    clearInterval(interval);
+    this.content+=+ int;
+    this.text = 13;
+  };
+</script>
+<!--styles-->
+<style>
+  [scope] div {
+    background: red;
+  }
+</style>

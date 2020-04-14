@@ -1,0 +1,4 @@
+{
+  "entrypoint": "./App/main",
+  "port": 8080
+}

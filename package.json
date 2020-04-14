@@ -1,0 +1,26 @@
+{
+  "name": "Ogone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "node-html-parser": "^1.2.15",
+    "nodemon": "^2.0.3",
+    "npx": "^10.2.0",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "uuid-node": "^1.0.1",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
