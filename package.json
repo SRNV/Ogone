@@ -4,21 +4,32 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@babel/plugin-transform-typescript": "^7.9.4",
+    "@segment/clear-intervals": "^2.0.0",
+    "axios": "^0.19.2",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
+    "express-ws-routes": "^1.1.0",
+    "install": "^0.13.0",
     "node-html-parser": "^1.2.15",
     "nodemon": "^2.0.3",
+    "npm": "^6.14.4",
     "npx": "^10.2.0",
+    "parcel-bundler": "^1.12.4",
+    "pg": "^8.0.2",
+    "postcss-scopeify-everything": "^0.7.1",
+    "string": "^3.3.3",
     "ts-loader": "^6.0.4",
     "typescript": "^3.5.3",
     "uuid-node": "^1.0.1",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.5",
-    "webpack-dev-server": "^3.7.1"
+    "webpack-dev-server": "^3.7.1",
+    "yaml": "^1.8.3"
   },
   "devDependencies": {},
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon -e js,html,yml,json index.js"
   },
   "keywords": [],
   "author": "",

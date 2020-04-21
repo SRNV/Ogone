@@ -1,96 +1,158 @@
 <html>
   <head> 
-    <style data-app-style></style>
+      %%styles%%
   </head>
   <body>
-    <div id="app%%id%%"></div>
+    <div id="app"></div>
     <script>
       const host = location.host;
-      const appWS = new WebSocket('ws://' + host + '/load/%%id%%');
+      const components = {};
+      function OComponent(ws) {
+        this.ws = ws;
+        this.send = (json) => {
+          this.ws.send(JSON.stringify(json));
+        };
+        this.directRenders ={};
+        this.read = (ev) => {
+          switch(ev.type) {
+            case 'component':
+              this.rootNode = document.querySelector(`${ev.querySelector}:not([${ev.attr}])`);
+              this.id = ev.id;
+              this.render(ev);
+              break;
+            case 'text':
+              this.renderText(ev);
+              break;
+            case 'render':
+              this.renderDirectRender(ev);
+              break;
+            case 'events':
+              this.renderEvents(ev)
+              break;
+            case 'bind':
+              this.renderBindEvent(ev);
+              break;
+          }
+        }
+        this.renderBindEvent = (ev) => {
+          const el = this.rootNode.querySelector(ev.querySelector);
+          console.warn(el, ev);
+          if (el && el.value !== ev.value) {
+            el.value = ev.value;
+          }
+        };
+        this.renderElements = (html) => {
+          const template = document.createElement('template');
+          template.insertAdjacentHTML('beforeend', html);
+          return Array.from(template.childNodes);
+        };
+        this.render = (item) => {
+          if (!item) return;
+          if (item.html && this.rootNode) {
+            this.rootNode.innerHTML = '';
+            this.rootNode.setAttribute(item.attr, '');
+            this.rootNode.setAttribute(item.id, '');
+            this.rootNode.insertAdjacentHTML('beforeend', item.html);
+            this.send({
+              type: 'o-inserted',
+              id: this.id,
+            });
+          }
+        }
+        this.renderText = (item) => {
+          if (!item) return;
+          const textNode = item.querySelector.length ?
+            this.rootNode.querySelector(item.querySelector).childNodes[item.textId]:
+            this.rootNode.childNodes[item.textId];
+          if (item.value && textNode) {
+            textNode.data = item.value;
+          }
+        }
+        this.renderDirectRender = (item) => {
+          if (!item) return;
+          if (this.directRenders[item.id2]) {
+            const newel = this.renderElements(item.html)[0];
+            this.directRenders[item.id2].replaceWith(newel);
+            this.directRenders[item.id2] = newel;
+            return;
+          }
+          if (item.querySelector === null) {
+            const el = this.rootNode;
+            const newel = this.renderElements(item.html)[0];
+            el.replaceWith(newel);
+            this.directRenders[item.id2] = newel;
+            return;
+          }
+          const el = this.rootNode.querySelector(item.querySelector);
+          if (el) {
+            const newel = this.renderElements(item.html)[0];
+            el.replaceWith(newel);
+            this.directRenders[item.id2] = newel;
+          }
+        }
+        this.renderEvents = (item) => {
+          if (!item) return;
+          if (item.events.length) {
+            console.warn(item);
+            item.events.forEach((event) => {
+              const subEl = this.rootNode.querySelector(`[${this.id}] ${event.querySelector.trim()}`);
+              console.warn(subEl);
+              if (subEl) {
+              event.directives.forEach((dir) => {
+                let eventName = dir[0];
+                switch(eventName) {
+                  case 'model':
+                    eventName = 'input';
+                    break;
+                }
+                  subEl.addEventListener(eventName, (ev) => {
+                    console.warn(event.querySelector)
+                    if (this.ws.readyState !== 1) return;
+                    this.send({
+                      event: dir[0],
+                      id: this.id,
+                      querySelector: event.querySelector,
+                      value: subEl.value,
+                      type: 'event',
+                    });
+                  });
+                });
+              }
+            });
+          }
+          
+        };
+      }
+    </script>
+    <script>
+      const appWS = new WebSocket(`ws://${host}/%%id%%`);
       const Ogone = {
         render: [],
         events: [],
         styles: []
       };
       appWS.onopen = () => {
-        appWS.send('load');
+        appWS.send(JSON.stringify({ type: 'load' }));
+      };
+      appWS.onclose = () => {
+        location.reload();
       };
       appWS.onmessage = (event) => {
         if (appWS.readyState !== 1) return;
+        if (event.data === 'reload') {
+          location.reload();
+          return;
+        }
         const ev = JSON.parse(event.data);
-        if (ev.type === 'load') {
-          const app = document.querySelector(ev.querySelector);
-          app.setAttribute(ev.renderUUID, '');
-          app.insertAdjacentHTML('beforeend', ev.html);
-        }
-        if (ev.type === 'bind') {
-          const el = document.querySelector(ev.querySelector);
-          if (el && el.value !== ev.value) {
-            el.value = ev.value;
+        if (ev.id) {
+          if (ev.id in components) {
+            components[ev.id].read(ev); 
+          } else {
+            const oc = new OComponent(appWS);
+            oc.read(ev);
+            components[ev.id] = oc;
           }
         }
-        if (ev.type === 'style') {
-          const style = document.querySelector('style[data-app-style]');
-          if (!Ogone.styles.includes(ev.cssUUID)) {
-            Ogone.styles.push(ev.cssUUID);
-            style.insertAdjacentHTML('beforeend', ev.css);
-          }
-        }
-        if (ev.type === 'render') {
-          if (ev.on) {
-            Ogone.render.push(ev);
-          }
-        }
-        if (ev.renderUUID && ev.type !== 'text') {
-          Ogone.render
-            .filter((chunk) => chunk.on === ev.renderUUID)
-            .forEach((chunk) => {
-              const subEl = document.querySelector(chunk.querySelector);
-              if (subEl) {
-                subEl.innerHTML = chunk.html;
-              }
-            });
-        }
-        if (ev.type === 'text') {
-          const el = document.querySelector(ev.querySelector);
-          if (el) {
-            const text = el.childNodes[ev.id];
-            if (text) {
-              text.data = ev.data;
-            }
-          }
-        }
-        if (ev.type === 'event') {
-          Ogone.events.push({
-            ...ev,
-            valid: true,
-          });
-        }
-        Ogone.events = Ogone.events.filter(chunk => chunk.valid);
-        Ogone.events
-          .forEach((chunk) => {
-            if (chunk.on !== ev.renderUUID) return;
-            const subEl = document.querySelector(chunk.querySelector);
-            if (subEl) {
-              let event = chunk.event;
-              switch(chunk.event) {
-                case 'model':
-                  event = 'input';
-                  break;
-              }
-              subEl.addEventListener(event, (evt) => {
-                if (appWS.readyState !== 1) return;
-                if (evt.target === subEl) {
-                  if (chunk.event === 'model') {
-                    appWS.send(`${chunk.event}:${chunk.querySelector}:${subEl.value}`);
-                    return;
-                  }
-                  appWS.send(`${chunk.event}:${chunk.querySelector}`);
-                }
-              });
-              chunk.valid = false;
-            }
-          });
       };
     </script>
   </body>

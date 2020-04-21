@@ -1,0 +1,38 @@
+
+/*
+app.websocket(`/test`, (info, cb, next, ) => {
+  cb((ws) => {
+    ws.send('test');
+  });
+});
+app.websocket(`/`, (info, cb, next, ) => {
+  Ogone.files.forEach((file) => {
+    fs.watchFile(file, () => {
+      console.warn('[Ogone] reloading')
+      if (ws.readyState === 1) {
+        ws.send('reload');
+        process.exit()
+      }
+    });
+  });
+  cb((ws) => {
+    ws.on('message', (msg) => {
+      switch(msg) {
+        case 'load': 
+          if (ws.readyState === 1) {
+            const oc = new OComponent(Ogone.main, '#app');
+            ws.send(JSON.stringify({
+              type: 'component',
+              querySelector: '#app',
+              connection: oc.connection,
+              id: oc.id,
+            }));
+          }
+        break;
+        default:
+          break;
+      }
+    });
+  })
+});
+*/

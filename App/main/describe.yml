@@ -1,0 +1,27 @@
+data:
+  content: 0
+  interval: null
+  count: 0
+  limit: 11
+  lastname: null
+  firstname: null
+  users: 
+    - test
+    - 
+      - lol
+      - lol2
+    - test3
+    - test4
+modules:
+  axios: axios
+  path: path
+  getuser: ./App/store/actions
+  createdb: ./App/store/createdb
+  setTableUser: ./App/store/setTableUserdb
+  getTableUser: ./App/store/getTableUserdb
+  dropTable: ./App/store/dropTable
+  setUser: ./App/store/setUser
+store:
+  user:
+    actions:
+      - getUser

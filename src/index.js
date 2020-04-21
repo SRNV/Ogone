@@ -1,249 +1,282 @@
-const path = require('path');
 const { parse } = require('node-html-parser');
-const fs = require('fs');
 const uuid = require('uuid-node');
-const OgoneHTML = new Map();
-const Ogone = new Map();
-const directives = [
-  'o-if',
-  'o-else',
-  'o-for',
-  'o-click',
-  'o-mousemove',
-  'o-mousedown',
-  'o-mouseup',
-  'o-mouseleave',
-  'o-dblclick',
-  'o-drag',
-  'o-dragend',
-  'o-dragstart',
-  'o-model',
-  'o-transform',
-  'o-html',
-  'o-input',
-];
 
-function OComponent(entrypoint, ws, id) {
-  const htmlPath = `${entrypoint}/index.html`;
-  const dataPath = `${entrypoint}/index.json`;
-  const normalizedPath = path.normalize(htmlPath);
-  let html, configData = {};
-  if (!fs.existsSync(htmlPath)) return null;
-  if (fs.existsSync(dataPath)) {
-    const data = fs.readFileSync(dataPath, { encoding: 'utf8' });
-    configData = JSON.parse(data);
-  }
-  if (!OgoneHTML.has(normalizedPath)) {
-    html = fs.readFileSync(htmlPath, { encoding: 'utf8' });    
-    OgoneHTML.set(normalizedPath, html)
-  } else {
-    html = OgoneHTML.get(normalizedPath);
-  }
-  this.id = id || `data-${uuid.generateUUID().split('-')[0]}`;
-  Ogone.set(this.id, {
-    validate: false,
-    html: '',
-    texts: [],
+function OComponent(entrypoint, querySelector, o, websocket) {
+  const component = o.components.get(entrypoint);
+  if (!component) return;
+  this.ws = websocket;
+  this.uuid = uuid.generateUUID().split('-')[0];
+  this.path = `/${this.uuid}`;
+  this.id = `data-${this.uuid}`;
+  this.item = Object.assign(component, {});
+  this.rootNode = parse(this.item.rootNodePure.toString());
+  this.data = { ...this.item.data };
+  this.modules = component.modules;
+  this.textNodes = [];
+  this.watchers = {};
+  this.reactivity = true;
+  this.contexts = {};
+  const texts = this.item.dom.filter((item) => item.type === 3 && item.rawText.length);
+  texts.forEach((t) => {
+    const query = t.querySelector.trim();
+    const node = query.length !== 0 ?
+      this.rootNode.querySelector(query) :
+      this.rootNode;
+      if (node) {
+        const text = node.childNodes[t.id];
+        if (text && text.nodeType === 3) {
+          text.querySelector = t.querySelector;
+          text.id = t.id;
+          this.textNodes.push(text);
+        }
+    }
   });
-  this.reactive = {};
-  Object.entries(configData).forEach(([key, value]) => {
-    this.reactive[key] = [];
-  });
-  this.proxy = new Proxy(configData, {
+  this.reactive = this.item.reactive;
+  this.proxy = new Proxy(this.data, {
     get(obj, prop) {
       return obj[prop];
     },
     set: (obj, prop, value) => {
-      if (obj[prop] === value || ws.readyState !== 1) {
+      if (this.ws.readyState === 3) {
+        Reflect.deleteProperty(obj, prop);
         return true;
       }
-      const item = Ogone.get(this.id);
-      item.validate = false;
+      if (obj[prop] === value || this.ws.readyState !== 1) {
+        return true;
+      }
+      const oldValue = obj[prop];
       obj[prop] = value;
-      item.texts
-        .filter(t => t.data.indexOf(prop) !== -1)
+      if (!this.reactivity) return true;
+      if (prop in this.watchers && typeof this.watchers[prop] === 'function') {
+        this.watchers[prop](oldValue, value);
+      }
+      this.textNodes
         .forEach((t) => {
-          const newtext = (function() { return eval(`\`${t.data}\``) }).bind(obj)();
-          if (newtext !== t.text) {
-            const json = JSON.stringify({
-              data: newtext,
-              type: 'text',
-              querySelector: t.query,
-              id: t.id,
-              renderUUID: this.id,
-            });
-            ws.send(json);
+          if (t.data.indexOf(prop) === -1) return;
+          try {
+            const newtext = (function() { return eval(`\`${t.data}\``) }).bind(obj)();
+            if (newtext !== t.text) {
+              this.send({
+                value: newtext.trim(),
+                textId: t.id,
+                id: this.id,
+                type: 'text',
+                querySelector: t.querySelector
+              })
+              t.text = newtext;
+            }
+          } catch(textNodeEvaluationException) {
+            throw textNodeEvaluationException;
           }
         });
-      if (this.reactive[prop]) {
-        this.reactive[prop].forEach((querySelector) => {
-          const reaction = JSON.stringify({
-            querySelector,
-            value,
-            type: 'bind',
+        if (this.reactive[prop]) {
+          this.reactive[prop].forEach((query, i) => {
+            this.send({
+              value,
+              querySelector: query,
+              type: 'bind',
+              id: this.id,
+            });
           });
-          ws.send(reaction);
-        });
-      }
-      return true;
-    }
+        }
+    },
   });
-  const mapped = normalizedPath.replace(/([\.\\]*)+/gi, '');
-  this.renderUUID = `data-${mapped}`;
-  this.setRootNode = (h, options) => {
-    this.rootNode = parse(h, options);
+  this.runtime = (event) => {
+    if (!this.item.scripts[event]) return;
+    try {
+      const Render = (ref, html) => {
+        try {
+          if (ref.length && !this.item.refs[ref]) {
+            return;
+          }
+          const querySelector = this.item.refs[ref] || false;
+          let result = html;
+          if (Array.isArray(html)) {
+            result = html.join('');
+          }
+          if (html instanceof Function) {
+            result = html();
+          }
+          const oElementId = `o-${(querySelector || '').trim().replace(/([^a-zA-Z0-9]*)+/gi, '') || ''}-rd`;
+          this.send({
+            id2: oElementId,
+            html: result.replace(/%%id%%/gi, `${this.id} ${oElementId}`),
+            querySelector: !!querySelector ? 
+              `[${this.item.uuid}][${this.id}] > ${querySelector.trim()}`:
+              null,
+            type: 'render',
+            id: this.id,
+          });
+        } catch(e) {
+          throw e;
+        }
+      };
+      const Pragma = (name, attr, ...childs) => {
+        try {
+          let attrs = [];
+          if (attr) {
+            attrs = Object.entries(attr).map(([key, value]) => {
+              if (key.slice(0, 2) === '$$') {
+                return;
+              }
+              return `${key}="${value}"`
+            })
+          }
+          const element = `<${name} %%id%% ${component.uuid} ${attrs.join(' ')}>${childs.flat().join(' ')}</${name}>`
+          // direct rendering with $$ references
+          if (attr) {
+            const ref = Object.entries(attr).find(([key]) => key.slice(0, 2) === '$$');
+            if (ref) {
+              const id = ref[0].slice(2);
+              Render(id, element);
+              return id;
+            }
+          }
+          return element;
+        } catch(e) {
+          throw e;
+        }
+      };
+      const oc = this;
+      const Watcher = function(prop, w){
+        oc.watchers[prop] = w;
+      };
+      this.item.scripts[event].bind(this.proxy)(
+        Pragma, 
+        Render,
+        Watcher,
+        this.modules);
+    } catch(e) {
+      throw e;
+    }
+  };
+  this.send = (json) => {
+    if(this.ws.readyState === 1){
+      this.ws.send(JSON.stringify(json));
+    }
   };
   this.render = () => {
-    const item = Ogone.get(this.id);
-    if (ws.readyState !== 1) {
-      return item.html;
-    }
-    if (item.validate) {
-      return item.html;
-    }
-    const render = this.rootNode.toString();
-    item.html = render;
-    item.validate = true;
-    return render;
+    this.send({
+      querySelector,
+      type: 'component',
+      attr: this.item.uuid,
+      id: this.id,
+      html: this.rootNode.toString(),
+      data: this.data,
+    });
   };
-  this.renderSubComponents = () => {
-    const comments = this.rootNode.childNodes.filter(node => node.nodeType === 8);
-    const reg = /([a-zA-Z0-9\-]*)+(\s)(from)(\s)([\.\/a-zA-Z0-9]*)+/gi;
-    comments
-      .filter(comment => comment.rawText.match(reg))
-      .forEach((imported) => {
-        const instruction = imported.rawText;
-        const importSyntax =  /([a-zA-Z0-9\-]*)+(\s)(from)(\s)([\.\/a-zA-Z0-9]*)+/gi.exec(instruction);
-        if (!importSyntax) return;
-        const elements = this.rootNode.querySelectorAll(importSyntax[1]);
-        const pathComponent = importSyntax[5];
-        elements.forEach((element) => {
-          const pathC = `${entrypoint}/${pathComponent}`;
-          const component = new OComponent(pathC, ws);
-          element.setAttribute(component.id, '');
-          element.setAttribute(component.renderUUID, '');
-          const json = JSON.stringify({
-            type: 'render',
-            html: component.render(),
-            querySelector: `[${component.id}]`,
-            on: this.id,
-            renderUUID: component.id,
-          });
-          ws.send(json);
-        });
-      });
+
+  this.load = () => {
+    this.reactivity = false;
+    Object.entries(this.item.data).forEach(([key, value]) => {
+      this.proxy[key] = value;
+    });
+    this.reactivity = true;
   };
-  this.renderScripts = () => {
-    const scripts = this.rootNode.childNodes.filter(node => node.tagName === 'script');
-    scripts.forEach((element) => {
-      const script = element.innerHTML;
-      if (element.hasAttribute('abstract')) {
-        (function(){ eval(script) }).bind(this.proxy)();
+  this.textNodes.forEach((el) => {
+    el.data = el.rawText;
+    const text = (function() {
+      try {
+        const val = eval(`\`${el.rawText}\``)
+        return val;
+      } catch(e) {
+        throw e;
       }
-    });
-  };
-  this.cleanRender = () => {
-    this.rootNode.childNodes.forEach((node, id) => {
-      if (node.tagName === 'style') this.rootNode.childNodes.splice(id, 1);
-      if (node.tagName === 'script') this.rootNode.childNodes.splice(id, 1);
-      if (node.nodeType === 8) this.rootNode.childNodes.splice(id, 1);
-    });
-  };
-  this.renderStyles = () => {
-    const styles = this.rootNode.childNodes.filter(node => node.tagName === 'style');
-    styles.forEach((element) => {
-      const css = element.text.replace(/(\[)(scope)(\])/gi, `[${this.renderUUID}]`);
-      const json = JSON.stringify({
-        type: 'style',
-        cssUUID: this.renderUUID,
-        css,
-      });
-      ws.send(json);
-    });
-  };
-  this.inspectTextChanges = (node, structure = '') => {
-    let query = '';
-    if (node.tagName) {
-      query = `${structure} ${node.tagName}`;
-    } else {
-      query = `[${this.id}]`
-    }
-    if (node.childNodes.length) {
-      node.childNodes
-        .forEach((el, id) => {
-          if (['script', 'style'].includes(el.tagName)) return;
-          if (el.nodeType === 3 && el.rawText.trim().length) {
-            const text = (function() {
-              return eval(`\`${el.rawText}\``)
-            }).bind(this.proxy)();
-            Ogone.get(this.id).texts.push({
-              id,
-              text,
-              query,
-              data: el.rawText,
-            });
-            el.rawText = text;
-          } else if (el.nodeType === 1) {
-            this.inspectTextChanges(el, query);
-          }
-        });
-    }
-  };
-  this.inspectNodes = (node, structure = '') => {
-    let query = '';
-    if (node.tagName) {
-      query = `${structure} ${node.tagName}`;
-    } else {
-      query = `[${this.id}]`
-    }
-    if (node.rawAttrs && node.rawAttrs.trim().length) {
-      directives.forEach((directive) => {
-        if (node.hasAttribute(directive)) {
-          const onevent = node.getAttribute(directive);
-          let trigger = null
-          const payload = {
-            type: 'event',
-            event: directive.slice(2),
-            querySelector: query,
-            on: this.id,
-          };
-          if (directive === 'o-model' && ['input', 'textarea'].includes(node.tagName)) {
-            if (onevent in this.proxy) {
-              this.reactive[onevent].push(query);
-            }
-            trigger = (function([event, query, value]) {
-              if (onevent in this && this[onevent] !== value) { this[onevent] = value; }
-            }).bind(this.proxy);
-          } else {
-            trigger = (function() {
-              eval(onevent);
-            }).bind(this.proxy);
-          }
-          const json = JSON.stringify(payload);
-          ws.OGONE_EVENTS.set(`${payload.event}:${query}`, trigger);
-          ws.send(json);
-          node.removeAttribute(directive);
-        }
-      });
-    }
-    if (node.childNodes.length) {
-      node.childNodes
-        .filter(el => el.nodeType === 1 && !['script', 'style'].includes(el.tagName))
-        .forEach((el) => {
-          this.inspectNodes(el, query);
-        });
-    }
-  };
-  this.setRootNode(html, {
-    comment: true,
-    style: true,
-    script: true,
+    }).bind(this.proxy)();
+    el.rawText = text;
+    el.text = text;
   });
-  this.renderStyles();
-  this.renderScripts();
-  this.renderSubComponents();
-  this.inspectNodes(this.rootNode);
-  this.inspectTextChanges(this.rootNode);
-  this.cleanRender();
+  this.renderSubComp = () => {
+    const entries = Object.entries(this.item.imports);
+    entries.forEach(([path, querySelector]) => {
+      const nodes = this.rootNode.querySelectorAll(querySelector);
+      if (nodes && nodes.length) {
+        nodes.forEach((node) => {
+          new OComponent(path, `[${this.id}][${this.item.uuid}] ${querySelector}`, o, websocket);
+        });
+      }
+    })
+  };
+  this.sendEvents = () => {
+    this.send({
+      type: 'events',
+      events: this.item.directives,
+      id: this.id,
+    });
+  };
+  this.triggerEvent = (msg) => {
+    const node = this.item.directives
+      .find((d) => d.querySelector === msg.querySelector);
+    if (node) {
+      const event = node.directives.find((d) => d[0] === msg.event);
+      if (event && event[1] instanceof Function) {
+        switch(event[0]) {
+          case 'model':
+            event[1].bind(this.proxy)(msg.value);
+            break;
+          default: 
+            event[1].bind(this.proxy)();
+            break;
+        }
+      }
+    }
+  };
+  o.onclose.push(() => {
+    this.runtime('o-close');
+  });
+  o.onmessage[this.id] = (msg) => {
+    switch(msg.type) {
+      case 'load':
+        this.load();
+        break;
+      case 'o-inserted':
+        this.sendEvents();
+        break;
+      case 'event':
+      this.triggerEvent(msg);
+        break;
+      default:
+        this.runtime(msg.type);
+        break;
+
+    }
+  };
+  this.startRenderForDirective = () => {
+    const dir = this.item.directives;
+    dir.forEach(({ querySelector, directives }) => {
+      const forDirectives = directives.filter((directive) => directive[0] === 'for');
+      forDirectives.forEach(([type, context]) => {
+        this.renderForDirective(querySelector, context.array);
+      })
+    })
+  };
+  this.renderForDirective = (querySelector, arrayName) => {
+    const forD = this.item.for;
+    const el = forD[querySelector];
+    const array = el.getter.bind(this.proxy)(querySelector, this);
+    if (array === null) {
+      const invalidArrayNameException = new Error(`[Ogone] ${arrayName} is not an instance of Array | Object | Iterator`);
+      console.error(invalidArrayNameException);
+      return;
+    }
+    const entries = Object.entries(el.context);
+    for(i = 0; i < array.length; i++) {
+      entries.forEach(([key, value]) => {
+        const newvalue = value.bind(this.proxy)(i, array);
+        if (newvalue === null || newvalue === undefined) {
+          return;
+        }
+        if (!this.contexts[key]) {
+          this.contexts[key] = [];
+        }
+        this.contexts[key][i] = newvalue;
+      });
+    }
+    console.warn(this.contexts);
+  };
+  this.render();
+  this.runtime('o-init');
+  this.startRenderForDirective();
+  this.renderSubComp();
 };
 module.exports = OComponent;

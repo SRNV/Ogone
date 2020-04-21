@@ -1,20 +1,17 @@
-<!--sub-comp from ../sub-->
-<div o-click="this.increase('arg1', 'arg2')">
-  ${ this.content }
-  <sub-comp></sub-comp>
+<div>
+  <span o-for="users:(userid, i)">
+      <span o-for="userid[1]:(te, o)">
+          <span o-for="userid[o]:(fr, t)">
+          </span>
+      </span>
+  </span>
+  <div ref="report"></div>
 </div>
-<!--scripts-->
-<script abstract>
-  this.increase = (arg1, arg2) => {
-    this.content = `${arg1}, ${arg2}`;
-  };
-  setTimeout(() => {
-    this.content = 'test';
-  }, 500);
-  </script>
-<!--styles-->
-<style>
-  body {
-    background: purple;
-  }
-</style>
+<script o-init>
+  const { getTableUser } = Modules;
+    getTableUser()
+      .then((res) => {
+        this.users = res.rows;
+      })
+      .catch((err) => <div $$report> error get tableUser {err} </div>);
+</script>
