@@ -6,21 +6,20 @@ data:
   lastname: null
   firstname: null
   users: 
-    - test
-    - 
-      - lol
-      - lol2
-    - test3
-    - test4
+    - lol
+    - lol2
+    - - test
+      - test2
+      - test3
 modules:
   axios: axios
   path: path
-  getuser: ./App/store/actions
-  createdb: ./App/store/createdb
-  setTableUser: ./App/store/setTableUserdb
-  getTableUser: ./App/store/getTableUserdb
-  dropTable: ./App/store/dropTable
-  setUser: ./App/store/setUser
+  getuser: ../store/actions.js
+  createdb: ../store/createdb.js
+  setTableUser: ../store/setTableUserdb.js
+  getTableUser: ../store/getTableUserdb.js
+  dropTable: ../store/dropTable.js
+  setUser: ../store/setUser.js
 store:
   user:
     actions:
