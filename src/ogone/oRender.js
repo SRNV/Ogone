@@ -64,6 +64,7 @@ module.exports = function oRender() {
         for: {},
         refs: {},
         reactive: {},
+        reactiveText: {},
       });
     } else {
       console.warn('[Ogone] passed', dir);

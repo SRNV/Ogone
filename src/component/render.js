@@ -5,6 +5,5 @@ module.exports = function(querySelector) {
     attr: this.item.uuid,
     id: this.id,
     html: this.rootNode.toString(),
-    data: this.data,
   });
 }

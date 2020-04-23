@@ -9,16 +9,20 @@
       const components = {};
       function OComponent(ws) {
         this.ws = ws;
+        this.contexts = new Map();
+        this.context = {};
         this.send = (json) => {
           this.ws.send(JSON.stringify(json));
         };
-        this.directRenders ={};
+        this.directRenders = {};
+        this.texts = [];
         this.read = (ev) => {
           switch(ev.type) {
             case 'component':
-              this.rootNode = document.querySelector(`${ev.querySelector}:not([${ev.attr}])`);
-              this.id = ev.id;
-              this.render(ev);
+                this.rootNode = document.querySelector(`${ev.querySelector}:not([${ev.attr}])`);
+                this.id = ev.id;
+                this.send({ type: 'load', id: this.id });
+                this.render(ev);
               break;
             case 'text':
               this.renderText(ev);
@@ -31,12 +35,89 @@
               break;
             case 'bind':
               this.renderBindEvent(ev);
+            case 'context':
+              this.readContext(ev);
+              break;
+            case 'render-context':
+              this.renderContext(ev);
               break;
           }
         }
+        this.readContext = (ev) => {
+          if (this.contexts.has(ev.querySelector)) {
+            const item = this.contexts.get(ev.querySelector);
+            item.length = ev.length;
+          } else {
+            this.contexts.set(ev.querySelector, ev);
+          }
+        }
+        this.renderContext = (item) => {
+          if (!item) return;
+          this.contexts.forEach((ctx) => {
+            const ctxId = `context:${ctx.querySelector}:template`;
+            let templateElement;
+            if (this.context[ctxId] && ctx.length === this.context[ctxId].nodes.length || !this.rootNode) return;
+            if (!this.context[ctxId]) {
+              this.context[ctxId] = {
+                length: ctx.length,
+                nodes: [],
+                template: null,
+                placeHolder: new Comment(''),
+              };
+              this.rootNode.every((c) => {
+                templateElement = c.querySelector(ctx.querySelector);
+                if (templateElement) {
+                  this.context[ctxId].template = templateElement;
+                  this.context[ctxId].nodes.push(templateElement);
+                  const query = `${ctx.idElement}-0`;
+                  this.setTextOfNode(templateElement);
+                  templateElement.setAttribute(query, '');
+                  return;
+                }
+              });
+            }
+            for(let a = ctx.length, i = this.context[ctxId].nodes.length; i > a; i-- ) {
+              const node = this.context[ctxId].nodes[i-1];
+              if (node) {
+                if (i === 1 && this.context[ctxId].nodes[0].parentNode) {
+                  this.context[ctxId].nodes[0].parentNode
+                    .insertBefore(this.context[ctxId].placeHolder, this.context[ctxId].nodes[0]);
+                }
+                node.remove();
+                this.context[ctxId].nodes.pop();
+              } else {
+                break;
+              }
+            }
+            if (this.context[ctxId].template) {
+              if (ctx.length) {
+                if (!this.context[ctxId].nodes.length) {
+                  for(let i = 0; i < ctx.length; i++) {
+                    const newNode = this.context[ctxId].template.cloneNode(true);
+                    const query = `${ctx.idElement}-${i}`;
+                    this.setTextOfNode(newNode);
+                    newNode.setAttribute(query, '');
+                    if (i) newNode.removeAttribute(`${ctx.idElement}-0`);
+                    this.context[ctxId].nodes.push(newNode);
+                  }
+                  this.context[ctxId].placeHolder.replaceWith(
+                    ...this.context[ctxId].nodes);
+                } else {
+                  for(let i = this.context[ctxId].nodes.length; i < ctx.length; i++) {
+                    const newNode = this.context[ctxId].template.cloneNode(true);
+                    this.setTextOfNode(newNode);
+                    newNode.setAttribute(`${ctx.idElement}-${i}`, '');
+                    if (i) newNode.removeAttribute(`${ctx.idElement}-0`);
+                    this.context[ctxId].nodes.push(newNode);
+                    this.context[ctxId].nodes[i-1].insertAdjacentElement('afterend', newNode);
+                  }
+                }
+              }
+            }
+          });
+        };
         this.renderBindEvent = (ev) => {
           const el = this.rootNode.querySelector(ev.querySelector);
-          console.warn(el, ev);
           if (el && el.value !== ev.value) {
             el.value = ev.value;
           }
@@ -44,15 +125,20 @@
         this.renderElements = (html) => {
           const template = document.createElement('template');
           template.insertAdjacentHTML('beforeend', html);
-          return Array.from(template.childNodes);
+          return Array.from(template.childNodes).filter((c) => c.nodeType !== 3);
         };
         this.render = (item) => {
           if (!item) return;
           if (item.html && this.rootNode) {
             this.rootNode.innerHTML = '';
-            this.rootNode.setAttribute(item.attr, '');
-            this.rootNode.setAttribute(item.id, '');
-            this.rootNode.insertAdjacentHTML('beforeend', item.html);
+            const childNodes = this.renderElements(item.html);
+            childNodes.forEach((child) => {
+              child.setAttribute(item.attr, '');
+              child.setAttribute(item.id, '');
+              this.setTextOfNode(child);
+            });
+            this.rootNode.replaceWith(...childNodes);
+            this.rootNode = childNodes;
             this.send({
               type: 'o-inserted',
               id: this.id,
@@ -61,13 +147,29 @@
         }
         this.renderText = (item) => {
           if (!item) return;
-          const textNode = item.querySelector.length ?
-            this.rootNode.querySelector(item.querySelector).childNodes[item.textId]:
-            this.rootNode.childNodes[item.textId];
-          if (item.value && textNode) {
-            textNode.data = item.value;
+          const sameTextnode = this.texts.find((t) => t.querySelector === item.querySelector && t.textId === item.textId);
+          if (sameTextnode) {
+            sameTextnode.value = item.value;
+          } else {
+            this.texts.push(item);
           }
         }
+        this.setTextOfNode = (node) => {
+          const texts = this.texts.filter((text) => node.matches(text.querySelector));
+          if (texts.length) {
+            node.childNodes.forEach((c, id) => {
+              if (c.nodeType !== 3) return;
+              const item =  texts.find((text) => text.textId === id);
+              if (item) {
+                let textNode = node.childNodes[id];
+                if (item.value && textNode.data !== item.value) {
+                  textNode.data = item.value;
+                }
+                return;
+              }
+            })
+          }
+        };
         this.renderDirectRender = (item) => {
           if (!item) return;
           if (this.directRenders[item.id2]) {
@@ -77,36 +179,38 @@
             return;
           }
           if (item.querySelector === null) {
-            const el = this.rootNode;
+            const el = this.rootNode[0];
             const newel = this.renderElements(item.html)[0];
             el.replaceWith(newel);
             this.directRenders[item.id2] = newel;
+            this.rootNode.slice(1).forEach((c) => c.remove());
             return;
           }
-          const el = this.rootNode.querySelector(item.querySelector);
-          if (el) {
-            const newel = this.renderElements(item.html)[0];
-            el.replaceWith(newel);
-            this.directRenders[item.id2] = newel;
-          }
+          this.rootNode.every((child) => {
+            const el = child.querySelector(item.querySelector);
+            if (el) {
+              const newel = this.renderElements(item.html)[0];
+              el.replaceWith(newel);
+              this.directRenders[item.id2] = newel;
+              return;
+            }
+          })
         }
         this.renderEvents = (item) => {
           if (!item) return;
           if (item.events.length) {
-            console.warn(item);
+           this.rootNode.every((child) => {
             item.events.forEach((event) => {
-              const subEl = this.rootNode.querySelector(`[${this.id}] ${event.querySelector.trim()}`);
-              console.warn(subEl);
+              const subEl = child.querySelector(`[${this.id}] ${event.querySelector.trim()}`);
               if (subEl) {
-              event.directives.forEach((dir) => {
-                let eventName = dir[0];
-                switch(eventName) {
-                  case 'model':
-                    eventName = 'input';
-                    break;
-                }
+                event.directives.forEach((dir) => {
+                  let eventName = dir[0];
+                  switch(eventName) {
+                    case 'model':
+                      eventName = 'input';
+                      break;
+                  }
                   subEl.addEventListener(eventName, (ev) => {
-                    console.warn(event.querySelector)
                     if (this.ws.readyState !== 1) return;
                     this.send({
                       event: dir[0],
@@ -119,26 +223,26 @@
                 });
               }
             });
+           }) 
           }
-          
         };
       }
     </script>
     <script>
-      const appWS = new WebSocket(`ws://${host}/%%id%%`);
+      const $APPWS_REPLACED_VAR$___ = new WebSocket(`ws://${host}/%%id%%`);
       const Ogone = {
         render: [],
         events: [],
         styles: []
       };
-      appWS.onopen = () => {
-        appWS.send(JSON.stringify({ type: 'load' }));
+      $APPWS_REPLACED_VAR$___.onopen = () => {
+        $APPWS_REPLACED_VAR$___.send(JSON.stringify({ type: 'load' }));
       };
-      appWS.onclose = () => {
+      $APPWS_REPLACED_VAR$___.onclose = () => {
         location.reload();
       };
-      appWS.onmessage = (event) => {
-        if (appWS.readyState !== 1) return;
+      $APPWS_REPLACED_VAR$___.onmessage = (event) => {
+        if ($APPWS_REPLACED_VAR$___.readyState !== 1) return;
         if (event.data === 'reload') {
           location.reload();
           return;
@@ -148,7 +252,7 @@
           if (ev.id in components) {
             components[ev.id].read(ev); 
           } else {
-            const oc = new OComponent(appWS);
+            const oc = new OComponent($APPWS_REPLACED_VAR$___);
             oc.read(ev);
             components[ev.id] = oc;
           }

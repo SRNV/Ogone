@@ -6,10 +6,10 @@ const setTextNodes = require('./setTextNodes');
 const render = require('./render');
 const sendEvents = require('./sendEvents');
 const renderSubComponent = require('./renderSubComponent');
-const renderForDirective = require('./renderForDirective');
-const startRenderForDirective = require('./startRenderForDirective');
+const { renderContexts, setGetContext } = require('./renderContexts');
 const triggerEvent = require('./triggerEvent');
 const getProxy = require('./getProxy');
+const clean = require('./clean');
 
 function OComponent(entrypoint, querySelector, o, websocket) {
   const component = o.components.get(entrypoint);
@@ -27,8 +27,11 @@ function OComponent(entrypoint, querySelector, o, websocket) {
     this.watchers = {};
     this.reactivity = true;
     this.contexts = {};
+    this.getContext = {};
+    this.intervals = [];
+    this.timeouts = [];
+    this.immediates = [];
     this.reactive = this.item.reactive;
-    this.proxy = getProxy.bind(this)();
     this.setTextNodes = setTextNodes.bind(this);
     this.runtime = runtime.bind(this);
     this.send = send.bind(this);
@@ -36,28 +39,61 @@ function OComponent(entrypoint, querySelector, o, websocket) {
     this.renderSubComp = renderSubComponent.bind(this);
     this.sendEvents = sendEvents.bind(this);
     this.triggerEvent = triggerEvent.bind(this);
-    this.startRenderForDirective = startRenderForDirective.bind(this);
-    this.renderForDirective = renderForDirective.bind(this);
+    this.renderContexts = renderContexts.bind(this);
+    this.setGetContext = setGetContext.bind(this);
+    this.clean = clean.bind(this);
     o.onclose.push(() => {
+      this.clean();
       this.runtime('o-close');
     });
     o.onmessage[this.id] = (msg) => {
       switch(msg.type) {
+        case 'load':
+          this.load();
+          this.renderGlobalCTX();
+          console.warn('test load')
+        break;
         case 'o-inserted':
           this.sendEvents();
-          break;
+        break;
         case 'event':
-        this.triggerEvent(msg);
-          break;
+          this.triggerEvent(msg);
+        break;
         default:
           this.runtime(msg.type);
-          break;
+        break;
       }
     };
+    this.load = () => {
+      try {
+        // this.reactivity = false;
+        Object.entries(component.data).forEach(([key, value]) => {
+          this.proxy[key] = value;
+        });
+        // this.reactivity = true;
+      } catch (e) {
+        console.error(e)
+      }
+    };
+    this.renderGlobalCTX = () => {
+      try {
+        this.renderContexts();
+        /*
+        this.send({
+          id: this.id,
+          type: 'render-context',
+        });
+        */
+      } catch(e) {
+        console.error(e)
+      }
+    }
+    this.proxy = getProxy.bind(this)();
+    this.setGetContext();
     this.setTextNodes();
     this.render(querySelector);
+    this.renderGlobalCTX();
     this.runtime('o-init');
-    this.startRenderForDirective();
     this.renderSubComp();
   } catch(ComponentException) {
     console.error(ComponentException);

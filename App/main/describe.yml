@@ -5,12 +5,8 @@ data:
   limit: 11
   lastname: null
   firstname: null
-  users: 
-    - lol
-    - lol2
-    - - test
-      - test2
-      - test3
+  tests: []
+  users: []
 modules:
   axios: axios
   path: path

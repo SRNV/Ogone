@@ -39,7 +39,7 @@ module.exports = function(event) {
             return `${key}="${value}"`
           })
         }
-        const element = `<${name} %%id%% ${component.uuid} ${attrs.join(' ')}>${childs.flat().join(' ')}</${name}>`
+        const element = `<${name} %%id%% ${this.item.uuid} ${attrs.join(' ')}>${childs.flat().join(' ')}</${name}>`
         // direct rendering with $$ references
         if (attr) {
           const ref = Object.entries(attr).find(([key]) => key.slice(0, 2) === '$$');
@@ -54,15 +54,33 @@ module.exports = function(event) {
         throw e;
       }
     };
+    const oSetInterval = (fn, time, ...args) => {
+      const interval = setInterval(fn, time, ...args);
+      this.intervals.push(interval);
+      return interval;
+    };
+    const oSetTimeout = (fn, time, ...args) => {
+      const timeout = setTimeout(fn, time, ...args);
+      this.timeouts.push(timeout);
+      return timeout;
+    };
+    const oSetImmediate = (fn, time, ...args) => {
+      const immediate = setImmediate(fn, time, ...args);
+      this.immediates.push(immediate);
+      return immediate;
+    };
     const oc = this;
     const Watcher = function(prop, w){
       oc.watchers[prop] = w;
     };
     this.item.scripts[event].bind(this.proxy)(
+      this.modules,
       Pragma, 
       Render,
       Watcher,
-      this.modules);
+      oSetInterval,
+      oSetTimeout,
+      oSetImmediate);
   } catch(e) {
     throw e;
   }

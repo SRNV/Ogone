@@ -1,15 +1,31 @@
 <div>
-  <span o-for="users:(userid, i)">
-      <span o-for="userid:(names, o)">
-        </span>
-  </span>
-  <div ref="report"></div>
+  <div o-for="users as (userid)">
+    ${ userid.firstname + '' + userid.lastname }
+  </div>
 </div>
+<div ref="report"></div>
 <script o-init>
   const { getTableUser } = Modules;
+  this.tests = [];
     getTableUser()
       .then((res) => {
-        this.users = res.rows;
+        this.count++;
+        // this.users = res.rows;
+        this.users .push({
+          firstname: 'test',
+          lastname: 'test2',
+        });
       })
       .catch((err) => <div $$report> error get tableUser {err} </div>);
+      this.interval = setInterval(() => {
+        this.users.push({
+          firstname: 'test',
+          lastname: 'test2',
+        });
+        this.tests.push(2);
+      }, 7000);
+</script>
+<script o-close>
+  this.tests = [];
+  this.users = [];
 </script>

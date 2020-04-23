@@ -1,3 +1,4 @@
-module.exports = function renderApp(template, styles, id) {
-  return template.replace(/%%styles%%/, styles).replace(/%%id%%/gi, id);
+module.exports = function renderApp(template, id) {
+  return template
+    .replace(/%%id%%/gi, id);
 };

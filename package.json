@@ -7,6 +7,7 @@
     "@babel/plugin-transform-typescript": "^7.9.4",
     "@segment/clear-intervals": "^2.0.0",
     "axios": "^0.19.2",
+    "es6-template-strings": "^2.0.1",
     "express": "^4.17.1",
     "express-ws": "^4.0.0",
     "express-ws-routes": "^1.1.0",
@@ -21,13 +22,16 @@
     "string": "^3.3.3",
     "ts-loader": "^6.0.4",
     "typescript": "^3.5.3",
+    "universal-observer": "^1.0.1",
     "uuid-node": "^1.0.1",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.5",
     "webpack-dev-server": "^3.7.1",
     "yaml": "^1.8.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "object-observer": "^2.9.3"
+  },
   "scripts": {
     "dev": "nodemon -e js,html,yml,json index.js"
   },

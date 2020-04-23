@@ -1,3 +1,5 @@
+const S = require('string');
+
 module.exports = function() {
   const texts = this.item.dom.filter((item) => item.type === 3 && item.rawText.length);
   texts.forEach((t) => {
@@ -15,16 +17,15 @@ module.exports = function() {
     }
   });
   this.textNodes.forEach((el) => {
+    if (S(el.rawText).between('\${', '\}').s.length) {
+      el.binded = true;
+    } else {
+      el.binded = false;
+    }
     el.data = el.rawText;
-    const text = (function() {
-      try {
-        const val = eval(`\`${el.rawText}\``)
-        return val;
-      } catch(e) {
-        throw e;
-      }
-    }).bind(this.proxy)();
-    el.rawText = text;
-    el.text = text;
+    if (!el.binded) return;
+    this.getContext[el.querySelector](`\`${el.rawText}\``, null, (result, arr, idEl) => {
+      el.text = el.rawText;
+    })
   });
 }
