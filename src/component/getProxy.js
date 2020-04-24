@@ -17,13 +17,12 @@ module.exports = function() {
       const oldValue = obj[prop];
       if (Array.isArray(value)) {
         finalValue = observe(value, (chn) => {
-          this.renderGlobalCTX();
+          this.renderContexts();
         });    
       }
       obj[prop] = finalValue;
       if (Array.isArray(value)) {
-        this.renderGlobalCTX();
-
+        this.renderContexts();
       }
       if (!this.reactivity) return true;
       if (prop in this.watchers && typeof this.watchers[prop] === 'function') {

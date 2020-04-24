@@ -32,6 +32,7 @@ module.exports = function oRenderDOM(
     limit: 0,
     ctx: {},
     script: [],
+    getLengthDeclaration: '',
     declarationScript: [],
     callbackDeclaration: '' }) {
   try {
@@ -43,12 +44,16 @@ module.exports = function oRenderDOM(
     if (node.tagName) {
       node.setAttribute(nUuid, '');
       node.setAttribute(component.uuid, '');
+      node.nuuid = nUuid;
       query = `${structure} [${nUuid}]`.trim();
     } else {
       query = `${structure}`.trim();
     }
     if (legacy) {
       contextLegacy = Object.assign(legacy, {});
+    }
+    if (query.length && node.parentNode ===  null && !contextLegacy.tree.length) {
+      contextLegacy.tree.push(`'[${nUuid}-0]'`);
     }
     if (component.data && node.nodeType === 3) {
       const data = node.rawText;
@@ -95,8 +100,10 @@ module.exports = function oRenderDOM(
               });
               break;
             case directive === 'o-for':
+            console.warn(onevent)
               const oForDirective = oRenderForDirective(onevent);
               const { item, index, array, limit, exitVariable } = oForDirective;
+              node.oForDirective = oForDirective;
               if (legacy.ctx[item]) {
                 const ItemNameAlreadyInUseException = new Error(`[Ogone] '${item}' is already defined in the template, as item`);
                 throw ItemNameAlreadyInUseException;
@@ -107,6 +114,12 @@ module.exports = function oRenderDOM(
               }
               legacy.ctx[index] = true;
               legacy.ctx[item] = oForDirective;
+              contextLegacy.getLengthDeclaration = `
+                if (GET_LENGTH) {
+                  GET_LENGTH(${array}.length);
+                  return;
+                }
+              `;
               const pointer = array;
               const declarationScript = [`${pointer in component.data ? `const ${pointer} = this.${pointer}; ` : ''}
                 let ${index} = 0, ${item} = ${array}[${index}];
@@ -135,7 +148,7 @@ module.exports = function oRenderDOM(
               }
               const queryFn = `{
                 idElement: '${nUuid}',
-                id: [${contextLegacy.tree.map(q=>`"${q}"`).join()}].map((query) => (function(){ return eval(query)}).bind(CTX__)()).join(' '),
+                uuid: [${contextLegacy.tree.map(q=>`"${q}"`).join()}].map((query) => (function(){ return eval(query)}).bind(CTX__)()).join(' '),
                 parentId: [${contextLegacy.tree.map(q=>`"${q}"`).join()}].map((query) => (function(){ return eval(query)}).bind(CTX__)()).slice(0, ${contextLegacy.tree.length-1}).join(' '),
               }`;
               contextLegacy.callbackDeclaration = `
@@ -157,7 +170,9 @@ module.exports = function oRenderDOM(
               contextLegacy.resolveCallback = `
                 if (RESOLVE_CALLBACK) {
                   const CTX__ = ${ctx};
-                  RESOLVE_CALLBACK(CTX__, ${array}, '${nUuid}');
+                  const QUERY__ = ${queryFn};
+                  const RESULT__ = eval(EVALUATED__);
+                  RESOLVE_CALLBACK(RESULT__, ${item}, ${index}, CTX__, QUERY__, ${array}, '${nUuid}');
                 }
                 `;
               payload.push(oForDirective);
@@ -196,6 +211,7 @@ module.exports = function oRenderDOM(
           contextLegacy.script[length - 1] += contextLegacy.callbackDeclaration;
         }
         if (contextLegacy.script.length) {
+          contextLegacy.declarationScript[contextLegacy.declarationScript.length-1] += contextLegacy.getLengthDeclaration;
           contextLegacy.script = contextLegacy.declarationScript.concat(
             contextLegacy.script);
           const loopKeyCloseScript = `
@@ -208,7 +224,7 @@ module.exports = function oRenderDOM(
              ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
           contextLegacy.script = {
             value,
-            arguments: ['EVALUATED__','CALLBACK', 'RESOLVE_CALLBACK', 'LIM'],
+            arguments: ['EVALUATED__','CALLBACK', 'RESOLVE_CALLBACK', 'GET_LENGTH', 'LIM'],
           };
           component.for[query] = contextLegacy;
         }

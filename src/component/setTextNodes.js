@@ -23,8 +23,16 @@ module.exports = function() {
       el.binded = false;
     }
     el.data = el.rawText;
-    if (!el.binded) return;
-    this.getContext[el.querySelector](`\`${el.rawText}\``, null, (result, arr, idEl) => {
+    // if (!el.binded) return;
+    this.getContext[el.querySelector](`\`${el.rawText}\``, (result, item, index, ctx, ids, arr) => {
+      this.send({
+        ...ids,
+        type: 'text',
+        position: `${ids.uuid} ${el.id}`,
+        id: this.id,
+        textId: el.id,
+        value: result,
+      });
       el.text = el.rawText;
     })
   });

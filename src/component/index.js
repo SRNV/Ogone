@@ -50,8 +50,6 @@ function OComponent(entrypoint, querySelector, o, websocket) {
       switch(msg.type) {
         case 'load':
           this.load();
-          this.renderGlobalCTX();
-          console.warn('test load')
         break;
         case 'o-inserted':
           this.sendEvents();
@@ -75,24 +73,13 @@ function OComponent(entrypoint, querySelector, o, websocket) {
         console.error(e)
       }
     };
-    this.renderGlobalCTX = () => {
-      try {
-        this.renderContexts();
-        /*
-        this.send({
-          id: this.id,
-          type: 'render-context',
-        });
-        */
-      } catch(e) {
-        console.error(e)
-      }
-    }
     this.proxy = getProxy.bind(this)();
     this.setGetContext();
+    this.renderContexts();
     this.setTextNodes();
+    
+    // rendering the component
     this.render(querySelector);
-    this.renderGlobalCTX();
     this.runtime('o-init');
     this.renderSubComp();
   } catch(ComponentException) {

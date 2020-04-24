@@ -14,4 +14,5 @@ module.exports = {
   pragma: `o${uuid.generateUUID().split('-')[0]}`,
   onmessage: [],
   onclose: [],
+  frontScripts: [],
 };

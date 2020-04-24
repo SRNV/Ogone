@@ -1,6 +1,107 @@
 <html>
   <head> 
       %%styles%%
+      <script>
+          const Ogone = {
+            render: [],
+            events: [],
+            styles: [],
+            templates: {},
+          };
+        function NodeManager(component, node, opts) {
+          this.state = 3;
+            /*
+              3 created
+              2 paused
+              1 node has parentNode
+              0 dead
+            */
+          this.type = opts.type;
+          this.isRootNode = !opts.querySelector.length;
+          this.parentId = opts.parentId;
+          this.templateId = opts.templateId;
+          this.templateUuid = opts.templateUuid;
+          this.querySelector = opts.querySelector;
+          this.uuid = opts.uuid;
+          this.component = component;
+          this.node = node;
+          this.nodes = [node];
+          this.array = opts.array;
+          this.componentUuid = opts.componentUuid;
+          this.placeholder = new Comment('');
+          this.position = `${this.parentId} [${this.uuid}]`;
+          this.texts = {};
+          if (this.isRootNode) {
+            this.component.nms.root = this;
+          } else {
+            this.component.nms[`${this.parentId} [${this.uuid}]`] = this;
+          }
+        }
+        NodeManager.prototype.render = function() {
+          if (this.state !== 1 || this.component.arrays[this.querySelector] === undefined) return;
+          while (this.nodes.length > this.component.arrays[this.querySelector]) {
+            if (this.nodes.length === 1) {
+              const firstEl = this.nodes[0];
+              if (firstEl) {
+                const { parentNode } = firstEl;
+                parentNode.insertBefore(this.placeholder, firstEl);
+              }
+            }
+            const removedEl = this.nodes.pop();
+            removedEl.remove();
+          }
+          if (this.nodes.length < this.component.arrays[this.querySelector]) {
+            if (this.nodes.length === 1) {
+              this.nodes[0].replaceWith(this.placeholder);
+              this.nodes.shift();
+            }
+          }
+          while (this.nodes.length < this.component.arrays[this.querySelector]) {
+            Ogone.templates[`${this.templateId}`](this.component, {
+              nodeManager: this,
+              hasNodeManager: false, 
+              index: this.nodes.length,
+              parentId: this.parentId,
+              callback: (el, uuid) => {
+                if (this.nodes.length === 0) {
+                  this.placeholder.replaceWith(el);
+                } else {
+                  this.nodes[this.nodes.length-1].insertAdjacentElement('afterend', el);
+                }
+                this.nodes.push(el);
+                this.component.nms[`${this.parentId} [${uuid}]`] = this;
+              }, 
+            });  
+          }
+        }
+        NodeManager.prototype.addEventListeners = function() {
+        }
+        NodeManager.prototype.update = function() {
+          // manage NM states and force render
+          switch(true) {
+            case this.state === 3 /* created */
+              && !this.isRootNode:
+              this.state = 1; /* inserted */
+              this.render();
+              this.getTexts();
+              this.addEventListeners();
+            break;
+            case this.state === 1 && !this.isRootNode:
+              this.render();
+            break;
+          }
+        }
+        NodeManager.prototype.getTexts = function() {
+          // get nm text
+          Object.entries(this.texts).forEach(([key, textnode]) => {
+            const text = this.component.texts[key];
+            if (text && text.value !== textnode.data) {
+              textnode.data = text.value;
+            }
+          })
+        }
+      </script>
+      %%scripts%%
   </head>
   <body>
     <div id="app"></div>
@@ -9,8 +110,11 @@
       const components = {};
       function OComponent(ws) {
         this.ws = ws;
-        this.contexts = new Map();
+        this.contexts = {};
         this.context = {};
+        this.nms = {}; /* NodeManager{} */
+        this.events = {}; /* events describers */
+        this.arrays = {}; /* data describer o-for */
         this.send = (json) => {
           this.ws.send(JSON.stringify(json));
         };
@@ -26,6 +130,9 @@
               break;
             case 'text':
               this.renderText(ev);
+              break;
+            case 'array':
+              this.useArray(ev);
               break;
             case 'render':
               this.renderDirectRender(ev);
@@ -43,6 +150,15 @@
               break;
           }
         }
+        this.update = () => {
+          const nms = Object.values(this.nms);
+          nms.filter((nm) => nm.state).reverse().forEach((nm) => {
+            nm.update();
+          });
+        }
+        this.useArray = (ev) => {
+          this.arrays[ev.querySelector] = ev.length;
+        };
         this.readContext = (ev) => {
           if (this.contexts.has(ev.querySelector)) {
             const item = this.contexts.get(ev.querySelector);
@@ -53,68 +169,61 @@
         }
         this.renderContext = (item) => {
           if (!item) return;
-          this.contexts.forEach((ctx) => {
-            const ctxId = `context:${ctx.querySelector}:template`;
-            let templateElement;
-            if (this.context[ctxId] && ctx.length === this.context[ctxId].nodes.length || !this.rootNode) return;
-            if (!this.context[ctxId]) {
-              this.context[ctxId] = {
-                length: ctx.length,
+          if (this.rootNode) {
+            if (!this.contexts[item.templateQuerySelector]) {
+              this.contexts[item.templateQuerySelector] = {
                 nodes: [],
-                template: null,
-                placeHolder: new Comment(''),
+                placeholder: new Comment('')
               };
-              this.rootNode.every((c) => {
-                templateElement = c.querySelector(ctx.querySelector);
-                if (templateElement) {
-                  this.context[ctxId].template = templateElement;
-                  this.context[ctxId].nodes.push(templateElement);
-                  const query = `${ctx.idElement}-0`;
-                  this.setTextOfNode(templateElement);
-                  templateElement.setAttribute(query, '');
-                  return;
-                }
-              });
             }
-            for(let a = ctx.length, i = this.context[ctxId].nodes.length; i > a; i-- ) {
-              const node = this.context[ctxId].nodes[i-1];
-              if (node) {
-                if (i === 1 && this.context[ctxId].nodes[0].parentNode) {
-                  this.context[ctxId].nodes[0].parentNode
-                    .insertBefore(this.context[ctxId].placeHolder, this.context[ctxId].nodes[0]);
-                }
-                node.remove();
-                this.context[ctxId].nodes.pop();
-              } else {
-                break;
-              }
-            }
-            if (this.context[ctxId].template) {
-              if (ctx.length) {
-                if (!this.context[ctxId].nodes.length) {
-                  for(let i = 0; i < ctx.length; i++) {
-                    const newNode = this.context[ctxId].template.cloneNode(true);
-                    const query = `${ctx.idElement}-${i}`;
-                    this.setTextOfNode(newNode);
-                    newNode.setAttribute(query, '');
-                    if (i) newNode.removeAttribute(`${ctx.idElement}-0`);
-                    this.context[ctxId].nodes.push(newNode);
-                  }
-                  this.context[ctxId].placeHolder.replaceWith(
-                    ...this.context[ctxId].nodes);
-                } else {
-                  for(let i = this.context[ctxId].nodes.length; i < ctx.length; i++) {
-                    const newNode = this.context[ctxId].template.cloneNode(true);
-                    this.setTextOfNode(newNode);
-                    newNode.setAttribute(`${ctx.idElement}-${i}`, '');
-                    if (i) newNode.removeAttribute(`${ctx.idElement}-0`);
-                    this.context[ctxId].nodes.push(newNode);
-                    this.context[ctxId].nodes[i-1].insertAdjacentElement('afterend', newNode);
-                  }
+            const context = this.contexts[item.templateQuerySelector];
+            while (context.nodes.length > item.length) {
+              if (context.nodes.length === 1) {
+                const firstEl = context.nodes[0];
+                if (firstEl) {
+                  const { parentNode } = firstEl;
+                  parentNode.insertBefore(context.placeholder, firstEl);
                 }
               }
+              const removedEl = context.nodes.pop();
+              removedEl.remove();
             }
-          });
+            if (!item.length) return;
+            this.rootNode.every((child) => {
+              const parentNode = item.parentId.length ? child.querySelector(item.parentId) : child;
+              if (parentNode) {
+                const query = `${item.idElement}-${item.index}`;
+                const [ newel ] = this.renderElements(item.html);
+                newel.setAttribute(query, '');
+                const alreadyRendered = parentNode.querySelector(item.querySelector);
+                if (!alreadyRendered) {
+                  const temp = parentNode.querySelector(item.templateQuerySelector);
+                  if (temp && temp.parentNode && item.length === 0) {
+                    temp.replaceWith(context.placeholder);
+                    return;
+                  }
+                  if (item.index === 0) {
+                    if (temp) {
+                      temp.replaceWith(newel);
+                      context.nodes[item.index] = newel;
+                    } else {
+                      context.placeholder.replaceWith(newel);
+                      context.nodes[item.index] = newel;
+                    }
+                  }
+                  if (context.nodes[item.index-1] && item.index !== 0) {
+                    const el = context.nodes[item.index-1];
+                    el.insertAdjacentElement('afterend', newel);
+                    context.nodes[item.index] = newel;
+                  }
+                } else if (alreadyRendered.outerHTML !== newel.outerHTML) {
+                  alreadyRendered.replaceWith(newel);
+                  context.nodes[item.index] = newel;
+                }
+                return;
+              }
+            })
+          }
         };
         this.renderBindEvent = (ev) => {
           const el = this.rootNode.querySelector(ev.querySelector);
@@ -131,14 +240,15 @@
           if (!item) return;
           if (item.html && this.rootNode) {
             this.rootNode.innerHTML = '';
-            const childNodes = this.renderElements(item.html);
-            childNodes.forEach((child) => {
-              child.setAttribute(item.attr, '');
-              child.setAttribute(item.id, '');
-              this.setTextOfNode(child);
+            Ogone.templates[item.attr](this, {
+              hasNodeManager: true,
+              NodeManager: null,
+              index: 0,
+              callback: (template) => {
+                this.rootNode.replaceWith(...template.childNodes);
+              },
             });
-            this.rootNode.replaceWith(...childNodes);
-            this.rootNode = childNodes;
+            this.update();
             this.send({
               type: 'o-inserted',
               id: this.id,
@@ -147,12 +257,7 @@
         }
         this.renderText = (item) => {
           if (!item) return;
-          const sameTextnode = this.texts.find((t) => t.querySelector === item.querySelector && t.textId === item.textId);
-          if (sameTextnode) {
-            sameTextnode.value = item.value;
-          } else {
-            this.texts.push(item);
-          }
+          this.texts[item.position] = item;
         }
         this.setTextOfNode = (node) => {
           const texts = this.texts.filter((text) => node.matches(text.querySelector));
@@ -199,42 +304,17 @@
         this.renderEvents = (item) => {
           if (!item) return;
           if (item.events.length) {
-           this.rootNode.every((child) => {
             item.events.forEach((event) => {
-              const subEl = child.querySelector(`[${this.id}] ${event.querySelector.trim()}`);
-              if (subEl) {
-                event.directives.forEach((dir) => {
-                  let eventName = dir[0];
-                  switch(eventName) {
-                    case 'model':
-                      eventName = 'input';
-                      break;
-                  }
-                  subEl.addEventListener(eventName, (ev) => {
-                    if (this.ws.readyState !== 1) return;
-                    this.send({
-                      event: dir[0],
-                      id: this.id,
-                      querySelector: event.querySelector,
-                      value: subEl.value,
-                      type: 'event',
-                    });
-                  });
-                });
-              }
+              const { querySelector } = event;
+              if (!this.events[querySelector]) this.events[querySelector] = [];
+              this.events[querySelector].push(event);
             });
-           }) 
           }
         };
       }
     </script>
     <script>
       const $APPWS_REPLACED_VAR$___ = new WebSocket(`ws://${host}/%%id%%`);
-      const Ogone = {
-        render: [],
-        events: [],
-        styles: []
-      };
       $APPWS_REPLACED_VAR$___.onopen = () => {
         $APPWS_REPLACED_VAR$___.send(JSON.stringify({ type: 'load' }));
       };

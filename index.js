@@ -29,8 +29,10 @@ oStartRenderingDOM();
 
 const styles = Array.from(Ogone.components.entries()).map(([p, component]) => component.style.join('\n'));
 const style = `<style>${styles.join('\n')}</style>`;
+const frontScripts = `<script>${Ogone.frontScripts.join('\n')}</script>`;
 template = template
   .replace(/%%styles%%/, style)
+  .replace(/%%scripts%%/, frontScripts)
   .replace(/\$APPWS_REPLACED_VAR\$___/gi, appVarName);
 app.use((req, res, next) => {
   if (req.method === 'WEBSOCKET') {
