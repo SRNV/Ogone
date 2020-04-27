@@ -22,7 +22,6 @@ function OComponent(entrypoint, querySelector, o, websocket) {
     this.item = Object.assign(component, {});
     this.rootNode = parse(this.item.rootNodePure.toString());
     this.data = { ...this.item.data };
-    this.modules = component.modules;
     this.textNodes = [];
     this.watchers = {};
     this.reactivity = true;
@@ -74,14 +73,14 @@ function OComponent(entrypoint, querySelector, o, websocket) {
       }
     };
     this.proxy = getProxy.bind(this)();
-    this.setGetContext();
-    this.renderContexts();
-    this.setTextNodes();
+    this.render(querySelector);
+    // this.setGetContext();
+    // this.renderContexts();
+    // this.setTextNodes();
     
     // rendering the component
-    this.render(querySelector);
-    this.runtime('o-init');
-    this.renderSubComp();
+    // this.runtime('o-init');
+    // this.renderSubComp();
   } catch(ComponentException) {
     console.error(ComponentException);
   }

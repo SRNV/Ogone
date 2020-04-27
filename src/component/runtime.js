@@ -74,7 +74,6 @@ module.exports = function(event) {
       oc.watchers[prop] = w;
     };
     this.item.scripts[event].bind(this.proxy)(
-      this.modules,
       Pragma, 
       Render,
       Watcher,

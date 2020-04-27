@@ -16,9 +16,6 @@ module.exports = function oRenderForDirective(directiveValue) {
     index: index ? index : `i${uuid.generateUUID().split('-')[0]}`,
     item,
     array: arrayName,
-    evaluated: `${arrayName}[${index}]`,
     content: directiveValue,
-    limit: `l${uuid.generateUUID().split('-')[0]}`,
-    exitVariable: `ex${uuid.generateUUID().split('-')[0]}`,
   };
 }

@@ -1,6 +1,6 @@
 const S = require('string');
 
-module.exports = function() {
+module.exports = function setTextNodes() {
   const texts = this.item.dom.filter((item) => item.type === 3 && item.rawText.length);
   texts.forEach((t) => {
     const query = t.querySelector.trim();
@@ -23,8 +23,10 @@ module.exports = function() {
       el.binded = false;
     }
     el.data = el.rawText;
-    // if (!el.binded) return;
+    //if (!el.binded) return;
+    let globalTexts = [];
     this.getContext[el.querySelector](`\`${el.rawText}\``, (result, item, index, ctx, ids, arr) => {
+      /*
       this.send({
         ...ids,
         type: 'text',
@@ -33,7 +35,14 @@ module.exports = function() {
         textId: el.id,
         value: result,
       });
-      el.text = el.rawText;
+      */
+     globalTexts.push([`${ids.uuid} ${el.id}`, result]);
+    }, () => {
+      this.send({
+        type: 'init-text',
+        id: this.id,
+        globalTexts,
+      });
     })
   });
 }

@@ -6,6 +6,7 @@
   "dependencies": {
     "@babel/plugin-transform-typescript": "^7.9.4",
     "@segment/clear-intervals": "^2.0.0",
+    "acorn": "^7.1.1",
     "axios": "^0.19.2",
     "es6-template-strings": "^2.0.1",
     "express": "^4.17.1",

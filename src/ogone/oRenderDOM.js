@@ -32,7 +32,8 @@ module.exports = function oRenderDOM(
     limit: 0,
     ctx: {},
     script: [],
-    getLengthDeclaration: '',
+    getLengthDeclarationAfterArrayEvaluation: '',
+    getLengthDeclarationBeforeArrayEvaluation: '',
     declarationScript: [],
     callbackDeclaration: '' }) {
   try {
@@ -100,9 +101,8 @@ module.exports = function oRenderDOM(
               });
               break;
             case directive === 'o-for':
-            console.warn(onevent)
               const oForDirective = oRenderForDirective(onevent);
-              const { item, index, array, limit, exitVariable } = oForDirective;
+              const { item, index, array, } = oForDirective;
               node.oForDirective = oForDirective;
               if (legacy.ctx[item]) {
                 const ItemNameAlreadyInUseException = new Error(`[Ogone] '${item}' is already defined in the template, as item`);
@@ -114,67 +114,17 @@ module.exports = function oRenderDOM(
               }
               legacy.ctx[index] = true;
               legacy.ctx[item] = oForDirective;
-              contextLegacy.getLengthDeclaration = `
+              const getLengthScript = `
                 if (GET_LENGTH) {
-                  GET_LENGTH(${array}.length);
-                  return;
+                  return (${array}).length;
                 }
               `;
-              const pointer = array;
-              const declarationScript = [`${pointer in component.data ? `const ${pointer} = this.${pointer}; ` : ''}
-                let ${index} = 0, ${item} = ${array}[${index}];
-                let ${exitVariable} = false;
-                let ${exitVariable}2 = false;
-                const ${limit} = LIM ? LIM[${contextLegacy.limit}] : null;`];
-              const loopKeyOpenScript = `
-                  let ${index}fe = 0;
-                  for (let ${item}fe of Array.from(${array})) {
-                    if (${exitVariable} === false) {
-                      ${index} = ${index}fe;
-                      ${item} = ${item}fe;
-                    }
-                    if (LIM && ${index}fe === ${limit}) {
-                      ${exitVariable} = true;
-                    }
-                    ${index}fe++;
-                `;
-              const ctx = `{ ${Object.keys(contextLegacy.ctx)} }`;
+              contextLegacy.getLengthDeclarationBeforeArrayEvaluation = getLengthScript;
+              const declarationScript = [`
+                let ${index} = POSITION[${contextLegacy.limit}+1],
+                ${item} = (${array})[${index}];`];
+
               contextLegacy.declarationScript = contextLegacy.declarationScript.concat(declarationScript);
-              contextLegacy.script.push(loopKeyOpenScript);
-              contextLegacy.limit+= +1;
-              const evaluatedQuery = `'[${nUuid}-'+\`$\{this.${index}\}\`+']'`;
-              if (query.length && !contextLegacy.tree.includes(evaluatedQuery)) {
-                contextLegacy.tree.push(evaluatedQuery);
-              }
-              const queryFn = `{
-                idElement: '${nUuid}',
-                uuid: [${contextLegacy.tree.map(q=>`"${q}"`).join()}].map((query) => (function(){ return eval(query)}).bind(CTX__)()).join(' '),
-                parentId: [${contextLegacy.tree.map(q=>`"${q}"`).join()}].map((query) => (function(){ return eval(query)}).bind(CTX__)()).slice(0, ${contextLegacy.tree.length-1}).join(' '),
-              }`;
-              contextLegacy.callbackDeclaration = `
-                    if (LIM) {
-                      if (${index}fe === ${limit}  && !${exitVariable}2 && CALLBACK) {
-                        const CTX__ = ${ctx};
-                        const QUERY__ = ${queryFn};
-                        const RESULT__ = eval(EVALUATED__);
-                        CALLBACK(RESULT__, ${item}, ${index}, CTX__, QUERY__, ${array});
-                        ${exitVariable}2 = true;
-                      }
-                    } else if (CALLBACK) {
-                      const CTX__ = ${ctx};
-                      const QUERY__ = ${queryFn};
-                      const RESULT__ = eval(EVALUATED__);
-                      CALLBACK(RESULT__, ${item}, ${index}, CTX__, QUERY__, ${array});
-                    }
-              `;
-              contextLegacy.resolveCallback = `
-                if (RESOLVE_CALLBACK) {
-                  const CTX__ = ${ctx};
-                  const QUERY__ = ${queryFn};
-                  const RESULT__ = eval(EVALUATED__);
-                  RESOLVE_CALLBACK(RESULT__, ${item}, ${index}, CTX__, QUERY__, ${array}, '${nUuid}');
-                }
-                `;
               payload.push(oForDirective);
               break;
             default:
@@ -192,6 +142,9 @@ module.exports = function oRenderDOM(
         node.removeAttribute('ref');
       }
     }
+    if (node.tagName) {
+      contextLegacy.limit+= +1;
+    }
     if(domDirective.directives.length) component.directives.push(domDirective);
     if (id !== null) component.dom.push(dom);
     if (node.childNodes.length) {
@@ -201,33 +154,18 @@ module.exports = function oRenderDOM(
             ...contextLegacy,
             ctx: {...contextLegacy.ctx },
             tree: [...contextLegacy.tree],
-            script: [...contextLegacy.script],
             declarationScript: [...contextLegacy.declarationScript],
             callbackDeclaration: '',
           });
         });
-        if (contextLegacy.callbackDeclaration && contextLegacy.callbackDeclaration.length) {
-          const { length } = contextLegacy.script;
-          contextLegacy.script[length - 1] += contextLegacy.callbackDeclaration;
-        }
-        if (contextLegacy.script.length) {
-          contextLegacy.declarationScript[contextLegacy.declarationScript.length-1] += contextLegacy.getLengthDeclaration;
-          contextLegacy.script = contextLegacy.declarationScript.concat(
-            contextLegacy.script);
-          const loopKeyCloseScript = `
-                }
-          `;
-          for(i = 0, a = contextLegacy.script.length / 2; i < a; i++) {
-            contextLegacy.script.push(loopKeyCloseScript);
-          }
-          const value = `${contextLegacy.script.join('')}
-             ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
-          contextLegacy.script = {
-            value,
-            arguments: ['EVALUATED__','CALLBACK', 'RESOLVE_CALLBACK', 'GET_LENGTH', 'LIM'],
-          };
-          component.for[query] = contextLegacy;
-        }
+        contextLegacy.declarationScript[0] = contextLegacy.getLengthDeclarationBeforeArrayEvaluation + contextLegacy.declarationScript[0];
+        const value = `${contextLegacy.declarationScript.join('')}
+            ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
+        contextLegacy.script = {
+          value,
+          arguments: ['EVALUATED__','CALLBACK', 'RESOLVE_CALLBACK', 'GET_LENGTH', 'LIM'],
+        };
+        component.for[query] = contextLegacy;
     }
   } catch(oRenderDOMException) {
     console.error(oRenderDOMException)

@@ -17,6 +17,7 @@ module.exports = function() {
       const oldValue = obj[prop];
       if (Array.isArray(value)) {
         finalValue = observe(value, (chn) => {
+          this.setTextNodes();
           this.renderContexts();
         });    
       }

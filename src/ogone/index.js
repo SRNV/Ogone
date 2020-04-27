@@ -11,8 +11,10 @@ module.exports = {
   components: new Map(),
   main: path.join(process.cwd(), config.entrypoint),
   sockets: [],
-  pragma: `o${uuid.generateUUID().split('-')[0]}`,
+  pragma: 'self.h',
   onmessage: [],
   onclose: [],
-  frontScripts: [],
+  templates: [],
+  contexts: [],
+  datas: [],
 };

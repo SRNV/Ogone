@@ -21,7 +21,7 @@ module.exports = function oRender() {
         style: false
       });
       let data = null;
-      let modules = {};
+      let services = {};
       const pathToData = path.join(dir, 'describe.yml');
       if (fs.existsSync(pathToData)) {
         const dataYML = fs.readFileSync(pathToData, { encoding: 'utf8' });
@@ -29,20 +29,20 @@ module.exports = function oRender() {
         if (description.data) {
           data = description.data;
         }
-        if (description.modules) {
-          Object.entries(description.modules)
+        if (description.services) {
+          Object.entries(description.services)
             .forEach(([name, p]) => {
               const pathToModule =path.join(dir, p);
               const pathToNodeModules =path.join(process.cwd(), './node_modules', p);
               switch(true) {
                 case fs.existsSync(pathToModule): 
-                  modules[name] = require(pathToModule);
+                  services[name] = require(pathToModule);
                   break;
                 case fs.existsSync(pathToNodeModules):
-                  modules[name] = require(pathToNodeModules);
+                  services[name] = require(pathToNodeModules);
                   break;
                 default:
-                  modules[name] = require(p);
+                  services[name] = require(p);
                   break;
               }
             })
@@ -55,7 +55,7 @@ module.exports = function oRender() {
         rootNode,
         rootNodePure,
         data,
-        modules,
+        services,
         style: [],
         scripts: {},
         dom: [],

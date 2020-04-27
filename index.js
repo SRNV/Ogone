@@ -20,7 +20,6 @@ const appVarName = `${uuid.generateUUID().replace(/[^a-zA-Z]/gi, '')}`;
 oInspect();
 oRender();
 oTopLevelTextNodeException();
-oTopLevelForDirectiveException();
 oCleanPureRootNode();
 oRenderImports();
 oRenderStyles();
@@ -29,11 +28,26 @@ oStartRenderingDOM();
 
 const styles = Array.from(Ogone.components.entries()).map(([p, component]) => component.style.join('\n'));
 const style = `<style>${styles.join('\n')}</style>`;
-const frontScripts = `<script>${Ogone.frontScripts.join('\n')}</script>`;
+const rootComponent =  Ogone.components.get(Ogone.main);
+const DOM = `<script>
+  ${Ogone.datas.join('\n')}
+  ${Ogone.contexts.join('\n')}
+  ${Ogone.templates.join('\n')}
+</script>`;
+const firstInstanciation = `
+          const root = new Ogone.components['${rootComponent.uuid}'](${appVarName});
+          root.read({
+            id: 'root',
+            attr: '${rootComponent.uuid}',
+            type: 'component',
+            querySelector: '#app',
+          });
+`;
 template = template
   .replace(/%%styles%%/, style)
-  .replace(/%%scripts%%/, frontScripts)
-  .replace(/\$APPWS_REPLACED_VAR\$___/gi, appVarName);
+  .replace(/%%scripts%%/, DOM)
+  .replace(/\$APPWS_REPLACED_VAR\$___/gi, appVarName)
+  .replace(/\/\/%%on-open%%/gi, firstInstanciation);
 app.use((req, res, next) => {
   if (req.method === 'WEBSOCKET') {
     next();
@@ -44,11 +58,11 @@ app.use((req, res, next) => {
   router.sockets = [];
   router.websocket(`/${req.oid}`, (info, cb, next, ) => {
     cb((ws) => {
-      new OComponent(Ogone.main, '#app', Ogone, ws);  
+      // new OComponent(Ogone.main, '#app', Ogone, ws);  
       ws.on('message', (msg) => {
         const ev = JSON.parse(msg);
         if (ev.id && ev.id in Ogone.onmessage) {
-          Ogone.onmessage[ev.id](ev);
+          // Ogone.onmessage[ev.id](ev);
         }
       });
       ws.on('close', () => {

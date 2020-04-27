@@ -1,33 +1,25 @@
-<div>
-  <div o-for="[1, 2, 3] as (userid)">
-    test
-
-<span o-for="Array.from(new Array(500)).map(function(p ,o) { return o }) as (names)"> test ${names} </span>
-    TEST
+<div o-for="users as (test)">
+  <div o-for="users as (names)"> ${names+1} </div>
+  <div o-for="users as (names)"> 
+    <div o-for="[1,2] as (ar)"> ${ar} </div>  
   </div>
 </div>
-<div ref="report"></div>
 <script o-init>
-  const { getTableUser } = Modules;
-    getTableUser()
-      .then((res) => {
-        this.count++;
-        // this.users = res.rows;
-        this.users .push({
-          firstname: 'test',
-          lastname: 'test2',
-        });
+  const { getTableUser } = Server; // back
+    getTableUser(this.users) // back
+      .then((res) => { // back
+        // front
+        this.count++; // front
+        this.users = res.rows; // front
+        
       })
-      .catch((err) => <div $$report> error get tableUser {err} </div>);
-      this.interval = setInterval(() => {
-        Math.random() > 0.5 ? this.users.push({
-          firstname: 'test',
-          lastname: 'test2',
-        }) : this.users.pop();
+      .catch((err/* back*/) => <div $$report> error get tableUser {err} </div>/* front */);
+      this.interval = setInterval(() => { // front
+        Math.random() > 0.8 ? this.users.push({ // front
+          firstname: 'test', // front
+          lastname: 'test2', // front
+        }) : this.users = []; // front
       }, 500);
       this.tests.push(2);
 </script>
-<script o-close>
-  this.tests = [];
-  this.users = [];
-</script>
+

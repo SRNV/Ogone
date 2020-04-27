@@ -22,10 +22,9 @@ module.exports = function oRenderScripts() {
         ],
       });
       const anonymousFunction = `try {\n ${code}\n} catch(AnonymousFunctionException) {\n  console.error(AnonymousFunctionException);\n}`;
-      const script = new Function('Modules', Ogone.pragma,'Render', 'Watcher', 'setInterval', 'setTimeout', 'setImmediate', anonymousFunction);
       scriptType.forEach((t) => {
         if (element.hasAttribute(t)) {
-          component.scripts[t] = script;
+          component.scripts[t] = anonymousFunction;
         }
       })
     });

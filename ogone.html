@@ -1,113 +1,11 @@
 <html>
   <head> 
       %%styles%%
-      <script>
-          const Ogone = {
-            render: [],
-            events: [],
-            styles: [],
-            templates: {},
-          };
-        function NodeManager(component, node, opts) {
-          this.state = 3;
-            /*
-              3 created
-              2 paused
-              1 node has parentNode
-              0 dead
-            */
-          this.type = opts.type;
-          this.isRootNode = !opts.querySelector.length;
-          this.parentId = opts.parentId;
-          this.templateId = opts.templateId;
-          this.templateUuid = opts.templateUuid;
-          this.querySelector = opts.querySelector;
-          this.uuid = opts.uuid;
-          this.component = component;
-          this.node = node;
-          this.nodes = [node];
-          this.array = opts.array;
-          this.componentUuid = opts.componentUuid;
-          this.placeholder = new Comment('');
-          this.position = `${this.parentId} [${this.uuid}]`;
-          this.texts = {};
-          if (this.isRootNode) {
-            this.component.nms.root = this;
-          } else {
-            this.component.nms[`${this.parentId} [${this.uuid}]`] = this;
-          }
-        }
-        NodeManager.prototype.render = function() {
-          if (this.state !== 1 || this.component.arrays[this.querySelector] === undefined) return;
-          while (this.nodes.length > this.component.arrays[this.querySelector]) {
-            if (this.nodes.length === 1) {
-              const firstEl = this.nodes[0];
-              if (firstEl) {
-                const { parentNode } = firstEl;
-                parentNode.insertBefore(this.placeholder, firstEl);
-              }
-            }
-            const removedEl = this.nodes.pop();
-            removedEl.remove();
-          }
-          if (this.nodes.length < this.component.arrays[this.querySelector]) {
-            if (this.nodes.length === 1) {
-              this.nodes[0].replaceWith(this.placeholder);
-              this.nodes.shift();
-            }
-          }
-          while (this.nodes.length < this.component.arrays[this.querySelector]) {
-            Ogone.templates[`${this.templateId}`](this.component, {
-              nodeManager: this,
-              hasNodeManager: false, 
-              index: this.nodes.length,
-              parentId: this.parentId,
-              callback: (el, uuid) => {
-                if (this.nodes.length === 0) {
-                  this.placeholder.replaceWith(el);
-                } else {
-                  this.nodes[this.nodes.length-1].insertAdjacentElement('afterend', el);
-                }
-                this.nodes.push(el);
-                this.component.nms[`${this.parentId} [${uuid}]`] = this;
-              }, 
-            });  
-          }
-        }
-        NodeManager.prototype.addEventListeners = function() {
-        }
-        NodeManager.prototype.update = function() {
-          // manage NM states and force render
-          switch(true) {
-            case this.state === 3 /* created */
-              && !this.isRootNode:
-              this.state = 1; /* inserted */
-              this.render();
-              this.getTexts();
-              this.addEventListeners();
-            break;
-            case this.state === 1 && !this.isRootNode:
-              this.render();
-            break;
-          }
-        }
-        NodeManager.prototype.getTexts = function() {
-          // get nm text
-          Object.entries(this.texts).forEach(([key, textnode]) => {
-            const text = this.component.texts[key];
-            if (text && text.value !== textnode.data) {
-              textnode.data = text.value;
-            }
-          })
-        }
-      </script>
-      %%scripts%%
   </head>
   <body>
     <div id="app"></div>
     <script>
       const host = location.host;
-      const components = {};
       function OComponent(ws) {
         this.ws = ws;
         this.contexts = {};
@@ -125,28 +23,8 @@
             case 'component':
                 this.rootNode = document.querySelector(`${ev.querySelector}:not([${ev.attr}])`);
                 this.id = ev.id;
-                this.send({ type: 'load', id: this.id });
                 this.render(ev);
-              break;
-            case 'text':
-              this.renderText(ev);
-              break;
-            case 'array':
-              this.useArray(ev);
-              break;
-            case 'render':
-              this.renderDirectRender(ev);
-              break;
-            case 'events':
-              this.renderEvents(ev)
-              break;
-            case 'bind':
-              this.renderBindEvent(ev);
-            case 'context':
-              this.readContext(ev);
-              break;
-            case 'render-context':
-              this.renderContext(ev);
+                this.runtime['o-init']();
               break;
           }
         }
@@ -156,124 +34,28 @@
             nm.update();
           });
         }
-        this.useArray = (ev) => {
-          this.arrays[ev.querySelector] = ev.length;
-        };
-        this.readContext = (ev) => {
-          if (this.contexts.has(ev.querySelector)) {
-            const item = this.contexts.get(ev.querySelector);
-            item.length = ev.length;
-          } else {
-            this.contexts.set(ev.querySelector, ev);
-          }
-        }
-        this.renderContext = (item) => {
-          if (!item) return;
-          if (this.rootNode) {
-            if (!this.contexts[item.templateQuerySelector]) {
-              this.contexts[item.templateQuerySelector] = {
-                nodes: [],
-                placeholder: new Comment('')
-              };
-            }
-            const context = this.contexts[item.templateQuerySelector];
-            while (context.nodes.length > item.length) {
-              if (context.nodes.length === 1) {
-                const firstEl = context.nodes[0];
-                if (firstEl) {
-                  const { parentNode } = firstEl;
-                  parentNode.insertBefore(context.placeholder, firstEl);
-                }
-              }
-              const removedEl = context.nodes.pop();
-              removedEl.remove();
-            }
-            if (!item.length) return;
-            this.rootNode.every((child) => {
-              const parentNode = item.parentId.length ? child.querySelector(item.parentId) : child;
-              if (parentNode) {
-                const query = `${item.idElement}-${item.index}`;
-                const [ newel ] = this.renderElements(item.html);
-                newel.setAttribute(query, '');
-                const alreadyRendered = parentNode.querySelector(item.querySelector);
-                if (!alreadyRendered) {
-                  const temp = parentNode.querySelector(item.templateQuerySelector);
-                  if (temp && temp.parentNode && item.length === 0) {
-                    temp.replaceWith(context.placeholder);
-                    return;
-                  }
-                  if (item.index === 0) {
-                    if (temp) {
-                      temp.replaceWith(newel);
-                      context.nodes[item.index] = newel;
-                    } else {
-                      context.placeholder.replaceWith(newel);
-                      context.nodes[item.index] = newel;
-                    }
-                  }
-                  if (context.nodes[item.index-1] && item.index !== 0) {
-                    const el = context.nodes[item.index-1];
-                    el.insertAdjacentElement('afterend', newel);
-                    context.nodes[item.index] = newel;
-                  }
-                } else if (alreadyRendered.outerHTML !== newel.outerHTML) {
-                  alreadyRendered.replaceWith(newel);
-                  context.nodes[item.index] = newel;
-                }
-                return;
-              }
-            })
-          }
-        };
-        this.renderBindEvent = (ev) => {
-          const el = this.rootNode.querySelector(ev.querySelector);
-          if (el && el.value !== ev.value) {
-            el.value = ev.value;
-          }
-        };
-        this.renderElements = (html) => {
-          const template = document.createElement('template');
-          template.insertAdjacentHTML('beforeend', html);
-          return Array.from(template.childNodes).filter((c) => c.nodeType !== 3);
-        };
         this.render = (item) => {
           if (!item) return;
-          if (item.html && this.rootNode) {
-            this.rootNode.innerHTML = '';
+          if (this.rootNode) {
             Ogone.templates[item.attr](this, {
               hasNodeManager: true,
+              parentNodeManager: this,
               NodeManager: null,
               index: 0,
+              level: 0,
+              position: [0],
+              querySelector: this.id,
               callback: (template) => {
                 this.rootNode.replaceWith(...template.childNodes);
               },
             });
             this.update();
-            this.send({
-              type: 'o-inserted',
-              id: this.id,
-            });
           }
         }
-        this.renderText = (item) => {
-          if (!item) return;
-          this.texts[item.position] = item;
-        }
-        this.setTextOfNode = (node) => {
-          const texts = this.texts.filter((text) => node.matches(text.querySelector));
-          if (texts.length) {
-            node.childNodes.forEach((c, id) => {
-              if (c.nodeType !== 3) return;
-              const item =  texts.find((text) => text.textId === id);
-              if (item) {
-                let textNode = node.childNodes[id];
-                if (item.value && textNode.data !== item.value) {
-                  textNode.data = item.value;
-                }
-                return;
-              }
-            })
-          }
+        this.renderElements = (html) => {
+          const template = document.createElement('template');
+          template.insertAdjacentHTML('beforeend', html);
+          return Array.from(template.childNodes).filter((c) => c.nodeType !== 3);
         };
         this.renderDirectRender = (item) => {
           if (!item) return;
@@ -301,43 +83,219 @@
             }
           })
         }
-        this.renderEvents = (item) => {
-          if (!item) return;
-          if (item.events.length) {
-            item.events.forEach((event) => {
-              const { querySelector } = event;
-              if (!this.events[querySelector]) this.events[querySelector] = [];
-              this.events[querySelector].push(event);
+        this.dr = (ref, html) => {
+          try {
+            if (ref.length && !this.refs[ref]) {
+              return;
+            }
+            const querySelector = this.refs[ref] || false;
+            let result = html;
+            if (Array.isArray(html)) {
+              result = html.join('');
+            }
+            if (html instanceof Function) {
+              result = html();
+            }
+            const oElementId = `o-${(querySelector || '').trim().replace(/([^a-zA-Z0-9]*)+/gi, '') || ''}-rd`;
+            this.renderDirectRender({
+              id2: oElementId,
+              html: result.replace(/%%id%%/gi, `${this.id} ${oElementId}`),
+              querySelector: !!querySelector ? 
+                `[${this.nms.root.templateId}][${this.id}] > ${querySelector.trim()}`:
+                null,
+              type: 'render',
+              id: this.id,
             });
+          } catch(e) {
+            throw e;
+          }
+        };
+        this.h = (name, attr, ...childs) => {
+          try {
+            let attrs = [];
+            if (attr) {
+              attrs = Object.entries(attr).map(([key, value]) => {
+                if (key.startsWith('$')) {
+                  return;
+                }
+                return `${key}="${value}"`
+              })
+            }
+            const element = `<${name} %%id%% ${this.uuid} ${attrs.join(' ')}>${childs.flat().join(' ')}</${name}>`
+            // direct rendering with $$ references
+            if (attr) {
+              const ref = Object.keys(attr).find((key) => key.startsWith('$'));
+              if (ref) {
+                const id = ref.slice(1);
+                this.dr(id, element);
+                return id;
+              }
+            }
+            return element;
+          } catch(e) {
+            throw e;
           }
         };
       }
+
     </script>
     <script>
-      const $APPWS_REPLACED_VAR$___ = new WebSocket(`ws://${host}/%%id%%`);
-      $APPWS_REPLACED_VAR$___.onopen = () => {
-        $APPWS_REPLACED_VAR$___.send(JSON.stringify({ type: 'load' }));
-      };
-      $APPWS_REPLACED_VAR$___.onclose = () => {
-        location.reload();
-      };
-      $APPWS_REPLACED_VAR$___.onmessage = (event) => {
-        if ($APPWS_REPLACED_VAR$___.readyState !== 1) return;
-        if (event.data === 'reload') {
-          location.reload();
-          return;
+        const Ogone = {
+          render: [],
+          events: [],
+          styles: [],
+          templates: {},
+          texts: [],
+          contexts: {},
+          components: {},
+        };
+    </script>
+    <script>
+      function NodeManager(component, node, opts) {
+        this.state = 3;
+          /*
+            3 created
+            2 paused
+            1 node has parentNode
+            0 dead
+          */
+        this.type = opts.type;
+        this.isRootNode = !opts.querySelector.length;
+        this.parentId = opts.parentId;
+        this.templateId = opts.templateId;
+        this.templateUuid = opts.templateUuid;
+        this.querySelector = opts.querySelector;
+        this.uuid = opts.uuid;
+        this.component = component;
+        this.node = node;
+        this.nodes = [node];
+        this.array = opts.array;
+        this.componentUuid = opts.componentUuid;
+        this.placeholder = new Comment('');
+        this.position = `${this.parentId} [${this.uuid}]`;
+        this.texts = {};
+        this.getContext = null;
+        this.tree = opts.position;
+        this.level = opts.level;
+        this.positions = {};
+        this.amount = 1;
+        this.childs = [];
+        if (this.isRootNode) {
+          this.component.nms.root = this;
+        } else {
+          if (this.component.nms[this.position]) {
+            this.component.nms[this.position].state = 0
+            console.warn(this.component.nms[this.position], this);
+          }
+          this.component.nms[this.position] = this;
         }
-        const ev = JSON.parse(event.data);
-        if (ev.id) {
-          if (ev.id in components) {
-            components[ev.id].read(ev); 
-          } else {
-            const oc = new OComponent($APPWS_REPLACED_VAR$___);
-            oc.read(ev);
-            components[ev.id] = oc;
+      }
+      NodeManager.prototype.render = function() {
+        if (this.state !== 1 || this.amount === undefined) return;
+        for (let i = this.nodes.length, a = this.amount; i > a; i--) {
+          if (this.nodes.length === 1) {
+            const firstEl = this.nodes[0];
+            if (firstEl) {
+              const { parentNode } = firstEl;
+              parentNode.insertBefore(this.placeholder, firstEl);
+            }
+          }
+          const removedEl = this.nodes.pop();
+          removedEl.remove();
+        }
+        if (this.nodes.length < this.amount) {
+          if (this.nodes.length === 1) {
+            this.nodes[0].replaceWith(this.placeholder);
+            this.nodes[0].remove();
+            this.nodes.shift();
           }
         }
-      };
+        for (let i = this.nodes.length, a = this.amount;i < a; i++) {
+          Ogone.templates[`${this.templateId}`](this.component, {
+            nodeManager: this,
+            hasNodeManager: false, 
+            index: i,
+            parentId: this.parentId,
+            position: this.tree,
+            level: this.level,
+            callback: (el, uuid) => {
+              if (i === 0) {
+                this.placeholder.replaceWith(el);
+              } else {
+                this.nodes[i-1].insertAdjacentElement('afterend', el);
+              }
+              this.nodes.push(el);
+              this.component.nms[`${this.parentId} [${uuid}]`] = this;
+            }, 
+          });  
+        }
+
+      }
+      NodeManager.prototype.addEventListeners = function() {};
+      NodeManager.prototype.update = function() {
+        // manage NM states and force render
+        switch(true) {
+          case this.state === 3 /* created */
+            && !this.isRootNode:
+            this.state = 1; /* inserted */
+            this.setAmountOfNodes();
+            this.render();
+            this.getTexts();
+            this.addEventListeners();
+            this.updateChilds();
+          break;
+          case this.state === 1 && !this.isRootNode:
+            this.setAmountOfNodes();
+            this.render();
+            this.getTexts();
+            this.updateChilds();
+          break;
+        }
+      }
+      NodeManager.prototype.updateChilds = function() {
+        this.childs.forEach((nmChild) => {
+          if (nmChild.state === 0) return;
+          nmChild.update();
+        });
+      }
+      NodeManager.prototype.getTexts = function() {
+        // get nm text
+        Object.values(this.texts).forEach((text) => {
+          const value = this.getContext({
+            getText: `\`${text.rawText}\``,
+            position: this.positions[text.uuid],
+          });
+          if (text.data !== value) {
+            text.data = value;
+          }
+        })
+      }
+      NodeManager.prototype.setAmountOfNodes = function() {
+        this.amount = this.getContext({
+          getLength: true,
+        });
+      }
     </script>
+    %%scripts%%
+    <script>
+        const $APPWS_REPLACED_VAR$___ = new WebSocket(`ws://${host}/%%id%%`);
+        $APPWS_REPLACED_VAR$___.onopen = () => {
+          //%%on-open%%
+        };
+        $APPWS_REPLACED_VAR$___.onclose = () => {
+          location.reload();
+        };
+        $APPWS_REPLACED_VAR$___.onmessage = (event) => {
+          if ($APPWS_REPLACED_VAR$___.readyState !== 1) return;
+          if (event.data === 'reload') {
+            location.reload();
+            return;
+          }
+          const ev = JSON.parse(event.data);
+          if (ev.id) {
+            //
+          }
+        };
+      </script>
   </body>
 </html>
