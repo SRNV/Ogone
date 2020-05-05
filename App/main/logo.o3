@@ -1,0 +1,21 @@
+<div class="container">
+  <div class="logo-back">
+    <img class="img" src="ogone.svg"></img>
+  </div>
+</div>
+
+<style>
+  .img {
+    width: auto;
+  }
+  .logo-back {
+    background: linear-gradient(45deg, black, transparent);
+    padding: 6px;
+    border-radius: 100%;
+    filter: drop-shadow(2px 2px 6px #00000045);
+  }
+  .container {
+    width: 60px;
+    height: auto;
+  }
+</style>

@@ -3,6 +3,7 @@ const Ogone = require('./');
 const uuid = require('uuid-node');
 const S = require('string');
 const oRenderForDirective =  require('./oRenderForDirective');
+const parseAttrs = require('../../html-this/parseAttrs');
 
 const directives = [
   'o-if',
@@ -42,6 +43,29 @@ module.exports = function oRenderDOM(
     const nUuid = `o-${iterator.next().value}`;
     let query = '';
     let contextLegacy = {};
+    node.hasDirective = false;
+    node.dependencies = [];
+    if (node.rawAttrs && node.rawAttrs.length) {
+      const parsedAttrs = parseAttrs(node.rawAttrs);
+      node.props = parsedAttrs.filter(a => a.prop);
+      node.event = parsedAttrs.filter(a => a.event);
+      node.props.forEach((prop) => {
+        node.removeAttribute(prop.savedName);
+        Object.keys(component.data).forEach((key) => {
+          if (prop.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
+            node.dependencies.push(key);
+          }
+        });
+      });
+      node.event.forEach((event) => {
+        node.removeAttribute(event.savedName);
+        Object.keys(component.data).forEach((key) => {
+          if (event.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
+            node.dependencies.push(key);
+          }
+        });
+      });
+    }
     if (node.tagName) {
       node.setAttribute(nUuid, '');
       node.setAttribute(component.uuid, '');
@@ -56,18 +80,7 @@ module.exports = function oRenderDOM(
     if (query.length && node.parentNode ===  null && !contextLegacy.tree.length) {
       contextLegacy.tree.push(`'[${nUuid}-0]'`);
     }
-    if (component.data && node.nodeType === 3) {
-      const data = node.rawText;
-      const evaluated = S(data).between('"','"').s;
-      const evaluated2 = S(data).strip(evaluated).between("'","'").s;
-      const evaluated3 = S(data).strip(evaluated2).between('\`','\`').s;
-      Object.keys(component.data).forEach((key) => {
-        const result = S(data).strip(evaluated3)
-        if (result.contains('\${') && result.contains(`this.${key}`)) {
-          component.reactiveText[query] = true;
-        }
-      });
-    }
+
     const dom = {
       id,
       rawText: node.rawText.trim(),
@@ -114,9 +127,11 @@ module.exports = function oRenderDOM(
               }
               legacy.ctx[index] = true;
               legacy.ctx[item] = oForDirective;
+              node.hasDirective = true;
               const getLengthScript = `
                 if (GET_LENGTH) {
-                  return (${array}).length;
+                  if (QUERY === '${query}') return (${array}).length;
+                  else return 1;
                 }
               `;
               contextLegacy.getLengthDeclarationBeforeArrayEvaluation = getLengthScript;
@@ -150,6 +165,20 @@ module.exports = function oRenderDOM(
     if (node.childNodes.length) {
       node.childNodes
         .forEach((el, i) => {
+          if (component.data && el.nodeType === 3) {
+            const data = el.rawText;
+            const evaluated = S(data).between('"','"').s;
+            const evaluated2 = S(data).strip(evaluated).between("'","'").s;
+            const evaluated3 = S(data).strip(evaluated2).between('\`','\`').s;
+            Object.keys(component.data).forEach((key) => {
+              const result = S(data).strip(evaluated3)
+              if (result.contains('\${') && result.contains(`${key}`)) {
+                if (!node.dependencies.includes(key)) {
+                  node.dependencies.push(key);
+                }
+              }
+            });
+          }
           oRenderDOM(keyComponent, el, query, i, {
             ...contextLegacy,
             ctx: {...contextLegacy.ctx },
@@ -163,7 +192,6 @@ module.exports = function oRenderDOM(
             ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
         contextLegacy.script = {
           value,
-          arguments: ['EVALUATED__','CALLBACK', 'RESOLVE_CALLBACK', 'GET_LENGTH', 'LIM'],
         };
         component.for[query] = contextLegacy;
     }

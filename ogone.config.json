@@ -1,5 +1,6 @@
 {
-  "entrypoint": "./App/main",
+  "entrypoint": "./App/main/index.o3",
+  "static": "./public",
   "src": "./App",
   "port": 8080
 }

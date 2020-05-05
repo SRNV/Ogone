@@ -1,0 +1,81 @@
+use @/main/body.o3 as 'body-og';
+use @/main/logo.o3 as 'logo-el';
+use @/main/left-menu.o3 as 'left-menu';
+
+<link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
+<div id="header" class="header">
+  <div class="logo">
+    <logo-el></logo-el>
+    <div class="title">O<sup>3</sup></div>
+  </div>
+  <div class="menu">
+    <div>
+      burger
+    </div>
+  </div>
+</div>
+<body-og></body-og>
+<left-menu :test="scrollY"></left-menu>
+<module>
+  this:
+    scrollY: 0
+  default:
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', (ev) => {
+      if (window.scrollY > this.scrollY) {
+        header.style.top = '-100px';
+      } else {
+        header.style.top = '0px';
+      }
+      this.scrollY = window.scrollY
+    });
+    break;
+</module>
+<style>
+  body {
+    background: #191919;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    color: #40c2aa;
+    font-family: 'Varela Round', sans-serif;
+  }
+  *::selection {
+    background: #40c2aa;
+    color: white;
+  }
+  h1, h2, h3, h4 {
+    color: #193b48;
+  }
+  .logo {
+    flex: 2;
+    display: inline-flex;
+    flex-direction: row;
+    max-width: 124px;
+    min-width: 124px;
+    min-height: 65px;
+    border-right: 1px solid #00000056;
+    background: #1f2021;
+    filter: drop-shadow(1px 0px 0px #333);
+  }
+  .header {
+    background: #1f2021;
+    padding: 10px;
+    filter: drop-shadow(0px 23px 23px #00000067);
+    display: flex;
+    position: sticky;
+    top: 0px;
+    transition: top 0.5s ease;
+  }
+  .menu {
+    flex: 8;
+    display: flex;
+    flex-direction: row-reverse;
+    vertical-align: middle;
+    align-items: center;
+  }
+  .title {
+    margin: auto;
+    letter-spacing: 3px;
+  }
+</style>

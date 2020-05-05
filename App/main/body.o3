@@ -1,0 +1,38 @@
+use @/main/content.o3 as "content";
+<div class="container">
+  <content
+    :text="`Ogone is an experimental tool for Fullstack dev.\nFully based on Node.js.`"
+    :title="title"
+    :code="code"
+  ></content>
+  <content
+    :text="`Ogone is an experimental tool for Fullstack dev.\nFully based on Node.js.`"
+    :title="`Get Started`"
+    :code="code"
+  ></content>
+  <content
+    :text="`Ogone is an experimental tool for Fullstack dev.\nFully based on Node.js.`"
+    :title="title"
+    :code="code"
+  ></content>
+</div>
+<module>
+  this:
+    title: Ogone
+    code: code
+  case 'init':
+  this.code = `
+    < div>Hello \$\{name}</ div>
+    < module>
+      this: name: Foo
+    </ module>`;
+  this.title = `Experimental tool for a fullstack use.`;
+  break;
+</module>
+<style>
+  .container {
+    height: auto;
+    width: auto;
+    background: black;
+  }
+</style>

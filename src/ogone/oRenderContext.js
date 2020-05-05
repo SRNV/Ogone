@@ -9,6 +9,7 @@ module.exports = function oRenderContext(keyComponent) {
         const {
           getLength: GET_LENGTH,
           getText: GET_TEXT,
+          query: QUERY,
           position: POSITION,
         } = opts;
         ${
@@ -18,7 +19,7 @@ module.exports = function oRenderContext(keyComponent) {
         }
         ${script.value || ''}
         if (GET_TEXT) {
-          return eval(GET_TEXT);
+          return eval(\`(\${GET_TEXT})\`);
         }
       };
     `;
