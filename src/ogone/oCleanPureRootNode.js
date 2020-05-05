@@ -1,6 +1,6 @@
-const Ogone = require('./');
+import Ogone from './';
 
-module.exports = function oCleanPureRootNode() {
+export default function oCleanPureRootNode() {
   Ogone.components.forEach((c) => {
     c.rootNodePure.childNodes = c.rootNodePure.childNodes.filter((node) => {
       return node.tagName !== 'style' &&

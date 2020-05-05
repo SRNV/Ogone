@@ -1,18 +1,18 @@
-const beautify = require('js-beautify');
-const beautifyOptions = require('../beautify.config');
-const getTypedExpression = require('./src/typedExpressions');
-const expressions = require('./src/expressions')
-const elements = require('./src/elements');
-const computedExp = require('./src/computed');
-const renderExpressions = require('./src/render/renderExpressions');
-const renderEsm = require('./src/render/renderEsm');
-const cjsElements = require('./src/cjsElements');
-const renderNullifiedValues = require('./src/render/renderNullifiedValues');
-const renderComputed = require('./src/render/computed');
-const renderInvalidation = require('./src/render/invalidations');
-const renderSetterExpression = require('./src/render/setter-expression');
-const renderO3Syntax = require('./src/render/o3-syntax-render');
-const yamelize = require('./src/render/yamelize');
+import beautify from 'js-beautify';
+import beautifyOptions from '../beautify.config';
+import getTypedExpression from './src/typedExpressions';
+import expressions from './src/expressions';
+import elements from './src/elements';
+import computedExp from './src/computed';
+import renderExpressions from './src/render/renderExpressions';
+import renderEsm from './src/render/renderEsm';
+import cjsElements from './src/cjsElements';
+import renderNullifiedValues from './src/render/renderNullifiedValues';
+import renderComputed from './src/render/computed';
+import renderInvalidation from './src/render/invalidations';
+import renderSetterExpression from './src/render/setter-expression';
+import renderO3Syntax from './src/render/o3-syntax-render';
+import yamelize from './src/render/yamelize';
 
 function recursiveTranslate(expressions, prog) {
   let str = prog;
@@ -122,4 +122,4 @@ function jsThis(str, opts) {
   };
 }
 
-module.exports = jsThis;
+export default jsThis;

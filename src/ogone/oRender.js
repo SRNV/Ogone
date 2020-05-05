@@ -1,11 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const YAML = require('yaml');
-const uuid = require('uuid-node');
-const { parse } = require('node-html-parser');
-const Ogone = require('./');
+import fs from 'fs';
+import path from 'path';
+import YAML from 'yaml';
+import uuid from 'uuid-node';
+import { parse } from 'node-html-parser';
+import Ogone from './';
 
-module.exports = function oRender() {
+export default function oRender() {
   Ogone.directories.forEach((dir) => {
     const paths = fs.readdirSync(dir);
     paths.filter((file) => /(\.o3)$/.test(file)).forEach((file) => {

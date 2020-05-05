@@ -1,5 +1,5 @@
-const esmElements = require('../esm');
-module.exports = function renderEsm (typedExpressions, expressions, str, name) {
+import esmElements from '../esm';
+export default function renderEsm (typedExpressions, expressions, str, name) {
   let result = str;
   esmElements.forEach((item) => {
     if (name && !item.name) return;

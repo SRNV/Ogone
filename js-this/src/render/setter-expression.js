@@ -1,4 +1,4 @@
-module.exports = function renderSetterExpression(typedExpressions, expressions, str) {
+export default function renderSetterExpression(typedExpressions, expressions, str) {
   let result = str;
   const reg = /(§§keywordThis\d+§§)\s*(§§(identifier||array)\d+§§)/gi;
   const matches = result.match(reg);

@@ -1,10 +1,10 @@
-const Ogone = require('.');
-const oRenderDOM = require('./oRenderDOM');
-const oRenderNodesBehavior = require('./oRenderNodesBehavior');
-const oRenderContext = require('./oRenderContext');
-const oRenderComponentDatas = require('./oRenderComponentDatas');
+import Ogone from '.';
+import oRenderDOM from './oRenderDOM';
+import oRenderNodesBehavior from './oRenderNodesBehavior';
+import oRenderContext from './oRenderContext';
+import oRenderComponentDatas from './oRenderComponentDatas';
 
-module.exports = function oStartRenderingDom() {
+export default function oStartRenderingDom() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([path, component]) => {
     oRenderDOM(path, component.rootNodePure);

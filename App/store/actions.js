@@ -1,6 +1,6 @@
-const axios = require('axios');
+import axios from 'axios';
 function getuser(id) {
   return axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)
     .then(res => res.data)
 }
-module.exports = getuser;
+export default getuser;

@@ -1,5 +1,5 @@
-const YAML = require('yaml');
-module.exports = function(typedExpressions, expressions, prog) {
+import YAML from 'yaml';
+export default function(typedExpressions, expressions, prog) {
   let result = prog;
   const match = prog.match(/([^\n\r]+){0,1}(this:)/);
   const matches = prog.match(/([^\n\r]+){0,1}(this:)/gi);

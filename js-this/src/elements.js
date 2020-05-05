@@ -1,7 +1,7 @@
-const gen = require('./generator');
-const expressions = require('./expressions');
+import gen from './generator';
+import expressions from './expressions';
 
-module.exports = [
+export default [
   {
     open: false,
     reg: /\b([0-9])*(\.){0,1}([0-9])+\b/,

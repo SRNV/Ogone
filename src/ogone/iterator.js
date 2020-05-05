@@ -4,4 +4,4 @@ function* gen(i) {
     yield i++;
 } 
 const iterator = gen(0);
-module.exports = iterator;
+export default iterator;

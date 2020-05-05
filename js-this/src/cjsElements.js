@@ -1,7 +1,7 @@
-const gen = require('./generator');
-const expressions = require('./expressions');
+import gen from './generator';
+import expressions from './expressions';
 
-module.exports = [
+export default [
   {
     open: false,
     reg: /(§{2}keywordRequire\d+§{2})\s*(§{2}parenthese\d+§{2})/,

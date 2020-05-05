@@ -1,6 +1,6 @@
-const uuid = require('uuid-node');
+import uuid from 'uuid-node';
 
-module.exports = function oRenderForDirective(directiveValue) {
+export default function oRenderForDirective(directiveValue) {
   if (directiveValue.indexOf('as') === -1) {
     const OgoneForDirectiveSyntaxException = new Error(`[Ogone] Syntax Error: ${directiveValue}, no (as) found \n\tPlease follow this o-for syntax. arrayName as (item [, i]) `);
     throw OgoneForDirectiveSyntaxException;

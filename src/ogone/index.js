@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const uuid = require('uuid-node');
+import fs from 'fs';
+import path from 'path';
+import uuid from 'uuid-node';
 const json = fs.readFileSync('./ogone.config.json', { encoding: 'utf8' });
 const config = JSON.parse(json);
 
-module.exports = {
+export default {
   config,
   files: [],
   directories: [],

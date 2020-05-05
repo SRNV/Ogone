@@ -1,8 +1,8 @@
-const uuid = require('uuid-node');
-const pse = require('postcss-scopeify-everything');
-const Ogone = require('./');
+import uuid from 'uuid-node';
+import pse from 'postcss-scopeify-everything';
+import Ogone from './';
 
-module.exports = function oRenderStyles() {
+export default function oRenderStyles() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     const styles = component.rootNode.childNodes.filter(node => node.tagName === 'style');

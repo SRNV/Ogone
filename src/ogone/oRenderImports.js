@@ -1,8 +1,8 @@
-const path = require('path');
-const Ogone = require('./');
-const jsThis = require('../../js-this/switch');
+import path from 'path';
+import Ogone from './';
+import jsThis from '../../js-this/switch';
 
-module.exports = function oRenderImports() {
+export default function oRenderImports() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     const firstNode = component.rootNodePure.childNodes.find((node) => node.nodeType !== 3);

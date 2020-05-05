@@ -88,4 +88,4 @@ function ReadDescription(element){
 	})
 	return result;
 }
-module.exports = ReadDescription;
+export default ReadDescription;

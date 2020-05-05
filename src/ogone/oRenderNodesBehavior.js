@@ -1,7 +1,7 @@
-const Ogone = require('.');
-const uuid = require('uuid-node');
+import Ogone from '.';
+import uuid from 'uuid-node';
 
-module.exports = function oRenderNodesBehavior(keyComponent, node, structure = '', index = 0) {
+export default function oRenderNodesBehavior(keyComponent, node, structure = '', index = 0) {
   const component = Ogone.components.get(keyComponent);
   let query = '';
   let contextLegacy = {};

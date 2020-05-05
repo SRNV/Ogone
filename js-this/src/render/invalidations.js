@@ -1,4 +1,4 @@
-module.exports = function renderInvalidation(typedExpressions, expressions, str) {
+export default function renderInvalidation(typedExpressions, expressions, str) {
   let result = str.replace(/(chainedLine\d*§{2})\s*(§{2}keyword)/gi, '$1§§endExpression0§§$2')
     .replace(/(§{2})(\})/gi, '$1§§endExpression0§§$2');
   result.split(/(§{2}(endLine|endPonctuation|endExpression)\d+§{2})/gi)

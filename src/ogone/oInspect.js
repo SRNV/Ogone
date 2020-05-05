@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const Ogone = require('./');
+import fs from 'fs';
+import path from 'path';
+import Ogone from './';
 
 function startRecursiveInspection(p) {
   const stats = fs.statSync(p);
@@ -16,7 +16,7 @@ function startRecursiveInspection(p) {
     });
   }
 };
-module.exports = function oInspect(config) {
+export default function oInspect(config) {
   const { src } = Ogone.config;
   const pathToSrc = path.join(process.cwd(), src);
   if (fs.existsSync(pathToSrc)) {

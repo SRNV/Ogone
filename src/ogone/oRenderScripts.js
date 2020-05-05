@@ -1,8 +1,8 @@
-const BABEL = require("@babel/core");
-const Ogone = require('./');
-const jsThis = require('../../js-this/switch')
+import BABEL from "@babel/core";
+import Ogone from './';
+import jsThis from '../../js-this/switch';
 
-module.exports = function oRenderScripts() {
+export default function oRenderScripts() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     const moduleScript = component.rootNode.childNodes.find(node => node.tagName === 'module');

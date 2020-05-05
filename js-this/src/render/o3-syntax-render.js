@@ -1,5 +1,5 @@
-const o3Elements = require('../o3-render');
-module.exports = function renderO3Syntax (typedExpressions, expressions, str, name) {
+import o3Elements from '../o3-render';
+export default function renderO3Syntax (typedExpressions, expressions, str, name) {
   let result = str;
   o3Elements.forEach((item) => {
     if (name && !item.name) return;

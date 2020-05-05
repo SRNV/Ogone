@@ -1,5 +1,5 @@
-const gen = require('./generator');
-const expressions = require('./expressions');
+import gen from './generator';
+import expressions from './expressions';
 function renderImport({ key, path, caller, isDefault, isAllAs, isBlock }) {
   switch(true) {
     case isDefault:
@@ -21,7 +21,7 @@ const exportASKey =   {
   },
   close: false,
 };
-module.exports = [
+export default [
   {
     open: false,
     reg: /(\*)\s*(§{2}keywordAs\d+§{2})/,

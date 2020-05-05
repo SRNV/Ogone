@@ -1,4 +1,4 @@
-const gen = require('../generator');
+import gen from '../generator';
 
 const nullish = [
   {
@@ -82,7 +82,7 @@ const nullish = [
   },
 // end annulations
 ];
-module.exports = function (typedExpressions, expressions, str, name) {
+export default function (typedExpressions, expressions, str, name) {
   let result = str;
   nullish.forEach((item) => {
     if (name && !item.name) return;

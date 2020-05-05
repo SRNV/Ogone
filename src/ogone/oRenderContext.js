@@ -1,6 +1,6 @@
-const Ogone = require('.');
+import Ogone from '.';
 
-module.exports = function oRenderContext(keyComponent) {
+export default function oRenderContext(keyComponent) {
   const component = Ogone.components.get(keyComponent);
   Object.entries(component.for).forEach(([querySelector, directive]) => {
     const { script, } = directive;

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   "indent_size": 2,
   "indent_char": " ",
   "indent_with_tabs": false,

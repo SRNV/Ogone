@@ -1,6 +1,6 @@
-const Ogone = require('.');
+import Ogone from '.';
 
-module.exports = function(component) {
+export default function(component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     let result = `

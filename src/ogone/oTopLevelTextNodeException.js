@@ -1,6 +1,6 @@
-const Ogone = require('./');
+import Ogone from './';
 
-module.exports = function oTopLevelTextNodeException() {
+export default function oTopLevelTextNodeException() {
   Ogone.components.forEach((c) => {
     c.rootNodePure.childNodes.filter((node, id) => id !== 0).forEach((node, id) => {
       if (node.nodeType === 3 && node.rawText.trim().length) {

@@ -1,4 +1,4 @@
-module.exports = function renderComputed (typedExpressions, expressions, computedExp, str) {
+export default function renderComputed (typedExpressions, expressions, computedExp, str) {
   let result = str
   computedExp.forEach((item) => {
     if (item.open && item.close) {

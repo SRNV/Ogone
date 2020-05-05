@@ -1,4 +1,4 @@
-module.exports = function renderExpressions (typedExpressions, expressions, elements, str, name) {
+export default function renderExpressions (typedExpressions, expressions, elements, str, name) {
   let result = str.replace(/\}/gi, '\n}').replace(/(\{)(\w)/, '$1\n$2');
   elements.forEach((item) => {
     if (name && !item.name) return;

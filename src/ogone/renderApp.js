@@ -1,4 +1,4 @@
-module.exports = function renderApp(template, id) {
+export default function renderApp(template, id) {
   return template
     .replace(/%%id%%/gi, id);
 };
