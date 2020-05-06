@@ -23,6 +23,7 @@
     "postcss": "^7.0.28",
     "postcss-scopeify-everything": "^0.7.1",
     "prettify": "^0.1.7",
+    "rollup": "^2.7.6",
     "string": "^3.3.3",
     "terser": "^4.6.13",
     "ts-loader": "^6.0.4",
@@ -35,7 +36,7 @@
     "object-observer": "^2.9.3"
   },
   "scripts": {
-    "dev": "nodemon -e js,html,yml,json,o3 index.js"
+    "dev": "nodemon --experimental-modules index.mjs -e js,mjs,html,yml,json,o3"
   },
   "keywords": [],
   "author": "",

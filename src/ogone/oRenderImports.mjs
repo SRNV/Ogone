@@ -1,6 +1,6 @@
 import path from 'path';
-import Ogone from './';
-import jsThis from '../../js-this/switch';
+import Ogone from './index.mjs';
+import jsThis from '../../js-this/switch.mjs';
 
 export default function oRenderImports() {
   const entries = Array.from(Ogone.components.entries());
@@ -16,6 +16,14 @@ export default function oRenderImports() {
       const tokens = jsThis(declarations, {
         onlyDeclarations: true,
       });
+      const importBody = jsThis(declarations, {
+        esm: true,
+      });
+      if (importBody.body && importBody.body.imports) {
+        const { imports } = importBody.body;
+        component.esmExpressions = Object.values(imports).map(imp => imp.expression).join('\n')
+        component.exportsExpressions = Object.values(imports).map(imp => imp.exports).join('\n')
+      }
       if (tokens.body && tokens.body.use) {
         Object.values(tokens.body.use).forEach((item) => {
           const { src } = Ogone.config;

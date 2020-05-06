@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import Ogone from './';
+import Ogone from './index.mjs';
 
 function startRecursiveInspection(p) {
   const stats = fs.statSync(p);

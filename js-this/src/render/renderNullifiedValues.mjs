@@ -1,4 +1,4 @@
-import gen from '../generator';
+import gen from '../generator.mjs';
 
 const nullish = [
   {

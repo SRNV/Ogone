@@ -1,6 +1,6 @@
 import BABEL from "@babel/core";
-import Ogone from './';
-import jsThis from '../../js-this/switch';
+import Ogone from './index.mjs';
+import jsThis from '../../js-this/switch.mjs';
 
 export default function oRenderScripts() {
   const entries = Array.from(Ogone.components.entries());

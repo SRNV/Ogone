@@ -1,4 +1,4 @@
-import Ogone from '.';
+import Ogone from './index.mjs';
 import uuid from 'uuid-node';
 
 export default function oRenderNodesBehavior(keyComponent, node, structure = '', index = 0) {
@@ -60,6 +60,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
     const newPosition = [...position];
     let subcomponent = null;
     let subnode = null;
+    let oc;
     newPosition[level] = index;
     // declare node
     let text, nm = nodeManager;

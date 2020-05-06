@@ -1,5 +1,5 @@
-import gen from './generator';
-import expressions from './expressions';
+import gen from './generator.mjs';
+import expressions from './expressions.mjs';
 
 export default [
   {

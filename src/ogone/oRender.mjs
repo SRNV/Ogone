@@ -2,9 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import YAML from 'yaml';
 import uuid from 'uuid-node';
-import { parse } from 'node-html-parser';
-import Ogone from './';
+import nhp from 'node-html-parser';
+import Ogone from './index.mjs';
 
+const { parse } = nhp;
 export default function oRender() {
   Ogone.directories.forEach((dir) => {
     const paths = fs.readdirSync(dir);
@@ -28,6 +29,8 @@ export default function oRender() {
           file: index,
           rootNode,
           rootNodePure,
+          esmExpressions: '',
+          exportsExpressions: '',
           data: {},
           style: [],
           scripts: {},

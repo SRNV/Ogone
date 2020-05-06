@@ -1,9 +1,9 @@
-import iterator from './iterator';
-import Ogone from './';
+import iterator from './iterator.mjs';
+import Ogone from './index.mjs';
 import uuid from 'uuid-node';
 import S from 'string';
-import oRenderForDirective from './oRenderForDirective';
-import parseAttrs from '../../html-this/parseAttrs';
+import oRenderForDirective from './oRenderForDirective.mjs';
+import parseAttrs from '../../html-this/parseAttrs.mjs';
 
 const directives = [
   'o-if',

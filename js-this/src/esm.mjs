@@ -1,5 +1,5 @@
-import gen from './generator';
-import expressions from './expressions';
+import gen from './generator.mjs';
+import expressions from './expressions.mjs';
 function renderImport({ key, path, caller, isDefault, isAllAs, isBlock }) {
   switch(true) {
     case isDefault:
@@ -108,8 +108,10 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${key} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')};`,
+        exports: `import ${key} from ${expressions[id2].replace(/[\s]/gi, '')};`
       };
-      return `const ${key} = require(${id2});`;
+      return `import ${key} from ${id2};`;
     },
     close: false,
   },
@@ -126,6 +128,7 @@ export default [
         allAs: null,
         block: null,
         default: null,
+        expression: `import ${expressions[id2]};`
       };
       return `require(${id2});`;
     },
@@ -143,7 +146,8 @@ export default [
         ambient: null,
         allAs: null,
         block: null,
-        default: key.replace(/['"`]/gi, '').trim()
+        default: key.replace(/['"`]/gi, '').trim(),
+        expression: `import ${key} from '${key}';`,
       };
       return `const ${key} = require('${key}');`;
     },
@@ -178,9 +182,14 @@ export default [
         ambient: null,
         allAs: null,
         block: null,
-        default: expressions[id2].replace(/['"\s`]/gi, '')
+        default: expressions[id2].replace(/['"\s`]/gi, ''),
+        expression: `import { ${key} } from ${expressions[id2].replace(/^(['"`])/, '$1./node_modules/').replace(/[\s]/gi, '')}`,
+        exports: `
+          import o_${key} from ${expressions[id2].replace(/[\s]/gi, '')}
+          export const ${key} = o_${key};
+        `,
       };
-      return `const ${key} = require(${id2})`;
+      return `import ${key} from ${id2}`;
     },
     close: false,
   },
@@ -200,6 +209,7 @@ export default [
         allAs: null,
         block: null,
         default: expressions[id2].replace(/['"\s`]/gi, ''),
+        expression: `import ${expressions[key].replace(/[,\s\n]/gi, '')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')}`,
       };
       typedExpressions.imports[
         alias.replace(/[,\s\n]/gi, '')
@@ -208,10 +218,11 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${alias} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')};`,
       };
       return `
-        const ${key} = require(${id2});
-        const ${alias} = require(${id2});
+        import ${key} from ${id2};
+        import ${alias} from ${id2};
       `;
     },
     close: false,
@@ -231,6 +242,7 @@ export default [
         allAs: null,
         block: null,
         default: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${expressions[key].replace(/[,\s\n]/gi, '')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')}`,
       };
       typedExpressions.imports[
         expressions[alias].replace(/[,\s\n]/gi, '')
@@ -239,10 +251,11 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${alias} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')};`,
       };
       return `
-        const ${key} = require(${id2});
-        const ${alias} = require(${id2});
+        import ${key} from ${id2};
+        import ${alias} from ${id2};
       `;
     },
     close: false,
@@ -264,9 +277,10 @@ export default [
         default: null,
         allAs: null,
         block: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${expressions[key].replace(/\n,/gi, ',').replace(/,\}/gi, '}')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')}`,
       };
       return `
-        const ${key} = require(${id2});
+        import ${key} from ${id2};
       `;
     },
     close: false,
@@ -283,6 +297,7 @@ export default [
         block: null,
         allAs: null,
         default: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${def.replace(/[,\s\n]/gi, '')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')};`,
       }; 
       typedExpressions.imports[
         expressions[key]
@@ -293,10 +308,11 @@ export default [
         default: null,
         allAs: null,
         block: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${expressions[key].replace(/\n,/gi, ',').replace(/,\}/gi, '}')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')};`,
       };
       return `
-        const ${key} = require(${id2});
-        const ${def} = require(${id2});
+        import ${key} from ${id2};
+        import ${def} from ${id2};
       `;
     },
     close: false,
@@ -315,6 +331,7 @@ export default [
         block: null,
         allAs: null,
         default: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${expressions[def].replace(/[,\s\n]/gi, '')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')}`,
       }; 
       typedExpressions.imports[
         expressions[key]
@@ -325,10 +342,11 @@ export default [
         default: null,
         allAs: null,
         block: expressions[id2].replace(/['"`]/gi, ''),
+        expression: `import ${expressions[key].replace(/\n,/gi, ',').replace(/,\}/gi, '}')} from ${expressions[id2].replace(/^(['"`])/, '$1/node_modules/').replace(/[\s]/gi, '')};`,        
       };
       return `
-        const ${key} = require(${id2});
-        const ${def} = require(${id2});
+        import ${key} from ${id2};
+        import ${def} from ${id2};
       `;
     },
     close: false,

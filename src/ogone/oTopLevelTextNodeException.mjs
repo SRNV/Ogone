@@ -1,4 +1,4 @@
-import Ogone from './';
+import Ogone from './index.mjs';
 
 export default function oTopLevelTextNodeException() {
   Ogone.components.forEach((c) => {
