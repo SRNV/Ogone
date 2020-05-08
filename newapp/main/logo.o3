@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="logo-back">
+    <img class="img" src="ogone.svg"></img>
+  </div>
+</div>
+
+<style>
+  .img {
+    width: auto;
+  }
+  .logo-back {
+    background: #40c2aa;
+    padding: 6px;
+    border-radius: 100%;
+  }
+  .container {
+    width: 60px;
+    height: auto;
+  }
+</style>

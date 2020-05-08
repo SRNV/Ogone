@@ -1,0 +1,15 @@
+require test as Number
+
+<div class="container">${test}</div>
+<style>
+  .container {
+    position: fixed;
+    top: 35%;
+    width: 40px;
+    height: 300px;
+    left: 0;
+    background: #2f3035;
+    border-radius: 0 5px 5px 0;
+    filter: drop-shadow(0px 2px 4px #00000086);
+  }
+</style>

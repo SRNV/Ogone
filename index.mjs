@@ -1,5 +1,5 @@
 import beautify from 'js-beautify';
-import beautifyOptions from './beautify.config.mjs';
+import beautifyOptions from './beautify.config.js';
 import terser from 'terser';
 import expressM from 'express';
 import fs from 'fs';
@@ -7,16 +7,16 @@ import path from 'path';
 import express from 'express-ws-routes';
 import uuid from 'uuid-node';
 import rollup from 'rollup';
-import oInspect from './src/ogone/oInspect.mjs';
-import renderApp from './src/ogone/renderApp.mjs';
-import oRender from './src/ogone/oRender.mjs';
-import oRenderStyles from './src/ogone/oRenderStyles.mjs';
-import oRenderScripts from './src/ogone/oRenderScripts.mjs';
-import oRenderImports from './src/ogone/oRenderImports.mjs';
-import oStartRenderingDOM from './src/ogone/oStartRenderingDOM.mjs';
-import oTopLevelTextNodeException from './src/ogone/oTopLevelTextNodeException.mjs';
-import oCleanPureRootNode from './src/ogone/oCleanPureRootNode.mjs';
-import Ogone from './src/ogone/index.mjs';
+import oInspect from './src/ogone/oInspect.js';
+import renderApp from './src/ogone/renderApp.js';
+import oRender from './src/ogone/oRender.js';
+import oRenderStyles from './src/ogone/oRenderStyles.js';
+import oRenderScripts from './src/ogone/oRenderScripts.js';
+import oRenderImports from './src/ogone/oRenderImports.js';
+import oStartRenderingDOM from './src/ogone/oStartRenderingDOM.js';
+import oTopLevelTextNodeException from './src/ogone/oTopLevelTextNodeException.js';
+import oCleanPureRootNode from './src/ogone/oCleanPureRootNode.js';
+import Ogone from './src/ogone/index.js';
 
 const browserBuild = [
   fs.readFileSync('./src/browser/component.js', 'utf8'),
@@ -85,7 +85,7 @@ app.use((req, res, next) => {
   router.sockets = [];
   router.websocket(`/${req.oid}`, (info, cb, next, ) => {
     cb((ws) => {
-      // new OComponent(Ogone.main, '#app', Ogone, ws);  
+      // new OComponent(Ogone.main, '#app', Ogone, ws);
       ws.on('message', (msg) => {
         const ev = JSON.parse(msg);
         if (ev.id && ev.id in Ogone.onmessage) {
@@ -103,7 +103,7 @@ app.use((req, res, next) => {
   next();
 });
 */
-const pathToExports = path.join(process.cwd(), '/exports/index.mjs');
+const pathToExports = path.join(process.cwd(), '/exports/index.js');
 if (fs.readFileSync(pathToExports, 'utf8') !== exportsExpression) {
   fs.writeFileSync(pathToExports, exportsExpression);
 }
@@ -129,7 +129,7 @@ app.get('*', (req, res) => {
   switch(true) {
     case req._parsedUrl.href.startsWith('/node_modules/'):
       // res.sendFile(pathToExports);
-      const pathToModule = './exports/index.mjs';
+      const pathToModule = './exports/index.js';
       bdl(pathToModule, (code) => {
         res.set({
           'Content-Type': 'application/javascript',

@@ -1,0 +1,38 @@
+use @/newapp/main/content.o3 as "content";
+<div class="container">
+  <content
+    o-for="articles as (article)"
+    :text="`Ogone is an experimental tool for Fullstack dev.\nFully based Deno.`"
+    :title="title"
+    :code="start"
+  ></content>
+</div>
+<module>
+  this:
+    title: Ogone
+    code: code
+    start: s
+    articles: []
+  case 'init':
+  this.start = `
+  o3.serve({
+    entrypoint: '/app/index.o3',
+    port: 4000,
+  })
+  `;
+  this.code = `
+    <div>Hello \$\{name}</div>
+    <module>
+      this:
+        name: Foo
+    </module>`;
+  this.title = `Experimental tool for a fullstack use.`;
+  break;
+</module>
+<style>
+  .container {
+    height: auto;
+    width: auto;
+    background: black;
+  }
+</style>

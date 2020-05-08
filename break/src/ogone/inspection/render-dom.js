@@ -1,9 +1,7 @@
-import iterator from './iterator.js';
-import Ogone from './index.js';
-import uuid from 'uuid-node';
-import S from 'string';
-import oRenderForDirective from './oRenderForDirective.js';
-import parseAttrs from '../../html-this/parseAttrs.js';
+import iterator from '../../../lib/iterator.js';
+import Ogone from '../index.ts';
+import parseAttrs from '../../../lib/html-this/parseAttrs.js';
+import oRenderForDirective from './render-for-directive.js';
 
 const directives = [
   'o-if',
@@ -45,12 +43,13 @@ export default function oRenderDOM(
     let contextLegacy = {};
     node.hasDirective = false;
     node.dependencies = [];
+    // LEGACY - node now have all attributes starting with -- or @ or :
     if (node.rawAttrs && node.rawAttrs.length) {
       const parsedAttrs = parseAttrs(node.rawAttrs);
       node.props = parsedAttrs.filter(a => a.prop);
       node.event = parsedAttrs.filter(a => a.event);
       node.props.forEach((prop) => {
-        node.removeAttribute(prop.savedName);
+        delete node.attributes[prop.savedName];
         Object.keys(component.data).forEach((key) => {
           if (prop.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
             node.dependencies.push(key);
@@ -58,7 +57,7 @@ export default function oRenderDOM(
         });
       });
       node.event.forEach((event) => {
-        node.removeAttribute(event.savedName);
+        delete node.attributes[event.savedName];
         Object.keys(component.data).forEach((key) => {
           if (event.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
             node.dependencies.push(key);
@@ -67,8 +66,13 @@ export default function oRenderDOM(
       });
     }
     if (node.tagName) {
-      node.attributes[nUuid] = true;
-      node.attributes[component.uuid] = true;
+        if(!node.attributes) {
+            node.attributes = {};
+        }
+        if (node.attributes) {
+            node.attributes[nUuid] = true;
+            node.attributes[component.uuid] = true;
+        }
       node.nuuid = nUuid;
       query = `${structure} [${nUuid}]`.trim();
     } else {
@@ -83,7 +87,7 @@ export default function oRenderDOM(
 
     const dom = {
       id,
-      rawText: node.rawText.trim(),
+      rawText: node.rawText?.trim(),
       tagName: node.tagName,
       querySelector: query,
       type: node.nodeType,
@@ -129,7 +133,7 @@ export default function oRenderDOM(
               legacy.ctx[item] = oForDirective;
               node.hasDirective = true;
               const getLengthScript = `
-                if (GET_LENGTH) {
+              if (GET_LENGTH) {
                   if (QUERY === '${query}') return (${array}).length;
                   else return 1;
                 }
@@ -147,7 +151,7 @@ export default function oRenderDOM(
               break;
           }
           domDirective.directives.push(payload);
-          node.removeAttribute(directive);
+          delete node.attributes[directive];
         }
       });
       // get any reference
@@ -162,17 +166,15 @@ export default function oRenderDOM(
     }
     if(domDirective.directives.length) component.directives.push(domDirective);
     if (id !== null) component.dom.push(dom);
-    if (node.childNodes.length) {
+    if (node.childNodes?.length) {
       node.childNodes
         .forEach((el, i) => {
           if (component.data && el.nodeType === 3) {
             const data = el.rawText;
-            const evaluated = S(data).between('"','"').s;
-            const evaluated2 = S(data).strip(evaluated).between("'","'").s;
-            const evaluated3 = S(data).strip(evaluated2).between('\`','\`').s;
             Object.keys(component.data).forEach((key) => {
-              const result = S(data).strip(evaluated3)
-              if (result.contains('\${') && result.contains(`${key}`)) {
+              const result = data
+              // need to be more precise here
+              if (result.indexOf('\${') > -1 && result.indexOf(`${key}`) > -1) {
                 if (!node.dependencies.includes(key)) {
                   node.dependencies.push(key);
                 }
@@ -187,14 +189,14 @@ export default function oRenderDOM(
             callbackDeclaration: '',
           });
         });
-        contextLegacy.declarationScript[0] = contextLegacy.getLengthDeclarationBeforeArrayEvaluation + contextLegacy.declarationScript[0];
-        const value = `${contextLegacy.declarationScript.join('')}
-            ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
-        contextLegacy.script = {
-          value,
-        };
-        component.for[query] = contextLegacy;
     }
+    contextLegacy.declarationScript[0] = contextLegacy.getLengthDeclarationBeforeArrayEvaluation + contextLegacy.declarationScript[0];
+    const value = `${contextLegacy.declarationScript.join('')}
+        ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
+    contextLegacy.script = {
+      value,
+    };
+    component.for[query] = contextLegacy;
   } catch(oRenderDOMException) {
     console.error(oRenderDOMException)
   }

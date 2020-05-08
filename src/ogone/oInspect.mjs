@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import Ogone from './index.mjs';
+import Ogone from './index.js';
 
 function startRecursiveInspection(p) {
   const stats = fs.statSync(p);
   if (stats.isFile()) {
     Ogone.files.push(p);
-  } 
+  }
   if (stats.isDirectory()) {
     const dir = fs.readdirSync(p);
     Ogone.directories.push(p);

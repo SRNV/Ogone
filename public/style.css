@@ -1,0 +1,12 @@
+body {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  color: #40c2aa;
+  font-family: 'Varela Round', sans-serif;
+}
+*::selection {
+  background: #40c2aa;
+  color: white;
+}

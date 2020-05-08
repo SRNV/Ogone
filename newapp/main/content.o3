@@ -1,0 +1,43 @@
+require title, text, code as String;
+<div class="container">
+  <div class="left">
+    <h2>${title}</h2>
+    <p class="text">${text}</p>
+  </div>
+  <div class="right">
+    <code class="code">
+      ${code}
+    </code>
+  </div>
+</div>
+<style>
+  .container {
+    min-height: 400px;
+    width: 100%;
+    display: flex;
+  }
+  @media screen and (max-width: 760px) {
+    .container {
+      flex-direction: column;
+    }
+  }
+  .left {
+    background: white;
+    flex: 6;
+    padding: 98px;
+    padding-left: 77px;
+  }
+  .right {
+    background: #202229;
+    flex: 5;
+    padding: 53px;
+    padding-top: 135px;
+  }
+  .code {
+    white-space: pre;
+  }
+  .text {
+    color: #808080;
+    margin-left: 30px;
+  }
+</style>

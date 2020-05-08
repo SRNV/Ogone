@@ -1,15 +1,15 @@
-import Ogone from './index.js';
-import uuid from 'uuid-node';
+import Ogone from '../index.ts';
+import iterator from '../../../lib/iterator.js';
 
 export default function oRenderNodesBehavior(keyComponent, node, structure = '', index = 0) {
   const component = Ogone.components.get(keyComponent);
   let query = '';
-  let contextLegacy = {};
   if (node.tagName && node.nuuid) {
     query = `${structure} [${node.nuuid}]`.trim();
   } else {
     query = `${structure}`.trim();
   }
+  if (query === '[o-19] [o-20]') console.warn(node);
   const isNS = ['svg', 'path', 'polygon'].includes(node.tagName) ? 'NS' : '';
   const namespaced = isNS.length ? '"http://www.w3.org/2000/svg", ': '';
   let requirement = null;
@@ -21,6 +21,9 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
     node.setAttribute${isNS}(${namespaced}'${component.uuid}',''); /* style scope */
     /* attributes */
     ${node.attributes ? Object.entries(node.attributes).map(([key, value]) => {
+      if (value === true) {
+        return `node.setAttribute('${key}', '');`
+      }
       return `node.setAttribute('${key}', '${value}');`;
     }).join('\n') : ''}
   `;
@@ -35,7 +38,6 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
   `;
   const elementid = node.nodeType === 1 ?
     `${component.uuid}${node.nuuid ? '-' + node.nuuid : ''}` : `${component.uuid}-${query}-text-${index}`;
-
   if (node.childNodes) {
     node.childNodes.forEach((child, i) => {
       if (node.nodeType === 1) oRenderNodesBehavior(keyComponent, child, query, i);
@@ -121,7 +123,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
               }
             }));`.trim();
         } else {
-          let subquery = `data-${uuid.generateUUID().split('-')[0]}`;
+          let subquery = `data-${iterator.next().value}`;
           templateDeclaration = `
           subnode = new Comment('');
           node.append(subnode);

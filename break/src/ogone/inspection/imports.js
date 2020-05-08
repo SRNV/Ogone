@@ -1,6 +1,6 @@
-import path from 'path';
-import Ogone from './index.js';
-import jsThis from '../../js-this/switch.js';
+import { join } from 'https://deno.land/std@v0.42.0/path/win32.ts';
+import Ogone from '../index.ts';
+import jsThis from '../../../lib/js-this/switch.js';
 
 export default function oRenderImports() {
   const entries = Array.from(Ogone.components.entries());
@@ -26,12 +26,13 @@ export default function oRenderImports() {
       }
       if (tokens.body && tokens.body.use) {
         Object.values(tokens.body.use).forEach((item) => {
-          const { src } = Ogone.config;
-          const pathToSrc = path.join(process.cwd(), src);
-          const pathComponent = path.join(pathToSrc, item.path);
+          const pathComponent = item.path;
           component.imports[item.as.replace(/['"`]/gi, '')] = pathComponent;
         });
       }
+      textNodes.forEach((node) => {
+        node.rawText = '';
+      });
       component.properties = tokens.body.properties;
     }
   })

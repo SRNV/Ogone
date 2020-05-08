@@ -1,8 +1,8 @@
-import Ogone from './index.mjs';
-import oRenderDOM from './oRenderDOM.mjs';
-import oRenderNodesBehavior from './oRenderNodesBehavior.mjs';
-import oRenderContext from './oRenderContext.mjs';
-import oRenderComponentDatas from './oRenderComponentDatas.mjs';
+import Ogone from './index.js';
+import oRenderDOM from './oRenderDOM.js';
+import oRenderNodesBehavior from './oRenderNodesBehavior.js';
+import oRenderContext from './oRenderContext.js';
+import oRenderComponentDatas from './oRenderComponentDatas.js';
 
 export default function oStartRenderingDom() {
   const entries = Array.from(Ogone.components.entries());

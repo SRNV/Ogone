@@ -1,16 +1,18 @@
-import BABEL from "@babel/core";
-import Ogone from './index.js';
-import jsThis from '../../js-this/switch.js';
+// import BABEL from "@babel/core";
+import Ogone from '../index.ts';
+import jsThis from '../../../lib/js-this/switch.js';
+
 
 export default function oRenderScripts() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([pathToComponent, component]) => {
-    const moduleScript = component.rootNode.childNodes.find(node => node.tagName === 'module');
+    const moduleScript = component.rootNode.childNodes.find(node => node.tagName === 'module')?.childNodes[0];
     if (moduleScript) {
       const ogoneScript = jsThis(moduleScript.rawText, { data: true, reactivity: true, });
       component.data = ogoneScript.body.data;
       const { value } = ogoneScript;
       let script = `(function* () { switch(yield) { ${value} } });`;
+      /*
       const { code } = BABEL.transformSync(script, {
         code: true,
         plugins: [
@@ -19,7 +21,8 @@ export default function oRenderScripts() {
           ["@babel/plugin-transform-react-jsx", { pragma: Ogone.pragma }],
         ],
       });
-      component.scripts.runtime = code;
+      */
+      component.scripts.runtime = script;
     }
     if (component.properties && component.data && component.properties.length) {
       component.properties.forEach(([key]) => {

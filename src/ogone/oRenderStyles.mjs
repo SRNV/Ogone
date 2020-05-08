@@ -1,6 +1,6 @@
 import uuid from 'uuid-node';
 import pse from 'postcss-scopeify-everything';
-import Ogone from './index.mjs';
+import Ogone from './index.js';
 
 export default function oRenderStyles() {
   const entries = Array.from(Ogone.components.entries());

@@ -3,7 +3,7 @@ import path from 'path';
 import YAML from 'yaml';
 import uuid from 'uuid-node';
 import nhp from 'node-html-parser';
-import Ogone from './index.mjs';
+import Ogone from './index.js';
 
 const { parse } = nhp;
 export default function oRender() {

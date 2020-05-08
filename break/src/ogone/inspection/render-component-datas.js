@@ -1,4 +1,4 @@
-import Ogone from './index.js';
+import Ogone from '../index.ts';
 
 export default function(component) {
   if (component.data instanceof Object) {
@@ -21,5 +21,4 @@ export default function(component) {
     `;
     Ogone.datas.push(result);
   }
-
 }

@@ -9,7 +9,7 @@ const prog = `
 const nodeModulesPath = path.join(process.cwd(), 'node_modules');
 const nodeModules = fs.readdirSync(nodeModulesPath, 'utf8');
 const currentDirectoryPath = process.cwd();
-const jsThis = require('./js-this/switch.mjs');
+const jsThis = require('./js-this/switch.js');
 
 function isCjsModule(content) {
   let result = content.replace(/"([^\"]*)+"/gi, '');
