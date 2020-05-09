@@ -118,6 +118,7 @@ export default function oRenderDOM(
               });
               break;
             case directive === 'o-for':
+              console.warn(node.id, node.parentNode.id);
               const oForDirective = oRenderForDirective(onevent);
               const { item, index, array, } = oForDirective;
               node.oForDirective = oForDirective;
@@ -134,10 +135,8 @@ export default function oRenderDOM(
               node.hasDirective = true;
               const getLengthScript = `
               if (GET_LENGTH) {
-                  if (QUERY === '${query}') return (${array}).length;
-                  else return 1;
-                }
-              `;
+                  return (${array}).length;
+              }`;
               contextLegacy.getLengthDeclarationBeforeArrayEvaluation = getLengthScript;
               const declarationScript = [`
                 let ${index} = POSITION[${contextLegacy.limit}+1],
@@ -166,6 +165,9 @@ export default function oRenderDOM(
     }
     if(domDirective.directives.length) component.directives.push(domDirective);
     if (id !== null) component.dom.push(dom);
+    if (node.hasDirective && node.attributes) {
+      node.attributes.is = true;
+    }
     if (node.childNodes?.length) {
       node.childNodes
         .forEach((el, i) => {
@@ -196,7 +198,7 @@ export default function oRenderDOM(
     contextLegacy.script = {
       value,
     };
-    component.for[query] = contextLegacy;
+    component.for[node.id] = contextLegacy;
   } catch(oRenderDOMException) {
     console.error(oRenderDOMException)
   }

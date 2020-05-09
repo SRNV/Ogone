@@ -15,5 +15,7 @@ export default {
   onclose: [],
   templates: [],
   contexts: [],
+  customElements: [],
+  classes: [],
   datas: [],
 };

@@ -2,7 +2,7 @@ use @/newapp/main/content.o3 as "content";
 <div class="container">
   <content
     o-for="articles as (article)"
-    :text="`Ogone is an experimental tool for Fullstack dev.\nFully based Deno.`"
+    :text="`Ogone is an experimental tool for Fullstack dev.\nFully based on Deno.`"
     :title="title"
     :code="start"
   ></content>

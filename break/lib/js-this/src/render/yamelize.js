@@ -20,8 +20,14 @@ export default function(typedExpressions, expressions, prog) {
     const reg = new RegExp(`\\n${spaces.replace(/\s/gi, '\\s')}[^\\s]`, 'gi');
     const candidate = prog.split(`\n${match[0]}`).filter((c) => c.trim().length);
     if (candidate && candidate[0]) {
-      const data = candidate[0].split(reg)[0];
-      const declaration = `${match[0]}${data}`;
+      let data = candidate[0].split(reg)[0];
+      let previous = data;
+      while (data.indexOf('§§') > -1) {
+        Object.entries(expressions).forEach(([key, value]) => {
+          data = data.replace(key, expressions[key]);
+        });
+      }
+      const declaration = `${match[0]}${previous}`;
       const yaml = YAML.parse(data);
       result = result.replace(declaration, '');
       typedExpressions.data = yaml;

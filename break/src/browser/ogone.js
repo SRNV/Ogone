@@ -6,4 +6,5 @@ const Ogone = {
   texts: [],
   contexts: {},
   components: {},
+  classes: {},
 };

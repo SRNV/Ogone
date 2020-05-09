@@ -1,9 +1,8 @@
 import { existsSync } from "../../../utils/exists.ts";
 import Ogone from "../index.ts";
 import domparse from "../../../lib/dom-parser/index.js";
-
 export default function oRender() {
-    Ogone.files.forEach((file) => {
+    Ogone.files.forEach((file, i) => {
         const index = file;
         if (existsSync(index)) {
           const html = Deno.readTextFileSync(index);
@@ -21,7 +20,7 @@ export default function oRender() {
           });
 
           Ogone.components.set(index, {
-            uuid: `data-${btoa(Math.random().toString())}`,
+            uuid: `data-${i}`,
             html: rootNode.toString(),
             file: index,
             rootNode,

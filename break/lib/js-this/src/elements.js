@@ -468,6 +468,7 @@ export default [
     close: ':',
   },
   {
+    name: 'block',
     open: '[',
     reg: /\[([^\[\]]*)+\]/,
     id: (value, matches, typedExpressions, expressions) => {

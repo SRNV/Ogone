@@ -6,7 +6,9 @@ require title, text, code as String;
   </div>
   <div class="right">
     <code class="code">
-      ${code}
+      <pre>
+        ${code}
+      </pre>
     </code>
   </div>
 </div>

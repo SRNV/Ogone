@@ -6,7 +6,7 @@ import Ogone from './src/ogone/index.ts';
 import { existsSync } from './utils/exists.ts';
 import compile from './src/ogone/compilation/index.ts';
 
-const port : number = 8080;
+const port : number = 8000;
 // open the server
 const server = serve({ port });
 // start rendering Ogone system
@@ -28,18 +28,16 @@ const script = `
   ${Ogone.datas.join('\n')}
   ${Ogone.contexts.join('\n')}
   ${Ogone.templates.join('\n')}
-  const root = new Ogone.components['${rootComponent.uuid}']();
-  root.read({
-    id: 'root',
-    attr: '${rootComponent.uuid}',
-    type: 'component',
-    querySelector: '#app',
-  });
+  ${Ogone.classes.join('\n')}
+  ${Ogone.customElements.join('\n')}
+  console.warn(Ogone);
 `;
 const DOM = `
 <script type="module">
 ${script}
-</script>`;
+</script>
+<template-${rootComponent.uuid} />
+`;
 
 let body = template
   .replace(/%%styles%%/, style)

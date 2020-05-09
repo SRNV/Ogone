@@ -28,6 +28,7 @@ function NodeManager(component, node, opts) {
   this.amount = 1;
   this.childs = [];
   this.parentNodeManager = opts.parentNodeManager;
+  this.parentContextId = opts.parentContextId;
   this.requirement = opts.requirement;
   this.props = opts.props;
   this.dependencies = opts.dependencies;
@@ -158,5 +159,5 @@ NodeManager.prototype.setAmountOfNodes = function() {
     query: this.querySelector,
     getLength: true,
   });
-  if (this.uuid === "o-25-0") console.warn(this.amount);
+  // if (this.parentContextId) console.warn(this.getContext, this.amount, this);
 };

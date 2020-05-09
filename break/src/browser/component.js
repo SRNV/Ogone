@@ -2,50 +2,64 @@ const host = location.host;
 function OComponent() {
   this.contexts = {};
   this.context = {};
-  this.nms = {}; /* NodeManager{} */
   this.events = {}; /* events describers */
   this.arrays = {}; /* data describer o-for */
   this.directRenders = {};
   this.texts = [];
+  this.childs = [];
   this.read = (ev) => {
     switch(ev.type) {
       case 'component':
-          this.rootNode = ev.node || document.querySelector(`${ev.querySelector}:not([${ev.attr}])`);
-          this.id = ev.id;
-          this.render(ev);
-          let gen = this.runtime();
-          gen.next();
-          const v = gen.next('init');
-          Object.seal(this.data);
-          const w = gen.next('mounted');
-          const watchers = gen.next();
-        break;
+        this.id = ev.id;
     }
   }
+  this.startLifecycle = () => {
+    // WIP
+    let gen = this.runtime();
+    gen.next();
+    const v = gen.next('init');
+    Object.seal(this.data);
+    const w = gen.next('mounted');
+    const watchers = gen.next();
+  };
   this.update = (dependency) => {
+    this.texts.forEach((t) => t(dependency));
+    this.childs.forEach((c) => {
+      c.updateProps(dependency);
+    })
+    /*
     const nms = Object.values(this.nms);
     nms.filter((nm) => nm.state).reverse().forEach((nm) => {
       nm.update(dependency);
     });
+    */
   }
-  this.render = (item) => {
-    if (!item) return;
-    if (this.rootNode) {
-      Ogone.templates[item.attr](this, {
-        ...item,
-        hasNodeManager: true,
-        parentNodeManager: item.parentNodeManager || this,
-        nodeManager: null,
-        index: 0,
-        level: 0,
-        position: [0],
-        querySelector: this.id,
-        callback: (template) => {
-          this.rootNode.replaceWith(...template.childNodes);
-        },
+  this.updateProps = (dependency) => {
+    if (!this.requirements || !this.props) return;
+    this.requirements.forEach(([key, constructors]) => {
+      const prop = this.props.find((prop) => prop.name === key);
+      const isAny = constructors.includes(null);
+      if (!prop && !isAny) {
+        const UndefinedPropertyForComponentException = new Error(`[Ogone] ${key} is required as property but undefined in template. Please use following syntax\n\t\t<component :${key}="..."></component>`);
+        throw UndefinedPropertyForComponentException;
+      }
+      const value = this.parentContext({
+        getText: `${prop.value}`,
+        position: this.positionInParentComponent,
       });
-      this.update(true);
-    }
+      if ((value === undefined || value === null)  && !isAny) {
+        const NullishPropertyException = new Error(`[Ogone] ${key} is required as property but can\'t be null. Please use following syntax\n\t\t<component :${key}="${constructors.join(' | ')}"></component>`);
+        throw NullishPropertyException;
+      }
+      if (!constructors.includes(value.constructor.name)) {
+        const PropertyDontMatchWithConstructorsException = new Error(`[Ogone] ${key} is required as property but it's value is not one of ${constructors.join(' | ')}`);
+        throw PropertyDontMatchWithConstructorsException;
+      }
+      if (value !== this.data[key]) {
+        this.data[key] = value;
+        this.update(key);
+      }
+    })
   }
   this.renderElements = (html) => {
     const template = document.createElement('template');

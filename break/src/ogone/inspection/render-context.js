@@ -2,11 +2,10 @@ import Ogone from '../index.ts';
 
 export default function oRenderContext(keyComponent) {
   const component = Ogone.components.get(keyComponent);
-  Object.entries(component.for).forEach(([querySelector, directive]) => {
+  Object.entries(component.for).forEach(([nId, directive]) => {
     const { script, } = directive;
-    console.warn(script)
     const contextScript = `
-    Ogone.contexts['${component.uuid}-${querySelector}'] = function(opts) {
+    Ogone.contexts['${component.uuid}-${nId}'] = function(opts) {
         const {
           getLength: GET_LENGTH,
           getText: GET_TEXT,

@@ -13,7 +13,6 @@ function getRootnode(html, expressions) {
     .forEach((key) => {
       result = expressions[key];
       result.type = 'root';
-      delete result.attributes;
       delete result.id;
     })
   return result;
@@ -62,6 +61,7 @@ function parseNodes(html, expressions) {
             .sort((a, b) => innerHTML.indexOf(a) - innerHTML.indexOf(b))
             .forEach((k) => {
               expressions[key].childNodes.push(expressions[k]);
+              expressions[k].parentNode = expressions[key];
             });
         // get attrs
           keysOfExp
@@ -76,8 +76,6 @@ function parseNodes(html, expressions) {
           delete expressions[key].autoclosing;
           delete expressions[key].closing;
           delete expressions[key].expression;
-          // delete expressions[key].rawAttrs;
-          delete expressions[key].id;
         });
     })
   return result;
@@ -94,6 +92,7 @@ function parseTextNodes(html, expression) {
         type: 'text',
         value: content,
         expression: content,
+        id: i,
         nodeType: 3,
       };
       result = result.replace(`>${content}<`, `>${key}<`);
@@ -240,8 +239,88 @@ function cleanNodes(expressions) {
     }
   }
 }
+function setNodesPragma(expressions) {
+  const nodes = Object.values(expressions).reverse();
+  let pragma = '';
+  for (let node of nodes) {
+    const params = 'ctx, position = [], index = 0, level = 0';
+    if (node.nodeType === 1 && node.tagName !== 'style') {
+      const nId = `n${node.id}`;
+      node.id = nId;
+      let nodeIsDynamic = Object.keys(node.attributes).find((attr) => attr.startsWith(':') ||
+        attr.startsWith('--') ||
+        attr.startsWith('@') ||
+        attr.startsWith('&') ||
+        attr.startsWith('o-') ||
+        attr.startsWith('_'));
+      let setAttributes = Object.entries(node.attributes)
+        .filter(([key, value]) => !(key.startsWith(':') ||
+          key.startsWith('--') ||
+          key.startsWith('@') ||
+          key.startsWith('&') ||
+          key.startsWith('o-') ||
+          key.startsWith('_')))
+        .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`).join('');
+        pragma = (idComponent, isRoot = true, imports = [], getId) => {
+          let nodesPragma = node.childNodes.filter((child) => child.pragma).map((child) => child.pragma(idComponent, false, imports, getId)).join(',');
+          let appending = `${nId}.append(${nodesPragma});`;
+          const isImported = imports.includes(node.tagName);
+          const callComponent = isRoot ?  ';' : '(ctx, [...position], 0, level + 1)';
+          let extensionId = '';
+          if (isImported) {
+            extensionId = getId(node.tagName);
+          }
+          const props = Object.entries(node.attributes).filter(([key]) => key.startsWith(':')).map(([key, value]) => {
+            return { name: key.replace(/^\:/, ''), value }
+          })
+        return `
+        (function(${params}) {
+          const ${nId} = document.createElement('${node.tagName && !isImported ? node.tagName : `template-${extensionId}`}');
+          if (position) position[level] = index;
+          ${nId}.setAttribute('${idComponent}', '');
+          ${nodeIsDynamic && !isImported ? `${nId}.setAttribute('is', '${nId}');` : ''}
+          ${nodeIsDynamic && !isImported || node.tagName === null ? `${nId}.component = ctx;` : ''}
+          ${isImported ? `${nId}.parentComponent = ctx;` : ''}
+          ${isImported ? `${nId}.parentCTXId = '${idComponent}-${node.id}';` : ''}
+          ${isImported ? `${nId}.positionInParentComponent = position;` : ''}
+          ${isImported ? `${nId}.props = (${props ? JSON.stringify(props) : null});` : ''}
+          ${setAttributes}
+          ${nodesPragma.length ? appending : ''}
+          return ${nId};
+        })${callComponent}`;
+      };
+    }
+    if (node.nodeType === 3) {
+      const nId = `t${node.id}`;
+      node.id = nId;
+      pragma = (idComponent) => {
+        const isEvaluated = node.rawText.indexOf('${') > -1;
+        const registerText = isEvaluated ? `
+          const g = Ogone.contexts['${idComponent}-${node.parentNode.id}'].bind(ctx.data); /* getContext function */
+          const txt = '\`${node.rawText.replace(/\n/gi, ' ')}\`';
+          function evl(key) {
+            if (txt.indexOf(key) < 0) return;
+            const v = g({
+              getText: txt,
+              position,
+            });
+            if (${nId}.data && ${nId}.data !== v) ${nId}.data = v;
+          };
+          evl();
+          ctx.texts.push(evl);
+        ` : '';
+        return `
+      (function(${params}) {
+        const ${nId} = new Text('${isEvaluated ? ' ' : node.rawText}');
+        ${registerText}
+        return ${nId};
+      })(ctx)`
+      };
+    }
+    node.pragma = pragma;
+  }
+}
 export default function parse(html) {
-  let begin = performance.now();
   let result = {
     comments: {}
   };
@@ -263,8 +342,11 @@ export default function parse(html) {
 
   // get rootNode
   result = getRootnode(str, expressions);
+  result.id = 't';
   // delete last useless props and set rawtext to textnodes
   cleanNodes(expressions);
+  // set to all nodes the jsx pragma
+  setNodesPragma(expressions);
   // critical this will say to o3 that is the rootNode
   result.tagName = null;
   return result;

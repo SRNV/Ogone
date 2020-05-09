@@ -1,0 +1,6 @@
+require text as String
+<div>
+    <slot></slot>
+    <slot name="test"></slot>
+    ${text}
+</div>

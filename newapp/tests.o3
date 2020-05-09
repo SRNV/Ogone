@@ -1,0 +1,12 @@
+use @/newapp/testdirectives.o3 as 'test-d'
+<div>
+    <h1>Test des directives</h1>
+    <test-d o-for="array as (arr)" :text="arr"> </test-d>
+</div>
+<module>
+  this:
+    array:
+      - "1"
+      - "2"
+      - "3"
+</module>
