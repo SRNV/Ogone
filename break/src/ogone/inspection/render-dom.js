@@ -4,22 +4,22 @@ import parseAttrs from '../../../lib/html-this/parseAttrs.js';
 import oRenderForDirective from './render-for-directive.js';
 
 const directives = [
-  'o-if',
-  'o-else',
-  'o-for',
-  'o-click',
-  'o-mousemove',
-  'o-mousedown',
-  'o-mouseup',
-  'o-mouseleave',
-  'o-dblclick',
-  'o-drag',
-  'o-dragend',
-  'o-dragstart',
-  'o-model',
-  'o-transform',
-  'o-html',
-  'o-input',
+  '--if',
+  '--else',
+  '--for',
+  '--click',
+  '--mousemove',
+  '--mousedown',
+  '--mouseup',
+  '--mouseleave',
+  '--dblclick',
+  '--drag',
+  '--dragend',
+  '--dragstart',
+  '--model',
+  '--transform',
+  '--html',
+  '--input',
 ];
 export default function oRenderDOM(
   keyComponent,
@@ -47,11 +47,20 @@ export default function oRenderDOM(
     if (node.rawAttrs && node.rawAttrs.length) {
       const parsedAttrs = parseAttrs(node.rawAttrs);
       node.props = parsedAttrs.filter(a => a.prop);
+      node.directives = parsedAttrs.filter(a => a.directive);
       node.event = parsedAttrs.filter(a => a.event);
       node.props.forEach((prop) => {
         delete node.attributes[prop.savedName];
         Object.keys(component.data).forEach((key) => {
           if (prop.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
+            node.dependencies.push(key);
+          }
+        });
+      });
+      node.directives.forEach((d) => {
+        delete node.attributes[d.savedName];
+        Object.keys(component.data).forEach((key) => {
+          if (d.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
             node.dependencies.push(key);
           }
         });
@@ -117,8 +126,7 @@ export default function oRenderDOM(
                 if (this[onevent] !== value) { this[onevent] = value; }
               });
               break;
-            case directive === 'o-for':
-              console.warn(node.id, node.parentNode.id);
+            case directive === '--for':
               const oForDirective = oRenderForDirective(onevent);
               const { item, index, array, } = oForDirective;
               node.oForDirective = oForDirective;
@@ -139,7 +147,7 @@ export default function oRenderDOM(
               }`;
               contextLegacy.getLengthDeclarationBeforeArrayEvaluation = getLengthScript;
               const declarationScript = [`
-                let ${index} = POSITION[${contextLegacy.limit}+1],
+                let ${index} = POSITION[${contextLegacy.limit}],
                 ${item} = (${array})[${index}];`];
 
               contextLegacy.declarationScript = contextLegacy.declarationScript.concat(declarationScript);
@@ -159,9 +167,6 @@ export default function oRenderDOM(
         component.refs[ref] = query;
         delete node.attributes?.ref;
       }
-    }
-    if (node.tagName) {
-      contextLegacy.limit+= +1;
     }
     if(domDirective.directives.length) component.directives.push(domDirective);
     if (id !== null) component.dom.push(dom);
@@ -189,6 +194,7 @@ export default function oRenderDOM(
             tree: [...contextLegacy.tree],
             declarationScript: [...contextLegacy.declarationScript],
             callbackDeclaration: '',
+            limit: contextLegacy.limit+1,
           });
         });
     }
@@ -197,6 +203,7 @@ export default function oRenderDOM(
         ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ''} `;
     contextLegacy.script = {
       value,
+      node,
     };
     component.for[node.id] = contextLegacy;
   } catch(oRenderDOMException) {

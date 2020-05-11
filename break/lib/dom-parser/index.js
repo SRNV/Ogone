@@ -211,7 +211,7 @@ function preserveComments(html, expression) {
       let comment = open.split(closeComment)[0];
       let key = getUniquekey('com');
       const allComment = `${openComment}${comment}${closeComment}`;
-      result = result.replace(allComment, key);
+      result = result.replace(allComment, '');
       expression[key] = {
         expression: allComment,
         value: comment,
@@ -247,45 +247,52 @@ function setNodesPragma(expressions) {
     if (node.nodeType === 1 && node.tagName !== 'style') {
       const nId = `n${node.id}`;
       node.id = nId;
-      let nodeIsDynamic = Object.keys(node.attributes).find((attr) => attr.startsWith(':') ||
-        attr.startsWith('--') ||
-        attr.startsWith('@') ||
-        attr.startsWith('&') ||
-        attr.startsWith('o-') ||
-        attr.startsWith('_'));
-      let setAttributes = Object.entries(node.attributes)
-        .filter(([key, value]) => !(key.startsWith(':') ||
-          key.startsWith('--') ||
-          key.startsWith('@') ||
-          key.startsWith('&') ||
-          key.startsWith('o-') ||
-          key.startsWith('_')))
-        .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`).join('');
+      let nodeIsDynamic = !!Object.keys(node.attributes).find((attr) => attr.startsWith(':') ||
+      attr.startsWith('--') ||
+      attr.startsWith('@') ||
+      attr.startsWith('&') ||
+      attr.startsWith('_'));
+    let setAttributes = Object.entries(node.attributes)
+      .filter(([key, value]) => !(key.startsWith(':') ||
+        key.startsWith('--') ||
+        key.startsWith('@') ||
+        key.startsWith('&') ||
+        key.startsWith('o-') ||
+        key.startsWith('_')))
+      .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`).join('');
         pragma = (idComponent, isRoot = true, imports = [], getId) => {
           let nodesPragma = node.childNodes.filter((child) => child.pragma).map((child) => child.pragma(idComponent, false, imports, getId)).join(',');
           let appending = `${nId}.append(${nodesPragma});`;
           const isImported = imports.includes(node.tagName);
-          const callComponent = isRoot ?  ';' : '(ctx, [...position], 0, level + 1)';
+          const callComponent = isRoot ?  ';' : '(ctx, position.slice(), index, level + 1)';
           let extensionId = '';
           if (isImported) {
             extensionId = getId(node.tagName);
           }
           const props = Object.entries(node.attributes).filter(([key]) => key.startsWith(':')).map(([key, value]) => {
-            return { name: key.replace(/^\:/, ''), value }
+            return [key.replace(/^\:/, ''), value];
           })
+          let nodeCreation = `const ${nId} = document.createElement('${node.tagName && !isImported ? node.tagName : `template-${extensionId}`}');`;
+          if (nodeIsDynamic && !isImported && !isRoot) {
+            // create a custom element if the element as a directive or prop or event;
+            nodeCreation = `const ${nId} = document.createElement('${idComponent}-${node.id}');`;
+          }
         return `
         (function(${params}) {
-          const ${nId} = document.createElement('${node.tagName && !isImported ? node.tagName : `template-${extensionId}`}');
+          ${nodeCreation}
           if (position) position[level] = index;
+          ${nId}.position = position;
+          ${nId}.level = level;
           ${nId}.setAttribute('${idComponent}', '');
-          ${nodeIsDynamic && !isImported ? `${nId}.setAttribute('is', '${nId}');` : ''}
           ${nodeIsDynamic && !isImported || node.tagName === null ? `${nId}.component = ctx;` : ''}
           ${isImported ? `${nId}.parentComponent = ctx;` : ''}
           ${isImported ? `${nId}.parentCTXId = '${idComponent}-${node.id}';` : ''}
           ${isImported ? `${nId}.positionInParentComponent = position;` : ''}
+          ${isImported ? `${nId}.levelInParentComponent = level;` : ''}
           ${isImported ? `${nId}.props = (${props ? JSON.stringify(props) : null});` : ''}
           ${setAttributes}
           ${nodesPragma.length ? appending : ''}
+          ${nId}.renderChildNodes = ${node.tagName === null};
           return ${nId};
         })${callComponent}`;
       };
@@ -296,15 +303,16 @@ function setNodesPragma(expressions) {
       pragma = (idComponent) => {
         const isEvaluated = node.rawText.indexOf('${') > -1;
         const registerText = isEvaluated ? `
-          const g = Ogone.contexts['${idComponent}-${node.parentNode.id}'].bind(ctx.data); /* getContext function */
+          const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
           const txt = '\`${node.rawText.replace(/\n/gi, ' ')}\`';
           function evl(key) {
-            if (txt.indexOf(key) < 0) return;
+            if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({
               getText: txt,
               position,
             });
             if (${nId}.data && ${nId}.data !== v) ${nId}.data = v;
+            return true;
           };
           evl();
           ctx.texts.push(evl);
@@ -314,7 +322,7 @@ function setNodesPragma(expressions) {
         const ${nId} = new Text('${isEvaluated ? ' ' : node.rawText}');
         ${registerText}
         return ${nId};
-      })(ctx)`
+      })(ctx, position.slice())`
       };
     }
     node.pragma = pragma;

@@ -1,0 +1,33 @@
+<div class="container">
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+</div>
+<style>
+.line, .container {
+  border-radius: 5px;
+  transition: filter 0.2s ease;
+  cursor: pointer;
+}
+.container {
+    padding: 9px;
+    width: 28px;
+    height: auto;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(0px 0px 0px #00000045);
+}
+.container:hover {
+    filter: drop-shadow(0px 5px 3px #00000045);
+}
+.line {
+  background: #848181;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  height: 4px;
+}
+.line:hover {
+    background: #40c2aa;
+}
+</style>

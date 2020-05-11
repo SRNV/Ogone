@@ -31,7 +31,7 @@ function jsThis(str, opts) {
   };
   let prog = `\n${str}`;
   prog = renderNullifiedValues(typedExpressions, expressions, prog);
-  if (prog.indexOf('this:') > -1 && opts && opts.data === true) {
+  if (prog.indexOf('def:') > -1 && opts && opts.data === true) {
     prog = yamelize(typedExpressions, expressions, prog);
   }
 

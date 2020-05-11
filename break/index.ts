@@ -30,13 +30,12 @@ const script = `
   ${Ogone.templates.join('\n')}
   ${Ogone.classes.join('\n')}
   ${Ogone.customElements.join('\n')}
-  console.warn(Ogone);
 `;
 const DOM = `
+<template-${rootComponent.uuid} />
 <script type="module">
 ${script}
 </script>
-<template-${rootComponent.uuid} />
 `;
 
 let body = template

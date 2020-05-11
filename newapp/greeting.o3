@@ -1,0 +1,5 @@
+<p>Hello ${name}</p>
+<proto>
+    def:
+        name: Rudy
+</proto>

@@ -3,6 +3,7 @@ import Ogone from '../index.ts';
 export default function(component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
+    const keysOfData = Object.keys(component.data);
     let result = `
     Ogone.components['${component.uuid}'] = function () {
       OComponent.call(this);
@@ -16,7 +17,7 @@ export default function(component) {
         }
       }
       const run = ${runtime}
-      this.runtime = (run || function*(){}).bind(this.data);
+      this.runtime = (run || function(){}).bind(this.data);
     };
     `;
     Ogone.datas.push(result);

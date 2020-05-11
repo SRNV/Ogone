@@ -1,7 +1,7 @@
 require title, text, code as String;
 <div class="container">
   <div class="left">
-    <h2>${title}</h2>
+    <h2 class="title">${title}</h2>
     <p class="text">${text}</p>
   </div>
   <div class="right">
@@ -41,5 +41,8 @@ require title, text, code as String;
   .text {
     color: #808080;
     margin-left: 30px;
+  }
+  .title {
+    color: #3b6879;
   }
 </style>

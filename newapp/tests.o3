@@ -1,12 +1,29 @@
 use @/newapp/testdirectives.o3 as 'test-d'
 <div>
     <h1>Test des directives</h1>
-    <test-d o-for="array as (arr)" :text="arr"> </test-d>
+    <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">
+    ${o}
+    </div>
 </div>
-<module>
-  this:
+<proto>
+  def:
     array:
       - "1"
       - "2"
       - "3"
-</module>
+  case 'update:array':
+  console.warn(this.array);
+    break;
+</proto>
+<style>
+@media screen and (max-width:200px) {
+    .container,
+    element,
+    [attr]:hover {
+        background: red;
+    }
+    *:not(.class#element test) > element:hover > [attr]:nth-child(2) {
+      background: red
+    }
+}
+</style>

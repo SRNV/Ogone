@@ -1,11 +1,4 @@
 import Ogone from '../index.ts';
-import iterator from '../../../lib/iterator.js';
-import getAppendChilds from './templating/get-append-childs.js';
-import getNodeDeclaration from './templating/get-node-declaration.js';
-import getNMDeclaration from './templating/get-nm-declaration.js';
-import getChildComponent from './templating/get-child-component.js';
-import getComponentReadCallback from './templating/get-component-read-callback.js';
-import elementsExtensions from './templating/elements-extensions.js';
 
 export default function oRenderNodesBehavior(keyComponent, node, structure = '', index = 0) {
   const component = Ogone.components.get(keyComponent);
@@ -28,57 +21,172 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
         constructor() {
           super();
           const component = new Ogone.components['${component.uuid}']();
+          this.dependencies = (${JSON.stringify(node.dependencies)});
+          this.positionInParentComponent = [];
           component.dependencies = (${JSON.stringify(node.dependencies)});
           component.requirements = (${component.properties ? JSON.stringify(component.properties) : null});
-          component.props = this.props;
-          component.positionInParentComponent = this.positionInParentComponent;
-          if (!this.index) {
-            this.index = 0;
-          }
-          if (this.parentComponent) {
-            component.parent = this.parentComponent;
-            component.parent.childs.push(component);
-          }
-          if (Ogone.contexts[this.parentCTXId]) {
-            component.parentContext = Ogone.contexts[this.parentCTXId].bind(this.parentComponent.data);
-          }
           /* render function */
           const r = ${componentPragma.replace(/\n/gi, '').replace(/([\s])+/gi, ' ')}
           this.ogone = {
+            position: [0],
+            level: 0,
             component,
-            nodes: [],
-            placeholder: new Comment(),
+            nodes: Array.from(r(component).childNodes),
+            getContext: null,
             render: r,
+            originalNode: true, /* set as false by component */
           };
         }
         connectedCallback() {
-          const childs = Array.from(
-            this.ogone.render(this.ogone.component).childNodes
-          );
-          this.ogone.nodes.push(childs);
+          this.setProps();
+          this.setContext();
+          this.setDeps();
           this.render();
         }
+        setProps() {
+          if (!this.index) {
+            this.index = 0;
+          }
+          this.ogone.component.props = this.props;
+          this.ogone.component.positionInParentComponent = this.positionInParentComponent;
+          this.positionInParentComponent[this.levelInParentComponent] = this.index;
+        }
+        setContext() {
+          const oc = this.ogone.component;
+          if (this.parentComponent) {
+            oc.parent = this.parentComponent;
+            oc.parent.childs.push(oc);
+          }
+          if (Ogone.contexts[this.parentCTXId]) {
+            const gct = Ogone.contexts[this.parentCTXId].bind(this.parentComponent.data);
+            oc.parentContext = gct;
+            this.ogone.getContext = gct;
+          }
+        }
         render() {
-          this.ogone.nodes.forEach((nodes /* Node[] */) => {
-            this.replaceWith(...nodes)
+          const oc = this.ogone.component;
+          // update Props before replace the element
+          oc.updateProps();
+          // replace the element
+          this.replaceWith(...this.ogone.nodes);
+          if (oc.renderTexts instanceof Function) {
+            oc.renderTexts(true);
+          }
+          oc.startLifecycle();
+        }
+        setDeps() {
+          if (this.ogone.originalNode) {
+            /* directives: for */
+            if (this.ogone.getContext) {
+              // required for array.length evaluation
+              // create a random key
+              const key = this.parentCTXId+\`\${Math.random()}\`;
+              this.ogone.component.parent.react.push(() => this.directiveFor(key));
+              this.directiveFor(key);
+            }
+          }
+        }
+        directiveFor(key) {
+          const length = this.ogone.getContext({ getLength: true });
+          this.ogone.component.parent.render(this, {
+            callingNewComponent: true,
+            key,
+            length,
           });
-          this.ogone.component.startLifecycle();
-          this.ogone.component.updateProps();
+          return true;
+        }
+        removeNodes() {
+          /* use it before removing template node */
+          this.ogone.nodes.forEach((n) => n.remove());
+          return this;
+        }
+        get firstNode() {
+          return this.ogone.nodes[0];
+        }
+        get lastNode() {
+          const o = this.ogone.nodes;
+          return o[o.length - 1];
+        }
+        get name() {
+          return this.tagName.toLowerCase();
         }
       })
       customElements.define('template-${component.uuid}', Ogone.classes['${component.uuid}']);`;
     Ogone.classes.push(componentExtension);
   }
-  if (node.attributes && node.attributes.is) {
-    // console.warn(node.attributes.is);
+  if (node.hasDirective && node.tagName) {
+    const componentPragma = node.pragma(component.uuid, true, Object.keys(component.imports), () => component.uuid);
+    const componentExtension = `
+      Ogone.classes['${component.uuid}-${node.id}'] = (class extends HTMLElement {
+        constructor() {
+          super();
+          this.dependencies = (${JSON.stringify(node.dependencies)});
+          /* render function */
+          const r = ${componentPragma.replace(/\n/gi, '').replace(/([\s])+/gi, ' ')}
+          this.ogone = {
+            position: this.position,
+            level: this.level,
+            component: null,
+            render: r,
+            nodes: [],
+            getContext: null,
+            originalNode: true, /* set as false by component */
+          };
+        }
+        connectedCallback() {
+          this.ogone.nodes.push(
+            this.ogone.render(this.component, [...this.position], this.index, this.level));
+          this.setContext();
+          this.render();
+          this.setDeps();
+        }
+        setContext() {
+          this.ogone.component = this.component;
+          this.ogone.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(this.component.data);
+        }
+        render() {
+          this.replaceWith(...this.ogone.nodes);
+        }
+        setDeps() {
+          if (this.ogone.originalNode) {
+            /* directives: for */
+            if (this.ogone.getContext) {
+              // required for array.length evaluation
+              // create a random key
+              const key = '${node.id}'+\`\${Math.random()}\`;
+              this.ogone.component.react.push(() => this.directiveFor(key));
+              this.directiveFor(key);
+            }
+          }
+        }
+        directiveFor(key) {
+          const length = this.ogone.getContext({ getLength: true });
+          this.ogone.component.render(this, {
+            callingNewComponent: false,
+            key,
+            length,
+          });
+          return true;
+        }
+        removeNodes() {
+          /* use it before removing template node */
+          this.ogone.nodes.forEach((n) => n.remove());
+          return this;
+        }
+        get firstNode() {
+          return this.ogone.nodes[0];
+        }
+        get lastNode() {
+          const o = this.ogone.nodes;
+          return o[o.length - 1];
+        }
+        get name() {
+          return this.tagName.toLowerCase();
+        }
+      })
+      customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
+    Ogone.classes.push(componentExtension);
   }
-  /**
-    use native "is" attr of WEBCOMPONENTS
-    use WEBCOMPONENTS
-    TEMPLATES for COMPONENTS
-    ELEMENTs for elements
-   */
-  // Ogone.templates.push(result);
   if (node.childNodes) {
     node.childNodes.forEach((child, i) => {
       if (node.nodeType === 1) oRenderNodesBehavior(keyComponent, child, query, i);

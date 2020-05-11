@@ -2,9 +2,9 @@ import { YAML } from 'https://raw.githubusercontent.com/eemeli/yaml/master/src/i
 
 export default function(typedExpressions, expressions, prog) {
   let result = prog;
-  const match = prog.match(/([^\n\r]+){0,1}(this:)/);
-  const matches = prog.match(/([^\n\r]+){0,1}(this:)/gi);
-  const DoubleDeclarationOfThisException = new Error('[Ogone] double declaration of "this:" in component');
+  const match = prog.match(/([^\n\r]+){0,1}(def:)/);
+  const matches = prog.match(/([^\n\r]+){0,1}(def:)/gi);
+  const DoubleDeclarationOfThisException = new Error('[Ogone] double declaration of "def:" in component');
   let previousDeclaration = [];
   if (matches) {
     matches.forEach((dec) => {

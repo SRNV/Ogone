@@ -6,12 +6,12 @@ import jsThis from '../../../lib/js-this/switch.js';
 export default function oRenderScripts() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([pathToComponent, component]) => {
-    const moduleScript = component.rootNode.childNodes.find(node => node.tagName === 'module')?.childNodes[0];
+    const moduleScript = component.rootNode.childNodes.find(node => node.tagName === 'proto')?.childNodes[0];
     if (moduleScript) {
       const ogoneScript = jsThis(moduleScript.rawText, { data: true, reactivity: true, });
       component.data = ogoneScript.body.data;
       const { value } = ogoneScript;
-      let script = `(function* () { switch(yield) { ${value} } });`;
+      let script = `(function (_state) { switch(_state) { ${value} } });`;
       /*
       const { code } = BABEL.transformSync(script, {
         code: true,

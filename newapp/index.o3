@@ -1,23 +1,24 @@
 use @/newapp/main/body.o3 as 'body-og';
 use @/newapp/main/left-menu.o3 as 'left-menu';
 use @/newapp/main/logo.o3 as 'logo-el';
+use @/newapp/main/burger.o3 as 'burger-el';
+insert @/path/to/json;
 
 <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
 <div id="header" class="header">
   <div class="logo">
     <logo-el></logo-el>
-    <div class="title">O<sup>3</sup></div>
   </div>
   <div class="menu">
     <div>
-      burger
+      <burger-el></burger-el>
     </div>
   </div>
 </div>
 <body-og></body-og>
 <left-menu :test="scrollY"></left-menu>
-<module>
-  this:
+<proto>
+  def:
     scrollY: 0
   default:
     const header = document.getElementById('header');
@@ -30,7 +31,7 @@ use @/newapp/main/logo.o3 as 'logo-el';
       this.scrollY = window.scrollY
     });
     break;
-</module>
+</proto>
 <style>
   h1, h2, h3, h4 {
     color: #193b48;
