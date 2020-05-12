@@ -1,3 +1,5 @@
+import parseDirectives from "./parseDirectives.js";
+
 let i = 0;
 const openComment = '<!--';
 const closeComment = '-->';
@@ -25,10 +27,9 @@ function parseNodes(html, expressions) {
       const { expression, rawAttrs } = value;
       // get rawAttrs
       const attrRE = /([a-zA-Z0-9\$\_\[\]\:\-]*)+(\-\:{2}\d*attr\-)/gi;
-      const attrbooleanRE = /\s+([a-zA-Z0-9\$\-]*)(?!\:)\s*/gi;
+      const attrbooleanRE = /([a-zA-Z0-9\@\:\$\-]*)(?!\=)/gi;
       const matches = rawAttrs.match(attrRE);
       const matchesBoolean = rawAttrs.match(attrbooleanRE);
-
       matches?.forEach((attr) => {
         const attrIDRE = /([a-zA-Z0-9\$\_\[\]\:\-]*)+(\-\:{2}\d*attr\-)/;
         const [input, attributeName, id] = attr.match(attrIDRE);
@@ -39,7 +40,6 @@ function parseNodes(html, expressions) {
         .forEach((attr) => {
           expressions[key].attributes[attr.trim()] = true;
         });
-      //result = result.replace(key, expression);
     });
   const keysOfExp = Object.keys(expressions);
   // start parsing Nodes by reversed array
@@ -261,10 +261,10 @@ function setNodesPragma(expressions) {
         key.startsWith('_')))
       .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`).join('');
         pragma = (idComponent, isRoot = true, imports = [], getId) => {
-          let nodesPragma = node.childNodes.filter((child) => child.pragma).map((child) => child.pragma(idComponent, false, imports, getId)).join(',');
-          let appending = `${nId}.append(${nodesPragma});`;
           const isImported = imports.includes(node.tagName);
           const callComponent = isRoot ?  ';' : '(ctx, position.slice(), index, level + 1)';
+          let nodesPragma = node.childNodes.filter((child) => child.pragma).map((child) => child.pragma(idComponent, false, imports, getId)).join(',');
+          let appending = `${nId}.append(${nodesPragma});`;
           let extensionId = '';
           if (isImported) {
             extensionId = getId(node.tagName);
@@ -277,6 +277,11 @@ function setNodesPragma(expressions) {
             // create a custom element if the element as a directive or prop or event;
             nodeCreation = `const ${nId} = document.createElement('${idComponent}-${node.id}');`;
           }
+          /**
+           * all we set in this function
+           * will be usefull after the node is connected
+           * we will use the method connectedCalback and use the properties
+           */
         return `
         (function(${params}) {
           ${nodeCreation}
@@ -293,6 +298,16 @@ function setNodesPragma(expressions) {
           ${setAttributes}
           ${nodesPragma.length ? appending : ''}
           ${nId}.renderChildNodes = ${node.tagName === null};
+          ${
+            /**
+             * we need this to parse directives like
+             *  --click:name
+             *  --drag:name
+             */
+            parseDirectives(node, {
+            nodeIsDynamic,
+            isImported
+          })}
           return ${nId};
         })${callComponent}`;
       };
@@ -305,7 +320,7 @@ function setNodesPragma(expressions) {
         const registerText = isEvaluated ? `
           const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
           const txt = '\`${node.rawText.replace(/\n/gi, ' ')}\`';
-          function evl(key) {
+          function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({
               getText: txt,
@@ -314,8 +329,7 @@ function setNodesPragma(expressions) {
             if (${nId}.data && ${nId}.data !== v) ${nId}.data = v;
             return true;
           };
-          evl();
-          ctx.texts.push(evl);
+          ctx.texts.push(r);
         ` : '';
         return `
       (function(${params}) {

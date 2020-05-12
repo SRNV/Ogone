@@ -5,11 +5,11 @@ require title, text, code as String;
     <p class="text">${text}</p>
   </div>
   <div class="right">
-    <code class="code">
-      <pre>
-        ${code}
-      </pre>
-    </code>
+    <pre>
+      <code>
+          ${code}
+      </code>
+    </pre>
   </div>
 </div>
 <style>
@@ -34,6 +34,7 @@ require title, text, code as String;
     flex: 5;
     padding: 53px;
     padding-top: 135px;
+    padding-bottom: 135px;
   }
   .code {
     white-space: pre;

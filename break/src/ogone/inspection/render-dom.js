@@ -112,7 +112,7 @@ export default function oRenderDOM(
           const onevent = node.attributes[directive];
           const payload = [directive.slice(2)];
           switch(true) {
-            case directive === 'o-model' && ['input', 'textarea'].includes(node.tagName):
+            case directive === '--model' && ['input', 'textarea'].includes(node.tagName):
               if (onevent in component.data) {
                 if (!component.reactive[onevent]) {
                   component.reactive[onevent] = [];
@@ -204,6 +204,7 @@ export default function oRenderDOM(
     contextLegacy.script = {
       value,
       node,
+      ctx: legacy.ctx,
     };
     component.for[node.id] = contextLegacy;
   } catch(oRenderDOMException) {

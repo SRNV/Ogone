@@ -1,25 +1,26 @@
 use @/newapp/main/body.o3 as 'body-og';
 use @/newapp/main/left-menu.o3 as 'left-menu';
 use @/newapp/main/logo.o3 as 'logo-el';
-use @/newapp/main/burger.o3 as 'burger-el';
-insert @/path/to/json;
+use @/newapp/main/menu-content.o3 as 'menu-content';
 
 <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
 <div id="header" class="header">
   <div class="logo">
-    <logo-el></logo-el>
+    <logo-el --click:increase></logo-el>
   </div>
-  <div class="menu">
-    <div>
-      <burger-el></burger-el>
-    </div>
-  </div>
+  <menu-content />
 </div>
-<body-og></body-og>
-<left-menu :test="scrollY"></left-menu>
+<body-og />
+<left-menu :test="scrollY" />
 <proto>
   def:
     scrollY: 0
+  case 'click:increase':
+    console.warn('increase', ctx);
+    // run 'increase' use (ctx);
+    // run default use (ctx);
+    run default;
+  break;
   default:
     const header = document.getElementById('header');
     window.addEventListener('scroll', (ev) => {
@@ -52,13 +53,7 @@ insert @/path/to/json;
     position: sticky;
     top: 0px;
     transition: top 0.5s ease;
-  }
-  .menu {
-    flex: 8;
-    display: flex;
-    flex-direction: row-reverse;
-    vertical-align: middle;
-    align-items: center;
+    overflow: hidden;
   }
   .title {
     margin: auto;

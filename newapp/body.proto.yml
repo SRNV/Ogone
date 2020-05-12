@@ -1,0 +1,40 @@
+articles:
+  - title: Experimental tool for a fullstack use.
+    text: "Ogone is an experimental tool for Fullstack dev. \nFully based on Deno."
+    code: "
+        o3.serve({\n
+      \tentrypoint: '/app/index.o3',\n
+      \tport: 4000,\n
+        })"
+
+  - title: Get Started with the classic greeting app
+    text: "in the file app/index.o3 follow this example and \n type deno run command into your terminal"
+    code: "<p>Hello ${name}</p>\n
+        <proto>\n
+        \tdef:\n
+        \t\tname: Rudy\n
+        \tcase 'init':\n
+        \t\tthis.name = 'World';\n
+        \tbreak;\n
+        </proto>"
+
+  - title: Install Ogone
+    text: "this is how to install it"
+    code: 'import o3 from "https://deno.land/x/ogone/mod.ts"'
+
+  - title: Using def, case, default keywords to rule the component
+    text: Todo
+    code: "
+      <proto>\n
+      \tdef:\n
+      \t\tyaml: true\n
+      \tcase 'init':\n
+      \tcase 'update:yaml':\n
+      \tdefault:\n
+      \t\tthis.yaml = true;\n
+      \tbreak;\n
+      </proto>"
+
+  - title: read def in yml files
+    text: Todo
+    code: '<proto def="path/to/source.yml"/>'

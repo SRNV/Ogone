@@ -1,0 +1,22 @@
+require item as Object;
+<div class="container">
+ ${item.name}
+</div>
+<style>
+.container {
+  display: inline-flex;
+  background: white;
+  height: 100%;
+  vertical-align: middle;
+  align-items: center;
+  padding: 23px;
+  text-transform: capitalize;
+  color: #848181;
+  cursor: pointer;
+  user-select: none;
+}
+.container:hover {
+    background: #61c3aa;
+    color: white;
+}
+</style>

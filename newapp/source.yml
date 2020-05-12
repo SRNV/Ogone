@@ -1,0 +1,11 @@
+menu:
+  - name: Docs
+    route: /doc
+  - name: Api
+    route: /api
+  - name: todos
+    route: /todos
+  - name: git
+    route: /git
+  - name: support
+    route: /support

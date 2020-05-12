@@ -28,6 +28,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
           /* render function */
           const r = ${componentPragma.replace(/\n/gi, '').replace(/([\s])+/gi, ' ')}
           this.ogone = {
+            directives: this.directives,
             position: [0],
             level: 0,
             component,
@@ -41,6 +42,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
           this.setProps();
           this.setContext();
           this.setDeps();
+          this.setEventsDirectives();
           this.render();
         }
         setProps() {
@@ -53,6 +55,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
         }
         setContext() {
           const oc = this.ogone.component;
+          this.ogone.directives = this.directives;
           if (this.parentComponent) {
             oc.parent = this.parentComponent;
             oc.parent.childs.push(oc);
@@ -95,6 +98,20 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
           });
           return true;
         }
+        setEventsDirectives() {
+          if (!this.ogone || !this.ogone.directives) return;
+          this.ogone.directives.forEach((dir) => {
+            this.ogone.nodes.forEach((node) => {
+              node.addEventListener(dir.type, (ev) => {
+                const oc = this.ogone.component;
+                const ctx = this.ogone.getContext({
+                  position: oc.positionInParentComponent,
+                });
+                oc.parent.runtime(dir.case, ctx, ev);
+              })
+            })
+          });
+        }
         removeNodes() {
           /* use it before removing template node */
           this.ogone.nodes.forEach((n) => n.remove());
@@ -129,22 +146,34 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
             component: null,
             render: r,
             nodes: [],
+            directives: this.directives,
             getContext: null,
             originalNode: true, /* set as false by component */
           };
         }
         connectedCallback() {
-          this.ogone.nodes.push(
-            this.ogone.render(this.component, [...this.position], this.index, this.level));
+          this.setPosition();
           this.setContext();
-          this.render();
+          this.ogone.nodes.push(
+            this.ogone.render(this.component, this.position, this.index, this.level));
           this.setDeps();
+          this.setEventsDirectives();
+          this.render();
+        }
+        setPosition() {
+          this.position = [...this.position];
+          this.position[this.level] = this.index;
         }
         setContext() {
           this.ogone.component = this.component;
+          this.ogone.directives = this.directives;
+          this.ogone.position = this.position;
           this.ogone.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(this.component.data);
         }
         render() {
+          if (this.ogone.component.renderTexts instanceof Function) {
+            this.ogone.component.renderTexts(true);
+          }
           this.replaceWith(...this.ogone.nodes);
         }
         setDeps() {
@@ -172,6 +201,19 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
           /* use it before removing template node */
           this.ogone.nodes.forEach((n) => n.remove());
           return this;
+        }
+        setEventsDirectives() {
+          if (!this.ogone || !this.ogone.directives) return;
+          this.ogone.directives.forEach((dir) => {
+            this.ogone.nodes.forEach((node) => {
+              node.addEventListener(dir.type, (ev) => {
+                const c = this.ogone.getContext({
+                  position: this.ogone.position,
+                });
+                this.ogone.component.runtime(dir.case, c, ev);
+              })
+            })
+          });
         }
         get firstNode() {
           return this.ogone.nodes[0];

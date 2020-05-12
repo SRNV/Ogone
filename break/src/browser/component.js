@@ -54,7 +54,6 @@ function OComponent() {
         const UndefinedPropertyForComponentException = new Error(`[Ogone] ${key} is required as property but undefined in template. Please use following syntax\n\t\t<component :${key}="..."></component>`);
         throw UndefinedPropertyForComponentException;
       }
-      console.warn(this.positionInParentComponent, this);
       const value = this.parentContext({
         getText: `${prop[1]}`,
         position: this.positionInParentComponent,
@@ -93,6 +92,7 @@ function OComponent() {
       node.ogone.originalNode = false;
       node.position = Onode.position;
       node.level = Onode.level;
+      node.directives = Onode.directives;
       if (callingNewComponent) {
         node.props = Onode.props;
         node.parentComponent = Onode.parentComponent;

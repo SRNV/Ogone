@@ -7,33 +7,7 @@ use @/newapp/main/content.o3 as "content";
     :code="article.code"
   ></content>
 </div>
-<proto>
-  def:
-    title: Ogone
-    code: code
-    start: s
-    text: s
-    articles:
-      - text: test
-        code: test2
-        title: test3
-  case 'init':
-    this.start = `
-    o3.serve({
-      entrypoint: '/app/index.o3',
-      port: 4000,
-    })
-    `;
-    this.code = `
-      <div>Hello \$\{name}</div>
-      <proto>
-        def:
-          name: Foo
-      </proto>`;
-    this.title = `Experimental tool for a fullstack use.`;
-    this.text = `Ogone is an experimental tool for Fullstack dev.\nFully based on Deno.`;
-  break;
-</proto>
+<proto def="newapp/body.proto.yml" />
 <style>
   .container {
     height: auto;
