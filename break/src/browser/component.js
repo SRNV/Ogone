@@ -89,7 +89,6 @@ function OComponent() {
     // no need to render if it's the same
     if (context.length === dataLength) return;
     // first we add missing nodes, we use cloneNode to generate the web-component
-    console.warn(context.name, Onode.extends)
     for (let i = context.length, a = dataLength;i < a; i++) {
       let node;
       node = document.createElement(context.name, { is: Onode.extends });
@@ -119,6 +118,8 @@ function OComponent() {
       }
       context.push(node);
     }
+    // no need to remove if it's the same
+    if (context.length === dataLength) return;
     // now we remove the extra elements
     for (let i = context.length, a = dataLength; i > a; i--) {
       if (context.length === 1) {

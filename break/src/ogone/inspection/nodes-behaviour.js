@@ -131,6 +131,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
         get extends() {
           return '${component.uuid}-nt';
         }
+        setOgone() {}
       })
       customElements.define('${component.uuid}-nt', Ogone.classes['${component.uuid}'], {extends: 'template'});`;
     Ogone.classes.push(componentExtension);

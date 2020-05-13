@@ -174,6 +174,7 @@ export default function getElementExtension(component, node) {
         get extends() {
           return '${component.uuid}-${node.id}';
         }
+        setOgone() {}
       })
       customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}'], { extends: '${extensionId}' });`;
 }
