@@ -6,24 +6,16 @@ export default function oRender() {
         const index = file;
         if (existsSync(index)) {
           const html = Deno.readTextFileSync(index);
-          const rootNode = domparse(html, {
-            comment: true,
-            script: true,
-            style: true,
-            pre: false,
-          });
           const rootNodePure = domparse(html, {
             comment: false,
             script: false,
-            style: false,
+            style: true,
             pre: true,
           });
 
           Ogone.components.set(index, {
             uuid: `data-${i}`,
-            html: rootNode.toString(),
             file: index,
-            rootNode,
             rootNodePure,
             esmExpressions: '',
             exportsExpressions: '',

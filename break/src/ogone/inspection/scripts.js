@@ -8,7 +8,7 @@ import { existsSync } from '../../../utils/exists.ts';
 export default function oRenderScripts() {
   const entries = Array.from(Ogone.components.entries());
   entries.forEach(([pathToComponent, component]) => {
-    const proto = component.rootNode.childNodes.find(node => node.tagName === 'proto');
+    const proto = component.rootNodePure.childNodes.find(node => node.tagName === 'proto');
     const moduleScript = proto?.childNodes[0];
     let defData;
     if (proto && 'def' in proto.attributes) {

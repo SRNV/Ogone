@@ -12,8 +12,8 @@ export default function() {
   oRender();
   oRenderImports();
   oRenderScripts();
+  oRenderStyles();
   oTopLevelTextNodeException();
   oCleanPureRootNode();
-  oRenderStyles();
   oStartRenderingDom();
 }

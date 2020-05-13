@@ -113,7 +113,7 @@ export default function getElementExtension(component, node) {
         getAllElseDir() {
           let nxt = this.nextElementSibling;
           this.directives.ifelseBlock = nxt ? [] : null;
-          while(nxt && (nxt.directives.elseIf || nxt.directives.else)) {
+          while(nxt && nxt.directives && (nxt.directives.elseIf || nxt.directives.else)) {
             this.directives.ifelseBlock.push(nxt);
             const elseDir = !!nxt.directives.else;
             nxt = nxt.nextElementSibling;
