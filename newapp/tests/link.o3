@@ -1,0 +1,42 @@
+<div
+  --for="counts as (c, i)"
+  --click:increase> click ${c} ${count} </div>
+<proto>
+  def:
+    count: 0
+    counts:
+      - 1
+      - 2
+      - 3
+  case 'test0':
+    console.warn('yup');
+    break;
+  case 'test1':
+    console.warn('lol');
+    break;
+  case 'test2':
+    console.warn('dont');
+    break;
+  case 'test3':
+    console.warn('go');
+    break;
+  case 'test4':
+    console.warn('away');
+    break;
+  case 'click:increase':
+    this.count ++;
+    execute case `test${this.count}` use [ctx];
+  case 'init':
+    this.count = 0;
+    execute case `test${this.count}` use [ctx];
+  break;
+  default:
+    console.warn('it\s finished');
+    execute case 'init';
+</proto>
+<style>
+* {
+    cursor: pointer;
+    user-select: none;
+}
+</style>

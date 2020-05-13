@@ -1,11 +1,16 @@
 menu:
   - name: Docs
     route: /doc
+    status: in-progress
   - name: Api
     route: /api
+    status: todo
   - name: todos
     route: /todos
+    status: todo
   - name: git
     route: /git
+    status: todo
   - name: support
     route: /support
+    status: todo

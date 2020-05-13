@@ -9,7 +9,7 @@
     width: auto;
   }
   .logo-back {
-    background: #40c2aa;
+    background: var(--o-primary);
     padding: 6px;
     border-radius: 100%;
   }

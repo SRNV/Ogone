@@ -22,13 +22,13 @@ export default function oRenderScripts() {
       }
     }
     if (moduleScript) {
-      const ogoneScript = jsThis(moduleScript.rawText, { data: true, reactivity: true, });
+      const ogoneScript = jsThis(moduleScript.rawText, { data: true, reactivity: true, casesAreLinkables: true });
       component.data = {
         ...ogoneScript.body.data,
         ...defData
       };
       const { value } = ogoneScript;
-      let script = `(function (_state, ctx, event) { switch(_state) { ${value} } });`;
+      let script = `(function (_state, ctx, event, _once = 0) { switch(_state) { ${value} } });`;
       /*
       const { code } = BABEL.transformSync(script, {
         code: true,

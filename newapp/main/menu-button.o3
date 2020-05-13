@@ -1,7 +1,25 @@
 require item as Object;
-<div class="container">
- ${item.name}
+deploy store @/newapp/main/module.store.o3
+
+<div class="container" --click:act --if="count < 3">
+  ${item.name}
+  <span class="ok" --if="item.status === 'ok'"></span>
+  <span class="todo" --if="item.status === 'todo'"></span>
+  <span class="in-progress" --if="item.status === 'in-progress'"></span>
 </div>
+<proto>
+  def:
+    count: 0
+  case 'click:act':
+    this.count++;
+    if (this.count === 3) {
+      setTimeout(() => {
+        this.count = 0;
+        console.warn('refresh');
+      }, 3000);
+    }
+  break
+</proto>
 <style>
 .container {
   display: inline-flex;
@@ -16,7 +34,23 @@ require item as Object;
   user-select: none;
 }
 .container:hover {
-    background: #61c3aa;
-    color: white;
+  background: var(--o-primary);
+  color: white;
+}
+.ok, .in-progress, .todo {
+  height: 3px;
+  width: 3px;
+  padding: 3px;
+  border-radius: 20px;
+  margin: 5px;
+}
+.ok {
+  background: var(--o-success)
+}
+.todo {
+  background: var(--o-error)
+}
+.in-progress {
+  background: var(--o-info)
 }
 </style>

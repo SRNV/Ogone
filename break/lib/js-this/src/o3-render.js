@@ -1,8 +1,12 @@
 import gen from './generator.js';
 import expressions from './expressions.js';
+let rid = 0;
 
 export default [
   // reflection regexp this.name => {};
+  // reflection is the same feature for computed datas but with the following syntax
+  // this.reflected => { return Math.random() };
+  // TODO
   {
     name: 'reflection',
     open: false,
@@ -101,6 +105,66 @@ export default [
         });
       typedExpressions.properties.push(...props);
       return '';
+    },
+    close: false,
+  },
+  {
+    name: 'linkCases',
+    open: false,
+    reg: /\s*(\*){0,1}execute\s+(§{2}keywordCase\d+§{2})([\s\n]*)(§{2}string\d+§{2})\s*(§{2}keywordUse\d+§{2})\s*(§{2}array\d+§{2})\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
+    id: (value, match, typedExpressions, expressions) => {
+      const [input, runOnce, keywordCase, spaces, string, keywordUse, array] = match;
+      if (!runOnce) {
+        rid++;
+        return `_once !== ${rid} ? ____r(${expressions[string]}, ${expressions[array]}, ${rid}) : null; break;`;
+      }
+      return `____r(${expressions[string]}, ${expressions[array]}, _once || null); break;`;
+    },
+    close: false,
+  },
+  {
+    name: 'linkCases',
+    open: false,
+    reg: /\s*(\*){0,1}execute\s+(§{2}keywordCase\d+§{2})([\s\n]*)(§{2}string\d+§{2})\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
+    id: (value, match, typedExpressions, expressions) => {
+      const [input, runOnce, keywordCase, spaces, string] = match;
+      if (!runOnce) {
+        rid++;
+        return `_once !== ${rid} ? ____r(${expressions[string]}, [], ${rid}) : null; break;`;
+      }
+      return `____r(${expressions[string]}, [], _once || null); break;`;
+    },
+    close: false,
+  },
+  {
+    name: 'linkCases',
+    open: false,
+    reg: /\s*(\*){0,1}execute\s+(§{2}keywordDefault\d+§{2})\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
+    id: (value, match, typedExpressions, expressions) => {
+      const [inpute, runOnce] = match;
+      if (!runOnce) {
+        rid++;
+        return `_once !== ${rid} ? ____r(0, [], ${rid}) : null; break;`;
+      }
+      return `____r(0, [], _once || null); break;`;
+    },
+    close: false,
+  },
+  {
+    name: 'linkCases',
+    open: false,
+    reg: /\s*(\*){0,1}execute\s+(§{2}(keywordDefault|keywordCase)\d+§{2})\s*/,
+    id: (value, match, typedExpressions, expressions) => {
+      const UnsupportedSyntaxOfCaseExecutionException = new SyntaxError(`
+      [Ogone] the following syntax is not supported\n
+        please one of those syntaxes:
+          execute case 'casename' use [ctx, event];
+          execute case 'casename';
+          execute default;
+        It assumes that cases are strings in proto.
+        It can change in the future, do not hesitate to make a pull request on it.
+      `)
+      throw UnsupportedSyntaxOfCaseExecutionException;
     },
     close: false,
   },

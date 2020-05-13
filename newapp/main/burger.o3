@@ -27,7 +27,7 @@
   margin-bottom: 2px;
   height: 4px;
 }
-.line:hover {
-    background: #40c2aa;
+.container:hover .line {
+    background: var(--o-primary);
 }
 </style>

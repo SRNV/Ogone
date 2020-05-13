@@ -10,6 +10,9 @@ export default function(component) {
       const ____ = (prop, candidate) => {
         this.update(prop);
       };
+      const ____r = (name, use, once) => {
+        this.runtime(name, use[0], use[1], once);
+      };
       this.data = ${JSON.stringify(component.data)};
       this.refs = {
         ${

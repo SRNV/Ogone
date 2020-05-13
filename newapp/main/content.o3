@@ -18,7 +18,7 @@ require title, text, code as String;
     width: 100%;
     display: flex;
   }
-  @media screen and (max-width: 760px) {
+  @media screen and (max-width: 965px) {
     .container {
       flex-direction: column;
     }
@@ -30,7 +30,7 @@ require title, text, code as String;
     padding-left: 77px;
   }
   .right {
-    background: #202229;
+    background: var(--o-black);
     flex: 5;
     padding: 53px;
     padding-top: 135px;
@@ -40,10 +40,10 @@ require title, text, code as String;
     white-space: pre;
   }
   .text {
-    color: #808080;
+    color: var(--o-grey);
     margin-left: 30px;
   }
   .title {
-    color: #3b6879;
+    color: var(--o-dark-blue);
   }
 </style>

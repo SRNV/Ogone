@@ -54,7 +54,11 @@ function jsThis(str, opts) {
   if (opts.reactivity) {
     prog = renderComputed(typedExpressions, expressions, computedExp, prog);
     prog = renderSetterExpression(typedExpressions, expressions, prog);
-    prog = renderInvalidation(typedExpressions, expressions, prog)
+    prog = renderInvalidation(typedExpressions, expressions, prog);
+    if (opts.casesAreLinkables) {
+      // let the developper use 'run case' feature
+      prog = renderO3Syntax(typedExpressions, expressions, prog, 'linkCases');
+    }
   }
 
   // update blocks and parentheses
@@ -72,6 +76,10 @@ function jsThis(str, opts) {
       typedExpressions.parentheses[key] = renderComputed(typedExpressions, expressions, computedExp, typedExpressions.parentheses[key]);
       typedExpressions.parentheses[key] = renderSetterExpression(typedExpressions, expressions, typedExpressions.parentheses[key]);
       typedExpressions.parentheses[key] = renderInvalidation(typedExpressions, expressions, typedExpressions.parentheses[key]);
+      if (opts.casesAreLinkables) {
+        // let the developper use 'run case' feature
+        prog = renderO3Syntax(typedExpressions, expressions, prog, 'linkCases');
+      }
     }
   });
   Object.entries(typedExpressions.blocks).forEach(([key, value]) => {
@@ -87,6 +95,10 @@ function jsThis(str, opts) {
       typedExpressions.blocks[key] = renderComputed(typedExpressions, expressions, computedExp, typedExpressions.blocks[key]);
       typedExpressions.blocks[key] = renderSetterExpression(typedExpressions, expressions, typedExpressions.blocks[key]);
       typedExpressions.blocks[key] = renderInvalidation(typedExpressions, expressions, typedExpressions.blocks[key]);
+      if (opts.casesAreLinkables) {
+        // let the developper use 'run case' feature
+        prog = renderO3Syntax(typedExpressions, expressions, prog, 'linkCases');
+      }
     }
   });
 

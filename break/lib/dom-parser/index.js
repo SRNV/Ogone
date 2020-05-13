@@ -6,7 +6,7 @@ const closeComment = '-->';
 function getUniquekey(id='') {
   i++;
   // critical all regexp are based on this line
-  return `-::${i}${id}-`;
+  return `§§${i}${id}§§`;
 }
 function getRootnode(html, expressions) {
   let result;
@@ -25,13 +25,16 @@ function parseNodes(html, expressions) {
     .filter(([key, value]) => value.type === 'node')
     .forEach(([key, value]) => {
       const { expression, rawAttrs } = value;
+      // we need to pad for the regexp
+      // any modification of the following line is forbidden
+      let rawAttrsPadded = `${rawAttrs} `;
       // get rawAttrs
-      const attrRE = /([a-zA-Z0-9\$\_\[\]\:\-]*)+(\-\:{2}\d*attr\-)/gi;
-      const attrbooleanRE = /([a-zA-Z0-9\@\:\$\-]*)(?!\=)/gi;
-      const matches = rawAttrs.match(attrRE);
-      const matchesBoolean = rawAttrs.match(attrbooleanRE);
+      const attrRE = /([^§\s]*)+(§{2}\d*attr§§)/gi;
+      const attrbooleanRE = /(?<!(§{2}))(([^§\s]*)+)\s/gi;
+      const matches = rawAttrsPadded.match(attrRE);
+      const matchesBoolean = rawAttrsPadded.match(attrbooleanRE);
       matches?.forEach((attr) => {
-        const attrIDRE = /([a-zA-Z0-9\$\_\[\]\:\-]*)+(\-\:{2}\d*attr\-)/;
+        const attrIDRE = /([^§\s]*)+(§{2}\d*attr§§)/;
         const [input, attributeName, id] = attr.match(attrIDRE);
         const { value } = expressions[id];
         expressions[key].attributes[attributeName] = value;
@@ -41,6 +44,7 @@ function parseNodes(html, expressions) {
           expressions[key].attributes[attr.trim()] = true;
         });
     });
+
   const keysOfExp = Object.keys(expressions);
   // start parsing Nodes by reversed array
   Object.entries(expressions)
@@ -82,7 +86,7 @@ function parseNodes(html, expressions) {
 }
 function parseTextNodes(html, expression) {
   let result = html;
-  const regexp = /(\<)\-::\d*node\-(\>)/;
+  const regexp = /(\<)§§\d*node§§(\>)/;
   const textnodes = result.split(regexp);
   textnodes
     .filter((content) => content.trim().length)
@@ -230,7 +234,7 @@ function cleanNodes(expressions) {
     if (node.nodeType === 3) {
       const { value } = node;
       let rawText = value
-      while(rawText.match(/\-\:{2}\d*/)) {
+      while(rawText.match(/§{2}\d*/)) {
         for (let key of Object.keys(expressions)) {
           rawText = rawText.replace(key, expressions[key].expression);
         }
@@ -291,7 +295,7 @@ function setNodesPragma(expressions) {
           ${nId}.setAttribute('${idComponent}', '');
           ${nodeIsDynamic && !isImported || node.tagName === null ? `${nId}.component = ctx;` : ''}
           ${isImported ? `${nId}.parentComponent = ctx;` : ''}
-          ${isImported ? `${nId}.parentCTXId = '${idComponent}-${node.id}';` : ''}
+          ${isImported ? `${nId}.parentCTXId = '${idComponent}-${node.id}';`  : ''}
           ${isImported ? `${nId}.positionInParentComponent = position;` : ''}
           ${isImported ? `${nId}.levelInParentComponent = level;` : ''}
           ${isImported ? `${nId}.props = (${props ? JSON.stringify(props) : null});` : ''}

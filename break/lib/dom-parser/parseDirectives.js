@@ -18,6 +18,22 @@ export default function parseDirectives(node, opts) {
                         case: '${click}${caseName}',
                     });
                 `;
+            break;
+            case key === '--if':
+                result += `
+                    ${node.id}.directives.if = \`${attributes[key]}\`;
+                `;
+            break;
+            case key === '--else':
+                result += `
+                    ${node.id}.directives.else = 'true';
+                `;
+            break;
+            case key === '--else-if':
+                result += `
+                    ${node.id}.directives.elseIf = \`${attributes[key]}\`;
+                `;
+            break;
         }
     }
     // directives that starts with --

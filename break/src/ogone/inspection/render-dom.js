@@ -47,20 +47,11 @@ export default function oRenderDOM(
     if (node.rawAttrs && node.rawAttrs.length) {
       const parsedAttrs = parseAttrs(node.rawAttrs);
       node.props = parsedAttrs.filter(a => a.prop);
-      node.directives = parsedAttrs.filter(a => a.directive);
       node.event = parsedAttrs.filter(a => a.event);
       node.props.forEach((prop) => {
         delete node.attributes[prop.savedName];
         Object.keys(component.data).forEach((key) => {
           if (prop.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
-            node.dependencies.push(key);
-          }
-        });
-      });
-      node.directives.forEach((d) => {
-        delete node.attributes[d.savedName];
-        Object.keys(component.data).forEach((key) => {
-          if (d.value.indexOf(key) > -1 && !node.dependencies.includes(key)) {
             node.dependencies.push(key);
           }
         });
@@ -125,6 +116,7 @@ export default function oRenderDOM(
               payload.push(function bounded(value) {
                 if (this[onevent] !== value) { this[onevent] = value; }
               });
+              delete node.attributes[directive];
               break;
             case directive === '--for':
               const oForDirective = oRenderForDirective(onevent);
@@ -152,27 +144,17 @@ export default function oRenderDOM(
 
               contextLegacy.declarationScript = contextLegacy.declarationScript.concat(declarationScript);
               payload.push(oForDirective);
+              delete node.attributes[directive];
               break;
             default:
-              payload.push(new Function(onevent));
               break;
           }
           domDirective.directives.push(payload);
-          delete node.attributes[directive];
         }
       });
-      // get any reference
-      if (node.attributes.ref) {
-        const ref = node.attributes.ref;
-        component.refs[ref] = query;
-        delete node.attributes?.ref;
-      }
     }
     if(domDirective.directives.length) component.directives.push(domDirective);
     if (id !== null) component.dom.push(dom);
-    if (node.hasDirective && node.attributes) {
-      node.attributes.is = true;
-    }
     if (node.childNodes?.length) {
       node.childNodes
         .forEach((el, i) => {

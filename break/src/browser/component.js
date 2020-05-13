@@ -1,5 +1,6 @@
 
 function OComponent() {
+  this.activated = true;
   this.contexts = {
     for: {},
   };
@@ -85,9 +86,11 @@ function OComponent() {
       this.contexts.for[key].name = Onode.name;
     }
     const context = this.contexts.for[key];
+    // no need to render if it's the same
+    if (context.length === dataLength) return;
     // first we add missing nodes, we use cloneNode to generate the web-component
     for (let i = context.length, a = dataLength;i < a; i++) {
-      const node = document.createElement(context.name);
+      const node = document.createElement(context.name, {opts: null});
       node.index = i;
       node.ogone.originalNode = false;
       node.position = Onode.position;
@@ -127,7 +130,10 @@ function OComponent() {
           parentNode.insertBefore(context.placeholder, Onode);
         }
       }
-      context.pop().removeNodes().remove();
+      const rm = context.pop();
+      // deactivate all the reactions of the component
+      rm.ogone.component.activated = false;
+      rm.removeNodes().remove();
     }
   }
 }

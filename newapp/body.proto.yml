@@ -13,9 +13,6 @@ articles:
         <proto>\n
         \tdef:\n
         \t\tname: Rudy\n
-        \tcase 'init':\n
-        \t\tthis.name = 'World';\n
-        \tbreak;\n
         </proto>"
 
   - title: Install Ogone
@@ -38,3 +35,22 @@ articles:
   - title: read def in yml files
     text: Todo
     code: '<proto def="path/to/source.yml"/>'
+
+  - title: Default/Cases execution
+    text: Todo
+    code: "
+      <p>${count}</p>\n
+      <button --click:increase>\n
+      \tincrease\n
+      </button>\n
+      <proto>\n
+      \tdef:\n
+      \t\tcount:0\n
+      \tcase 'init':\n
+      \t\tthis.count = 0;\n
+      \tbreak;\n
+      \tcase 'click:increase':\n
+      \t\tthis.count++;\n
+      \t\tif (this.count > 5) execute case 'init';\n
+      \tbreak;\n
+      </proto>"

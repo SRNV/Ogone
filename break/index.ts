@@ -34,7 +34,7 @@ const script = `
 const DOM = `
 <template-${rootComponent.uuid} />
 <script type="module">
-${script}
+  ${script}
 </script>
 `;
 

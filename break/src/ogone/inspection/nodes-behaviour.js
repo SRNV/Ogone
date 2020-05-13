@@ -1,4 +1,5 @@
 import Ogone from '../index.ts';
+import getElementExtension from './extensions/element-extension.js';
 
 export default function oRenderNodesBehavior(keyComponent, node, structure = '', index = 0) {
   const component = Ogone.components.get(keyComponent);
@@ -132,102 +133,8 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
     Ogone.classes.push(componentExtension);
   }
   if (node.hasDirective && node.tagName) {
-    const componentPragma = node.pragma(component.uuid, true, Object.keys(component.imports), () => component.uuid);
-    const componentExtension = `
-      Ogone.classes['${component.uuid}-${node.id}'] = (class extends HTMLElement {
-        constructor() {
-          super();
-          this.dependencies = (${JSON.stringify(node.dependencies)});
-          /* render function */
-          const r = ${componentPragma.replace(/\n/gi, '').replace(/([\s])+/gi, ' ')}
-          this.ogone = {
-            position: this.position,
-            level: this.level,
-            component: null,
-            render: r,
-            nodes: [],
-            directives: this.directives,
-            getContext: null,
-            originalNode: true, /* set as false by component */
-          };
-        }
-        connectedCallback() {
-          this.setPosition();
-          this.setContext();
-          this.ogone.nodes.push(
-            this.ogone.render(this.component, this.position, this.index, this.level));
-          this.setDeps();
-          this.setEventsDirectives();
-          this.render();
-        }
-        setPosition() {
-          this.position = [...this.position];
-          this.position[this.level] = this.index;
-        }
-        setContext() {
-          this.ogone.component = this.component;
-          this.ogone.directives = this.directives;
-          this.ogone.position = this.position;
-          this.ogone.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(this.component.data);
-        }
-        render() {
-          if (this.ogone.component.renderTexts instanceof Function) {
-            this.ogone.component.renderTexts(true);
-          }
-          this.replaceWith(...this.ogone.nodes);
-        }
-        setDeps() {
-          if (this.ogone.originalNode) {
-            /* directives: for */
-            if (this.ogone.getContext) {
-              // required for array.length evaluation
-              // create a random key
-              const key = '${node.id}'+\`\${Math.random()}\`;
-              this.ogone.component.react.push(() => this.directiveFor(key));
-              this.directiveFor(key);
-            }
-          }
-        }
-        directiveFor(key) {
-          const length = this.ogone.getContext({ getLength: true });
-          this.ogone.component.render(this, {
-            callingNewComponent: false,
-            key,
-            length,
-          });
-          return true;
-        }
-        removeNodes() {
-          /* use it before removing template node */
-          this.ogone.nodes.forEach((n) => n.remove());
-          return this;
-        }
-        setEventsDirectives() {
-          if (!this.ogone || !this.ogone.directives) return;
-          this.ogone.directives.forEach((dir) => {
-            this.ogone.nodes.forEach((node) => {
-              node.addEventListener(dir.type, (ev) => {
-                const c = this.ogone.getContext({
-                  position: this.ogone.position,
-                });
-                this.ogone.component.runtime(dir.case, c, ev);
-              })
-            })
-          });
-        }
-        get firstNode() {
-          return this.ogone.nodes[0];
-        }
-        get lastNode() {
-          const o = this.ogone.nodes;
-          return o[o.length - 1];
-        }
-        get name() {
-          return this.tagName.toLowerCase();
-        }
-      })
-      customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
-    Ogone.classes.push(componentExtension);
+    const elementExtension = getElementExtension(component, node);
+    Ogone.classes.push(elementExtension);
   }
   if (node.childNodes) {
     node.childNodes.forEach((child, i) => {
