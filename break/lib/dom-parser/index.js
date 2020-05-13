@@ -276,10 +276,12 @@ function setNodesPragma(expressions) {
           const props = Object.entries(node.attributes).filter(([key]) => key.startsWith(':')).map(([key, value]) => {
             return [key.replace(/^\:/, ''), value];
           })
-          let nodeCreation = `const ${nId} = document.createElement('${node.tagName && !isImported ? node.tagName : `template-${extensionId}`}');`;
+          let nodeCreation = `const ${nId} = document.createElement('${node.tagName}');`;
           if (nodeIsDynamic && !isImported && !isRoot) {
             // create a custom element if the element as a directive or prop or event;
-            nodeCreation = `const ${nId} = document.createElement('${idComponent}-${node.id}');`;
+            nodeCreation = `const ${nId} = document.createElement('${node.tagName}', { is: '${idComponent}-${node.id}' });`;
+          } else if (isImported) {
+            nodeCreation = `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
           }
           /**
            * all we set in this function

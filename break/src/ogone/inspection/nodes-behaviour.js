@@ -18,7 +18,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
       return newcomponent.uuid
     })
     const componentExtension = `
-      Ogone.classes['${component.uuid}'] = (class extends HTMLElement {
+      Ogone.classes['${component.uuid}'] = (class extends HTMLTemplateElement {
         constructor() {
           super();
           const component = new Ogone.components['${component.uuid}']();
@@ -129,7 +129,7 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
           return this.tagName.toLowerCase();
         }
       })
-      customElements.define('template-${component.uuid}', Ogone.classes['${component.uuid}']);`;
+      customElements.define('${component.uuid}-nt', Ogone.classes['${component.uuid}'], {extends: 'template'});`;
     Ogone.classes.push(componentExtension);
   }
   if (node.hasDirective && node.tagName) {

@@ -1,8 +1,20 @@
+import Ogone from '../../index.ts';
 import allConstructors from './templating/extensions.js';
 export default function getElementExtension(component, node) {
-    const componentPragma = node.pragma(component.uuid, true, Object.keys(component.imports), () => component.uuid);
+    const isExtension = node.tagName in allConstructors;
+    const componentPragma = node.pragma(component.uuid, true, Object.keys(component.imports), (tagName) => {
+        if (component.imports[tagName]) {
+            const newcomponent = Ogone.components.get(component.imports[tagName])
+            return newcomponent.uuid;
+        }
+        return null;
+    });
+    let extensionId = node.tagName;
+    if (component.imports[extensionId]) {
+        return '';
+    }
     return `
-      Ogone.classes['${component.uuid}-${node.id}'] = (class extends ${node.tagName in allConstructors ? allConstructors[node.tagName] : HTMLDivElement} {
+      Ogone.classes['${component.uuid}-${node.id}'] = (class extends ${isExtension ? allConstructors[node.tagName] : 'HTMLDivElement'} {
         constructor() {
           super();
           this.dependencies = (${JSON.stringify(node.dependencies)});
@@ -132,7 +144,7 @@ export default function getElementExtension(component, node) {
             for (let ond of this.directives.ifelseBlock) {
                 this.directives.dfrag.append(ond);
             }
-            nb = this.directives.ifelseBlock.find((n) => n.ogone.getContext({
+            nb = this.directives.ifelseBlock.find((n) => n.ogone && n.ogone.getContext({
                 position: n.position,
                 getText: n.directives.elseIf || n.directives.else || false,
             }) || (n.firstNode && n.firstNode.isConnected));
@@ -159,6 +171,9 @@ export default function getElementExtension(component, node) {
         get name() {
           return this.tagName.toLowerCase();
         }
+        get extends() {
+          return '${component.uuid}-${node.id}';
+        }
       })
-      customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
+      customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}'], { extends: '${extensionId}' });`;
 }

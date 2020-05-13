@@ -32,10 +32,11 @@ const script = `
   ${Ogone.customElements.join('\n')}
 `;
 const DOM = `
-<template-${rootComponent.uuid} />
 <script type="module">
   ${script}
 </script>
+<template is="${rootComponent.uuid}-nt" ></template>
+
 `;
 
 let body = template

@@ -1,0 +1,2 @@
+require name as String;
+<div>${name}</div>

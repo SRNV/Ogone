@@ -90,7 +90,12 @@ function OComponent() {
     if (context.length === dataLength) return;
     // first we add missing nodes, we use cloneNode to generate the web-component
     for (let i = context.length, a = dataLength;i < a; i++) {
-      const node = document.createElement(context.name, {opts: null});
+      let node;
+      if (Onode.extends) {
+        node = document.createElement(context.name, { is: Onode.extends });
+      } else {
+        node = document.createElement(context.name);
+      }
       node.index = i;
       node.ogone.originalNode = false;
       node.position = Onode.position;
