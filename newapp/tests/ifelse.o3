@@ -1,8 +1,8 @@
 use @/newapp/tests/tests.o3 as 'test-el';
 <p>${count}</p>
 <div --if="count < 3">div 1</div>
-<test-el --for="art as (r)" --else-if="count + r === 5">2eme doit remplacer la div 1</test-el>
 <div --else>3eme doit remplacer la div 1</div>
+<test-el --for="art as (r)">2eme doit remplacer la div 1</test-el>
 <proto>
   def:
     count: 0

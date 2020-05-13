@@ -126,7 +126,10 @@ export default function oRenderNodesBehavior(keyComponent, node, structure = '',
           return o[o.length - 1];
         }
         get name() {
-          return this.tagName.toLowerCase();
+          return 'template';
+        }
+        get extends() {
+          return '${component.uuid}-nt';
         }
       })
       customElements.define('${component.uuid}-nt', Ogone.classes['${component.uuid}'], {extends: 'template'});`;
