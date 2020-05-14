@@ -321,7 +321,7 @@ function setNodesPragma(expressions) {
           if (position) position[level] = index;
           ${
           isImported || nodeIsDynamic && !isImported && !isRoot
-            ? `${nId}.setModifier({
+            ? `${nId}.is({
               ${!isImported ? "position, level, index," : ""}
               ${isImported ? `positionInParentComponent: position,` : ""}
               ${isImported ? `levelInParentComponent: level,` : ""}
@@ -360,7 +360,7 @@ function setNodesPragma(expressions) {
         const registerText = isEvaluated
           ? `
           const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
-          const txt = '\`${node.rawText.replace(/\n/gi, " ")}\`';
+          const txt = '\`${node.rawText.replace(/\n/gi, " ").trim()}\`';
           function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({
@@ -373,6 +373,9 @@ function setNodesPragma(expressions) {
           ctx.texts.push(r);
         `
           : "";
+        if (!isEvaluated) {
+          return `\`${node.rawText.replace(/\n/gi, " ").trim()}\``;
+        }
         return `
       (function(${params}) {
         const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');

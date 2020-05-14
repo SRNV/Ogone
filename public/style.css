@@ -1,5 +1,5 @@
 body {
-  background: white;
+  background: var(--o-background);
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -8,7 +8,7 @@ body {
 }
 *::selection {
   background: var(--o-primary);
-  color: white;
+  color: var(--o-background);
 }
 pre {tab-size: 3;}
 
@@ -22,4 +22,5 @@ pre {tab-size: 3;}
   --o-warning: #f9f694;
   --o-success: #94f9c6;
   --o-info: #b5e4ff;
+  --o-background: white;
 }

@@ -53,7 +53,6 @@ export default function getElementExtension(component, node) {
           this.render();
         }
         setPosition() {
-            console.warn(this.ogone)
           this.position = [...this.position];
           this.position[this.level] = this.index;
         }

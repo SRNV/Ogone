@@ -23,7 +23,7 @@ deploy store @/newapp/main/module.store.o3
 <style>
 .container {
   display: inline-flex;
-  background: white;
+  background: var(--o-background);
   height: 100%;
   vertical-align: middle;
   align-items: center;
@@ -35,7 +35,7 @@ deploy store @/newapp/main/module.store.o3
 }
 .container:hover {
   background: var(--o-primary);
-  color: white;
+  color: var(--o-background);
 }
 .ok, .in-progress, .todo {
   height: 3px;

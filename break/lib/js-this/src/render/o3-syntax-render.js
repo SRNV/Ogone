@@ -35,7 +35,8 @@ export default function renderO3Syntax(
     }
     if (item.split) {
       while (
-        result.indexOf(item.split[0]) > -1 && result.indexOf(item.split[1]) > -1
+        result.indexOf(item.split[0]) > -1 &&
+        result.indexOf(item.split[1]) > -1
       ) {
         const exp = result.split(item.split[0])[1];
         const result = `${item.split[0]}${exp.split(item.split[1])[0]}${

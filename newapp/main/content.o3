@@ -24,7 +24,7 @@ require title, text, code as String;
     }
   }
   .left {
-    background: white;
+    background: var(--o-background);
     flex: 6;
     padding: 98px;
     padding-left: 77px;

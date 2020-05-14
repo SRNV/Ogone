@@ -41,14 +41,15 @@ const script = `
 `;
 const DOM = `
 <template is="${rootComponent.uuid}-nt" ></template>
-<script>
-  ${script}
-</script>
 `;
-
+let head = `
+  ${style}
+  <script type="module">
+    ${script.trim()}
+  </script>`;
 let body = template
-  .replace(/%%styles%%/, style)
-  .replace(/%%scripts%%/, DOM);
+  .replace(/%%head%%/, head)
+  .replace(/%%dom%%/, DOM);
 
 // Ogone is now ready to serve
 console.warn(`[Ogone] Success http://localhost:${port}/`);

@@ -4,7 +4,6 @@ import allConstructors from "./templating/extensions.js";
 export default function getWebComponent(component, node) {
   if (!component) return "";
   const isTemplate = node.tagName === null;
-  const isDynamic = node.hasDirective && node.tagName;
   const isImported = component.imports[node.tagName];
   const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
@@ -48,16 +47,15 @@ export default function getWebComponent(component, node) {
   });
         component.dependencies = (${JSON.stringify(node.dependencies)});
         this.component = component;
-        this.setModifier();
+        this.is();
       }
-      console.warn(this);
     }
     // set the modifier object for Ogone features
-    setModifier(def = {}) {
+    is(def = {}) {
       this.ogone = {
 
         // int[]
-        position: ${isTemplate} ? [0] : null,
+        ${isTemplate ? "position: [0]," : ""}
 
         // int[]
         positionInParentComponent: [0],
@@ -66,13 +64,13 @@ export default function getWebComponent(component, node) {
         levelInParentComponent: 0,
 
         // int
-        index: ${isTemplate} ? 0 : null,
+        ${isTemplate ? "index: 0," : ""}
 
         // int, position[level] = index
-        level: ${isTemplate} ? 0 : null,
+        ${isTemplate ? "level: 0," : ""}
 
         // define component
-        component: ${isTemplate} ? this.component : null,
+        ${isTemplate ? "component: this.component," : ""}
 
         // define parentComponent
         parentComponent: null,
@@ -101,19 +99,24 @@ export default function getWebComponent(component, node) {
         // overwrite properties
         ...def,
       };
-
-      // use the jsx function and save it into prop
-      this.ogone.render = ${componentPragma}
+      // use the jsx function and save it into this.ogone.render
+      // this function generates all the childNodes or the template
+      this.ogone.render = ${
+    componentPragma
+      .replace(/\n/gi, "")
+      .replace(/\s+/gi, " ")
+  }
     }
     connectedCallback() {
       // set position of the template/component
       this.setPosition();
 
-      // set the props required by the node
-      if (${isTemplate}) this.setProps();
 
       // set the context of the node
       this.setContext();
+
+      // set the props required by the node
+      ${isTemplate ? "this.setProps();" : ""}
 
       // use the jsx renderer only for templates
       this.setNodes();
@@ -133,50 +136,55 @@ export default function getWebComponent(component, node) {
     }
 
     setPosition() {
-      console.warn(this.ogone)
       this.ogone.position[this.ogone.level] = this.ogone.index;
     }
 
     setProps() {
-      if (!this.ogone.index) {
-        this.ogone.index = 0;
+      const o = this.ogone
+      if (!o.index) {
+        o.index = 0;
       }
-      this.ogone.positionInParentComponent[
-        this.ogone.levelInParentComponent] = this.ogone.index;
+      o.component.props = o.props;
+      o.component.positionInParentComponent = o.positionInParentComponent;
+      o.positionInParentComponent[
+        o.levelInParentComponent] = o.index;
     }
     setContext() {
-      const oc = this.ogone.component;
+      const o = this.ogone;
+      const oc = o.component;
       if (${isTemplate}) {
-        if (this.ogone.parentComponent) {
-          oc.parent = this.ogone.parentComponent;
+        if (o.parentComponent) {
+          oc.parent = o.parentComponent;
           oc.parent.childs.push(oc);
         }
-        if (Ogone.contexts[this.ogone.parentCTXId]) {
-          const gct = Ogone.contexts[this.ogone.parentCTXId].bind(this.ogone.parentComponent.data);
+        if (Ogone.contexts[o.parentCTXId]) {
+          const gct = Ogone.contexts[o.parentCTXId].bind(o.parentComponent.data);
           oc.parentContext = gct;
-          this.ogone.getContext = gct;
+          o.getContext = gct;
         }
       } else {
-        this.ogone.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(this.ogone.component.data);
+        o.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(o.component.data);
       }
     }
     setNodes() {
+      const o = this.ogone;
       if (${isTemplate}) {
-        this.ogone.nodes = Array.from(this.ogone.render(this.ogone.component).childNodes);
+        o.nodes = o.render(o.component).childNodes;
       } else {
-        this.ogone.nodes.push(
-          this.ogone.render(this.ogone.component,
-            this.ogone.position,
-            this.ogone.index,
-            this.ogone.level
+        o.nodes.push(
+          o.render(o.component,
+            o.position,
+            o.index,
+            o.level
           ),
         );
       }
     }
     setDeps() {
-      if (this.ogone.originalNode) {
-        if (this.ogone.getContext) {
-          this.ogone.component${
+      const o = this.ogone;
+      if (o.originalNode) {
+        if (o.getContext) {
+          o.component${
     isTemplate ? ".parent" : ""
   }.react.push(() => this.directiveFor());
           this.directiveFor();
@@ -184,9 +192,10 @@ export default function getWebComponent(component, node) {
       }
     }
     directiveFor() {
-      const key = this.ogone.key;
-      const length = this.ogone.getContext({ getLength: true });
-      this.ogone.component${isTemplate ? ".parent" : ""}.render(this, {
+      const o = this.ogone;
+      const key = o.key;
+      const length = o.getContext({ getLength: true });
+      o.component${isTemplate ? ".parent" : ""}.render(this, {
         callingNewComponent: ${isTemplate},
         key,
         length,
@@ -195,14 +204,15 @@ export default function getWebComponent(component, node) {
     }
 
     setEvents() {
-      if (!this.ogone.directives) return;
-      this.ogone.directives.events.forEach((dir) => {
-        for (let node of this.ogone.nodes) {
+      const o = this.ogone;
+      if (!o.directives) return;
+      o.directives.events.forEach((dir) => {
+        for (let node of o.nodes) {
           node.addEventListener(dir.type, (ev) => {
-            const oc = this.ogone.component;
-            const ctx = this.ogone.getContext({
+            const oc = o.component;
+            const ctx = o.getContext({
               position: ${isTemplate} ?
-                oc.positionInParentComponent : this.ogone.position,
+                oc.positionInParentComponent : o.position,
             });
             oc${isTemplate ? ".parent" : ""}.runtime(dir.case, ctx, ev);
           });
@@ -211,64 +221,67 @@ export default function getWebComponent(component, node) {
     }
     // WIP
     setIfDir() {
-      this.ogone.replacer = [new Comment()];
-      if (this.ogone.directives.if) {
-        this.ogone.directives.replacers = this.ogone.nodes;
-        this.ogone.directives.dfrag = document.createDocumentFragment();
+      const o = this.ogone;
+      o.replacer = [new Comment()];
+      if (o.directives.if) {
+        o.directives.replacers = o.nodes;
+        o.directives.dfrag = document.createDocumentFragment();
         this.getAllElseDir();
       }
-      this.ogone.component.react.push(() => this.directiveIf());
+      o.component.react.push(() => this.directiveIf());
     }
     // WIP
     getAllElseDir() {
+      const o = this.ogone;
       let nxt = this.nextElementSibling;
-      this.ogone.directives.ifelseBlock = nxt ? [] : null;
+      o.directives.ifelseBlock = nxt ? [] : null;
       while(nxt && nxt.directives && (nxt.directives.elseIf || nxt.directives.else)) {
-        this.ogone.directives.ifelseBlock.push(nxt);
+        o.directives.ifelseBlock.push(nxt);
         const elseDir = !!nxt.directives.else;
         nxt = nxt.nextElementSibling;
         if (elseDir && nxt && nxt.directives && (!!nxt.directives.else || !!nxt.directives.elseIf)) {
           throw new Error('[Ogone] else directive has to be the last in if-else-if blocks, no duplicate of --else are allowed.');
         }
       }
-      if (this.ogone.directives.ifelseBlock) {
-          for (let ond of this.ogone.directives.ifelseBlock) {
-              this.ogone.directives.dfrag.append(ond);
+      if (o.directives.ifelseBlock) {
+          for (let ond of o.directives.ifelseBlock) {
+              o.directives.dfrag.append(ond);
           }
       }
     }
     // WIP
     directiveIf() {
-      const evl = this.ogone.directives.if;
+      const o = this.ogone;
+      const evl = o.directives.if;
       if (!evl) return;
-      const c = this.ogone.replacer;
-      const nd = this.ogone.nodes;
-      const oc = this.ogone.component;
-      const v = this.ogone.getContext({
-        position: this.ogone.position,
+      const c = o.replacer;
+      const nd = o.nodes;
+      const oc = o.component;
+      const v = o.getContext({
+        position: o.position,
         getText: evl,
       });
       let nb = null; // Onode that should replace
-      const replacers = this.ogone.directives.replacers;
-      if (!v && this.ogone.directives.ifelseBlock) {
-        this.ogone.directives.ifelseBlock.filter((n) => !n.ogone).forEach((n) => document.body.append(n));
-        for (let ond of this.ogone.directives.ifelseBlock) {
-            this.ogone.directives.dfrag.append(ond);
+      const replacers = o.directives.replacers;
+      if (!v && o.directives.ifelseBlock) {
+        o.directives.ifelseBlock.filter((n) => !n.ogone).forEach((n) => document.body.append(n));
+        for (let ond of o.directives.ifelseBlock) {
+            o.directives.dfrag.append(ond);
         }
-        nb = this.ogone.directives.ifelseBlock.find((n) => n.ogone && n.ogone.getContext({
+        nb = o.directives.ifelseBlock.find((n) => n.ogone && n.ogone.getContext({
             position: n.ogone.position,
             getText: n.ogone.directives.elseIf || n.ogone.directives.else || false,
         }) || (n.firstNode && n.firstNode.isConnected));
       }
       // nb && !nb.firstNode ? document.body.append(nb) : null;
-      const replacer = v ? this.ogone.nodes : nb ? nb.ogone.nodes : c;
+      const replacer = v ? o.nodes : nb ? nb.ogone.nodes : c;
       if (replacers !== replacer) {
         let replaced = replacers.find((n) => n.isConnected);
         while(replaced) {
             replaced.replaceWith(...replacer);
             replaced = replacers.find((n) => n.isConnected);
         }
-        this.ogone.directives.replacers = replacer;
+        o.directives.replacers = replacer;
       }
       return oc.activated;
     }
@@ -278,13 +291,14 @@ export default function getWebComponent(component, node) {
       return this;
     }
     render() {
-      const oc = this.ogone.component;
+      const o = this.ogone;
+      const oc = o.component;
       if (${isTemplate}) {
         // update Props before replace the element
         oc.updateProps();
 
         // replace the element
-        this.replaceWith(...this.ogone.nodes);
+        this.replaceWith(...o.nodes);
 
         // template/node is already connected
         // ask the component to evaluate the value of the textnodes
@@ -294,7 +308,7 @@ export default function getWebComponent(component, node) {
 
       } else {
         oc.renderTexts(true);
-        this.replaceWith(...this.ogone.nodes);
+        this.replaceWith(...o.nodes);
         this.directiveIf();
       }
     }
@@ -306,19 +320,22 @@ export default function getWebComponent(component, node) {
       return o[o.length - 1];
     }
     get name() {
-      if (${isTemplate}) return 'template';
-      return this.tagName.toLowerCase();
+      ${isTemplate ? 'return "template"' : "return this.tagName.toLowerCase();"}
     }
     get extends() {
-      if (${isTemplate}) return '${component.uuid}-nt';
-      return '${component.uuid}-${node.id}';
+      ${
+    isTemplate
+      ? `return '${component.uuid}-nt';`
+      : `return '${component.uuid}-${node.id}';`
+  }
     }
   }
-  if (${isTemplate}) {
-    customElements.define('${component.uuid}-nt', Ogone.classes['${component.uuid}'], { extends: 'template' });
-  } else {
-    customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}'], { extends: '${extensionId}' });
-  }`;
+  customElements.define('${component.uuid}-${
+    isTemplate ? "nt" : node.id
+  }', Ogone.classes['${component.uuid}${
+    isTemplate ? "" : "-" + node.id
+  }'], { extends: '${isTemplate ? "template" : extensionId}' });
+`;
 
   return componentExtension;
 }
