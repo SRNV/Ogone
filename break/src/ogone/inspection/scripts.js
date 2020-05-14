@@ -2,7 +2,10 @@
 import Ogone from "../index.ts";
 import jsThis from "../../../lib/js-this/switch.js";
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
+import allowedTypes from "./rules/component-types.js";
 import { existsSync } from "../../../utils/exists.ts";
+import domparse from "../../../lib/dom-parser/index.js";
+import inspectRoutes from "./router/inspect-routes.js";
 
 export default function oRenderScripts() {
   const entries = Array.from(Ogone.components.entries());
@@ -12,6 +15,7 @@ export default function oRenderScripts() {
     );
     const moduleScript = proto?.childNodes[0];
     let defData;
+    let isRouter = false;
     if (proto && "def" in proto.attributes) {
       if (existsSync(proto.attributes.def)) {
         console.warn(`[Ogone] definition of proto: ${proto.attributes.def}`);
@@ -36,14 +40,6 @@ export default function oRenderScripts() {
       const { value } = ogoneScript;
       let script =
         `(function (_state, ctx, event, _once = 0) { switch(_state) { ${value} } });`;
-      /*
-      const { code } = BABEL.transformSync(script, {
-        code: true,
-        plugins: [
-          ["@babel/plugin-transform-react-jsx", { pragma: Ogone.pragma }],
-        ],
-      });
-      */
       component.scripts.runtime = script;
     } else if (defData) {
       component.data = defData;
@@ -58,6 +54,21 @@ export default function oRenderScripts() {
         }
         component.data[key] = null;
       });
+    }
+    if (proto && "type" in proto.attributes) {
+      if (!allowedTypes.includes(proto.attributes.type)) {
+        const UnsupportedTypeException = new TypeError(
+          `[Ogone] ${proto.attributes.type} is not supported, in this version.
+          supported types of component: ${allowedTypes.join(" ")}
+          error in: ${component.file}`,
+        );
+        throw UnsupportedTypeException;
+      }
+      component.type = proto.attributes.type;
+      isRouter = true;
+      component.routes = inspectRoutes(component, Object.values(component.data));
+      component.rootNodePure = domparse("<router></router>");
+      component.data = {};
     }
   });
 }

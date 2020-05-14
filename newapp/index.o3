@@ -2,6 +2,7 @@ use @/newapp/main/body.o3 as 'body-og';
 use @/newapp/main/left-menu.o3 as 'left-menu';
 use @/newapp/main/logo.o3 as 'logo-el';
 use @/newapp/main/menu-content.o3 as 'menu-content';
+use @/newapp/main/.router.o3 as 'router';
 
 <div id="header" class="header">
   <div class="logo">
@@ -9,8 +10,8 @@ use @/newapp/main/menu-content.o3 as 'menu-content';
   </div>
   <menu-content />
 </div>
-<body-og />
-<left-menu :test="scrollY" />
+<router name="new"/>
+<left-menu :test="scrollY" --go="/path/to" />
 <proto>
   def:
     scrollY: 0
@@ -39,7 +40,7 @@ use @/newapp/main/menu-content.o3 as 'menu-content';
     min-height: 65px;
   }
   .header {
-    background: var(--o-background);
+    background: var(--o-header);
     padding: 10px;
     filter: drop-shadow(0px 23px 23px #00000067);
     display: flex;

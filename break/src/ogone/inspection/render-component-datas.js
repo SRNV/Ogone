@@ -7,8 +7,10 @@ export default function (component) {
     let result = `
     Ogone.components['${component.uuid}'] = function () {
       OComponent.call(this);
-      const ____ = (prop, candidate) => {
-        this.update(prop);
+      const ____ = (prop, inst) => {
+        if (inst === this.data) {
+          this.update(prop);
+        }
       };
       const ____r = (name, use, once) => {
         this.runtime(name, use[0], use[1], once);

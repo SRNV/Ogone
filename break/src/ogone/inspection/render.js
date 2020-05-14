@@ -14,9 +14,9 @@ export default function oRender() {
       });
 
       Ogone.components.set(index, {
+        rootNodePure,
         uuid: `data-${i}`,
         file: index,
-        rootNodePure,
         esmExpressions: "",
         exportsExpressions: "",
         data: {},
@@ -29,6 +29,8 @@ export default function oRender() {
         refs: {},
         reactive: {},
         reactiveText: {},
+        // if the component type is set as router
+        routes: null,
       });
     } else {
       console.warn("[Ogone] passed", dir);

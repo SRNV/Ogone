@@ -5,6 +5,7 @@ export default function getWebComponent(component, node) {
   if (!component) return "";
   const isTemplate = node.tagName === null;
   const isImported = component.imports[node.tagName];
+  const isRouter = isTemplate && component.type === "router";
   const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
   if (isImported) {
@@ -47,6 +48,7 @@ export default function getWebComponent(component, node) {
   });
         component.dependencies = (${JSON.stringify(node.dependencies)});
         this.component = component;
+        this.component.type = '${component.type}';
         this.is();
       }
     }
@@ -96,6 +98,18 @@ export default function getWebComponent(component, node) {
         // set unique key
         key: '${node.id}'+\`\${Math.random()}\`,
 
+        // set routes if component is a router
+        ${isRouter ? `routes: ${JSON.stringify(component.routes)},` : ""}
+
+        // set the location
+        ${isRouter ? `locationPath: location.pathname,` : ""}
+
+        // set the actualTemplate of the router
+        ${isRouter ? `actualTemplate: null,` : ""}
+
+        // set state to pass it through the history.state
+        ${isRouter ? `historyState: history.state || {},` : ""}
+
         // overwrite properties
         ...def,
       };
@@ -115,6 +129,9 @@ export default function getWebComponent(component, node) {
       // set the context of the node
       this.setContext();
 
+      // parse the route that match with location.pathname
+      ${isRouter ? 'this.setActualRouterTemplate()' : ''}
+
       // set the props required by the node
       ${isTemplate ? "this.setProps();" : ""}
 
@@ -131,8 +148,11 @@ export default function getWebComponent(component, node) {
       // set the if directive into component
       if (this.ogone.directives) this.setIfDir();
 
+      // set history state and trigger case 'load'
+      ${isRouter ? 'this.triggerLoad();' : ''}
+
       // now ... just render ftw!
-      this.render();
+      ${isRouter ? 'this.renderRouter();' : 'this.render();'}
     }
 
     setPosition() {
@@ -289,6 +309,55 @@ export default function getWebComponent(component, node) {
       /* use it before removing template node */
       this.ogone.nodes.forEach((n) => n.remove());
       return this;
+    }
+    triggerLoad() {
+      const o = this.ogone;
+      const oc = o.component;
+
+      if (history.state === null) {
+        history.pushState(o.historyState, '', '');
+      }
+      oc.runtime('load', history.state);
+    }
+    setActualRouterTemplate() {
+      const o = this.ogone;
+      const oc = o.component;
+
+      oc.routes = o.routes;
+      oc.locationPath = o.locationPath;
+      const l = oc.locationPath;
+      const rendered = oc.routes.find((r) => r.path === l) || oc.routes.find((r) => r.path === "/");
+      if (rendered) {
+        const { component: uuidC } = rendered;
+        const co = document.createElement('template', { is: uuidC });
+        o.actualTemplate = co;
+
+        // don't spread o
+        // some props of o can overwritte the template.ogone and create errors in context
+        // like undefined data
+        co.is({
+          props: o.props,
+          parentComponent: o.parentComponent,
+          parentCTXId: o.parentCTXId,
+          positionInParentComponent: o.positionInParentComponent
+            .slice(),
+          levelInParentComponent: o.levelInParentComponent,
+          index: o.index,
+          level: o.level,
+          position: o.position,
+          directives: o.directives,
+        });
+      }
+    }
+    renderRouter() {
+      const o = this.ogone;
+      const oc = o.component;
+
+      // update Props before replace the element
+      oc.updateProps();
+
+      this.replaceWith(o.actualTemplate);
+      oc.runtime(o.locationPath, history.state);
     }
     render() {
       const o = this.ogone;

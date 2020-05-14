@@ -8,9 +8,7 @@ export default function oRenderStyles() {
       node.tagName === "style"
     );
     styles.forEach((element) => {
-      const id = `data-${i}`;
-      const css = scopeCSS(element.childNodes[0].rawText, id);
-      component.uuid = id;
+      const css = scopeCSS(element.childNodes[0].rawText, component.uuid);
       component.style.push(css);
     });
   });

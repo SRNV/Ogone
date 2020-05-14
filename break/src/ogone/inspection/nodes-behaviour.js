@@ -1,5 +1,4 @@
 import Ogone from "../index.ts";
-import getElementExtension from "./extensions/element-extension.js";
 import getWebComponent from "./extensions/get-web-component.js";
 
 export default function oRenderNodesBehavior(

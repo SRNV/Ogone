@@ -1,11 +1,29 @@
 use @/newapp/main/content.o3 as 'route-1'
+use @/newapp/main/body.o3 as 'route-2'
 
 <proto type="router">
   def:
-    /new/id:
+    - path: /new/:id
       name: newUser
       component: route-1
       children:
-        - /sub/:
+        - path: /sub
           component: route-2
+    - path: /
+      redirect: newUser
+      component: route-2
+  case 'load':
+    console.warn(ctx)
+    ctx.newuser = true;
+  break;
+  case '/new/id':
+    console.warn(ctx);
+
+  break;
+  case '/':
+    console.warn("HOME")
+  break;
+  default:
+    console.warn('it works', performance.now())
+  break;
 </proto>

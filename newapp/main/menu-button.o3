@@ -1,7 +1,7 @@
 require item as Object;
 deploy store @/newapp/main/module.store.o3
 
-<div class="container" --click:act --if="count < 3">
+<div class="container" --click:act --if="count < 3" --go="item.route">
   ${item.name}
   <span class="ok" --if="item.status === 'ok'"></span>
   <span class="todo" --if="item.status === 'todo'"></span>
@@ -23,13 +23,13 @@ deploy store @/newapp/main/module.store.o3
 <style>
 .container {
   display: inline-flex;
-  background: var(--o-background);
+  background: var(--o-header);
   height: 100%;
   vertical-align: middle;
   align-items: center;
   padding: 23px;
   text-transform: capitalize;
-  color: #848181;
+  color: #afafaf;
   cursor: pointer;
   user-select: none;
 }
