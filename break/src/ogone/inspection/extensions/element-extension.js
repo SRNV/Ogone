@@ -1,25 +1,34 @@
-import Ogone from '../../index.ts';
-import allConstructors from './templating/extensions.js';
+import Ogone from "../../index.ts";
+import allConstructors from "./templating/extensions.js";
 export default function getElementExtension(component, node) {
-    const isExtension = node.tagName in allConstructors;
-    const componentPragma = node.pragma(component.uuid, true, Object.keys(component.imports), (tagName) => {
-        if (component.imports[tagName]) {
-            const newcomponent = Ogone.components.get(component.imports[tagName])
-            return newcomponent.uuid;
-        }
-        return null;
-    });
-    let extensionId = node.tagName;
-    if (component.imports[extensionId]) {
-        return '';
-    }
-    return `
-      Ogone.classes['${component.uuid}-${node.id}'] = (class extends ${isExtension ? allConstructors[node.tagName] : 'HTMLDivElement'} {
+  const isExtension = node.tagName in allConstructors;
+  const componentPragma = node.pragma(
+    component.uuid,
+    true,
+    Object.keys(component.imports),
+    (tagName) => {
+      if (component.imports[tagName]) {
+        const newcomponent = Ogone.components.get(component.imports[tagName]);
+        return newcomponent.uuid;
+      }
+      return null;
+    },
+  );
+  let extensionId = node.tagName;
+  if (component.imports[extensionId]) {
+    return "";
+  }
+  return `
+      Ogone.classes['${component.uuid}-${node.id}'] = (class extends ${
+    isExtension ? allConstructors[node.tagName] : "HTMLDivElement"
+  } {
         constructor() {
           super();
           this.dependencies = (${JSON.stringify(node.dependencies)});
           /* render function */
-          const r = ${componentPragma.replace(/\n/gi, '').replace(/([\s])+/gi, ' ')}
+          const r = ${
+    componentPragma.replace(/\n/gi, "").replace(/([\s])+/gi, " ")
+  }
           this.ogone = {
             position: this.position,
             level: this.level,
@@ -44,6 +53,7 @@ export default function getElementExtension(component, node) {
           this.render();
         }
         setPosition() {
+            console.warn(this.ogone)
           this.position = [...this.position];
           this.position[this.level] = this.index;
         }

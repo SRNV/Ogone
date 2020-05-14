@@ -1,3 +1,3 @@
 export default {
-  '§§endExpression0§§': '\n',
+  "§§endExpression0§§": "\n",
 };

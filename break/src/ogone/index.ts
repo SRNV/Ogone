@@ -1,6 +1,8 @@
-import { existsSync } from '../../utils/exists.ts';
+import { existsSync } from "../../utils/exists.ts";
 
-const json = existsSync('./ogone.config.json') ? Deno.readTextFileSync('./ogone.config.json') : '{}';
+const json = existsSync("./ogone.config.json")
+  ? Deno.readTextFileSync("./ogone.config.json")
+  : "{}";
 const config = JSON.parse(json);
 
 export default {
@@ -10,7 +12,7 @@ export default {
   components: new Map(),
   main: `${Deno.cwd()}${config.entrypoint}`,
   sockets: [],
-  pragma: 'self.h',
+  pragma: "self.h",
   onmessage: [],
   onclose: [],
   templates: [],

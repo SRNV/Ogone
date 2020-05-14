@@ -1,9 +1,9 @@
 import parseDirectives from "./parseDirectives.js";
 
 let i = 0;
-const openComment = '<!--';
-const closeComment = '-->';
-function getUniquekey(id='') {
+const openComment = "<!--";
+const closeComment = "-->";
+function getUniquekey(id = "") {
   i++;
   // critical all regexp are based on this line
   return `§§${i}${id}§§`;
@@ -14,15 +14,15 @@ function getRootnode(html, expressions) {
   keysOfExp.filter((key) => html.indexOf(key) > -1)
     .forEach((key) => {
       result = expressions[key];
-      result.type = 'root';
+      result.type = "root";
       delete result.id;
-    })
+    });
   return result;
 }
 function parseNodes(html, expressions) {
   let result = html;
   Object.entries(expressions)
-    .filter(([key, value]) => value.type === 'node')
+    .filter(([key, value]) => value.type === "node")
     .forEach(([key, value]) => {
       const { expression, rawAttrs } = value;
       // we need to pad for the regexp
@@ -38,8 +38,10 @@ function parseNodes(html, expressions) {
         const [input, attributeName, id] = attr.match(attrIDRE);
         const { value } = expressions[id];
         expressions[key].attributes[attributeName] = value;
-      })
-      matchesBoolean?.filter((attr) => !expressions[key].attributes[attr.trim()] && attr.trim().length)
+      });
+      matchesBoolean?.filter((attr) =>
+        !expressions[key].attributes[attr.trim()] && attr.trim().length
+      )
         .forEach((attr) => {
           expressions[key].attributes[attr.trim()] = true;
         });
@@ -49,7 +51,7 @@ function parseNodes(html, expressions) {
   // start parsing Nodes by reversed array
   Object.entries(expressions)
     .reverse()
-    .filter(([key, value]) => value.type === 'node')
+    .filter(([key, value]) => value.type === "node")
     .forEach(([key, node]) => {
       const opening = node.key;
       const { closingTag } = node;
@@ -60,20 +62,27 @@ function parseNodes(html, expressions) {
           const outerContent = `${opening}${innerHTML}${closingTag}`;
           // get Textnodes
           keysOfExp
-            .filter((k) => innerHTML.indexOf(k) > -1 &&
-            expressions[k])
+            .filter((k) =>
+              innerHTML.indexOf(k) > -1 &&
+              expressions[k]
+            )
             .sort((a, b) => innerHTML.indexOf(a) - innerHTML.indexOf(b))
             .forEach((k) => {
               expressions[key].childNodes.push(expressions[k]);
               expressions[k].parentNode = expressions[key];
             });
-        // get attrs
+          // get attrs
           keysOfExp
-          .filter((k) => node.rawAttrs.indexOf(k) > -1 &&
-          expressions[k].type === 'attr')
-          .forEach((k) => {
-            node.rawAttrs = node.rawAttrs.replace(k, expressions[k].expression);
-          });
+            .filter((k) =>
+              node.rawAttrs.indexOf(k) > -1 &&
+              expressions[k].type === "attr"
+            )
+            .forEach((k) => {
+              node.rawAttrs = node.rawAttrs.replace(
+                k,
+                expressions[k].expression,
+              );
+            });
           result = result.replace(outerContent, opening);
           delete expressions[key].closingTag;
           delete expressions[key].key;
@@ -81,7 +90,7 @@ function parseNodes(html, expressions) {
           delete expressions[key].closing;
           delete expressions[key].expression;
         });
-    })
+    });
   return result;
 }
 function parseTextNodes(html, expression) {
@@ -91,9 +100,9 @@ function parseTextNodes(html, expression) {
   textnodes
     .filter((content) => content.trim().length)
     .forEach((content) => {
-      const key = getUniquekey('text');
+      const key = getUniquekey("text");
       expression[key] = {
-        type: 'text',
+        type: "text",
         value: content,
         expression: content,
         id: i,
@@ -112,17 +121,19 @@ function preserveNodes(html, expression) {
     const id = node.match(regexpID);
     if (id) {
       const [input, slash, tagName, attrs, closingSlash] = id;
-      const key = `<${getUniquekey('node')}>`;
+      const key = `<${getUniquekey("node")}>`;
       if (!!slash) {
         // get the openning tag by tagname, id -1 and closingTag === null
         const tag = Object.entries(expression)
           .reverse()
-          .find(([k, v]) => v.type === 'node'
-            && v.tagName.trim() === tagName.trim()
-            && v.id < i
-            && v.closingTag === null
-            && !v.closing
-            && !v.autoclosing)[1];
+          .find(([k, v]) =>
+            v.type === "node" &&
+            v.tagName.trim() === tagName.trim() &&
+            v.id < i &&
+            v.closingTag === null &&
+            !v.closing &&
+            !v.autoclosing
+          )[1];
         if (tag && expression[tag.key]) {
           // set the key of the closing tag
           expression[tag.key].closingTag = key;
@@ -137,7 +148,7 @@ function preserveNodes(html, expression) {
           attributes: {},
           closing: !!slash,
           autoclosing: !!closingSlash,
-          type: 'node',
+          type: "node",
           nodeType: 1,
           closingTag: null,
           expression: input,
@@ -151,79 +162,81 @@ function preserveNodes(html, expression) {
 }
 function preserveTemplates(html, expression) {
   let result = html;
-  const templates = ['${', '}'];
-  const [ beginTemplate, traillingTemplate] = templates;
+  const templates = ["${", "}"];
+  const [beginTemplate, traillingTemplate] = templates;
   result.split(/[^\\](\$\{)/)
-    .filter((content, id, arr) => content.indexOf('}') > -1 && arr[id -1] === beginTemplate)
+    .filter((content, id, arr) =>
+      content.indexOf("}") > -1 && arr[id - 1] === beginTemplate
+    )
     .forEach((content) => {
-        let str = content.split(/(?<!\\)(\})/gi)[0];
-        const allTemplate = `${beginTemplate}${str}${traillingTemplate}`;
-        const key = getUniquekey('templ');
-        expression[key] = {
-            expression: allTemplate,
-            value: str,
-            type: 'template',
-        };
-        result = result.replace(allTemplate, key);
-    })
+      let str = content.split(/(?<!\\)(\})/gi)[0];
+      const allTemplate = `${beginTemplate}${str}${traillingTemplate}`;
+      const key = getUniquekey("templ");
+      expression[key] = {
+        expression: allTemplate,
+        value: str,
+        type: "template",
+      };
+      result = result.replace(allTemplate, key);
+    });
   return result;
 }
 function preserveLitterals(html, expression) {
   let result = html;
   result.split(/((?<!\\)`)/)
-    .filter((content) => content !== '`')
+    .filter((content) => content !== "`")
     .forEach((content) => {
-        let str = content.split(/((?<!\\)`)/);
-        str.forEach((contentOfStr) => {
-          const allLit = `\`${contentOfStr}\``;
-          if (result.indexOf(allLit) < 0) return;
-          const key = getUniquekey('str');
-          expression[key] = {
-            expression: allLit,
-            value: contentOfStr,
-            type: 'string',
-          };
-          result = result.replace(allLit, key);
-        })
-    })
+      let str = content.split(/((?<!\\)`)/);
+      str.forEach((contentOfStr) => {
+        const allLit = `\`${contentOfStr}\``;
+        if (result.indexOf(allLit) < 0) return;
+        const key = getUniquekey("str");
+        expression[key] = {
+          expression: allLit,
+          value: contentOfStr,
+          type: "string",
+        };
+        result = result.replace(allLit, key);
+      });
+    });
   return result;
 }
 function preserveStringsAttrs(html, expression) {
   let result = html;
   const quotes = ['="', '"'];
-  const [ beginQuote, closinQuote] = quotes;
+  const [beginQuote, closinQuote] = quotes;
   result.split(beginQuote)
-  .filter((content) => /[^\\](")/.test(content))
-  .forEach((content) => {
+    .filter((content) => /[^\\](")/.test(content))
+    .forEach((content) => {
       let str = content.split(/(?<!\\)(")/gi)[0];
       const allstring = `${beginQuote}${str}${closinQuote}`;
-      const key = getUniquekey('attr');
+      const key = getUniquekey("attr");
       expression[key] = {
         expression: allstring,
         value: str,
-        type: 'attr',
+        type: "attr",
       };
       result = result.replace(allstring, key);
-  })
+    });
   return result;
 }
 function preserveComments(html, expression) {
-  let result = html
+  let result = html;
   result.split(openComment)
-    .filter(open => open.indexOf(closeComment) > -1)
+    .filter((open) => open.indexOf(closeComment) > -1)
     .forEach((open) => {
       let comment = open.split(closeComment)[0];
-      let key = getUniquekey('com');
+      let key = getUniquekey("com");
       const allComment = `${openComment}${comment}${closeComment}`;
-      result = result.replace(allComment, '');
+      result = result.replace(allComment, "");
       expression[key] = {
         expression: allComment,
         value: comment,
         nodeType: 8,
-        type: 'comment',
+        type: "comment",
       };
     });
-    return result;
+  return result;
 }
 function cleanNodes(expressions) {
   for (let key of Object.keys(expressions)) {
@@ -233,8 +246,8 @@ function cleanNodes(expressions) {
   for (let node of nodes) {
     if (node.nodeType === 3) {
       const { value } = node;
-      let rawText = value
-      while(rawText.match(/§{2}\d*/)) {
+      let rawText = value;
+      while (rawText.match(/§{2}\d*/)) {
         for (let key of Object.keys(expressions)) {
           rawText = rawText.replace(key, expressions[key].expression);
         }
@@ -245,45 +258,59 @@ function cleanNodes(expressions) {
 }
 function setNodesPragma(expressions) {
   const nodes = Object.values(expressions).reverse();
-  let pragma = '';
+  let pragma = "";
   for (let node of nodes) {
-    const params = 'ctx, position = [], index = 0, level = 0';
-    if (node.nodeType === 1 && node.tagName !== 'style') {
+    const params = "ctx, position = [], index = 0, level = 0";
+    if (node.nodeType === 1 && node.tagName !== "style") {
       const nId = `n${node.id}`;
       node.id = nId;
-      let nodeIsDynamic = !!Object.keys(node.attributes).find((attr) => attr.startsWith(':') ||
-      attr.startsWith('--') ||
-      attr.startsWith('@') ||
-      attr.startsWith('&') ||
-      attr.startsWith('_'));
-    let setAttributes = Object.entries(node.attributes)
-      .filter(([key, value]) => !(key.startsWith(':') ||
-        key.startsWith('--') ||
-        key.startsWith('@') ||
-        key.startsWith('&') ||
-        key.startsWith('o-') ||
-        key.startsWith('_')))
-      .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`).join('');
-        pragma = (idComponent, isRoot = true, imports = [], getId) => {
-          const isImported = imports.includes(node.tagName);
-          const callComponent = isRoot ?  ';' : '(ctx, position.slice(), index, level + 1)';
-          let nodesPragma = node.childNodes.filter((child) => child.pragma).map((child) => child.pragma(idComponent, false, imports, getId)).join(',');
-          let appending = `${nId}.append(${nodesPragma});`;
-          let extensionId = '';
-          if (isImported) {
-            extensionId = getId(node.tagName);
-          }
-          const props = Object.entries(node.attributes).filter(([key]) => key.startsWith(':')).map(([key, value]) => {
-            return [key.replace(/^\:/, ''), value];
-          })
-          let nodeCreation = `const ${nId} = document.createElement('${node.tagName}');`;
-          if (nodeIsDynamic && !isImported && !isRoot) {
-            // create a custom element if the element as a directive or prop or event;
-            nodeCreation = `const ${nId} = document.createElement('${node.tagName}', { is: '${idComponent}-${node.id}' });`;
-          } else if (isImported) {
-            nodeCreation = `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
-          }
-          /**
+      let nodeIsDynamic = !!Object.keys(node.attributes).find((attr) =>
+        attr.startsWith(":") ||
+        attr.startsWith("--") ||
+        attr.startsWith("@") ||
+        attr.startsWith("&") ||
+        attr.startsWith("_")
+      );
+      let setAttributes = Object.entries(node.attributes)
+        .filter(([key, value]) =>
+          !(key.startsWith(":") ||
+            key.startsWith("--") ||
+            key.startsWith("@") ||
+            key.startsWith("&") ||
+            key.startsWith("o-") ||
+            key.startsWith("_"))
+        )
+        .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`)
+        .join("");
+      pragma = (idComponent, isRoot = true, imports = [], getId) => {
+        const isImported = imports.includes(node.tagName);
+        const callComponent = isRoot
+          ? ";"
+          : "(ctx, position.slice(), index, level + 1)";
+        let nodesPragma = node.childNodes.filter((child) => child.pragma).map((
+          child,
+        ) => child.pragma(idComponent, false, imports, getId)).join(",");
+        let appending = `${nId}.append(${nodesPragma});`;
+        let extensionId = "";
+        if (isImported) {
+          extensionId = getId(node.tagName);
+        }
+        const props = Object.entries(node.attributes).filter(([key]) =>
+          key.startsWith(":")
+        ).map(([key, value]) => {
+          return [key.replace(/^\:/, ""), value];
+        });
+        let nodeCreation =
+          `const ${nId} = document.createElement('${node.tagName}');`;
+        if (nodeIsDynamic && !isImported && !isRoot) {
+          // create a custom element if the element as a directive or prop or event;
+          nodeCreation =
+            `const ${nId} = document.createElement('${node.tagName}', { is: '${idComponent}-${node.id}' });`;
+        } else if (isImported) {
+          nodeCreation =
+            `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
+        }
+        /**
            * all we set in this function
            * will be usefull after the node is connected
            * we will use the method connectedCalback and use the properties
@@ -292,28 +319,35 @@ function setNodesPragma(expressions) {
         (function(${params}) {
           ${nodeCreation}
           if (position) position[level] = index;
-          ${nId}.position = position;
-          ${nId}.level = level;
-          ${nId}.setAttribute('${idComponent}', '');
-          ${nodeIsDynamic && !isImported || node.tagName === null ? `${nId}.component = ctx;` : ''}
-          ${isImported ? `${nId}.parentComponent = ctx;` : ''}
-          ${isImported ? `${nId}.parentCTXId = '${idComponent}-${node.id}';`  : ''}
-          ${isImported ? `${nId}.positionInParentComponent = position;` : ''}
-          ${isImported ? `${nId}.levelInParentComponent = level;` : ''}
-          ${isImported ? `${nId}.props = (${props ? JSON.stringify(props) : null});` : ''}
-          ${setAttributes}
-          ${nodesPragma.length ? appending : ''}
-          ${nId}.renderChildNodes = ${node.tagName === null};
           ${
-            /**
-             * we need this to parse directives like
-             *  --click:name
-             *  --drag:name
-             */
-            parseDirectives(node, {
-            nodeIsDynamic,
-            isImported
-          })}
+          isImported || nodeIsDynamic && !isImported && !isRoot
+            ? `${nId}.setModifier({
+              ${!isImported ? "position, level, index," : ""}
+              ${isImported ? `positionInParentComponent: position,` : ""}
+              ${isImported ? `levelInParentComponent: level,` : ""}
+              ${isImported ? `parentComponent: ctx,` : ""}
+              ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
+
+              ${
+              nodeIsDynamic && !isImported || node.tagName === null
+                ? "component: ctx,"
+                : ""
+            }
+              ${
+              isImported
+                ? `props: (${props ? JSON.stringify(props) : null}),`
+                : ""
+            }
+              ${node.tagName === null ? `renderChildNodes: true,` : ""}
+              directives: ${
+              parseDirectives(node, { nodeIsDynamic, isImported })
+            },
+            });`
+            : ""
+        }
+          ${nId}.setAttribute('${idComponent}', '');
+          ${setAttributes}
+          ${nodesPragma.length ? appending : ""}
           return ${nId};
         })${callComponent}`;
       };
@@ -322,10 +356,11 @@ function setNodesPragma(expressions) {
       const nId = `t${node.id}`;
       node.id = nId;
       pragma = (idComponent) => {
-        const isEvaluated = node.rawText.indexOf('${') > -1;
-        const registerText = isEvaluated ? `
+        const isEvaluated = node.rawText.indexOf("${") > -1;
+        const registerText = isEvaluated
+          ? `
           const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
-          const txt = '\`${node.rawText.replace(/\n/gi, ' ')}\`';
+          const txt = '\`${node.rawText.replace(/\n/gi, " ")}\`';
           function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({
@@ -336,13 +371,14 @@ function setNodesPragma(expressions) {
             return true;
           };
           ctx.texts.push(r);
-        ` : '';
+        `
+          : "";
         return `
       (function(${params}) {
-        const ${nId} = new Text('${isEvaluated ? ' ' : node.rawText}');
+        const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
         ${registerText}
         return ${nId};
-      })(ctx, position.slice())`
+      })(ctx, position.slice())`;
       };
     }
     node.pragma = pragma;
@@ -350,7 +386,7 @@ function setNodesPragma(expressions) {
 }
 export default function parse(html) {
   let result = {
-    comments: {}
+    comments: {},
   };
   let expressions = {};
   let str = `<template>${html}</template>`;
@@ -370,7 +406,7 @@ export default function parse(html) {
 
   // get rootNode
   result = getRootnode(str, expressions);
-  result.id = 't';
+  result.id = "t";
   // delete last useless props and set rawtext to textnodes
   cleanNodes(expressions);
   // set to all nodes the jsx pragma

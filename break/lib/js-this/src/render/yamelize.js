@@ -1,10 +1,12 @@
-import { YAML } from 'https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js';
+import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
 
-export default function(typedExpressions, expressions, prog) {
+export default function (typedExpressions, expressions, prog) {
   let result = prog;
   const match = prog.match(/([^\n\r]+){0,1}(def:)/);
   const matches = prog.match(/([^\n\r]+){0,1}(def:)/gi);
-  const DoubleDeclarationOfThisException = new Error('[Ogone] double declaration of "def:" in component');
+  const DoubleDeclarationOfThisException = new Error(
+    '[Ogone] double declaration of "def:" in component',
+  );
   let previousDeclaration = [];
   if (matches) {
     matches.forEach((dec) => {
@@ -16,22 +18,24 @@ export default function(typedExpressions, expressions, prog) {
     });
   }
   if (match) {
-    const spaces = match[1] || '';
-    const reg = new RegExp(`\\n${spaces.replace(/\s/gi, '\\s')}[^\\s]`, 'gi');
-    const candidate = prog.split(`\n${match[0]}`).filter((c) => c.trim().length);
+    const spaces = match[1] || "";
+    const reg = new RegExp(`\\n${spaces.replace(/\s/gi, "\\s")}[^\\s]`, "gi");
+    const candidate = prog.split(`\n${match[0]}`).filter((c) =>
+      c.trim().length
+    );
     if (candidate && candidate[0]) {
       let data = candidate[0].split(reg)[0];
       let previous = data;
-      while (data.indexOf('§§') > -1) {
+      while (data.indexOf("§§") > -1) {
         Object.entries(expressions).forEach(([key, value]) => {
           data = data.replace(key, expressions[key]);
         });
       }
       const declaration = `${match[0]}${previous}`;
       const yaml = YAML.parse(data);
-      result = result.replace(declaration, '');
+      result = result.replace(declaration, "");
       typedExpressions.data = yaml;
     }
   }
   return result;
-};
+}

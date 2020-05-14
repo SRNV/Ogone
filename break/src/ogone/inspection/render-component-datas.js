@@ -1,6 +1,6 @@
-import Ogone from '../index.ts';
+import Ogone from "../index.ts";
 
-export default function(component) {
+export default function (component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     const keysOfData = Object.keys(component.data);
@@ -16,8 +16,12 @@ export default function(component) {
       this.data = ${JSON.stringify(component.data)};
       this.refs = {
         ${
-          component.refs ? Object.entries(component.refs).map(([key, value]) => `'${key}': '${value}',`) : ''
-        }
+      component.refs
+        ? Object.entries(component.refs).map(([key, value]) =>
+          `'${key}': '${value}',`
+        )
+        : ""
+    }
       }
       const run = ${runtime}
       this.runtime = (run || function(){}).bind(this.data);

@@ -1,21 +1,34 @@
-export default function getOnode(component, node) {
-  if (!component) return '';
+import Ogone from "../../index.ts";
+import allConstructors from "./templating/extensions.js";
+
+export default function getWebComponent(component, node) {
+  if (!component) return "";
   const isTemplate = node.tagName === null;
   const isDynamic = node.hasDirective && node.tagName;
   const isImported = component.imports[node.tagName];
   const extensionId = node.tagName;
+  const isExtension = !!allConstructors[node.tagName];
   if (isImported) {
-    return '';
+    return "";
   }
-  const componentPragma = node.pragma(component.uuid, true, Object.keys(component.imports), (tagName) => {
-    if (component.imports[tagName]) {
-      const newcomponent = Ogone.components.get(component.imports[tagName])
-      return newcomponent.uuid;
-    }
-    return null;
-  });
-  const OnodeClassExtension = isTemplate ? 'HTMLTemplateElement' : `${isExtension ? allConstructors[node.tagName] : 'HTMLDivElement'}`;
-  const OnodeClassId = isTemplate ? `${component.uuid}` : `${component.uuid}-${node.id}`
+  const componentPragma = node.pragma(
+    component.uuid,
+    true,
+    Object.keys(component.imports),
+    (tagName) => {
+      if (component.imports[tagName]) {
+        const newcomponent = Ogone.components.get(component.imports[tagName]);
+        return newcomponent.uuid;
+      }
+      return null;
+    },
+  );
+  const OnodeClassExtension = isTemplate
+    ? "HTMLTemplateElement"
+    : `${isExtension ? allConstructors[node.tagName] : "HTMLDivElement"}`;
+  const OnodeClassId = isTemplate
+    ? `${component.uuid}`
+    : `${component.uuid}-${node.id}`;
   const componentExtension = `
   Ogone.classes['${OnodeClassId}'] = class extends ${OnodeClassExtension} {
     constructor() {
@@ -24,16 +37,20 @@ export default function getOnode(component, node) {
       this.dependencies = (${JSON.stringify(node.dependencies)});
       this.positionInParentComponent = ${isTemplate} ? [] : null;
 
-      // define component
-      const component = ${isTemplate} ? new Ogone.components['${component.uuid}']() : null;
 
       // save external dependencies and required props to component
       // only if it's a template
       if (${isTemplate}) {
-        component.requirements = (${component.properties ? JSON.stringify(component.properties) : null});
+        // define component
+        const component = new Ogone.components['${component.uuid}']();
+        component.requirements = (${
+    component.properties ? JSON.stringify(component.properties) : null
+  });
         component.dependencies = (${JSON.stringify(node.dependencies)});
         this.component = component;
+        this.setModifier();
       }
+      console.warn(this);
     }
     // set the modifier object for Ogone features
     setModifier(def = {}) {
@@ -42,8 +59,11 @@ export default function getOnode(component, node) {
         // int[]
         position: ${isTemplate} ? [0] : null,
 
-        //int[]
-        positionInParentComponent: null,
+        // int[]
+        positionInParentComponent: [0],
+
+        // int
+        levelInParentComponent: 0,
 
         // int
         index: ${isTemplate} ? 0 : null,
@@ -83,7 +103,7 @@ export default function getOnode(component, node) {
       };
 
       // use the jsx function and save it into prop
-      this.ogone.render = ${componentPragma.replace(/\n/gi, '').replace(/([\s])+/gi, ' ')}
+      this.ogone.render = ${componentPragma}
     }
     connectedCallback() {
       // set position of the template/component
@@ -95,6 +115,9 @@ export default function getOnode(component, node) {
       // set the context of the node
       this.setContext();
 
+      // use the jsx renderer only for templates
+      this.setNodes();
+
       // use the previous jsx and push the result into ogone.nodes
       // set the dependencies of the node into the component
       this.setDeps();
@@ -103,13 +126,14 @@ export default function getOnode(component, node) {
       this.setEvents();
 
       // set the if directive into component
-      this.setIfDir();
+      if (this.ogone.directives) this.setIfDir();
 
       // now ... just render ftw!
       this.render();
     }
 
     setPosition() {
+      console.warn(this.ogone)
       this.ogone.position[this.ogone.level] = this.ogone.index;
     }
 
@@ -133,14 +157,28 @@ export default function getOnode(component, node) {
           this.ogone.getContext = gct;
         }
       } else {
-        this.ogone.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(this.component.data);
+        this.ogone.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(this.ogone.component.data);
       }
     }
-
+    setNodes() {
+      if (${isTemplate}) {
+        this.ogone.nodes = Array.from(this.ogone.render(this.ogone.component).childNodes);
+      } else {
+        this.ogone.nodes.push(
+          this.ogone.render(this.ogone.component,
+            this.ogone.position,
+            this.ogone.index,
+            this.ogone.level
+          ),
+        );
+      }
+    }
     setDeps() {
       if (this.ogone.originalNode) {
         if (this.ogone.getContext) {
-          this.ogone.component${isTemplate ? '.parent' : ''}.react.push(() => this.directiveFor());
+          this.ogone.component${
+    isTemplate ? ".parent" : ""
+  }.react.push(() => this.directiveFor());
           this.directiveFor();
         }
       }
@@ -148,7 +186,7 @@ export default function getOnode(component, node) {
     directiveFor() {
       const key = this.ogone.key;
       const length = this.ogone.getContext({ getLength: true });
-      this.ogone.component${isTemplate ? '.parent' : ''}.render(this, {
+      this.ogone.component${isTemplate ? ".parent" : ""}.render(this, {
         callingNewComponent: ${isTemplate},
         key,
         length,
@@ -158,7 +196,7 @@ export default function getOnode(component, node) {
 
     setEvents() {
       if (!this.ogone.directives) return;
-      this.ogone.directives.forEach((dir) => {
+      this.ogone.directives.events.forEach((dir) => {
         for (let node of this.ogone.nodes) {
           node.addEventListener(dir.type, (ev) => {
             const oc = this.ogone.component;
@@ -166,7 +204,7 @@ export default function getOnode(component, node) {
               position: ${isTemplate} ?
                 oc.positionInParentComponent : this.ogone.position,
             });
-            oc${isTemplate ? '.parent' : ''}.runtime(dir.case, ctx, ev);
+            oc${isTemplate ? ".parent" : ""}.runtime(dir.case, ctx, ev);
           });
         }
       });
