@@ -1,6 +1,6 @@
 <div class="container">
   <div class="logo-back">
-    <img class="img" src="ogone.svg"/>
+    <img class="img" src="/public/ogone.svg"/>
   </div>
 </div>
 

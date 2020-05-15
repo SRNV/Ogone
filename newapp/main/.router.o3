@@ -1,27 +1,28 @@
-use @/newapp/main/content.o3 as 'route-1'
+use @/newapp/main/burger.o3 as 'route-1'
 use @/newapp/main/body.o3 as 'route-2'
+use @/newapp/main/404.o3 as 'route-404'
 
+<store src="newapp/store.o3" />
 <proto type="router">
   def:
-    - path: /new/:id
+    - path: /doc
       name: newUser
-      component: route-1
-      children:
-        - path: /sub
-          component: route-2
-    - path: /
+      component: route-2
+    - path: /support
       redirect: newUser
       component: route-2
+    - path: 404
+      component: route-404
   case 'load':
     console.warn(ctx)
     ctx.newuser = true;
   break;
   case '/new/id':
     console.warn(ctx);
-
   break;
   case '/':
     console.warn("HOME")
+    execute case '/new/id' use ['passage'];
   break;
   default:
     console.warn('it works', performance.now())

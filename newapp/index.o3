@@ -11,7 +11,7 @@ use @/newapp/main/.router.o3 as 'router';
   <menu-content />
 </div>
 <router name="new"/>
-<left-menu :test="scrollY" --go="/path/to" />
+<left-menu :test="scrollY" />
 <proto>
   def:
     scrollY: 0

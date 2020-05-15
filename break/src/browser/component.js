@@ -51,29 +51,29 @@ function OComponent() {
       const prop = this.props.find((prop) => prop[0] === key);
       const isAny = constructors.includes(null);
       if (!prop && !isAny) {
-        const UndefinedPropertyForComponentException = new Error(
-          `[Ogone] ${key} is required as property but undefined in template. Please use following syntax\n\t\t<component :${key}="..."></component>`,
-        );
-        throw UndefinedPropertyForComponentException;
+        const UndefinedPropertyForComponentException = `${key} is required as property but still undefined. Please use this syntax\n\t\t<component :${key}="..."></component>`;
+        const err = new Error('[Ogone]  '+UndefinedPropertyForComponentException);
+        Ogone.error(UndefinedPropertyForComponentException, `Undefined property ${key}. But ${key} is required in component`, err);
+        throw err;
       }
       const value = this.parentContext({
         getText: `${prop[1]}`,
         position: this.positionInParentComponent,
       });
       if ((value === undefined || value === null) && !isAny) {
-        const NullishPropertyException = new Error(
-          `[Ogone] ${key} is required as property but can\'t be null. Please use following syntax\n\t\t<component :${key}="${
-            constructors.join(" | ")
-          }"></component>`,
-        );
+        const message = `${key} is required as property but can\'t be null. Please use this syntax\n\t\t<component :${key}="${
+          constructors.join(" | ")
+        }"></component>`;
+        const NullishPropertyException = new Error('[Ogone]  '+message);
+        Ogone.error(message, `Property ${key} can't be null for the component`, NullishPropertyException);
         throw NullishPropertyException;
       }
       if (!constructors.includes(value.constructor.name)) {
-        const PropertyDontMatchWithConstructorsException = new Error(
-          `[Ogone] ${key} is required as property but it's value is not one of ${
-            constructors.join(" | ")
-          }`,
-        );
+        const message = `${key} is required as property but it's value is not one of ${
+          constructors.join(" | ")
+        }`;
+        const PropertyDontMatchWithConstructorsException = new Error('[Ogone] '+message);
+        Ogone.error(message, `TypeError for property ${key}`, PropertyDontMatchWithConstructorsException)
         throw PropertyDontMatchWithConstructorsException;
       }
       if (value !== this.data[key]) {

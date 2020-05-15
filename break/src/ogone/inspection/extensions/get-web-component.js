@@ -107,8 +107,19 @@ export default function getWebComponent(component, node) {
         // set the actualTemplate of the router
         ${isRouter ? `actualTemplate: null,` : ""}
 
+        // save the route
+        ${isRouter ? 'actualRoute: null,' : ''}
+
+        // whenever the route change
+        ${isRouter ? 'routeChanged: true,' : ''}
+
         // set state to pass it through the history.state
-        ${isRouter ? `historyState: history.state || {},` : ""}
+        ${isRouter ? `
+        historyState: { ...(() => {
+          const url = new URL(location.href);
+          const query = new Map(url.searchParams.entries());
+          return { query }
+        })(),  },` : ""}
 
         // overwrite properties
         ...def,
@@ -146,7 +157,7 @@ export default function getWebComponent(component, node) {
       this.setEvents();
 
       // set the if directive into component
-      if (this.ogone.directives) this.setIfDir();
+      if (this.ogone.directives || ${isRouter}) this.setIfDir();
 
       // set history state and trigger case 'load'
       ${isRouter ? 'this.triggerLoad();' : ''}
@@ -189,7 +200,9 @@ export default function getWebComponent(component, node) {
     setNodes() {
       const o = this.ogone;
       if (${isTemplate}) {
-        o.nodes = o.render(o.component).childNodes;
+        // using array.from to copy NodeList that will get empty.
+        // so we need to keep the childnodes
+        o.nodes = Array.from(o.render(o.component).childNodes);
       } else {
         o.nodes.push(
           o.render(o.component,
@@ -227,14 +240,24 @@ export default function getWebComponent(component, node) {
       const o = this.ogone;
       if (!o.directives) return;
       o.directives.events.forEach((dir) => {
+        console.warn(dir)
         for (let node of o.nodes) {
           node.addEventListener(dir.type, (ev) => {
             const oc = o.component;
-            const ctx = o.getContext({
-              position: ${isTemplate} ?
-                oc.positionInParentComponent : o.position,
-            });
-            oc${isTemplate ? ".parent" : ""}.runtime(dir.case, ctx, ev);
+            if (dir.case) {
+              const ctx = o.getContext({
+                position: ${isTemplate} ?
+                  oc.positionInParentComponent : o.position,
+              });
+              oc${isTemplate ? ".parent" : ""}.runtime(dir.case, ctx, ev);
+            } else if (dir.eval && dir.name === "router-go") {
+              const v = o.getContext({
+                getText: dir.eval,
+                position: ${isTemplate} ?
+                  oc.positionInParentComponent : o.position,
+              });
+              Ogone.router.go(v, history.state);
+            }
           });
         }
       });
@@ -313,11 +336,37 @@ export default function getWebComponent(component, node) {
     triggerLoad() {
       const o = this.ogone;
       const oc = o.component;
+      const rr = Ogone.router.react;
 
-      if (history.state === null) {
-        history.pushState(o.historyState, '', '');
-      }
-      oc.runtime('load', history.state);
+      oc.runtime('load', o.historyState);
+      rr.push((path) => {
+        o.locationPath = path;
+        this.setActualRouterTemplate();
+        this.renderRouter();
+        return true;
+      });
+    }
+    routerSearch(route, locationPath) {
+      const { path } = route;
+      const splitted = path.toString().split('/');
+      const locationSplit = locationPath.split('/');
+      const result = {};
+      if (splitted.length !== locationSplit.length) return false;
+      const error = splitted.find((p,i, arr) => {
+        if (!p.startsWith(':')) {
+          return locationSplit[i] !== p;
+        }
+      });
+      if (error) return false;
+      splitted.forEach((p, i, arr) => {
+        if (p.startsWith(':')) {
+          const param = p.slice(1, p.length);
+          arr[i] = null;
+          result[param] = locationSplit[i];
+        }
+      });
+      route.params = result;
+      return true;
     }
     setActualRouterTemplate() {
       const o = this.ogone;
@@ -326,12 +375,18 @@ export default function getWebComponent(component, node) {
       oc.routes = o.routes;
       oc.locationPath = o.locationPath;
       const l = oc.locationPath;
-      const rendered = oc.routes.find((r) => r.path === l) || oc.routes.find((r) => r.path === "/");
-      if (rendered) {
+      const rendered = oc.routes.find((r) => r.path === l || this.routerSearch(r,l) || r.path === 404);
+      if (!rendered) {
+        o.actualTemplate = [new Comment()];
+        o.actualRoute = null;
+        o.routeChanged = true;
+      } else if (rendered && o.actualRoute !== rendered.component) {
         const { component: uuidC } = rendered;
         const co = document.createElement('template', { is: uuidC });
-        o.actualTemplate = co;
-
+        o.actualTemplate = [co];
+        o.actualRoute = rendered.component;
+        o.routeChanged = true;
+        console.warn('FOUND')
         // don't spread o
         // some props of o can overwritte the template.ogone and create errors in context
         // like undefined data
@@ -347,6 +402,8 @@ export default function getWebComponent(component, node) {
           position: o.position,
           directives: o.directives,
         });
+      } else {
+        o.routeChanged = false
       }
     }
     renderRouter() {
@@ -356,7 +413,31 @@ export default function getWebComponent(component, node) {
       // update Props before replace the element
       oc.updateProps();
 
-      this.replaceWith(o.actualTemplate);
+      // we will use o.replacer cause it's used in the directive if
+
+      if (!o.actualTemplate) {
+        o.actualTemplate = o.replacer;
+      }
+      if (this.isConnected) {
+        this.replaceWith(...o.actualTemplate);
+        o.replacer = o.actualTemplate;
+      } else if (o.routeChanged) {
+        const replacer = o.replacer && o.replacer[0].ogone ? o.replacer[0].ogone.nodes : o.replacer;
+        replacer.slice(1, replacer.length).forEach(n => n.remove());
+        for (let n of replacer) {
+          n.isConnected ? n.replaceWith(...o.actualTemplate) : '';
+        }
+      }
+      if (o.actualTemplate && o.actualTemplate[0].ogone && o.actualTemplate[0].isConnected) {
+        // router stopped cause the template is still connected to the document
+        // it means that they were an error in the component provided in router
+
+        Ogone.error(\` router stopped: the template is still connected to the document. It seems like there is an error in the component provided in the router\`,
+          'RouterError during rendering',
+          { message: \`path: $\{o.actualRoute}\` });
+      } else {
+        o.replacer = o.actualTemplate;
+      }
       oc.runtime(o.locationPath, history.state);
     }
     render() {

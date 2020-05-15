@@ -54,8 +54,14 @@ export default [
       /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§use${gen.next().value}§§`;
+      let path = expressions[matches[2]];
+      while(Object.keys(expressions).find(k => path.indexOf(k) > -1)) {
+        Object.keys(expressions).forEach((k) => {
+          path = path.replace(k, expressions[k]);
+        });
+      }
       typedExpressions.use[id] = {
-        path: expressions[matches[2]],
+        path,
         as: expressions[matches[4]],
       };
       return "";

@@ -36,6 +36,13 @@ export default function parseDirectives(node, opts) {
             case: `${click}${caseName}`,
           });
           break;
+        case key === "--router-go":
+          result.events.push({
+            type: "click",
+            name: "router-go",
+            eval: attributes[key],
+          });
+          break;
         case key === "--if":
           result.if = `${attributes[key]}`;
           break;
