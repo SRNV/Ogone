@@ -6,25 +6,16 @@ use @/newapp/main/404.o3 as 'route-404'
 <proto type="router">
   def:
     - path: /doc
-      name: newUser
+      name: documentation
       component: route-2
-    - path: /support
-      redirect: newUser
-      component: route-2
-    - path: 404
+      title: Ogone - documentation
+
+    - path: /todos/:id
       component: route-404
-  case 'load':
-    console.warn(ctx)
-    ctx.newuser = true;
-  break;
-  case '/new/id':
-    console.warn(ctx);
-  break;
-  case '/':
-    console.warn("HOME")
-    execute case '/new/id' use ['passage'];
-  break;
-  default:
-    console.warn('it works', performance.now())
-  break;
+      name: todo
+
+    - path: 404
+      name: 404
+      component: route-404
+      title: 404 route not found
 </proto>

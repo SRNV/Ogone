@@ -74,6 +74,9 @@ export default function getWebComponent(component, node) {
         // define component
         ${isTemplate ? "component: this.component," : ""}
 
+        // get from router the parameters
+        ${isTemplate ? "params: null," : ""}
+
         // define parentComponent
         parentComponent: null,
 
@@ -109,6 +112,7 @@ export default function getWebComponent(component, node) {
 
         // save the route
         ${isRouter ? 'actualRoute: null,' : ''}
+        ${isRouter ? 'actualRouteName: null,' : ''}
 
         // whenever the route change
         ${isRouter ? 'routeChanged: true,' : ''}
@@ -240,7 +244,6 @@ export default function getWebComponent(component, node) {
       const o = this.ogone;
       if (!o.directives) return;
       o.directives.events.forEach((dir) => {
-        console.warn(dir)
         for (let node of o.nodes) {
           node.addEventListener(dir.type, (ev) => {
             const oc = o.component;
@@ -347,10 +350,12 @@ export default function getWebComponent(component, node) {
       });
     }
     routerSearch(route, locationPath) {
+      if (typeof locationPath !== 'string') return false;
       const { path } = route;
       const splitted = path.toString().split('/');
       const locationSplit = locationPath.split('/');
       const result = {};
+      if (!splitted.filter(r => r.trim().length).length !== !locationSplit.filter(r => r.trim().length).length) return;
       if (splitted.length !== locationSplit.length) return false;
       const error = splitted.find((p,i, arr) => {
         if (!p.startsWith(':')) {
@@ -375,22 +380,33 @@ export default function getWebComponent(component, node) {
       oc.routes = o.routes;
       oc.locationPath = o.locationPath;
       const l = oc.locationPath;
-      const rendered = oc.routes.find((r) => r.path === l || this.routerSearch(r,l) || r.path === 404);
+      let rendered = oc.routes.find((r) => r.path === l || this.routerSearch(r,l) || r.path === 404);
+      let preservedParams = rendered.params;
+
+      // redirections
+      while (rendered && rendered.redirect) {
+        rendered = oc.routes.find((r) => r.name === rendered.redirect);
+        if (rendered) {
+          rendered.params = preservedParams;
+        }
+      }
+
       if (!rendered) {
         o.actualTemplate = [new Comment()];
         o.actualRoute = null;
         o.routeChanged = true;
-      } else if (rendered && o.actualRoute !== rendered.component) {
+      } else if (rendered && !(rendered.once && o.actualRoute === rendered.component)) {
         const { component: uuidC } = rendered;
         const co = document.createElement('template', { is: uuidC });
         o.actualTemplate = [co];
         o.actualRoute = rendered.component;
+        o.actualRouteName = rendered.name || null;
         o.routeChanged = true;
-        console.warn('FOUND')
         // don't spread o
         // some props of o can overwritte the template.ogone and create errors in context
         // like undefined data
         co.is({
+          params: rendered.params || null,
           props: o.props,
           parentComponent: o.parentComponent,
           parentCTXId: o.parentCTXId,
@@ -402,6 +418,13 @@ export default function getWebComponent(component, node) {
           position: o.position,
           directives: o.directives,
         });
+
+        // if the route provide any title
+        // we change the title of the document
+
+        if (rendered.title) {
+          document.title = rendered.title;
+        }
       } else {
         o.routeChanged = false
       }
@@ -410,7 +433,7 @@ export default function getWebComponent(component, node) {
       const o = this.ogone;
       const oc = o.component;
 
-      // update Props before replace the element
+      // update Props before replacement of the element
       oc.updateProps();
 
       // we will use o.replacer cause it's used in the directive if
@@ -434,11 +457,11 @@ export default function getWebComponent(component, node) {
 
         Ogone.error(\` router stopped: the template is still connected to the document. It seems like there is an error in the component provided in the router\`,
           'RouterError during rendering',
-          { message: \`path: $\{o.actualRoute}\` });
+          { message: \`path: $\{o.actualRoute}\nname: $\{o.actualRouteName}\` });
       } else {
         o.replacer = o.actualTemplate;
       }
-      oc.runtime(o.locationPath, history.state);
+      oc.runtime(o.actualRouteName || o.locationPath, history.state);
     }
     render() {
       const o = this.ogone;
@@ -454,7 +477,10 @@ export default function getWebComponent(component, node) {
         // ask the component to evaluate the value of the textnodes
         oc.renderTexts(true);
 
-        oc.startLifecycle();
+        // trigger the init case of the component
+        // we can pass the parameters of the router into the ctx
+
+        oc.startLifecycle(o.params, o.historyState);
 
       } else {
         oc.renderTexts(true);

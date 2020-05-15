@@ -5,10 +5,13 @@ const allowedKeys = [
   'redirect',
   'component',
   'name',
-  'children'
+  'children',
+  'title',
+  'once',
 ];
 const requiredKeys = [
   'path',
+  'component',
 ];
 function startRecursiveRouterInspection(component, route, opts) {
   const keys = Object.keys(route);

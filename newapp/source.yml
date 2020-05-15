@@ -6,7 +6,7 @@ menu:
     route: /api
     status: todo
   - name: todos
-    route: /todos
+    route: /todos/testParams
     status: todo
   - name: git
     route: /git

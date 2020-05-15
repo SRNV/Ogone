@@ -2,8 +2,18 @@
   <div class="logo-back">
     <img class="logo" src="/public/ogone.svg" />
   </div>
-  <div class="text">404 route not found </div>
+  <div class="text">404 route not found. ${param} </div>
 </div>
+<proto>
+  def:
+    param: ''
+  case 'init':
+    console.warn(ctx);
+    if (ctx) {
+      this.param = Object.values(ctx).join()
+    }
+  break;
+</proto>
 <style>
 .container {
   display: flex;
@@ -34,5 +44,7 @@
   animation-name: popup;
   animation-duration: 0.5s;
   animation-timing-function: cubic-bezier(0.1, -0.6, 0.2, 0);
+  max-width: 500px;
+  margin: auto;
 }
 </style>

@@ -8,7 +8,7 @@ articles:
         })"
 
   - title: Get Started with the classic greeting app
-    text: "in the file app/index.o3 follow this example and \n type deno run command into your terminal"
+    text: TODO
     code: "<p>Hello ${name}</p>\n
         <proto>\n
         \tdef:\n
@@ -16,11 +16,11 @@ articles:
         </proto>"
 
   - title: Install Ogone
-    text: "this is how to install it"
+    text:  TODO
     code: 'import o3 from "https://deno.land/x/ogone/mod.ts"'
 
   - title: Using def, case, default keywords to rule the component
-    text: Todo
+    text: TODO
     code: "
       <proto>\n
       \tdef:\n
@@ -33,11 +33,11 @@ articles:
       </proto>"
 
   - title: read def in yml files
-    text: Todo
+    text: TODO
     code: '<proto def="path/to/source.yml"/>'
 
   - title: Default/Cases execution
-    text: Todo
+    text: TODO
     code: "
       <p>${count}</p>\n
       <button --click:increase>\n

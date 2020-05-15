@@ -21,9 +21,9 @@ function OComponent() {
         this.id = ev.id;
     }
   };
-  this.startLifecycle = () => {
+  this.startLifecycle = (params, event) => {
     // WIP
-    this.runtime("init");
+    this.runtime("init", params, event);
     Object.seal(this.data);
   };
   this.update = (dependency) => {
@@ -109,6 +109,7 @@ function OComponent() {
         directives: Onode.ogone.directives,
         ...(!callingNewComponent ? { component: this } : {
           props: Onode.ogone.props,
+          params: Onode.ogone.params,
           parentComponent: Onode.ogone.parentComponent,
           parentCTXId: Onode.ogone.parentCTXId,
           positionInParentComponent: Onode.ogone.positionInParentComponent
