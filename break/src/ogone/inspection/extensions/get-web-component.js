@@ -160,9 +160,6 @@ export default function getWebComponent(component, node) {
       // set the events
       this.setEvents();
 
-      // set the if directive into component
-      if (this.ogone.directives || ${isRouter}) this.setIfDir();
-
       // set history state and trigger case 'load'
       ${isRouter ? 'this.triggerLoad();' : ''}
 
@@ -231,7 +228,7 @@ export default function getWebComponent(component, node) {
     directiveFor() {
       const o = this.ogone;
       const key = o.key;
-      const length = o.getContext({ getLength: true });
+      const length = o.getContext({ getLength: true, position: o.position });
       o.component${isTemplate ? ".parent" : ""}.render(this, {
         callingNewComponent: ${isTemplate},
         key,
@@ -264,72 +261,6 @@ export default function getWebComponent(component, node) {
           });
         }
       });
-    }
-    // WIP
-    setIfDir() {
-      const o = this.ogone;
-      o.replacer = [new Comment()];
-      if (o.directives.if) {
-        o.directives.replacers = o.nodes;
-        o.directives.dfrag = document.createDocumentFragment();
-        this.getAllElseDir();
-      }
-      o.component.react.push(() => this.directiveIf());
-    }
-    // WIP
-    getAllElseDir() {
-      const o = this.ogone;
-      let nxt = this.nextElementSibling;
-      o.directives.ifelseBlock = nxt ? [] : null;
-      while(nxt && nxt.directives && (nxt.directives.elseIf || nxt.directives.else)) {
-        o.directives.ifelseBlock.push(nxt);
-        const elseDir = !!nxt.directives.else;
-        nxt = nxt.nextElementSibling;
-        if (elseDir && nxt && nxt.directives && (!!nxt.directives.else || !!nxt.directives.elseIf)) {
-          throw new Error('[Ogone] else directive has to be the last in if-else-if blocks, no duplicate of --else are allowed.');
-        }
-      }
-      if (o.directives.ifelseBlock) {
-          for (let ond of o.directives.ifelseBlock) {
-              o.directives.dfrag.append(ond);
-          }
-      }
-    }
-    // WIP
-    directiveIf() {
-      const o = this.ogone;
-      const evl = o.directives.if;
-      if (!evl) return;
-      const c = o.replacer;
-      const nd = o.nodes;
-      const oc = o.component;
-      const v = o.getContext({
-        position: o.position,
-        getText: evl,
-      });
-      let nb = null; // Onode that should replace
-      const replacers = o.directives.replacers;
-      if (!v && o.directives.ifelseBlock) {
-        o.directives.ifelseBlock.filter((n) => !n.ogone).forEach((n) => document.body.append(n));
-        for (let ond of o.directives.ifelseBlock) {
-            o.directives.dfrag.append(ond);
-        }
-        nb = o.directives.ifelseBlock.find((n) => n.ogone && n.ogone.getContext({
-            position: n.ogone.position,
-            getText: n.ogone.directives.elseIf || n.ogone.directives.else || false,
-        }) || (n.firstNode && n.firstNode.isConnected));
-      }
-      // nb && !nb.firstNode ? document.body.append(nb) : null;
-      const replacer = v ? o.nodes : nb ? nb.ogone.nodes : c;
-      if (replacers !== replacer) {
-        let replaced = replacers.find((n) => n.isConnected);
-        while(replaced) {
-            replaced.replaceWith(...replacer);
-            replaced = replacers.find((n) => n.isConnected);
-        }
-        o.directives.replacers = replacer;
-      }
-      return oc.activated;
     }
     removeNodes() {
       /* use it before removing template node */
@@ -485,8 +416,10 @@ export default function getWebComponent(component, node) {
       } else {
         oc.renderTexts(true);
         this.replaceWith(...o.nodes);
-        this.directiveIf();
       }
+    }
+    get context() {
+      return this.ogone.component.contexts.for[this.ogone.key];
     }
     get firstNode() {
       return this.ogone.nodes[0];

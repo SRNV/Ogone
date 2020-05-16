@@ -8,6 +8,25 @@ function getUniquekey(id = "") {
   // critical all regexp are based on this line
   return `§§${i}${id}§§`;
 }
+function setElementSiblings(node) {
+  if (node.childNodes && node.childNodes.length) {
+    node.childNodes.forEach((child,i, arr) => {
+      // define here sibblings elements
+      if (arr[i-1]) {
+        child.previousElementSibling = arr[i-1];
+      } else {
+        child.previousElementSibling = null;
+      }
+      if (arr[i+1]) {
+        child.nextElementSibling = arr[i+1];
+      } else {
+        child.nextElementSibling = null;
+      }
+      // recursive for childNodes
+      setElementSiblings(child);
+    });
+  }
+}
 function getRootnode(html, expressions) {
   let result;
   const keysOfExp = Object.keys(expressions);
@@ -288,8 +307,11 @@ function setNodesPragma(expressions) {
           ? ";"
           : "(ctx, position.slice(), index, level + 1)";
         let nodesPragma = node.childNodes.filter((child) => child.pragma).map((
-          child,
-        ) => child.pragma(idComponent, false, imports, getId)).join(",");
+          child, i, arr
+        ) => {
+          // return the pragma
+          return child.pragma(idComponent, false, imports, getId);
+        }).join(",");
         let appending = `${nId}.append(${nodesPragma});`;
         let extensionId = "";
         if (isImported) {
@@ -414,6 +436,8 @@ export default function parse(html) {
   cleanNodes(expressions);
   // set to all nodes the jsx pragma
   setNodesPragma(expressions);
+  // set next/previous element sibling
+  setElementSiblings(result);
   // critical this will say to o3 that is the rootNode
   result.tagName = null;
   return result;

@@ -34,7 +34,7 @@ const script = `
   ${esm}
   ${browserBuild}
   ${Ogone.datas.join("\n")}
-  ${Ogone.contexts.join("\n")}
+  ${Ogone.contexts.reverse().join("\n")}
   ${Ogone.templates.join("\n")}
   ${Ogone.classes.reverse().join("\n")}
   ${Ogone.customElements.join("\n")}

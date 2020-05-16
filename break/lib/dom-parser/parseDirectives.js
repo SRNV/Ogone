@@ -45,12 +45,15 @@ export default function parseDirectives(node, opts) {
           break;
         case key === "--if":
           result.if = `${attributes[key]}`;
+          node.hasDirective = true;
           break;
         case key === "--else":
           result.else = true;
+          node.hasDirective = true;
           break;
         case key === "--else-if":
           result.elseIf = `${attributes[key]}`;
+          node.hasDirective = true;
           break;
       }
     }

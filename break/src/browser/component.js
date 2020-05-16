@@ -88,7 +88,8 @@ function OComponent() {
     // this web component is a custom Element
     // not an extension of an element cause the attr "is" is not dynamic
     // at the first call of this function Onode is not "rendered" (replaced by the required element)
-    const { key, callingNewComponent, length: dataLength } = opts;
+    let { key, callingNewComponent, length: dataLength } = opts;
+    typeof dataLength === 'object' ? dataLength = 1 : [];
     if (!this.contexts.for[key]) {
       this.contexts.for[key] = [Onode];
       this.contexts.for[key].placeholder = new Comment();

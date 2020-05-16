@@ -32,7 +32,6 @@ export default function oRenderDOM(
     ctx: {},
     script: [],
     getLengthDeclarationAfterArrayEvaluation: "",
-    getLengthDeclarationBeforeArrayEvaluation: "",
     declarationScript: [],
     callbackDeclaration: "",
   },
@@ -42,7 +41,6 @@ export default function oRenderDOM(
     const nUuid = `o-${iterator.next().value}`;
     let query = "";
     let contextLegacy = {};
-    node.hasDirective = false;
     node.dependencies = [];
     // LEGACY - node now have all attributes starting with -- or @ or :
     if (node.rawAttrs && node.rawAttrs.length) {
@@ -149,10 +147,9 @@ export default function oRenderDOM(
               node.hasDirective = true;
               const getLengthScript = `
               if (GET_LENGTH) {
-                  return (${array}).length;
+                return (${array}).length;
               }`;
-              contextLegacy.getLengthDeclarationBeforeArrayEvaluation =
-                getLengthScript;
+              legacy.getLength = getLengthScript;
               const declarationScript = [`
                 let ${index} = POSITION[${contextLegacy.limit}],
                 ${item} = (${array})[${index}];`];
@@ -196,15 +193,14 @@ export default function oRenderDOM(
           });
         });
     }
-    contextLegacy.declarationScript[0] =
-      contextLegacy.getLengthDeclarationBeforeArrayEvaluation +
-      contextLegacy.declarationScript[0];
+
     const value = `${contextLegacy.declarationScript.join("")}
         ${contextLegacy.resolveCallback ? contextLegacy.resolveCallback : ""} `;
     contextLegacy.script = {
       value,
       node,
       ctx: legacy.ctx,
+      getLength: legacy.getLength,
     };
     component.for[node.id] = contextLegacy;
   } catch (oRenderDOMException) {
