@@ -68,6 +68,7 @@ const Ogone = {
     this.errorPanel.style.paddingTop = '30px';
     // set the grid of errors
     err.style.gridArea = `e${errorId}`;
+    const m = 2;
     let grid = '';
     let i = 0;
     let a = 0;
@@ -75,12 +76,12 @@ const Ogone = {
       grid += `e${i+1} `;
     }
     let b = i;
-    while (i % 3) {
+    while (i % m) {
       grid += `e${b} `;
       i++;
     }
     const cells = grid.split(' ');
-    var o,j,temparray,chunk = 3;
+    var o,j,temparray,chunk = m;
     let newgrid = '';
     for (o=0,j=cells.length-1; o<j; o+=chunk) {
         temparray = cells.slice(o,o+chunk);

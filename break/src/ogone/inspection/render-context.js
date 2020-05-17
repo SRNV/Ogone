@@ -4,7 +4,7 @@ export default function oRenderContext(keyComponent) {
   const component = Ogone.components.get(keyComponent);
   Object.entries(component.for).forEach(([nId, directive]) => {
     const { script } = directive;
-    const { node, ctx, getLength } = script;
+    const { node, ctx, getLength, array } = script;
     let contextIf = null;
     if (node.attributes && node.attributes['--if']) {
       let nxt = node.nextElementSibling;
@@ -79,11 +79,18 @@ export default function oRenderContext(keyComponent) {
             ).join("\n")
             : ""
         }
+        ${array ? `const _____a_ = ${array};`: ''}
+
+
         ${script.value || ''}
         ${contextIf ? contextIf : ''}
         ${getLength ? getLength : ''}
         if (GET_TEXT) {
-          return eval(GET_TEXT);
+          try {
+            return eval(GET_TEXT);
+          } catch(err) {
+            Ogone.error('Error in component:\\n\\t ${component.file}', err.message ,err);
+          }
         }
         return {${[...Object.keys(ctx), ...Object.keys(component.data)]}};
       };

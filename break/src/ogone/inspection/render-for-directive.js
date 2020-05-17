@@ -8,7 +8,7 @@ export default function oRenderForDirective(directiveValue) {
     throw OgoneForDirectiveSyntaxException;
   }
   const oForRegExp =
-    /([\S]*)+\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi.exec(
+    /([\s\S]*)+\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi.exec(
       directiveValue,
     );
   if (!oForRegExp) {

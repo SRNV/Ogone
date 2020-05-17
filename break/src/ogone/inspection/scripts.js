@@ -39,7 +39,13 @@ export default function oRenderScripts() {
       };
       const { value } = ogoneScript;
       let script =
-        `(function (_state, ctx, event, _once = 0) { switch(_state) { ${value} } });`;
+        `(function (_state, ctx, event, _once = 0) {
+          try {
+            switch(_state) { ${value} }
+          } catch(err) {
+            Ogone.error('Error in the component: \\n\\t ${component.file}' ,err.message, err);
+          }
+        });`;
       component.scripts.runtime = script;
     } else if (defData) {
       component.data = defData;

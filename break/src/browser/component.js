@@ -22,11 +22,13 @@ function OComponent() {
     }
   };
   this.startLifecycle = (params, event) => {
+    if (!this.activated) return;
     // WIP
     this.runtime("init", params, event);
     Object.seal(this.data);
   };
   this.update = (dependency) => {
+    if (!this.activated) return;
     this.reactTo(dependency);
     this.renderTexts(dependency);
     this.childs.forEach((c) => {
@@ -34,6 +36,7 @@ function OComponent() {
     });
   };
   this.renderTexts = (dependency) => {
+    if (!this.activated) return;
     this.texts.forEach((t, i, arr) => {
       // if there is no update of the texts
       // this can be the reason why
@@ -41,11 +44,13 @@ function OComponent() {
     });
   };
   this.reactTo = (dependency) => {
+    if (!this.activated) return;
     this.react.forEach((t, i, arr) => {
       if (t && !t(dependency)) delete arr[i];
     });
   };
   this.updateProps = (dependency) => {
+    if (!this.activated) return;
     if (!this.requirements || !this.props) return;
     this.requirements.forEach(([key, constructors]) => {
       const prop = this.props.find((prop) => prop[0] === key);

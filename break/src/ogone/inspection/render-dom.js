@@ -147,12 +147,13 @@ export default function oRenderDOM(
               node.hasDirective = true;
               const getLengthScript = `
               if (GET_LENGTH) {
-                return (${array}).length;
+                return (_____a_).length;
               }`;
+              legacy.arrayName = array;
               legacy.getLength = getLengthScript;
               const declarationScript = [`
                 let ${index} = POSITION[${contextLegacy.limit}],
-                ${item} = (${array})[${index}];`];
+                ${item} = (_____a_)[${index}];`];
 
               contextLegacy.declarationScript = contextLegacy.declarationScript
                 .concat(declarationScript);
@@ -201,6 +202,7 @@ export default function oRenderDOM(
       node,
       ctx: legacy.ctx,
       getLength: legacy.getLength,
+      array: legacy.arrayName,
     };
     component.for[node.id] = contextLegacy;
   } catch (oRenderDOMException) {

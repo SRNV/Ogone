@@ -1,7 +1,7 @@
 use @/newapp/main/content.o3 as "content";
 <div class="container">
   <content
-    --for="articles as (article)"
+    --for="articles.filter(r => r.text) as (article)"
     :text="article.text"
     :title="article.title"
     :code="article.code"
