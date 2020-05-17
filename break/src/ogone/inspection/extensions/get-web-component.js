@@ -6,8 +6,10 @@ export default function getWebComponent(component, node) {
   const isTemplate = node.tagName === null;
   const isImported = component.imports[node.tagName];
   const isRouter = isTemplate && component.type === "router";
+  const isStore = isTemplate && component.type === "store";
   const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
+  // no definition for imported component
   if (isImported) {
     return "";
   }
@@ -50,6 +52,9 @@ export default function getWebComponent(component, node) {
         this.component = component;
         this.component.type = '${component.type}';
         this.is();
+      }
+      if (${isStore}) {
+        console.warn(this, this.childNodes,  performance.now());
       }
     }
     // set the modifier object for Ogone features

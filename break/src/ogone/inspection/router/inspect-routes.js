@@ -14,6 +14,7 @@ const requiredKeys = [
   'component',
 ];
 function startRecursiveRouterInspection(component, route, opts) {
+  if (!route) return;
   const keys = Object.keys(route);
   const unsupported = keys.find((k) => !allowedKeys.includes(k));
   const missingKey = requiredKeys.find((k) => !route[k]);

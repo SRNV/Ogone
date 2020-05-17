@@ -1,7 +1,7 @@
 require item as Object;
 deploy store @/newapp/main/module.store.o3
 
-<div class="container" --click:act --router-go="item.route">
+<div class="container" --router-go="item.route">
   ${item.name}
   <span class="ok" --if="item.status === 'ok'"></span>
   <span class="todo" --if="item.status === 'todo'"></span>

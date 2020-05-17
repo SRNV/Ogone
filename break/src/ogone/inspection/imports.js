@@ -1,4 +1,3 @@
-import { join } from "https://deno.land/std@v0.42.0/path/win32.ts";
 import Ogone from "../index.ts";
 import jsThis from "../../../lib/js-this/switch.js";
 

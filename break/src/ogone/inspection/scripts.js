@@ -15,7 +15,6 @@ export default function oRenderScripts() {
     );
     const moduleScript = proto?.childNodes[0];
     let defData;
-    let isRouter = false;
     if (proto && "def" in proto.attributes) {
       if (existsSync(proto.attributes.def)) {
         console.warn(`[Ogone] definition of proto: ${proto.attributes.def}`);
@@ -62,19 +61,27 @@ export default function oRenderScripts() {
       });
     }
     if (proto && "type" in proto.attributes) {
-      if (!allowedTypes.includes(proto.attributes.type)) {
+      const { type } = proto.attributes;
+      if (!allowedTypes.includes(type)) {
         const UnsupportedTypeException = new TypeError(
-          `[Ogone] ${proto.attributes.type} is not supported, in this version.
+          `[Ogone] ${type} is not supported, in this version.
           supported types of component: ${allowedTypes.join(" ")}
           error in: ${component.file}`,
         );
         throw UnsupportedTypeException;
       }
-      component.type = proto.attributes.type;
-      isRouter = true;
-      component.routes = inspectRoutes(component, Object.values(component.data));
-      component.rootNodePure = domparse("<router></router>");
-      component.data = {};
+      component.type = type;
+      if (type === 'router') {
+        component.routes = inspectRoutes(component, Object.values(component.data));
+        component.data = {};
+      }
+      if (type === 'store') {
+        component.rootNodePure = domparse("<!-- -->");
+        if (proto.attributes.namespace) {
+          // set the component type, default is null
+          component.namespace = proto.attributes.namespace;
+        }
+      }
     }
   });
 }

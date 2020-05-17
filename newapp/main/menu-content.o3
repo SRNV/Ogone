@@ -2,15 +2,12 @@ use @/newapp/main/burger.o3 as 'burger-el';
 use @/newapp/main/menu-button.o3 as 'menu-button';
 
 <div class="menu">
-  <menu-button --for="menu as (t)" :item="t"/>
+  <menu-button --for="menu as (t)" :item="t" />
   <div>
     <burger-el />
   </div>
 </div>
-<proto def="newapp/source.yml">
-  case 'init':
-  break;
-</proto>
+<proto def="newapp/source.yml" />
 <style>
   .menu {
     flex: 8;

@@ -97,6 +97,5 @@ export default function oRenderContext(keyComponent) {
     `
         : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
     Ogone.contexts.push(contextScript);
-    console.warn(contextScript);
   });
 }

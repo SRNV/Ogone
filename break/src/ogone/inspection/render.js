@@ -31,6 +31,8 @@ export default function oRender() {
         reactiveText: {},
         // if the component type is set as router
         routes: null,
+        // if the component type is store
+        namespace: null,
       });
     } else {
       console.warn("[Ogone] passed", dir);
