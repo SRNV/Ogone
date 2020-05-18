@@ -30,8 +30,11 @@ export default function oRenderScripts() {
     if (moduleScript) {
       const ogoneScript = jsThis(
         moduleScript.rawText,
-        { data: true, reactivity: true, casesAreLinkables: true },
+        { data: true, reactivity: true, casesAreLinkables: true, parseCases: true, },
       );
+      // here set the cases and if the default is present in the script
+      component.switch = ogoneScript.body.switch;
+      // set the datas of the component
       component.data = {
         ...ogoneScript.body.data,
         ...defData,

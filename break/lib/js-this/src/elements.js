@@ -490,6 +490,7 @@ export default [
     close: ";",
   },
   {
+    name: "parentheses",
     open: "(",
     reg: /\(([^\(\)])*\)/,
     id: (value, matches, typedExpressions, expressions) => {

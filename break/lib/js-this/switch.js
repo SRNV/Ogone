@@ -11,6 +11,7 @@ import renderInvalidation from "./src/render/invalidations.js";
 import renderSetterExpression from "./src/render/setter-expression.js";
 import renderO3Syntax from "./src/render/o3-syntax-render.js";
 import yamelize from "./src/render/yamelize.js";
+import parseCases from "./src/caseParser.ts";
 
 function recursiveTranslate(expressions, prog) {
   let str = prog;
@@ -34,7 +35,11 @@ function jsThis(str, opts) {
   if (prog.indexOf("def:") > -1 && opts && opts.data === true) {
     prog = yamelize(typedExpressions, expressions, prog);
   }
-
+  if (opts && opts.parseCases) {
+    prog = renderExpressions(typedExpressions, expressions, elements, prog, "block");
+    prog = renderExpressions(typedExpressions, expressions, elements, prog, "parentheses");
+    prog = parseCases(typedExpressions, expressions, prog);
+  }
   prog = renderExpressions(typedExpressions, expressions, elements, prog);
   if (opts && opts.cjs) {
     prog = renderExpressions(typedExpressions, expressions, cjsElements, prog);
@@ -51,7 +56,7 @@ function jsThis(str, opts) {
       body: typedExpressions,
     };
   }
-  if (opts.reactivity) {
+  if (opts && opts.reactivity) {
     prog = renderComputed(typedExpressions, expressions, computedExp, prog);
     prog = renderSetterExpression(typedExpressions, expressions, prog);
     prog = renderInvalidation(typedExpressions, expressions, prog);
@@ -161,7 +166,7 @@ function jsThis(str, opts) {
   Object.entries(typedExpressions).forEach(([key, value]) => {
     Object.entries(typedExpressions[key]).forEach(([key2, value2]) => {
       if (
-        !["properties", "use", "data", "imports", "exports", "require"]
+        !["properties", "use", "data", "imports", "exports", "require", "switch"]
           .includes(key)
       ) {
         // dont set expressions for Ogone tools

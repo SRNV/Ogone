@@ -8,4 +8,8 @@ export default () => ({
   use: {},
   properties: [],
   data: {},
+  switch: {
+    cases: [],
+    default: false,
+  },
 });
