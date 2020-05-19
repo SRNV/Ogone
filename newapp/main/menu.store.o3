@@ -1,0 +1,11 @@
+
+<proto type="store" namespace="menu">
+  def:
+    isOpen: false
+  case 'init':
+  console.warn(this);
+  break;
+  case 'toggle':
+    this.isOpen = !this.isOpen;
+  break;
+</proto>

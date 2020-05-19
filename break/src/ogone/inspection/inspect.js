@@ -9,6 +9,7 @@ function startRecursiveInspectionOfComponent(textFile, p) {
   if (tokens.body && tokens.body.use) {
     Object.values(tokens.body.use)
       .forEach(({ path, as }) => {
+        if (path === p) return;
         if (existsSync(path)) {
           const file = Deno.readTextFileSync(path);
           startRecursiveInspectionOfComponent(file, path);

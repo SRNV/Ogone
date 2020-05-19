@@ -1,4 +1,3 @@
-
 Ogone.router = {
   react: [],
   actualRoute: null,
@@ -6,10 +5,10 @@ Ogone.router = {
     if (Ogone.router.actualRoute === url) return;
     // protect from infinite loop
     Ogone.router.actualRoute = url;
-    Ogone.router.react.forEach((r,i, arr) => {
+    Ogone.router.react.forEach((r, i, arr) => {
       if (r && !r(url, state)) delete arr[i];
     });
-    history.pushState(state || {}, '', url || '/');
+    history.pushState(state || {}, "", url || "/");
   },
 };
 window.onpopstate = function (event) {

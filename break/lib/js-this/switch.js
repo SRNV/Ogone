@@ -36,9 +36,26 @@ function jsThis(str, opts) {
     prog = yamelize(typedExpressions, expressions, prog);
   }
   if (opts && opts.parseCases) {
-    prog = renderExpressions(typedExpressions, expressions, elements, prog, "block");
-    prog = renderExpressions(typedExpressions, expressions, elements, prog, "parentheses");
+    prog = renderExpressions(
+      typedExpressions,
+      expressions,
+      elements,
+      prog,
+      "block",
+    );
+    prog = renderExpressions(
+      typedExpressions,
+      expressions,
+      elements,
+      prog,
+      "parentheses",
+    );
     prog = parseCases(typedExpressions, expressions, prog);
+    // we return directly cause parseCases impact the other parsing algos
+    return {
+      value: prog,
+      body: typedExpressions,
+    };
   }
   prog = renderExpressions(typedExpressions, expressions, elements, prog);
   if (opts && opts.cjs) {
@@ -111,7 +128,12 @@ function jsThis(str, opts) {
       );
       if (opts.casesAreLinkables) {
         // let the developper use 'run case' feature
-        prog = renderO3Syntax(typedExpressions, expressions, prog, "linkCases");
+        typedExpressions.parentheses[key] = renderO3Syntax(
+          typedExpressions,
+          expressions,
+          typedExpressions.parentheses[key],
+          "linkCases"
+        );
       }
     }
   });
@@ -158,7 +180,12 @@ function jsThis(str, opts) {
       );
       if (opts.casesAreLinkables) {
         // let the developper use 'run case' feature
-        prog = renderO3Syntax(typedExpressions, expressions, prog, "linkCases");
+        typedExpressions.blocks[key] = renderO3Syntax(
+          typedExpressions,
+          expressions,
+          typedExpressions.blocks[key],
+          "linkCases"
+        );
       }
     }
   });
@@ -166,7 +193,15 @@ function jsThis(str, opts) {
   Object.entries(typedExpressions).forEach(([key, value]) => {
     Object.entries(typedExpressions[key]).forEach(([key2, value2]) => {
       if (
-        !["properties", "use", "data", "imports", "exports", "require", "switch"]
+        ![
+          "properties",
+          "use",
+          "data",
+          "imports",
+          "exports",
+          "require",
+          "switch",
+        ]
           .includes(key)
       ) {
         // dont set expressions for Ogone tools

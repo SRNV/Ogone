@@ -8,9 +8,10 @@ export default function oRenderForDirective(directiveValue) {
     throw OgoneForDirectiveSyntaxException;
   }
   const oForRegExp =
-    /([\s\S]*)+\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi.exec(
-      directiveValue,
-    );
+    /([\s\S]*)+\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi
+      .exec(
+        directiveValue,
+      );
   if (!oForRegExp) {
     const OgoneForDirectiveSyntaxException = new Error(
       `[Ogone] Syntax Error: ${directiveValue} \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,

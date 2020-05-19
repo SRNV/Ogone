@@ -20,6 +20,7 @@ export default function getWebComponent(component, node) {
     (tagName) => {
       if (component.imports[tagName]) {
         const newcomponent = Ogone.components.get(component.imports[tagName]);
+        if (!newcomponent) return null;
         return newcomponent.uuid;
       }
       return null;
@@ -50,11 +51,8 @@ export default function getWebComponent(component, node) {
   });
         component.dependencies = (${JSON.stringify(node.dependencies)});
         this.component = component;
-        this.component.type = '${component.type}';
+        this.component.type = '${component.type || "component"}';
         this.is();
-      }
-      if (${isStore}) {
-        console.warn(this, this.childNodes,  performance.now());
       }
     }
     // set the modifier object for Ogone features
@@ -116,19 +114,23 @@ export default function getWebComponent(component, node) {
         ${isRouter ? `actualTemplate: null,` : ""}
 
         // save the route
-        ${isRouter ? 'actualRoute: null,' : ''}
-        ${isRouter ? 'actualRouteName: null,' : ''}
+        ${isRouter ? "actualRoute: null," : ""}
+        ${isRouter ? "actualRouteName: null," : ""}
 
         // whenever the route change
-        ${isRouter ? 'routeChanged: true,' : ''}
+        ${isRouter ? "routeChanged: true," : ""}
 
         // set state to pass it through the history.state
-        ${isRouter ? `
-        historyState: { ...(() => {
-          const url = new URL(location.href);
-          const query = new Map(url.searchParams.entries());
-          return { query }
-        })(),  },` : ""}
+        ${
+    isRouter
+      ? `
+              historyState: { ...(() => {
+                const url = new URL(location.href);
+                const query = new Map(url.searchParams.entries());
+                return { query }
+              })(),  },`
+      : ""
+  }
 
         // overwrite properties
         ...def,
@@ -150,7 +152,7 @@ export default function getWebComponent(component, node) {
       this.setContext();
 
       // parse the route that match with location.pathname
-      ${isRouter ? 'this.setActualRouterTemplate()' : ''}
+      ${isRouter ? "this.setActualRouterTemplate()" : ""}
 
       // set the props required by the node
       ${isTemplate ? "this.setProps();" : ""}
@@ -165,11 +167,21 @@ export default function getWebComponent(component, node) {
       // set the events
       this.setEvents();
 
+      // bind classList
+      this.bindClass();
+
+      // bind style
+      this.bindStyle();
+
       // set history state and trigger case 'load'
-      ${isRouter ? 'this.triggerLoad();' : ''}
+      ${isRouter ? "this.triggerLoad();" : ""}
 
       // now ... just render ftw!
-      ${isRouter ? 'this.renderRouter();' : 'this.render();'}
+      switch(true) {
+        case ${isRouter}: this.renderRouter(); break;
+        case ${isStore}: this.renderStore(); break;
+        default: this.render(); break;
+      }
     }
 
     setPosition() {
@@ -189,6 +201,7 @@ export default function getWebComponent(component, node) {
     setContext() {
       const o = this.ogone;
       const oc = o.component;
+      oc.key = o.key;
       if (${isTemplate}) {
         if (o.parentComponent) {
           oc.parent = o.parentComponent;
@@ -201,6 +214,10 @@ export default function getWebComponent(component, node) {
         }
       } else {
         o.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(o.component.data);
+      }
+      if (${isStore}) {
+        oc.namespace = this.getAttribute('namespace') || null;
+        oc.parent.store[oc.namespace] = oc;
       }
     }
     setNodes() {
@@ -241,7 +258,56 @@ export default function getWebComponent(component, node) {
       });
       return true;
     }
-
+    bindStyle(value) {
+      const o = this.ogone;
+      const oc = o.component;
+      if (!o.directives) return;
+      const dir = o.directives.style;
+      if (!dir) return;
+      for (let node of o.nodes) {
+        function reaction() {
+          const value = o.getContext({
+            position: o.position,
+            getText: \`($\{dir})\`,
+          });
+          if (typeof value === 'string') {
+            node.style = value;
+          } else if (typeof value === 'object') {
+            Object.entries(value).forEach(([key, v]) => node.style[key] = v);
+          }
+          return node.isConnected;
+        }
+        oc.react.push(() => reaction());
+        reaction();
+      }
+    }
+    bindClass(value) {
+      const o = this.ogone;
+      const oc = o.component;
+      if (!o.directives) return;
+      const dir = o.directives.class;
+      if (!dir) return;
+      for (let node of o.nodes) {
+        function reaction() {
+          const value = o.getContext({
+            position: o.position,
+            getText: \`($\{dir})\`,
+          });
+          if (typeof value === 'string') {
+            node.classList.value = value;
+          } else if (typeof value === 'object') {
+            const keys = Object.keys(value);
+            node.classList.add(...keys.filter((key) => value[key]));
+            node.classList.remove(...keys.filter((key) => !value[key]));
+          } else if (Array.isArray(value)) {
+            node.classList.value = value.join(' ');
+          }
+          return node.isConnected;
+        }
+        oc.react.push(() => reaction());
+        reaction();
+      }
+    }
     setEvents() {
       const o = this.ogone;
       if (!o.directives) return;
@@ -399,13 +465,36 @@ export default function getWebComponent(component, node) {
       }
       oc.runtime(o.actualRouteName || o.locationPath, history.state);
     }
+
+    renderStore() {
+      const o = this.ogone;
+      const oc = o.component;
+      if (oc.namespace !== '${component.namespace}') {
+        const error = 'the attribute namespace is not the same provided in the component store';
+        const BadNamspaceException = new Error(\`[Ogone] $\{error}\`);
+        Ogone.error(error, 'Store Module: Bad Namsepace Exception', {
+          message: \`
+          store namespace: ${component.namespace}
+          attribute namespace: $\{oc.namespace}
+          \`
+        })
+        throw BadNamspaceException;
+      }
+      oc.startLifecycle();
+      this.remove();
+    }
+
     render() {
       const o = this.ogone;
       const oc = o.component;
       if (${isTemplate}) {
+
         // update Props before replace the element
         oc.updateProps();
 
+        if (this.childNodes.length) {
+          this.renderSlots();
+        }
         // replace the element
         this.replaceWith(...o.nodes);
 
@@ -421,6 +510,26 @@ export default function getWebComponent(component, node) {
       } else {
         oc.renderTexts(true);
         this.replaceWith(...o.nodes);
+      }
+    }
+    renderSlots() {
+      const o = this.ogone;
+      const slots = this.querySelectorAll('[slot]');
+      for (let node of o.nodes) {
+        const defaultSlot = node.querySelector('slot:not([name])');
+        if (defaultSlot) {
+          defaultSlot.replaceWith(...this.childNodes);
+        }
+      }
+      for (let slotted of slots) {
+        const slotName = slotted.getAttribute('slot');
+        for (let node of o.nodes) {
+          const slot = node.querySelector(\`slot[name="\${slotName}"]\`);
+          if (slot) {
+            slotted.removeAttribute('slot');
+            slot.replaceWith(slotted);
+          }
+        }
       }
     }
     get context() {

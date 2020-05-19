@@ -1,14 +1,6 @@
 use @/newapp/main/burger.o3 as 'route-1'
 use @/newapp/main/body.o3 as 'route-2'
 use @/newapp/main/404.o3 as 'route-404'
-use @/newapp/main/store.o3 as 'store'
-
-<store namespace="user">
-  actions:
-    setUser: setUserFromUser
-  state:
-    - user
-</store>
 
 <proto type="router">
   def:

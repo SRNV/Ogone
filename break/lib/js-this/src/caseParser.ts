@@ -1,8 +1,12 @@
 import gen from "./generator.js";
 
-export default function parseCases(typedExpressions: any, expressions: any, str: string,): string {
-  let str2 : string = str;
-  let result : string[] | null;
+export default function parseCases(
+  typedExpressions: any,
+  expressions: any,
+  str: string,
+): string {
+  let str2: string = str;
+  let result: string[] | null;
   const reg: RegExp = /(?<=(case\s*))(([^\:]*)+)(?=:)/gi;
   // preserve truth
   // is required because (0 ? 0 : 1) expressions the : character
@@ -23,7 +27,13 @@ export default function parseCases(typedExpressions: any, expressions: any, str:
     const keys = Object.keys(expressions);
     result = result.map((s) => {
       let sr = s;
-      while (keys.find((key) => sr.indexOf(key) > -1 && (sr = sr.replace(key, expressions[key]).trim()))) {}
+      while (
+        keys.find((key) =>
+          sr.indexOf(key) > -1 &&
+          (sr = sr.replace(key, expressions[key]).trim())
+        )
+      ) {
+      }
       return sr;
     });
     typedExpressions.switch.cases.push(...result);

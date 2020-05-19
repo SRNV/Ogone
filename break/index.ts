@@ -6,7 +6,7 @@ import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import compile from "./src/ogone/compilation/index.ts";
 
-const port: number = 8080;
+const port: number = 8081;
 // open the server
 const server = serve({ port });
 // start rendering Ogone system
@@ -57,7 +57,7 @@ for await (const req of server) {
   const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
   let isUrlFile: boolean = existsSync(pathToPublic);
   switch (true) {
-    case isUrlFile && req.url.startsWith('/public/'):
+    case isUrlFile && req.url.startsWith("/public/"):
       req.respond({
         body: Deno.readTextFileSync(pathToPublic),
         headers: new Headers([

@@ -22,13 +22,11 @@ export default function oRender() {
         data: {},
         style: [],
         scripts: {},
-        dom: [],
         imports: {},
         directives: [],
         for: {},
         refs: {},
         reactive: {},
-        reactiveText: {},
         // if the component type is set as router
         routes: null,
         // if the component type is store

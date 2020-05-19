@@ -8,8 +8,8 @@ menu:
   - name: todos
     route: /todos/testParams
     status: todo
-  - name: git
-    route: /git
+  - name: project
+    route: /project
     status: todo
   - name: support
     route: /support

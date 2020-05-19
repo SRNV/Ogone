@@ -168,7 +168,6 @@ export default function oRenderDOM(
       });
     }
     if (domDirective.directives.length) component.directives.push(domDirective);
-    if (id !== null) component.dom.push(dom);
     if (node.childNodes?.length) {
       node.childNodes
         .forEach((el, i) => {

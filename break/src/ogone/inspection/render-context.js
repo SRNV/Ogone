@@ -6,34 +6,42 @@ export default function oRenderContext(keyComponent) {
     const { script } = directive;
     const { node, ctx, getLength, array } = script;
     let contextIf = null;
-    if (node.attributes && node.attributes['--if']) {
+    if (node.attributes && node.attributes["--if"]) {
       let nxt = node.nextElementSibling;
       node.ifelseBlock = {
-        main: node.attributes['--if'],
+        main: node.attributes["--if"],
         ifDirective: {
-          [node.id]: node.attributes['--if'],
+          [node.id]: node.attributes["--if"],
         },
         elseIf: {},
         elseDirective: {},
       };
-      while(nxt && nxt.attributes && (nxt.attributes['--else-if'] || nxt.attributes['--else'])) {
+      while (
+        nxt && nxt.attributes &&
+        (nxt.attributes["--else-if"] || nxt.attributes["--else"])
+      ) {
         nxt.ifelseBlock = node.ifelseBlock;
-        if (nxt.attributes['--else-if']) {
-          node.ifelseBlock.elseIf[nxt.id] = nxt.attributes['--else-if'];
+        if (nxt.attributes["--else-if"]) {
+          node.ifelseBlock.elseIf[nxt.id] = nxt.attributes["--else-if"];
         } else {
-          node.ifelseBlock.elseDirective[nxt.id] = nxt.attributes['--else'];
+          node.ifelseBlock.elseDirective[nxt.id] = nxt.attributes["--else"];
         }
 
-        const elseDir = !!nxt.attributes['--else'];
+        const elseDir = !!nxt.attributes["--else"];
         nxt = nxt.nextElementSibling;
-        if (elseDir && nxt && nxt.attributes && (!!nxt.attributes['--else'] || !!nxt.attributes['--else-if'])) {
-          throw new Error('[Ogone] else directive has to be the last in if-else-if blocks, no duplicate of --else are allowed.');
+        if (
+          elseDir && nxt && nxt.attributes &&
+          (!!nxt.attributes["--else"] || !!nxt.attributes["--else-if"])
+        ) {
+          throw new Error(
+            "[Ogone] else directive has to be the last in if-else-if blocks, no duplicate of --else are allowed.",
+          );
         }
       }
     }
     if (node.ifelseBlock) {
       node.hasDirective = true;
-      const { ifDirective, elseDirective, elseIf, main} = node.ifelseBlock
+      const { ifDirective, elseDirective, elseIf, main } = node.ifelseBlock;
       const isElse = elseDirective[node.id];
       const isElseIf = elseIf[node.id];
       const isMain = ifDirective[node.id];
@@ -56,11 +64,13 @@ export default function oRenderContext(keyComponent) {
         contextIf = `
           if (GET_LENGTH && (${main})) {
             return 0;
-          ${allElseIf.map((key) => {
+          ${
+          allElseIf.map((key) => {
             return `
           } else if (GET_LENGTH && ${key}) {
             return 0;`;
-          }).join('\n')}
+          }).join("\n")
+        }
           }
         `;
       }
@@ -79,12 +89,11 @@ export default function oRenderContext(keyComponent) {
             ).join("\n")
             : ""
         }
-        ${array ? `const _____a_ = ${array};`: ''}
+        ${array ? `const _____a_ = ${array} || [];` : ""}
 
-
-        ${script.value || ''}
-        ${contextIf ? contextIf : ''}
-        ${getLength ? getLength : ''}
+        ${contextIf ? contextIf : ""}
+        ${script.value || ""}
+        ${getLength ? getLength : ""}
         if (GET_TEXT) {
           try {
             return eval(GET_TEXT);

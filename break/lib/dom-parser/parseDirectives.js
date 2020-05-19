@@ -43,6 +43,14 @@ export default function parseDirectives(node, opts) {
             eval: attributes[key],
           });
           break;
+        case key === "--class":
+          result.class = `${attributes[key]}`;
+          node.hasDirective = true;
+          break;
+        case key === "--style":
+          result.style = `${attributes[key]}`;
+          node.hasDirective = true;
+          break;
         case key === "--if":
           result.if = `${attributes[key]}`;
           node.hasDirective = true;

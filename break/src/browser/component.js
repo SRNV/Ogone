@@ -1,5 +1,7 @@
 function OComponent() {
   this.activated = true;
+  this.namespace = null;
+  this.store = {};
   this.contexts = {
     for: {},
   };
@@ -23,12 +25,19 @@ function OComponent() {
   };
   this.startLifecycle = (params, event) => {
     if (!this.activated) return;
+    if (this.type === "store") {
+      this.initStore();
+    }
     // WIP
     this.runtime("init", params, event);
     Object.seal(this.data);
   };
   this.update = (dependency) => {
     if (!this.activated) return;
+    if (this.type === "store") {
+      this.updateStore(dependency);
+      return;
+    }
     this.reactTo(dependency);
     this.renderTexts(dependency);
     this.childs.forEach((c) => {
@@ -49,16 +58,57 @@ function OComponent() {
       if (t && !t(dependency)) delete arr[i];
     });
   };
+  this.initStore = () => {
+    if (!Ogone.stores[this.namespace]) {
+      Ogone.stores[this.namespace] = {
+        ...this.data
+      };
+    }
+    Ogone.clients.push([this.key, (namespace, key, overwrite) => {
+      if (namespace === this.namespace && key in this.parent.data) {
+        if (!overwrite) {
+          this.data[key] = Ogone.stores[this.namespace][key];
+        } else {
+          Ogone.stores[this.namespace][key] = this.data[key];
+        }
+        this.parent.data[key] = this.data[key];
+        this.parent.update(key);
+      }
+      return true;
+    }]);
+  };
+  this.updateStore = (dependency) => {
+    // find the reaction of this store module with the key
+    const [key, client] = Ogone.clients.find(([key]) => key === this.key);
+    if (client) {
+      // use the namespace, the dependency or property that should change
+      client(this.namespace, dependency, true );
+      // update other modules
+      Ogone.clients.filter(([key]) => key !== this.key).forEach(([key, f], i, arr) => {
+        if (f && !f(this.namespace, dependency, false )) {
+          delete arr[i];
+        }
+      });
+    }
+  };
   this.updateProps = (dependency) => {
     if (!this.activated) return;
+    if (this.type === "store") return;
     if (!this.requirements || !this.props) return;
     this.requirements.forEach(([key, constructors]) => {
       const prop = this.props.find((prop) => prop[0] === key);
       const isAny = constructors.includes(null);
       if (!prop && !isAny) {
-        const UndefinedPropertyForComponentException = `${key} is required as property but still undefined. Please use this syntax\n\t\t<component :${key}="..."></component>`;
-        const err = new Error('[Ogone]  '+UndefinedPropertyForComponentException);
-        Ogone.error(UndefinedPropertyForComponentException, `Undefined property ${key}. But ${key} is required in component`, err);
+        const UndefinedPropertyForComponentException =
+          `${key} is required as property but still undefined. Please use this syntax\n\t\t<component :${key}="..."></component>`;
+        const err = new Error(
+          "[Ogone]  " + UndefinedPropertyForComponentException,
+        );
+        Ogone.error(
+          UndefinedPropertyForComponentException,
+          `Undefined property ${key}. But ${key} is required in component`,
+          err,
+        );
         throw err;
       }
       const value = this.parentContext({
@@ -66,19 +116,33 @@ function OComponent() {
         position: this.positionInParentComponent,
       });
       if ((value === undefined || value === null) && !isAny) {
-        const message = `${key} is required as property but can\'t be null. Please use this syntax\n\t\t<component :${key}="${
-          constructors.join(" | ")
-        }"></component>`;
-        const NullishPropertyException = new Error('[Ogone]  '+message);
-        Ogone.error(message, `Property ${key} can't be null for the component`, NullishPropertyException);
+        const message =
+          `${key} is required as property but can\'t be null. Please use this syntax\n\t\t<component :${key}="${
+            constructors.join(" | ")
+          }"></component>`;
+        const NullishPropertyException = new Error("[Ogone]  " + message);
+        Ogone.error(
+          message,
+          `Property ${key} can't be null for the component`,
+          NullishPropertyException,
+        );
         throw NullishPropertyException;
       }
       if (!constructors.includes(value.constructor.name)) {
-        const message = `${key} is required as property but it's value is not one of ${
-          constructors.join(" | ")
-        }`;
-        const PropertyDontMatchWithConstructorsException = new Error('[Ogone] '+message);
-        Ogone.error(message, `TypeError for property ${key}`, PropertyDontMatchWithConstructorsException)
+        const message =
+          `${key} is required as property but it's value is not one of ${
+            constructors.join(" | ")
+          }
+          evaluated value: ${prop[1]}
+          constructor: ${value.constructor.name}`;
+        const PropertyDontMatchWithConstructorsException = new Error(
+          "[Ogone] " + message,
+        );
+        Ogone.error(
+          message,
+          `TypeError for property ${key}`,
+          PropertyDontMatchWithConstructorsException,
+        );
         throw PropertyDontMatchWithConstructorsException;
       }
       if (value !== this.data[key]) {
@@ -94,7 +158,7 @@ function OComponent() {
     // not an extension of an element cause the attr "is" is not dynamic
     // at the first call of this function Onode is not "rendered" (replaced by the required element)
     let { key, callingNewComponent, length: dataLength } = opts;
-    typeof dataLength === 'object' ? dataLength = 1 : [];
+    typeof dataLength === "object" ? dataLength = 1 : [];
     if (!this.contexts.for[key]) {
       this.contexts.for[key] = [Onode];
       this.contexts.for[key].placeholder = new Comment();
@@ -152,7 +216,6 @@ function OComponent() {
       }
       const rm = context.pop();
       // deactivate all the reactions of the component
-      rm.ogone.component.activated = false;
       rm.removeNodes().remove();
     }
   };

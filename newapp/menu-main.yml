@@ -1,0 +1,102 @@
+menu:
+  - name: Ogone theory
+    route: /theory
+  - name: Documentation
+    route: /doc
+    children:
+      - name: Install
+        route: /doc/install
+      - name: Get Started
+        route: /doc/get-started
+      - name: Xml Features
+        route: /xml-features
+        children:
+          - name: --if --else --else-if
+            status: ok
+
+          - name: --for
+            status: ok
+
+          - name: --await
+            status: todo
+
+          - name: --then --catch
+            status: todo
+
+          - name: --class --style
+            status: ok
+
+          - name: --animation
+            status: todo
+
+          - name: --router-go
+            status: ok
+
+          - name: --click:...
+            status: ok
+
+          - name: --mousedown:...
+            status: todo
+
+          - name: --mouseup:...
+            status: todo
+
+          - name: --drag:...
+            status: todo
+
+          - name: --dragstart:...
+            status: todo
+
+          - name: --dragend:...
+            status: todo
+
+      - name: Components
+        route: /doc/components
+        status: ok
+        children:
+          - name: Components Anatomy
+            route: /doc/components/components-anatomy
+
+          - name: Counter
+            route: /doc/components/counter
+
+          - name: Greeting App
+            route: /doc/components/cgc
+
+          - name: Recursive Tree Button
+            route: /doc/components/rtb
+      - name: Async Components
+        status: todo
+        route: /doc/async-components
+
+      - name: Router
+        route: /doc/router
+        status: in-progress
+        children:
+          - name: Router anatomy
+            route: /doc/router/router-anatomy
+
+      - name: Store
+        status: in-progress
+        route: /doc/store
+        children:
+          - name: Store anatomy
+            route: /doc/store/store-anatomy
+      - name: Controllers
+        status: in-progress
+        route: /doc/controllers
+        children:
+          - name: Controllers anatomy
+            route: /doc/controllers/controllers-anatomy
+
+      - name: Api
+        route: /api
+
+  - name: Project
+    route: /project
+
+  - name: Todos
+    route: /todos
+
+  - name: Support
+    route: /support

@@ -55,7 +55,7 @@ export default [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§use${gen.next().value}§§`;
       let path = expressions[matches[2]];
-      while(Object.keys(expressions).find(k => path.indexOf(k) > -1)) {
+      while (Object.keys(expressions).find((k) => path.indexOf(k) > -1)) {
         Object.keys(expressions).forEach((k) => {
           path = path.replace(k, expressions[k]);
         });
@@ -140,11 +140,11 @@ export default [
         rid++;
         return `_once !== ${rid} ? ____r(${expressions[string]}, ${
           expressions[array]
-        }, ${rid}) : null; break;`;
+        }, ${rid}) : null; return;`;
       }
       return `____r(${expressions[string]}, ${
         expressions[array]
-      }, _once || null); break;`;
+      }, _once || null); return;`;
     },
     close: false,
   },
@@ -159,9 +159,9 @@ export default [
         rid++;
         return `_once !== ${rid} ? ____r(${
           expressions[string]
-        }, [], ${rid}) : null; break;`;
+        }, [], ${rid}) : null; return;`;
       }
-      return `____r(${expressions[string]}, [], _once || null); break;`;
+      return `____r(${expressions[string]}, [], _once || null); return;`;
     },
     close: false,
   },
@@ -174,9 +174,9 @@ export default [
       const [inpute, runOnce] = match;
       if (!runOnce) {
         rid++;
-        return `_once !== ${rid} ? ____r(0, [], ${rid}) : null; break;`;
+        return `_once !== ${rid} ? ____r(0, [], ${rid}) : null; return;`;
       }
-      return `____r(0, [], _once || null); break;`;
+      return `____r(0, [], _once || null); return;`;
     },
     close: false,
   },

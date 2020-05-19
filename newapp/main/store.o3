@@ -4,5 +4,9 @@
     user: null
   case 'setUser':
     this.user = ctx.user;
+    return;
+  break;
+  case 'COMMIT':
+    this.user = 2;
   break;
 </proto>

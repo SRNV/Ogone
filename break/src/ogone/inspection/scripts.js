@@ -30,18 +30,24 @@ export default function oRenderScripts() {
     if (moduleScript) {
       const ogoneScript = jsThis(
         moduleScript.rawText,
-        { data: true, reactivity: true, casesAreLinkables: true, parseCases: true, },
+        {
+          data: true,
+          reactivity: true,
+          casesAreLinkables: true,
+        },
       );
+      const cases = jsThis(moduleScript.rawText, { parseCases: true });
       // here set the cases and if the default is present in the script
-      component.switch = ogoneScript.body.switch;
+      component.switch = cases.body.switch;
       // set the datas of the component
       component.data = {
         ...ogoneScript.body.data,
         ...defData,
       };
       const { value } = ogoneScript;
-      let script =
-        `(function (_state, ctx, event, _once = 0) {
+      let script = `(${
+        proto.attributes && (proto.attributes.type === "store") ? "async" : ""
+      } function (_state, ctx, event, _once = 0) {
           try {
             switch(_state) { ${value} }
           } catch(err) {
@@ -74,12 +80,14 @@ export default function oRenderScripts() {
         throw UnsupportedTypeException;
       }
       component.type = type;
-      if (type === 'router') {
-        component.routes = inspectRoutes(component, Object.values(component.data));
+      if (type === "router") {
+        component.routes = inspectRoutes(
+          component,
+          Object.values(component.data),
+        );
         component.data = {};
       }
-      if (type === 'store') {
-        component.rootNodePure = domparse("<!-- -->");
+      if (type === "store") {
         if (proto.attributes.namespace) {
           // set the component type, default is null
           component.namespace = proto.attributes.namespace;

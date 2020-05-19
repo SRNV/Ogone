@@ -10,15 +10,15 @@ function getUniquekey(id = "") {
 }
 function setElementSiblings(node) {
   if (node.childNodes && node.childNodes.length) {
-    node.childNodes.forEach((child,i, arr) => {
+    node.childNodes.forEach((child, i, arr) => {
       // define here sibblings elements
-      if (arr[i-1]) {
-        child.previousElementSibling = arr[i-1];
+      if (arr[i - 1]) {
+        child.previousElementSibling = arr[i - 1];
       } else {
         child.previousElementSibling = null;
       }
-      if (arr[i+1]) {
-        child.nextElementSibling = arr[i+1];
+      if (arr[i + 1]) {
+        child.nextElementSibling = arr[i + 1];
       } else {
         child.nextElementSibling = null;
       }
@@ -307,7 +307,9 @@ function setNodesPragma(expressions) {
           ? ";"
           : "(ctx, position.slice(), index, level + 1)";
         let nodesPragma = node.childNodes.filter((child) => child.pragma).map((
-          child, i, arr
+          child,
+          i,
+          arr,
         ) => {
           // return the pragma
           return child.pragma(idComponent, false, imports, getId);
@@ -382,7 +384,12 @@ function setNodesPragma(expressions) {
         const registerText = isEvaluated
           ? `
           const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
-          const txt = '\`${node.rawText.replace(/\n/gi, " ").trim()}\`';
+          const txt = '\`${node.rawText.replace(/\n/gi, " ")
+          // preserve regular expressions
+            .replace(/\\/gi, '\\\\')
+          // preserve quotes
+            .replace(/\'/gi, '\\\'').trim()}\`';
+          console.warn(txt);
           function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({
