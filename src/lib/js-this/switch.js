@@ -1,5 +1,4 @@
 import getTypedExpression from "./src/typedExpressions.js";
-import expressions from "./src/expressions.js";
 import elements from "./src/elements.js";
 import computedExp from "./src/computed.js";
 import renderExpressions from "./src/render/renderExpressions.js";

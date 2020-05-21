@@ -1,6 +1,6 @@
-use @/newapp/main/menu.store.o3 as 'store'
-use @/newapp/main/tree-recursive-button.o3 as 'tree-recursive'
-use @/newapp/main/logo.o3 as 'logo-el'
+use @/example/app/stores/menu.store.o3 as 'store'
+use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/example/app/components/logo.o3 as 'logo-el'
 
 
 <store namespace="menu" />
@@ -16,7 +16,7 @@ use @/newapp/main/logo.o3 as 'logo-el'
 </div>
 <div --class="{ darken: isOpen }" --click:toggle-menu></div>
 
-<proto def="newapp/menu-main.yml">
+<proto def="example/app/defs/menu-main.yml">
   def:
     isOpen: false
   case 'click:toggle-menu':

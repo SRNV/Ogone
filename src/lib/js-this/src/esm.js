@@ -1,5 +1,5 @@
 import gen from "./generator.js";
-import expressions from "./expressions.js";
+
 function renderImport({ key, path, caller, isDefault, isAllAs, isBlock }) {
   switch (true) {
     case isDefault:

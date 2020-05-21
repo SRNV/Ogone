@@ -1,6 +1,5 @@
-use @/newapp/main/burger.o3 as 'route-1'
-use @/newapp/main/body.o3 as 'route-2'
-use @/newapp/main/404.o3 as 'route-404'
+use @/example/app/pages/body.o3 as 'route-2'
+use @/example/app/components/404.o3 as 'route-404'
 
 <proto type="router">
   def:

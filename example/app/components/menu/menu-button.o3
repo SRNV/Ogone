@@ -1,5 +1,4 @@
 require item as Object;
-deploy store @/newapp/main/module.store.o3
 
 <div class="container" --router-go="item.route">
   ${item.name}

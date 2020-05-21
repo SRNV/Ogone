@@ -1,7 +1,7 @@
 require item as Object
 
-use @/newapp/main/tree-recursive-button.o3 as 'tree-recursive'
-use @/newapp/main/scroll.o3 as 'scroll'
+use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/example/app/components/scroll.o3 as 'scroll'
 
 
 <div class="container">

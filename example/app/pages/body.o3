@@ -1,5 +1,4 @@
-use @/newapp/main/content.o3 as "content";
-use @/newapp/tests/async/async.o3 as "async";
+use @/example/app/components/content.o3 as "content";
 <div class="container">
   <content
     --for="articles.filter(r => r.text.indexOf('TODO') > -1) as (article)"
@@ -7,9 +6,7 @@ use @/newapp/tests/async/async.o3 as "async";
     :title="article.title"
     :code="article.code"></content>
 </div>
-<proto def="newapp/body.proto.yml" >
-
-</proto>
+<proto def="example/app/defs/body.proto.yml" />
 <style>
   .container {
     height: auto;

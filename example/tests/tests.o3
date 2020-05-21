@@ -1,4 +1,4 @@
-use @/newapp/testdirectives.o3 as 'test-d'
+use @/example/testdirectives.o3 as 'test-d'
 <div>
     <h1>Test des directives</h1>
     <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">

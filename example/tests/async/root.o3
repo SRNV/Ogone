@@ -1,4 +1,4 @@
-use @/newapp/tests/async/async.o3 as 'promise'
+use @/example/tests/async/async.o3 as 'promise'
 <div>test</div>
 <promise --then:act --catch:err --defer="promise">
   <div>...loading</div>

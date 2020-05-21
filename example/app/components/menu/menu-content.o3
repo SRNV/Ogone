@@ -1,5 +1,5 @@
-use @/newapp/main/burger.o3 as 'burger-el';
-use @/newapp/main/menu-button.o3 as 'menu-button';
+use @/example/app/components/burger.o3 as 'burger-el';
+use @/example/app/components/menu/menu-button.o3 as 'menu-button';
 
 <div class="menu">
   <menu-button --for="menu as (t)" :item="t" />
@@ -7,7 +7,7 @@ use @/newapp/main/menu-button.o3 as 'menu-button';
     <burger-el />
   </div>
 </div>
-<proto def="newapp/source.yml" />
+<proto def="example/app/defs/source.yml" />
 <style>
   .menu {
     flex: 8;

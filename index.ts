@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@v0.42.0/http/server.ts";
 import { getHeaderContentTypeOf } from "./utils/extensions-resolution.ts";
-import renderApp from "./renderApp.ts";
+import renderApp from "./src/renderApp.ts";
 import { browserBuild, template } from "./src/browser/readfiles.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";

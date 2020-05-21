@@ -1,2 +1,0 @@
-use @/newapp/tests/nested.o3 as 'nested';
-<nested :name="'test'"/>
