@@ -1,17 +1,22 @@
 use @/newapp/main/content.o3 as "content";
+use @/newapp/tests/async/async.o3 as "async";
 <div class="container">
   <content
     --for="articles.filter(r => r.text.indexOf('TODO') > -1) as (article)"
     :text="article.text"
     :title="article.title"
-    :code="article.code"
-  ></content>
+    :code="article.code"></content>
 </div>
-<proto def="newapp/body.proto.yml" />
+<proto def="newapp/body.proto.yml" >
+
+</proto>
 <style>
   .container {
     height: auto;
     width: auto;
     background: black;
+    animation-name: fade-in-right;
+    animation-iteration-count: 1;
+    animation-duration: 0.5s;
   }
 </style>

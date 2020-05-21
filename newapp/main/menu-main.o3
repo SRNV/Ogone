@@ -35,8 +35,7 @@ use @/newapp/main/logo.o3 as 'logo-el'
     left: 0px;
     background: var(--o-header);
     z-index: 2000;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
   }
   .close {
     left: -100%;

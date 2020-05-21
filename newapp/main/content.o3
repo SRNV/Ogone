@@ -7,7 +7,7 @@ require title, text, code as String;
   <div class="right">
     <pre>
       <code>
-          ${code}
+        ${code}
       </code>
     </pre>
   </div>

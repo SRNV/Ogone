@@ -6,7 +6,7 @@ import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import compile from "./src/ogone/compilation/index.ts";
 
-const port: number = 8081;
+const port: number = 8082;
 // open the server
 const server = serve({ port });
 // start rendering Ogone system
@@ -18,7 +18,7 @@ if (!existsSync(Ogone.config.entrypoint)) {
 }
 //start compilation of o3 files
 compile();
-//
+
 const styles = Array.from(Ogone.components.entries()).map(([p, component]) =>
   component.style.join("\n")
 );
@@ -30,6 +30,10 @@ const exportsExpression = Array.from(Ogone.components.entries()).map((
 ) => component.exportsExpressions).join("\n");
 const style = `<style>${styles.join("\n")}</style>`;
 const rootComponent = Ogone.components.get(Ogone.config.entrypoint);
+if (rootComponent &&  ['router', 'store', 'async'].includes(rootComponent.type) ) {
+  const RootNodeTypeErrorException = new TypeError(`[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`);
+  throw RootNodeTypeErrorException;
+}
 const script = `
   ${esm}
   ${browserBuild}

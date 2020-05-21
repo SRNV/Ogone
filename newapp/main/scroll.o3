@@ -1,0 +1,39 @@
+
+<div class="container">
+  <div class="scrollbar">
+    <div
+      class="scrollbar-button"></div>
+  </div>
+  <div ref="content" class="content">
+    <slot></slot>
+  </div>
+</div>
+
+<proto>
+  def:
+    maxHeight: 300
+    contentHeight: 0
+  case 'init':
+    this.contentHeight = Refs.content.getBoundingClientRect().height;
+  break;
+</proto>
+<style>
+.container {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row-reverse;
+}
+.scrollbar {
+  width: 9px;
+  flex: 1;
+  background: #3e3e3e;
+}
+.scrollbar-button {
+  height: 20px;
+  width: 100%;
+  background: var(--o-grey);
+}
+.content {
+  flex: 18;
+}
+</style>

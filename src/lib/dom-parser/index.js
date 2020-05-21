@@ -222,8 +222,19 @@ function preserveLitterals(html, expression) {
 }
 function preserveStringsAttrs(html, expression) {
   let result = html;
+  const regEmptyStr = /\=\"\"/gi;
   const quotes = ['="', '"'];
   const [beginQuote, closinQuote] = quotes;
+  const matchesEmpty = result.match(regEmptyStr);
+  matchesEmpty?.forEach((match) => {
+    const key = getUniquekey("attr");
+    result = result.replace(match, key);
+    expression[key] = {
+      expression: match,
+      value: match,
+      type: "attr",
+    };
+  });
   result.split(beginQuote)
     .filter((content) => /[^\\](")/.test(content))
     .forEach((content) => {
@@ -299,7 +310,7 @@ function setNodesPragma(expressions) {
             key.startsWith("o-") ||
             key.startsWith("_"))
         )
-        .map(([key, value]) => `${nId}.setAttribute('${key}', '${value}');`)
+        .map(([key, value]) => key !== 'ref' ? `${nId}.setAttribute('${key}', '${value}');`: `ctx.refs['${value}'] = ${nId};`)
         .join("");
       pragma = (idComponent, isRoot = true, imports = [], getId) => {
         const isImported = imports.includes(node.tagName);
@@ -334,6 +345,7 @@ function setNodesPragma(expressions) {
           nodeCreation =
             `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
         }
+        const directives = parseDirectives(node, { nodeIsDynamic, isImported });
         /**
            * all we set in this function
            * will be usefull after the node is connected
@@ -343,6 +355,7 @@ function setNodesPragma(expressions) {
         (function(${params}) {
           ${nodeCreation}
           if (position) position[level] = index;
+          ${node.attributes && node.attributes.await ? `${nId}.setAttribute('await', '');`: ''}
           ${
           isImported || nodeIsDynamic && !isImported && !isRoot
             ? `${nId}.is({
@@ -363,9 +376,7 @@ function setNodesPragma(expressions) {
                 : ""
             }
               ${node.tagName === null ? `renderChildNodes: true,` : ""}
-              directives: ${
-              parseDirectives(node, { nodeIsDynamic, isImported })
-            },
+              directives: ${directives},
             });`
             : ""
         }
@@ -389,7 +400,6 @@ function setNodesPragma(expressions) {
             .replace(/\\/gi, '\\\\')
           // preserve quotes
             .replace(/\'/gi, '\\\'').trim()}\`';
-          console.warn(txt);
           function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({

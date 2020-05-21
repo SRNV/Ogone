@@ -63,10 +63,34 @@ export default function parseDirectives(node, opts) {
           result.elseIf = `${attributes[key]}`;
           node.hasDirective = true;
           break;
+        case key === "--await":
+          result.await = attributes[key] === true ? true : `${attributes[key]}`;
+          if (isImported) {
+            node.attributes.await = true;
+          }
+          node.hasDirective = true;
+          break;
+        case key === "--defer":
+          result.defer = `${attributes[key]}`;
+          node.hasDirective = true;
+          break;
+        case key.startsWith("--then"):
+          result.then = key.slice(2);
+          node.hasDirective = true;
+          break;
+        case key.startsWith("--catch"):
+          result.catch = key.slice(2);
+          node.hasDirective = true;
+          break;
+        case key.startsWith("--finally"):
+          result.finally = key.slice(2);
+          node.hasDirective = true;
+          break;
       }
     }
     // directives that starts with --
     node.hasDirective = true;
+    node.directives = result;
     return JSON.stringify(result);
   }
   return null;

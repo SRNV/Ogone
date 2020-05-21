@@ -1,6 +1,6 @@
-import iterator from "../../../lib/iterator.js";
+import iterator from "../../lib/iterator.js";
 import Ogone from "../index.ts";
-import parseAttrs from "../../../lib/html-this/parseAttrs.js";
+import parseAttrs from "../../lib/html-this/parseAttrs.js";
 import oRenderForDirective from "./render-for-directive.js";
 
 const directives = [

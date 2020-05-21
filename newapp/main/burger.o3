@@ -11,9 +11,6 @@ use @/newapp/main/menu.store.o3 as 'menu-store'
     isOpen: false
   case 'click:openMenu':
     Store.dispatch('menu/toggle')
-      .then((res) => {
-        console.warn('menu should toggle', res);
-      });
   break;
 </proto>
 <style>

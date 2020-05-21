@@ -5,6 +5,16 @@ function OComponent() {
   this.contexts = {
     for: {},
   };
+  // for async context
+  this.promises = [];
+  this.resolve = null;
+  this.async = {
+    then: null,
+    catch: null,
+    finally: null,
+  };
+  this.dispatchAwait = null;
+  this.promiseResolved = false;
   /* events describers */
   this.events = {};
   /*
@@ -159,12 +169,7 @@ function OComponent() {
     // at the first call of this function Onode is not "rendered" (replaced by the required element)
     let { key, callingNewComponent, length: dataLength } = opts;
     typeof dataLength === "object" ? dataLength = 1 : [];
-    if (!this.contexts.for[key]) {
-      this.contexts.for[key] = [Onode];
-      this.contexts.for[key].placeholder = new Comment();
-      this.contexts.for[key].name = Onode.name;
-    }
-    const context = this.contexts.for[key];
+    const context = Onode.context;
     // no need to render if it's the same
     if (context.length === dataLength) return;
     // first we add missing nodes, we use cloneNode to generate the web-component

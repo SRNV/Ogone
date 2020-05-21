@@ -1,5 +1,5 @@
 import Ogone from "../index.ts";
-import jsThis from "../../../lib/js-this/switch.js";
+import jsThis from "../../lib/js-this/switch.js";
 
 export default function oRenderImports() {
   const entries = Array.from(Ogone.components.entries());

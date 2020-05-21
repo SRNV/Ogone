@@ -1,15 +1,35 @@
 import Ogone from "../index.ts";
-
 export default function (component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     const keysOfData = Object.keys(component.data);
+    const asyncResolve = `
+    const Async = {
+      resolve: (...args) => {
+        if (this.resolve) {
+          const promise = this.resolve(...args);
+          if (this.dispatchAwait) {
+            this.dispatchAwait();
+            this.promiseResolved = true;
+          }
+          this.resolve = null;
+          return promise;
+        } else if (this.resolve === null) {
+          const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
+          Ogone.error(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
+            message: \`component: ${component.file}\`
+          });
+          throw DoubleUseOfResolveException;
+        }
+      },
+    };
+    // freeze Async Object;
+    Object.freeze(Async);
+    `;
     let result = `
     Ogone.components['${component.uuid}'] = function () {
       OComponent.call(this);
-      ${
-      component.hasStore
-        ? `
+      ${component.hasStore ? `
       const Store = {
         dispatch: (id, ctx) => {
           const path = id.split('/');
@@ -75,6 +95,8 @@ export default function (component) {
         : ""
     }
       }
+      const Refs = this.refs;
+      ${component.type === 'async' ? asyncResolve : ""}
       const run = ${runtime}
       this.runtime = (run || function(){}).bind(this.data);
     };

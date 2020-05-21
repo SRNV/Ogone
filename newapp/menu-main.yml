@@ -1,4 +1,6 @@
 menu:
+  - name: Introduction
+    route: /intro
   - name: Ogone theory
     route: /theory
   - name: Documentation
@@ -17,11 +19,15 @@ menu:
           - name: --for
             status: ok
 
-          - name: --await
-            status: todo
+          - name: --await --defer
+            status: in-progress
 
-          - name: --then --catch
-            status: todo
+          - name: --then:...
+            status: ok
+          - name: --catch:...
+            status: ok
+          - name: --finally:...
+            status: ok
 
           - name: --class --style
             status: ok
@@ -36,6 +42,9 @@ menu:
             status: ok
 
           - name: --mousedown:...
+            status: todo
+
+          - name: --mousemove:...
             status: todo
 
           - name: --mouseup:...
@@ -66,7 +75,7 @@ menu:
           - name: Recursive Tree Button
             route: /doc/components/rtb
       - name: Async Components
-        status: todo
+        status: in-progress
         route: /doc/async-components
 
       - name: Router
@@ -91,7 +100,13 @@ menu:
 
       - name: Api
         route: /api
-
+        children:
+          - name: Refs
+            status: in-progress
+          - name: Store
+            status: in-progress
+          - name: Async
+            status: in-progress
   - name: Project
     route: /project
 

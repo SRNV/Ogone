@@ -1,5 +1,5 @@
 {
-  "entrypoint": "./newapp/index.o3",
+  "entrypoint": "./newapp/tests/events.o3",
   "static": "./public",
   "port": 8080
 }

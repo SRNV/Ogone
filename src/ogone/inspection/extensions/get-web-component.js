@@ -7,6 +7,7 @@ export default function getWebComponent(component, node) {
   const isImported = component.imports[node.tagName];
   const isRouter = isTemplate && component.type === "router";
   const isStore = isTemplate && component.type === "store";
+  const isAsync = isTemplate && component.type === "async";
   const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
   // no definition for imported component
@@ -101,6 +102,9 @@ export default function getWebComponent(component, node) {
         // set as false by the component, preserves from maximum call stack
         originalNode: true,
 
+        // promise for await directive
+        promise: null,
+
         // set unique key
         key: '${node.id}'+\`\${Math.random()}\`,
 
@@ -142,6 +146,8 @@ export default function getWebComponent(component, node) {
       .replace(/\n/gi, "")
       .replace(/\s+/gi, " ")
   }
+  // set Async context for Async nodes
+  ${!isTemplate && !isImported && node.directives && node.directives.await ? 'this.setNodeAsyncContext();':''}
     }
     connectedCallback() {
       // set position of the template/component
@@ -159,6 +165,7 @@ export default function getWebComponent(component, node) {
 
       // use the jsx renderer only for templates
       this.setNodes();
+
 
       // use the previous jsx and push the result into ogone.nodes
       // set the dependencies of the node into the component
@@ -180,8 +187,10 @@ export default function getWebComponent(component, node) {
       switch(true) {
         case ${isRouter}: this.renderRouter(); break;
         case ${isStore}: this.renderStore(); break;
+        case ${isAsync}: this.renderAsync(); console.warn(this.ogone.key); break;
         default: this.render(); break;
       }
+
     }
 
     setPosition() {
@@ -392,12 +401,11 @@ export default function getWebComponent(component, node) {
           rendered.params = preservedParams;
         }
       }
-
       if (!rendered) {
         o.actualTemplate = [new Comment()];
         o.actualRoute = null;
         o.routeChanged = true;
-      } else if (rendered && !(rendered.once && o.actualRoute === rendered.component)) {
+      } else if (rendered && !(rendered.once || o.actualRoute === rendered.component)) {
         const { component: uuidC } = rendered;
         const co = document.createElement('template', { is: uuidC });
         o.actualTemplate = [co];
@@ -439,7 +447,6 @@ export default function getWebComponent(component, node) {
       oc.updateProps();
 
       // we will use o.replacer cause it's used in the directive if
-
       if (!o.actualTemplate) {
         o.actualTemplate = o.replacer;
       }
@@ -447,7 +454,9 @@ export default function getWebComponent(component, node) {
         this.replaceWith(...o.actualTemplate);
         o.replacer = o.actualTemplate;
       } else if (o.routeChanged) {
-        const replacer = o.replacer && o.replacer[0].ogone ? o.replacer[0].ogone.nodes : o.replacer;
+        const replacer = o.replacer && o.replacer[0].ogone ?
+          [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes].find(n => n[0].isConnected)
+          : o.replacer;
         replacer.slice(1, replacer.length).forEach(n => n.remove());
         for (let n of replacer) {
           n.isConnected ? n.replaceWith(...o.actualTemplate) : '';
@@ -496,7 +505,11 @@ export default function getWebComponent(component, node) {
           this.renderSlots();
         }
         // replace the element
-        this.replaceWith(...o.nodes);
+        if (${isAsync}) {
+          this.context.placeholder.replaceWith(...o.nodes);
+        } else {
+          this.replaceWith(...o.nodes);
+        }
 
         // template/node is already connected
         // ask the component to evaluate the value of the textnodes
@@ -505,7 +518,9 @@ export default function getWebComponent(component, node) {
         // trigger the init case of the component
         // we can pass the parameters of the router into the ctx
 
-        oc.startLifecycle(o.params, o.historyState);
+        if (${!isAsync}) {
+          oc.startLifecycle(o.params, o.historyState);
+        }
 
       } else {
         oc.renderTexts(true);
@@ -532,8 +547,145 @@ export default function getWebComponent(component, node) {
         }
       }
     }
+    renderAsync() {
+      const o = this.ogone;
+      const oc = o.component;
+      // WIP
+      for (let node of o.nodes) {
+        if (node.nodeType === 1) {
+          const awaitingNodes = Array.from(node.querySelectorAll('[await]'));
+            for (let onode of awaitingNodes) {
+              // create a custom Event for parent component
+              // parent component will wait the event to be dispatched
+              const ev = new Event(\`$\{o.key}:resolve\`);
+              onode.component.dispatchAwait = () => {
+                onode.dispatchEvent(ev);
+              };
+
+              // force rendering of awaiting node
+              onode.connectedCallback();
+
+              oc.promises.push(new Promise((resolve) => {
+                if (onode.component.promiseResolved) {
+                  // if the async child component resolve directly the promise
+                  resolve();
+                } else {
+                  onode.addEventListener(\`$\{o.key}:resolve\`, () => {
+                    resolve();
+                  });
+                }
+              }));
+            }
+        }
+      }
+      const childs = Array.from(this.childNodes);
+      const placeholder = this.context.placeholder;
+      if (childs.length) {
+        this.replaceWith(...childs);
+      } else {
+        this.replaceWith(placeholder);
+      }
+      oc.resolve = (...args) => {
+        return new Promise((resolve) => {
+          // we need to delay the execution
+          // for --defer directive
+          setTimeout(() => {
+            // set Async context for Async Components
+            this.setAsyncContext();
+
+            // replace childnodes by template
+            if (childs.length) {
+              const { isConnected } = childs[0];
+              if (isConnected) {
+                childs.slice(1).forEach((child) => {
+                  if (child.ogone) {
+                    child.removeNodes().remove();
+                    return;
+                  }
+                  child.remove();
+                })
+                childs[0].replaceWith(placeholder);
+              }
+            }
+            resolve();
+          }, 0);
+        }).then(() => {
+          const promise = Promise.all(oc.promises);
+          promise.then((p) => {
+            // render the element;
+            this.render();
+            if (oc.async.then) {
+              // handle resolution with --then:...
+              oc.parent.runtime(oc.async.then, { value: args, awaits: p, });
+            }
+          }).catch((err) => {
+            if (oc.async.catch) {
+              // handle error with --catch:...
+              oc.parent.runtime(oc.async.catch, err);
+            }
+            Ogone.error(err.message, 'Error in Async component. component: ${component.file}', err);
+          });
+          if (oc.async.finally) {
+            promise.finally((p) => {
+              // handle finally with --finally:...
+              oc.parent.runtime(oc.async.finally, p);
+            });
+          }
+        });
+      };
+      oc.startLifecycle(o.params, o.historyState);
+    }
+    setAsyncContext() {
+      const o = this.ogone;
+      const oc = o.component;
+      if (o.directives && o.directives.then) {
+        oc.async.then = o.directives.then;
+      }
+      if (o.directives && o.directives.catch) {
+        oc.async.catch = o.directives.catch;
+      }
+      if (o.directives && o.directives.finally) {
+        oc.async.finally = o.directives.finally;
+      }
+      if (o.directives && o.directives.defer) {
+        const promise = o.getContext({
+          getText: o.directives.defer,
+          position: o.position,
+        })
+        oc.promises.push(promise);
+      }
+    }
+    setNodeAsyncContext() {
+      const o = this.ogone;
+      const oc = o.component;
+      if (o.directives && o.directives.await) {
+        const promise = new Promise((resolve, reject) => {
+          if (typeof o.directives.await === 'boolean') {
+            this.addEventListener('load', (ev) => {
+              resolve(false);
+            });
+          } else {
+            const type = o.getContext({
+              getText: o.directives.await,
+              position: o.position,
+            })
+            this.addEventListener(type, (ev) => {
+              resolve(false);
+            });
+          }
+        });
+        oc.promises.push(promise);
+      }
+    }
     get context() {
-      return this.ogone.component.contexts.for[this.ogone.key];
+      const o = this.ogone;
+      const oc = o.component;
+      if (!oc.contexts.for[o.key]) {
+        oc.contexts.for[o.key] = [this];
+        oc.contexts.for[o.key].placeholder = new Comment();
+        oc.contexts.for[o.key].name = this.name;
+      }
+      return oc.contexts.for[o.key];
     }
     get firstNode() {
       return this.ogone.nodes[0];
@@ -551,6 +703,9 @@ export default function getWebComponent(component, node) {
       ? `return '${component.uuid}-nt';`
       : `return '${component.uuid}-${node.id}';`
   }
+    }
+    get isComponent() {
+      return ${isTemplate};
     }
   }
   customElements.define('${component.uuid}-${

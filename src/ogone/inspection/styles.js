@@ -1,5 +1,5 @@
 import Ogone from "../index.ts";
-import scopeCSS from "../../../lib/html-this/scopeCSS.js";
+import scopeCSS from "../../lib/html-this/scopeCSS.js";
 
 export default function oRenderStyles() {
   const entries = Array.from(Ogone.components.entries());

@@ -1,6 +1,6 @@
 import { existsSync } from "../../../utils/exists.ts";
 import Ogone from "../index.ts";
-import domparse from "../../../lib/dom-parser/index.js";
+import domparse from "../../lib/dom-parser/index.js";
 export default function oRender() {
   Ogone.files.forEach((file, i) => {
     const index = file;

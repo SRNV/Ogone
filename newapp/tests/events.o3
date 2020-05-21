@@ -1,0 +1,27 @@
+<div --click:increase> ${countClick} </div>
+<div --mouseover:increase> ${countmouseOver} </div>
+<div --mousemove:increase> ${countmouseMove} </div>
+<div> ${countmouseDown} </div>
+<div> ${countmouseUp} </div>
+<div> ${countKeypress} </div>
+<div> ${countKeypressCharCode} </div>
+
+<proto>
+  def:
+    countClick: 0
+    countmouseOver: 0
+    countmouseMove: 0
+    countmouseDown: 0
+    countmouseUp: 0
+    countKeypress: 0
+    countKeypressCharCode: 0
+  case 'click:increase':
+    this.countClick++;
+  break;
+  case 'mouseover:increase':
+    this.countmouseOver++;
+  break;
+  case 'mousemove:increase':
+    this.countmouseMove++;
+  break;
+</proto>

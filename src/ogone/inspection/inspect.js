@@ -1,6 +1,6 @@
 import Ogone from "../index.ts";
 import { existsSync } from "../../../utils/exists.ts";
-import jsThis from "../../../lib/js-this/switch.js";
+import jsThis from "../../lib/js-this/switch.js";
 
 function startRecursiveInspectionOfComponent(textFile, p) {
   const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];

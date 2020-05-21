@@ -1,10 +1,10 @@
 // import BABEL from "@babel/core";
 import Ogone from "../index.ts";
-import jsThis from "../../../lib/js-this/switch.js";
+import jsThis from "../../lib/js-this/switch.js";
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
 import allowedTypes from "./rules/component-types.js";
 import { existsSync } from "../../../utils/exists.ts";
-import domparse from "../../../lib/dom-parser/index.js";
+import domparse from "../../lib/dom-parser/index.js";
 import inspectRoutes from "./router/inspect-routes.js";
 
 export default function oRenderScripts() {
@@ -46,7 +46,7 @@ export default function oRenderScripts() {
       };
       const { value } = ogoneScript;
       let script = `(${
-        proto.attributes && (proto.attributes.type === "store") ? "async" : ""
+        proto.attributes && ["async", "store"].includes(proto.attributes.type) ? "async" : ""
       } function (_state, ctx, event, _once = 0) {
           try {
             switch(_state) { ${value} }
@@ -94,5 +94,6 @@ export default function oRenderScripts() {
         }
       }
     }
+
   });
 }

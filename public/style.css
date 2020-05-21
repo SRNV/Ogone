@@ -5,6 +5,7 @@ body {
   margin: 0;
   color: var(--o-primary);
   font-family: 'Varela Round', sans-serif;
+  overflow-x: hidden;
 }
 *::selection {
   background: var(--o-primary);
