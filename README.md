@@ -4,4 +4,6 @@
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
 # Description
-use Ogone to compile web-components for you web-applications. it's based on Deno, it use YAML instead of JSON and it reads new Single File Components extensions (.o3).
+use Ogone to compile web-components for your applications. it's based on Deno, it use YAML for the minimalism.
+Actually Ogone is under an experimental phase. avoid using it for production.
+Ogone has it own extension `*.o3` which allow some new features.
