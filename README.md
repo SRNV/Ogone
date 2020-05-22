@@ -7,3 +7,8 @@
 use Ogone to compile web-components for your applications. it's based on Deno, it use YAML for the minimalism.
 Actually Ogone is under an experimental phase. avoid using it for production.
 Ogone has it own extension `*.o3` which allow some new features.
+
+# installation
+```
+import o3 from 'https://raw.githubusercontent.com/SRNV/Ogone/master/mod.ts';
+```
