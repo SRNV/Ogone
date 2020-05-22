@@ -43,5 +43,5 @@ let's change the name after 1 second.
 ```
 this will only update the textnode containing 'Hello ${name}' and replace name by it's value
 ### so now what is proto def ?
-I decided to not use the tag script, or module because this tag will contain your code. the proto is a pseudo switch block
-and you will use the native default, case but also other ogone's tokens (def).
+I decided to not use the tag script, or module because this tag will contain your code but proto is a pseudo switch block
+and you will use the native default, case but also other ogone's tokens (def, before-each, etc...).
