@@ -1,5 +1,6 @@
 import Ogone from "../../index.ts";
 import allConstructors from "./templating/extensions.js";
+import setEventsMethod from "./methods/setEvents.ts";
 
 export default function getWebComponent(component, node) {
   if (!component) return "";
@@ -317,31 +318,7 @@ export default function getWebComponent(component, node) {
         reaction();
       }
     }
-    setEvents() {
-      const o = this.ogone;
-      if (!o.directives) return;
-      o.directives.events.forEach((dir) => {
-        for (let node of o.nodes) {
-          node.addEventListener(dir.type, (ev) => {
-            const oc = o.component;
-            if (dir.case) {
-              const ctx = o.getContext({
-                position: ${isTemplate} ?
-                  oc.positionInParentComponent : o.position,
-              });
-              oc${isTemplate ? ".parent" : ""}.runtime(dir.case, ctx, ev);
-            } else if (dir.eval && dir.name === "router-go") {
-              const v = o.getContext({
-                getText: dir.eval,
-                position: ${isTemplate} ?
-                  oc.positionInParentComponent : o.position,
-              });
-              Ogone.router.go(v, history.state);
-            }
-          });
-        }
-      });
-    }
+    ${setEventsMethod(component, node, { isTemplate, isRouter, isAsync, isStore })}
     removeNodes() {
       /* use it before removing template node */
       this.ogone.nodes.forEach((n) => n.remove());

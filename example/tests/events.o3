@@ -1,27 +1,94 @@
-<div --click:increase> ${countClick} </div>
-<div --mouseover:increase> ${countmouseOver} </div>
-<div --mousemove:increase> ${countmouseMove} </div>
-<div> ${countmouseDown} </div>
-<div> ${countmouseUp} </div>
-<div> ${countKeypress} </div>
-<div> ${countKeypressCharCode} </div>
+<div --click:increase> click ${countClick} </div>
+<div --dblclick:increase> dblclick ${countDblClick} </div>
+<div --mouseenter:increase> mouseEnter ${countmouseEnter} </div>
+<div --mouseover:increase> mouseOver ${countmouseOver} </div>
+<div --mousemove:increase> mouseMove ${countmouseMove} </div>
+<div --mousedown:increase> mouseDown ${countmouseDown} </div>
+<div --mouseup:increase> mouseUp ${countmouseUp} </div>
+<div --mouseleave:increase> mouseLeave ${countmouseLeave} </div>
+<div --keypress:increase> keypress ${countKeypress} </div>
+<div --keydown:increase> keydown ${countKeyDown} </div>
+<div --keydown:increaseSpace="'space'"> keydown space ${countKeyDownSpace} </div>
+<div --keyup:increaseSpace="'space'"> keyup space ${countKeyUpSpace} </div>
+<div --keyup:increase> keyup ${countKeyUp} </div>
+<div --wheel:increase> wheel ${wheelCount} </div>
+<div --wheel:increaseDown="'down'"> wheel down ${wheelDownCount} </div>
+<div --wheel:increaseUp="'up'"> wheel up ${wheelUpCount} </div>
+<div --wheel:increaseLeft="'left'"> wheel left ${wheelLeftCount} </div>
+<div --wheel:increaseRight="'right'"> wheel right ${wheelRightCount} </div>
 
 <proto>
   def:
     countClick: 0
+    countDblClick: 0
     countmouseOver: 0
+    countmouseEnter: 0
+    countmouseLeave: 0
     countmouseMove: 0
     countmouseDown: 0
     countmouseUp: 0
     countKeypress: 0
-    countKeypressCharCode: 0
+    countKeyUp: 0
+    countKeyDown: 0
+    countKeyDownSpace: 0
+    countKeyUpSpace: 0
+    wheelCount: 0
+    wheelDownCount: 0
+    wheelRightCount: 0
+    wheelLeftCount: 0
+    wheelUpCount: 0
   case 'click:increase':
     this.countClick++;
+  break;
+  case 'dblclick:increase':
+    this.countDblClick++;
   break;
   case 'mouseover:increase':
     this.countmouseOver++;
   break;
   case 'mousemove:increase':
     this.countmouseMove++;
+  break;
+  case 'mouseenter:increase':
+    this.countmouseEnter++;
+  break;
+  case 'mouseleave:increase':
+    this.countmouseLeave++;
+  break;
+  case 'mouseup:increase':
+    this.countmouseUp++;
+  break;
+  case 'mousedown:increase':
+    this.countmouseDown++;
+  break;
+  case 'keyup:increase':
+    this.countKeyUp++;
+  break;
+  case 'keypress:increase':
+    this.countKeypress++;
+  break;
+  case 'keydown:increase':
+    this.countKeyDown++;
+  break;
+  case 'keydown:increaseSpace':
+    this.countKeyDownSpace++;
+  break;
+  case 'keyup:increaseSpace':
+    this.countKeyUpSpace++;
+  break;
+  case 'wheel:increase':
+    this.wheelCount++;
+  break;
+  case 'wheel:increaseDown':
+    this.wheelDownCount++;
+  break;
+  case 'wheel:increaseUp':
+    this.wheelUpCount++;
+  break;
+  case 'wheel:increaseLeft':
+    this.wheelLeftCount++;
+  break;
+  case 'wheel:increaseRight':
+    this.wheelRightCount++;
   break;
 </proto>

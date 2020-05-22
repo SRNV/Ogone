@@ -1,17 +1,36 @@
-const SyntaxClickError = new SyntaxError(
-  "[Ogone]  wrong syntax of --click directive. it should be: --click:case",
-);
+const SyntaxEventError = (event) => new SyntaxError(`[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`);
 const events = [
   "--click",
+  "--mouseenter",
+  "--mouseover",
   "--mousemove",
   "--mousedown",
   "--mouseup",
   "--mouseleave",
+  "--mouseout",
   "--dblclick",
+  "--resize",
   "--drag",
   "--dragend",
   "--dragstart",
   "--input",
+  "--change",
+  "--blur",
+  "--focus",
+  "--focusin",
+  "--focusout",
+  "--select",
+  "--keydown",
+  "--keyup",
+  "--keypress",
+  "--submit",
+  "--reset",
+  "--touchcancel",
+  "--touchmove",
+  "--touchend",
+  "--touchenter",
+  "--touchstart",
+  "--wheel",
 ];
 export default function parseDirectives(node, opts) {
   let result = {
@@ -22,20 +41,34 @@ export default function parseDirectives(node, opts) {
     const { attributes } = node;
     const keys = Object.keys(attributes);
     for (let key of keys) {
-      switch (true) {
-        // WIP
-        case key.startsWith("--click") &&
-          !key.match(/(\-){2}(click\:)([^\s]*)+/):
-          throw SyntaxClickError;
-        case key.startsWith("--click"):
-          const [input, t, click, caseName] = key.match(
-            /(\-){2}(click\:)([^\s]*)+/,
+      for (let event of events) {
+        switch(true) {
+          case key.startsWith(event) &&
+          !key.match(/(\-){2}(\w+\:)([^\s]*)+/):
+          throw SyntaxEventError(event);
+        case key.startsWith(event):
+          const [input, t, ev, caseName] = key.match(
+            /(\-){2}(\w+\:)([^\s]*)+/,
           );
-          result.events.push({
-            type: "click",
-            case: `${click}${caseName}`,
-          });
+          const infos = {
+            type: event.slice(2),
+            case: `${ev}${caseName}`,
+            filter: null,
+            target: null,
+          };
+          if (event.startsWith('--key')) {
+            infos.target = 'document';
+          }
+          if (node.attributes[key] !== true) {
+            infos.filter = node.attributes[key];
+          }
+          result.events.push(infos);
           break;
+        }
+      }
+    }
+    for (let key of keys) {
+      switch (true) {
         case key === "--router-go":
           result.events.push({
             type: "click",
