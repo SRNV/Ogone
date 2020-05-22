@@ -8,7 +8,21 @@ use Ogone to compile web-components for your applications. it's based on Deno, i
 Actually Ogone is under an experimental phase. avoid using it for production.
 Ogone has it own extension `*.o3` which allow some new features.
 
-# installation
+# Installation
 ```
 import o3 from 'https://raw.githubusercontent.com/SRNV/Ogone/master/mod.ts';
+...
+o3.serve({
+  entrypoint: 'path/to/root-component.o3',
+  port: 8080,
+});
+```
+# Usage
+following the first example in your root-component.o3 you can make this first greeting app
+```
+<p>Hello ${name}</p>
+<proto>
+  def:
+    name: Rudy
+</proto>
 ```
