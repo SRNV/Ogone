@@ -42,13 +42,13 @@ menu:
             status: ok
 
           - name: --mousedown:...
-            status: todo
+            status: ok
 
           - name: --mousemove:...
-            status: todo
+            status: ok
 
           - name: --mouseup:...
-            status: todo
+            status: ok
 
           - name: --drag:...
             status: todo

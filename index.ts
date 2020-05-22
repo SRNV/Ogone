@@ -6,7 +6,7 @@ import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import compile from "./src/ogone/compilation/index.ts";
 
-const port: number = 8082;
+const port: number = 8081;
 // open the server
 const server = serve({ port });
 // start rendering Ogone system

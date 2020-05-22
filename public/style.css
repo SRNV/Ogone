@@ -44,3 +44,22 @@ pre {tab-size: 3;}
     transform: rotateZ(-10deg);
   }
 }
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--o-black);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--o-grey);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--o-primary);
+}

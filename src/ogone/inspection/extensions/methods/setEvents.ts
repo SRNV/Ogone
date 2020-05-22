@@ -13,7 +13,10 @@ export default function setEventsMethod(component: any, node: any, opts: any): s
                 switch(true) {
                   case dir.type === "wheel" && !!dir.filter:
                     return `
+                      node.hasWheel = true;
                       ${dir.target || "node"}.addEventListener("${dir.type}", (ev) => {
+                        const foundWheel = ev.path.find(n => n && n.hasWheel);
+                        if (foundWheel && !foundWheel.isSameNode(node)) return;
                         const filter = o.getContext({
                           getText: "${dir.filter.replace(/\n/gi, ' ')}",
                           position: ${position},
@@ -38,7 +41,10 @@ export default function setEventsMethod(component: any, node: any, opts: any): s
                       });`;
                   case dir.type === "wheel" && !dir.filter:
                     return `
+                      node.hasWheel = true;
                       ${dir.target || "node"}.addEventListener("${dir.type}", (ev) => {
+                        const foundWheel = ev.path.find(n => n && n.hasWheel);
+                        if (foundWheel && !foundWheel.isSameNode(node)) return;
                         const ctx = o.getContext({
                           position: ${position},
                         });

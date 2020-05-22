@@ -1,21 +1,14 @@
 <div class="container">
-  <div class="scrollbar">
-    <div
-      class="scrollbar-button"></div>
-  </div>
-  <div ref="content" class="content">
-    <slot></slot>
+  <div
+    ref="view"
+    class="view"
+    --wheel:effect>
+    <div ref="content" class="content">
+      <slot></slot>
+    </div>
   </div>
 </div>
 
-<proto>
-  def:
-    maxHeight: 300
-    contentHeight: 0
-  case 'init':
-    this.contentHeight = Refs.content.getBoundingClientRect().height;
-  break;
-</proto>
 <style>
 .container {
   overflow: hidden;
@@ -34,5 +27,9 @@
 }
 .content {
   flex: 18;
+}
+.view {
+  flex: 18;
+  overflow: auto;
 }
 </style>

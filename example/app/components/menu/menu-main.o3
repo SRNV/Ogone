@@ -11,8 +11,10 @@ use @/example/app/components/logo.o3 as 'logo-el'
     <logo-el --click:toggle-menu></logo-el>
     <div>0.1.0</div>
   </div>
-  <tree-recursive --for="menu as (item)" :item="item">
-  </tree-recursive>
+  <div class="tree">
+    <tree-recursive --for="menu as (item)" :item="item">
+    </tree-recursive>
+  </div>
 </div>
 <div --class="{ darken: isOpen }" --click:toggle-menu></div>
 
@@ -35,7 +37,8 @@ use @/example/app/components/logo.o3 as 'logo-el'
     left: 0px;
     background: var(--o-header);
     z-index: 2000;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .close {
     left: -100%;
@@ -55,5 +58,10 @@ use @/example/app/components/logo.o3 as 'logo-el'
     vertical-align: middle;
     align-items: center;
     justify-content: space-between;
+    border-bottom: 1px solid #4e4e4e;
+  }
+  .tree {
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 </style>

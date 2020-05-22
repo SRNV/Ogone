@@ -1,6 +1,14 @@
-import Ogone from "../../index.ts";
 import allConstructors from "./templating/extensions.js";
 import setEventsMethod from "./methods/setEvents.ts";
+import bindStyleMethod from "./methods/bindStyle.ts";
+import bindClassMethod from "./methods/bindClass.ts";
+import routerMethods from "./methods/router.ts";
+import storeMethods from "./methods/store.ts";
+import slotsMethods from "./methods/slots.ts";
+import asyncMethods from "./methods/async.ts";
+import utilsMethods from "./methods/utils.ts";
+import constructorMethods from "./methods/constructor.ts";
+import setOgoneMethod from "./methods/ogone.ts";
 
 export default function getWebComponent(component, node) {
   if (!component) return "";
@@ -9,25 +17,14 @@ export default function getWebComponent(component, node) {
   const isRouter = isTemplate && component.type === "router";
   const isStore = isTemplate && component.type === "store";
   const isAsync = isTemplate && component.type === "async";
+  const isAsyncNode = !isTemplate && !isImported && node.directives && node.directives.await;
   const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
+  const opts = { isTemplate, isAsync, isRouter, isStore, isAsyncNode, isImported, isExtension };
   // no definition for imported component
   if (isImported) {
     return "";
   }
-  const componentPragma = node.pragma(
-    component.uuid,
-    true,
-    Object.keys(component.imports),
-    (tagName) => {
-      if (component.imports[tagName]) {
-        const newcomponent = Ogone.components.get(component.imports[tagName]);
-        if (!newcomponent) return null;
-        return newcomponent.uuid;
-      }
-      return null;
-    },
-  );
   const OnodeClassExtension = isTemplate
     ? "HTMLTemplateElement"
     : `${isExtension ? allConstructors[node.tagName] : "HTMLDivElement"}`;
@@ -36,120 +33,39 @@ export default function getWebComponent(component, node) {
     : `${component.uuid}-${node.id}`;
   const componentExtension = `
   Ogone.classes['${OnodeClassId}'] = class extends ${OnodeClassExtension} {
-    constructor() {
-      super();
-      //define dependencies of the node
-      this.dependencies = (${JSON.stringify(node.dependencies)});
-      this.positionInParentComponent = ${isTemplate} ? [] : null;
+    ${constructorMethods(component, node, opts)}
 
+    // set the modifier object for Ogone fe atures
+    ${setOgoneMethod(component, node, opts)}
 
-      // save external dependencies and required props to component
-      // only if it's a template
-      if (${isTemplate}) {
-        // define component
-        const component = new Ogone.components['${component.uuid}']();
-        component.requirements = (${
-    component.properties ? JSON.stringify(component.properties) : null
-  });
-        component.dependencies = (${JSON.stringify(node.dependencies)});
-        this.component = component;
-        this.component.type = '${component.type || "component"}';
-        this.is();
-      }
-    }
-    // set the modifier object for Ogone features
-    is(def = {}) {
-      this.ogone = {
+    // use bindStyle method
+    // this method allow --style feature
+    ${bindStyleMethod(component, node, opts)}
 
-        // int[]
-        ${isTemplate ? "position: [0]," : ""}
+    // use bindClass method
+    // this method allow --class feature
+    ${bindClassMethod(component, node, opts)}
 
-        // int[]
-        positionInParentComponent: [0],
+    // set events on the node
+    // this method allow all DOM level 3 events
+    ${setEventsMethod(component, node, opts)}
 
-        // int
-        levelInParentComponent: 0,
+    // methods for routers components
+    ${routerMethods(component, node, opts)}
 
-        // int
-        ${isTemplate ? "index: 0," : ""}
+    // methods for stores components
+    ${storeMethods(component, node, opts)}
 
-        // int, position[level] = index
-        ${isTemplate ? "level: 0," : ""}
+    // methods for all components
+    // this allow the use of <slot> tag
+    ${slotsMethods(component, node, opts)}
 
-        // define component
-        ${isTemplate ? "component: this.component," : ""}
+    // methods for async components
+    ${asyncMethods(component, node, opts)}
 
-        // get from router the parameters
-        ${isTemplate ? "params: null," : ""}
-
-        // define parentComponent
-        parentComponent: null,
-
-        // jsx function
-        render: null,
-
-        // register all nodes of template or custom element
-        nodes: [],
-
-        // {}[]
-        directives: null,
-
-        // replacer is used for --ifElse directive
-        replacer: null,
-
-        // critical function
-        getContext: null,
-
-        // set as false by the component, preserves from maximum call stack
-        originalNode: true,
-
-        // promise for await directive
-        promise: null,
-
-        // set unique key
-        key: '${node.id}'+\`\${Math.random()}\`,
-
-        // set routes if component is a router
-        ${isRouter ? `routes: ${JSON.stringify(component.routes)},` : ""}
-
-        // set the location
-        ${isRouter ? `locationPath: location.pathname,` : ""}
-
-        // set the actualTemplate of the router
-        ${isRouter ? `actualTemplate: null,` : ""}
-
-        // save the route
-        ${isRouter ? "actualRoute: null," : ""}
-        ${isRouter ? "actualRouteName: null," : ""}
-
-        // whenever the route change
-        ${isRouter ? "routeChanged: true," : ""}
-
-        // set state to pass it through the history.state
-        ${
-    isRouter
-      ? `
-              historyState: { ...(() => {
-                const url = new URL(location.href);
-                const query = new Map(url.searchParams.entries());
-                return { query }
-              })(),  },`
-      : ""
-  }
-
-        // overwrite properties
-        ...def,
-      };
-      // use the jsx function and save it into this.ogone.render
-      // this function generates all the childNodes or the template
-      this.ogone.render = ${
-    componentPragma
-      .replace(/\n/gi, "")
-      .replace(/\s+/gi, " ")
-  }
-  // set Async context for Async nodes
-  ${!isTemplate && !isImported && node.directives && node.directives.await ? 'this.setNodeAsyncContext();':''}
-    }
+    // global methods for components
+    // mainly getters and setters
+    ${utilsMethods(component, node, opts)}
     connectedCallback() {
       // set position of the template/component
       this.setPosition();
@@ -188,7 +104,7 @@ export default function getWebComponent(component, node) {
       switch(true) {
         case ${isRouter}: this.renderRouter(); break;
         case ${isStore}: this.renderStore(); break;
-        case ${isAsync}: this.renderAsync(); console.warn(this.ogone.key); break;
+        case ${isAsync}: this.renderAsync(); break;
         default: this.render(); break;
       }
 
@@ -248,16 +164,14 @@ export default function getWebComponent(component, node) {
     }
     setDeps() {
       const o = this.ogone;
-      if (o.originalNode) {
-        if (o.getContext) {
-          o.component${
-    isTemplate ? ".parent" : ""
-  }.react.push(() => this.directiveFor());
-          this.directiveFor();
-        }
+      if (o.originalNode && o.getContext) {
+            o.component${
+      isTemplate ? ".parent" : ""
+    }.react.push(() => this.renderContext());
+            this.renderContext();
       }
     }
-    directiveFor() {
+    renderContext() {
       const o = this.ogone;
       const key = o.key;
       const length = o.getContext({ getLength: true, position: o.position });
@@ -268,208 +182,11 @@ export default function getWebComponent(component, node) {
       });
       return true;
     }
-    bindStyle(value) {
-      const o = this.ogone;
-      const oc = o.component;
-      if (!o.directives) return;
-      const dir = o.directives.style;
-      if (!dir) return;
-      for (let node of o.nodes) {
-        function reaction() {
-          const value = o.getContext({
-            position: o.position,
-            getText: \`($\{dir})\`,
-          });
-          if (typeof value === 'string') {
-            node.style = value;
-          } else if (typeof value === 'object') {
-            Object.entries(value).forEach(([key, v]) => node.style[key] = v);
-          }
-          return node.isConnected;
-        }
-        oc.react.push(() => reaction());
-        reaction();
-      }
-    }
-    bindClass(value) {
-      const o = this.ogone;
-      const oc = o.component;
-      if (!o.directives) return;
-      const dir = o.directives.class;
-      if (!dir) return;
-      for (let node of o.nodes) {
-        function reaction() {
-          const value = o.getContext({
-            position: o.position,
-            getText: \`($\{dir})\`,
-          });
-          if (typeof value === 'string') {
-            node.classList.value = value;
-          } else if (typeof value === 'object') {
-            const keys = Object.keys(value);
-            node.classList.add(...keys.filter((key) => value[key]));
-            node.classList.remove(...keys.filter((key) => !value[key]));
-          } else if (Array.isArray(value)) {
-            node.classList.value = value.join(' ');
-          }
-          return node.isConnected;
-        }
-        oc.react.push(() => reaction());
-        reaction();
-      }
-    }
-    ${setEventsMethod(component, node, { isTemplate, isRouter, isAsync, isStore })}
     removeNodes() {
       /* use it before removing template node */
       this.ogone.nodes.forEach((n) => n.remove());
       return this;
     }
-    triggerLoad() {
-      const o = this.ogone;
-      const oc = o.component;
-      const rr = Ogone.router.react;
-
-      oc.runtime('load', o.historyState);
-      rr.push((path) => {
-        o.locationPath = path;
-        this.setActualRouterTemplate();
-        this.renderRouter();
-        return true;
-      });
-    }
-    routerSearch(route, locationPath) {
-      if (typeof locationPath !== 'string') return false;
-      const { path } = route;
-      const splitted = path.toString().split('/');
-      const locationSplit = locationPath.split('/');
-      const result = {};
-      if (!splitted.filter(r => r.trim().length).length !== !locationSplit.filter(r => r.trim().length).length) return;
-      if (splitted.length !== locationSplit.length) return false;
-      const error = splitted.find((p,i, arr) => {
-        if (!p.startsWith(':')) {
-          return locationSplit[i] !== p;
-        }
-      });
-      if (error) return false;
-      splitted.forEach((p, i, arr) => {
-        if (p.startsWith(':')) {
-          const param = p.slice(1, p.length);
-          arr[i] = null;
-          result[param] = locationSplit[i];
-        }
-      });
-      route.params = result;
-      return true;
-    }
-    setActualRouterTemplate() {
-      const o = this.ogone;
-      const oc = o.component;
-
-      oc.routes = o.routes;
-      oc.locationPath = o.locationPath;
-      const l = oc.locationPath;
-      let rendered = oc.routes.find((r) => r.path === l || this.routerSearch(r,l) || r.path === 404);
-      let preservedParams = rendered.params;
-
-      // redirections
-      while (rendered && rendered.redirect) {
-        rendered = oc.routes.find((r) => r.name === rendered.redirect);
-        if (rendered) {
-          rendered.params = preservedParams;
-        }
-      }
-      if (!rendered) {
-        o.actualTemplate = [new Comment()];
-        o.actualRoute = null;
-        o.routeChanged = true;
-      } else if (rendered && !(rendered.once || o.actualRoute === rendered.component)) {
-        const { component: uuidC } = rendered;
-        const co = document.createElement('template', { is: uuidC });
-        o.actualTemplate = [co];
-        o.actualRoute = rendered.component;
-        o.actualRouteName = rendered.name || null;
-        o.routeChanged = true;
-        // don't spread o
-        // some props of o can overwritte the template.ogone and create errors in context
-        // like undefined data
-        co.is({
-          params: rendered.params || null,
-          props: o.props,
-          parentComponent: o.parentComponent,
-          parentCTXId: o.parentCTXId,
-          positionInParentComponent: o.positionInParentComponent
-            .slice(),
-          levelInParentComponent: o.levelInParentComponent,
-          index: o.index,
-          level: o.level,
-          position: o.position,
-          directives: o.directives,
-        });
-
-        // if the route provide any title
-        // we change the title of the document
-
-        if (rendered.title) {
-          document.title = rendered.title;
-        }
-      } else {
-        o.routeChanged = false
-      }
-    }
-    renderRouter() {
-      const o = this.ogone;
-      const oc = o.component;
-
-      // update Props before replacement of the element
-      oc.updateProps();
-
-      // we will use o.replacer cause it's used in the directive if
-      if (!o.actualTemplate) {
-        o.actualTemplate = o.replacer;
-      }
-      if (this.isConnected) {
-        this.replaceWith(...o.actualTemplate);
-        o.replacer = o.actualTemplate;
-      } else if (o.routeChanged) {
-        const replacer = o.replacer && o.replacer[0].ogone ?
-          [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes].find(n => n[0].isConnected)
-          : o.replacer;
-        replacer.slice(1, replacer.length).forEach(n => n.remove());
-        for (let n of replacer) {
-          n.isConnected ? n.replaceWith(...o.actualTemplate) : '';
-        }
-      }
-      if (o.actualTemplate && o.actualTemplate[0].ogone && o.actualTemplate[0].isConnected) {
-        // router stopped cause the template is still connected to the document
-        // it means that they were an error in the component provided in router
-
-        Ogone.error(\` router stopped: the template is still connected to the document. It seems like there is an error in the component provided in the router\`,
-          'RouterError during rendering',
-          { message: \`path: $\{o.actualRoute}\nname: $\{o.actualRouteName}\` });
-      } else {
-        o.replacer = o.actualTemplate;
-      }
-      oc.runtime(o.actualRouteName || o.locationPath, history.state);
-    }
-
-    renderStore() {
-      const o = this.ogone;
-      const oc = o.component;
-      if (oc.namespace !== '${component.namespace}') {
-        const error = 'the attribute namespace is not the same provided in the component store';
-        const BadNamspaceException = new Error(\`[Ogone] $\{error}\`);
-        Ogone.error(error, 'Store Module: Bad Namsepace Exception', {
-          message: \`
-          store namespace: ${component.namespace}
-          attribute namespace: $\{oc.namespace}
-          \`
-        })
-        throw BadNamspaceException;
-      }
-      oc.startLifecycle();
-      this.remove();
-    }
-
     render() {
       const o = this.ogone;
       const oc = o.component;
@@ -500,189 +217,12 @@ export default function getWebComponent(component, node) {
         }
 
       } else {
+        if (this.childNodes.length) {
+          this.renderSlots();
+        }
         oc.renderTexts(true);
         this.replaceWith(...o.nodes);
       }
-    }
-    renderSlots() {
-      const o = this.ogone;
-      const slots = this.querySelectorAll('[slot]');
-      for (let node of o.nodes) {
-        const defaultSlot = node.querySelector('slot:not([name])');
-        if (defaultSlot) {
-          defaultSlot.replaceWith(...this.childNodes);
-        }
-      }
-      for (let slotted of slots) {
-        const slotName = slotted.getAttribute('slot');
-        for (let node of o.nodes) {
-          const slot = node.querySelector(\`slot[name="\${slotName}"]\`);
-          if (slot) {
-            slotted.removeAttribute('slot');
-            slot.replaceWith(slotted);
-          }
-        }
-      }
-    }
-    renderAsync() {
-      const o = this.ogone;
-      const oc = o.component;
-      // WIP
-      for (let node of o.nodes) {
-        if (node.nodeType === 1) {
-          const awaitingNodes = Array.from(node.querySelectorAll('[await]'));
-            for (let onode of awaitingNodes) {
-              // create a custom Event for parent component
-              // parent component will wait the event to be dispatched
-              const ev = new Event(\`$\{o.key}:resolve\`);
-              onode.component.dispatchAwait = () => {
-                onode.dispatchEvent(ev);
-              };
-
-              // force rendering of awaiting node
-              onode.connectedCallback();
-
-              oc.promises.push(new Promise((resolve) => {
-                if (onode.component.promiseResolved) {
-                  // if the async child component resolve directly the promise
-                  resolve();
-                } else {
-                  onode.addEventListener(\`$\{o.key}:resolve\`, () => {
-                    resolve();
-                  });
-                }
-              }));
-            }
-        }
-      }
-      const childs = Array.from(this.childNodes);
-      const placeholder = this.context.placeholder;
-      if (childs.length) {
-        this.replaceWith(...childs);
-      } else {
-        this.replaceWith(placeholder);
-      }
-      oc.resolve = (...args) => {
-        return new Promise((resolve) => {
-          // we need to delay the execution
-          // for --defer directive
-          setTimeout(() => {
-            // set Async context for Async Components
-            this.setAsyncContext();
-
-            // replace childnodes by template
-            if (childs.length) {
-              const { isConnected } = childs[0];
-              if (isConnected) {
-                childs.slice(1).forEach((child) => {
-                  if (child.ogone) {
-                    child.removeNodes().remove();
-                    return;
-                  }
-                  child.remove();
-                })
-                childs[0].replaceWith(placeholder);
-              }
-            }
-            resolve();
-          }, 0);
-        }).then(() => {
-          const promise = Promise.all(oc.promises);
-          promise.then((p) => {
-            // render the element;
-            this.render();
-            if (oc.async.then) {
-              // handle resolution with --then:...
-              oc.parent.runtime(oc.async.then, { value: args, awaits: p, });
-            }
-          }).catch((err) => {
-            if (oc.async.catch) {
-              // handle error with --catch:...
-              oc.parent.runtime(oc.async.catch, err);
-            }
-            Ogone.error(err.message, 'Error in Async component. component: ${component.file}', err);
-          });
-          if (oc.async.finally) {
-            promise.finally((p) => {
-              // handle finally with --finally:...
-              oc.parent.runtime(oc.async.finally, p);
-            });
-          }
-        });
-      };
-      oc.startLifecycle(o.params, o.historyState);
-    }
-    setAsyncContext() {
-      const o = this.ogone;
-      const oc = o.component;
-      if (o.directives && o.directives.then) {
-        oc.async.then = o.directives.then;
-      }
-      if (o.directives && o.directives.catch) {
-        oc.async.catch = o.directives.catch;
-      }
-      if (o.directives && o.directives.finally) {
-        oc.async.finally = o.directives.finally;
-      }
-      if (o.directives && o.directives.defer) {
-        const promise = o.getContext({
-          getText: o.directives.defer,
-          position: o.position,
-        })
-        oc.promises.push(promise);
-      }
-    }
-    setNodeAsyncContext() {
-      const o = this.ogone;
-      const oc = o.component;
-      if (o.directives && o.directives.await) {
-        const promise = new Promise((resolve, reject) => {
-          if (typeof o.directives.await === 'boolean') {
-            this.addEventListener('load', (ev) => {
-              resolve(false);
-            });
-          } else {
-            const type = o.getContext({
-              getText: o.directives.await,
-              position: o.position,
-            })
-            this.addEventListener(type, (ev) => {
-              resolve(false);
-            });
-          }
-        });
-        oc.promises.push(promise);
-      }
-    }
-    get context() {
-      const o = this.ogone;
-      const oc = o.component;
-      if (!oc.contexts.for[o.key]) {
-        oc.contexts.for[o.key] = [this];
-        oc.contexts.for[o.key].placeholder = new Comment();
-        oc.contexts.for[o.key].name = this.name;
-      }
-      return oc.contexts.for[o.key];
-    }
-    get firstNode() {
-      return this.ogone.nodes[0];
-    }
-    get lastNode() {
-      const o = this.ogone.nodes;
-      return o[o.length - 1];
-    }
-    get name() {
-      ${isTemplate ? 'return "template"' : "return this.tagName.toLowerCase();"}
-    }
-    get extends() {
-      ${
-    isTemplate
-      ? `return '${component.uuid}-nt';`
-      : `return '${component.uuid}-${node.id}';`
-  }
-    }
-    get isComponent() {
-      return ${isTemplate};
     }
   }
   customElements.define('${component.uuid}-${

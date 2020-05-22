@@ -358,7 +358,7 @@ function setNodesPragma(expressions) {
           ${node.attributes && node.attributes.await ? `${nId}.setAttribute('await', '');`: ''}
           ${
           isImported || nodeIsDynamic && !isImported && !isRoot
-            ? `${nId}.is({
+            ? `${nId}.setOgone({
               ${!isImported ? "position, level, index," : ""}
               ${isImported ? `positionInParentComponent: position,` : ""}
               ${isImported ? `levelInParentComponent: level,` : ""}

@@ -9,7 +9,9 @@ use @/example/app/components/scroll.o3 as 'scroll'
     <span>
      ${item.name}
     </span>
-    <span --class="!item.children && item.status ? `status ${item.status}` : ''"></span>
+    <span --class="!item.children && item.status ? `status ${item.status}` : ''">
+      ${!item.children && item.status ? item.status : ''}
+    </span>
     <span --if="item.children && !openTree"> > </span>
     <span --else-if="item.children && openTree"> < </span>
   </div>
@@ -58,6 +60,9 @@ use @/example/app/components/scroll.o3 as 'scroll'
 .title:hover {
   background: var(--o-primary);
   color: white;
+}
+.child .title {
+  border-left: 1px solid #555;
 }
 .status {
   display: list-item;

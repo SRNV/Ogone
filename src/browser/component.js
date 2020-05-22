@@ -176,7 +176,7 @@ function OComponent() {
     for (let i = context.length, a = dataLength; i < a; i++) {
       let node;
       node = document.createElement(context.name, { is: Onode.extends });
-      node.is({
+      node.setOgone({
         index: i,
         originalNode: false,
         level: Onode.ogone.level,
