@@ -20,7 +20,7 @@ o3.run({
 ```
 # Usage
 After the first example, in your root-component.o3, you can make this first greeting app
-```shell
+```typescript
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -29,7 +29,7 @@ After the first example, in your root-component.o3, you can make this first gree
 ```
 let's change the name after 1 second.
 
-```shell
+```typescript
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -93,7 +93,7 @@ deno run --allow-all --unstable example/app/index.ts
 
 ### Async component example
 
-```shell
+```typescript
 // require statements tell to the parent component what is needed inside the component.
 require id as Number;
 use @/path/to/store as 'store-component';
@@ -117,7 +117,7 @@ use @/path/to/store as 'store-component';
 ## these examples are in this project.
 
 ### menu component example
-```shell
+```typescript
 use @/example/app/stores/menu.store.o3 as 'store'
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/example/app/components/logo.o3 as 'logo-el'
@@ -147,7 +147,7 @@ use @/example/app/components/logo.o3 as 'logo-el'
 </proto>
 ```
 ### recursive component example
-```shell
+```typescript
 require item as Object
 
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
