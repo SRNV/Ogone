@@ -10,8 +10,8 @@ menu:
         route: /doc/install
       - name: Get Started
         route: /doc/get-started
-      - name: Xml Features
-        route: /xml-features
+      - name: Features
+        route: /features
         children:
           - name: --if --else --else-if
             status: ok

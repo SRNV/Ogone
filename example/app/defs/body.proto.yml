@@ -2,7 +2,7 @@ articles:
   - title: Experimental tool for a fullstack use.
     text: "Ogone is an experimental tool for Fullstack dev. \nFully based on Deno."
     code: "
-        o3.serve({\n
+        o3.run({\n
       \tentrypoint: '/app/index.o3',\n
       \tport: 4000,\n
         })"

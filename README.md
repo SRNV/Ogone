@@ -13,7 +13,7 @@ No Proxies, no getters, no setters are used for the reactivity, just code...
 ```
 import o3 from 'https://raw.githubusercontent.com/SRNV/Ogone/master/mod.ts';
 ...
-o3.serve({
+o3.run({
   entrypoint: 'path/to/root-component.o3',
   port: 8080,
 });
@@ -37,7 +37,7 @@ let's change the name after 1 second.
   default:
     setTimeout(() => {
       this.name = 'Rudy';
-    }, 1000); 
+    }, 1000);
   break;
 </proto>
 ```
