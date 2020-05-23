@@ -10,7 +10,7 @@ Ogone has it own extension `*.o3` which allow some new features.
 No Proxies, no getters, no setters used for the reactivity, just code...
 
 # Installation
-```
+```javascript
 import o3 from 'https://raw.githubusercontent.com/SRNV/Ogone/master/mod.ts';
 ...
 o3.run({
@@ -29,7 +29,7 @@ After the first example, in your root-component.o3, you can make this first gree
 ```
 let's change the name after 1 second.
 
-```
+```javascript
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -59,12 +59,12 @@ at this point, it means Ogone has to read something that is undefined because it
 
 Ogone will wrap your code into a tiny function which takes 3 arguments.
 the state of the component, the context of the function and an event (Event | undefined)
-```
+```javascript
 (function(_state, ctx, event) {
   switch(_state) {
     // there is your code
   }
-})
+});
 ```
 
 ### why in a switch statement ?
