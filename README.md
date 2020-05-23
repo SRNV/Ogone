@@ -41,7 +41,8 @@ let's change the name after 1 second.
   break;
 </proto>
 ```
-this will only update the textnode containing 'Hello ${name}' and replace name by it's value
+this will only update the textnode containing 'Hello ${name}' and replace name by it's value.
+You certainly recognized the default expression of a switch statement.
 ### so now what is proto def ?
 I decided to not use the tag script, or module because this tag will contain your code but proto is a pseudo switch block
 and you will use the native default, case but also other ogone's tokens (def, before-each, etc...).
