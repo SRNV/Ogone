@@ -45,15 +45,16 @@ this will only update the textnode containing 'Hello ${name}' and replace name b
 You certainly recognized the default expression of a switch statement.
 
 ### so now what is proto def ?
-Making the choice to use only the switch statement to rule the code, causes that the wordings has to be clear enough to understand what is going on.
+Making the choice to use only the switch statement to rule the code, includes that the wordings has to be clear enough to understand what is going on.
 
-instead of using script tag, I choosed to use proto which is a custom element. the fact is, when we define the Ogone components we are not building a module js. you wont be able to use inside `<proto>` the import/export statements.
+instead of using script tag, I choosed to use proto tag which is a custom element. the fact is, when we define the Ogone components we are not building a module js. you wont be able to use inside `<proto>` the import statements.
+we will see after how to import modules inside your component.
 
-at this point, it means Ogone has to read something that is undefined because it's all new to code component only in a switch statement.
+at this point, it means Ogone has to read something that is not conventionnal. It's all new to code component only in a switch statement.
 
-### ok but def ?
-`def` means 'definition' (like Python), this custom statement let you define the data of your component.
-`def` is the area that only accepts YAML
+### ok but def ?!
+`def` means 'definition' or 'define' (like Python), this custom statement let you define the data of your component.
+`def` is the area that only supports YAML language
 
 ### output
 
