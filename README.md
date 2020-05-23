@@ -189,8 +189,8 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 
 
 # Todo
-*required before publication
-** required before 1.0.0
+(*) required before publication
+(**) required before 1.0.0
 
 - [ ] HMR **
 - [ ] Imports modules *
