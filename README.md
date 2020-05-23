@@ -20,7 +20,7 @@ o3.run({
 ```
 # Usage
 After the first example, in your root-component.o3, you can make this first greeting app
-```
+```javascript
 <p>Hello ${name}</p>
 <proto>
   def:
