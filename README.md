@@ -70,7 +70,7 @@ the state of the component, the context of the function and an event (Event | un
 
 ### why in a switch statement ?
 
-Switch statement provides a out-of-box well structured code. it's globally readable and understood by all.
+Switch statement provides an out of the box well structured code. it's globally readable and understood by all.
 And Ogone is follwing a minimalistic philosophy. using few options/expressions to structure the code is a good way to make it clear, readable, radically clean.
 
 ## Expressions and Custom Expressions
