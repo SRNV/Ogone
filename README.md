@@ -110,12 +110,13 @@ use @/path/to/store.o3 as 'store-component';
         this.user = user;
         // when we have the data of the user
         // warn the parent component that we are ready to render
-        Async.resolve();
+        // we send the user as context to the parent component
+        Async.resolve(user);
       });
 </proto>
 ```
 
-let's see what we can do inside parent
+let's see what we can do inside the parent component
 
 ```typescript
 use @/path/to/component.o3 as 'async-component';
@@ -131,6 +132,7 @@ use @/path/to/component.o3 as 'async-component';
       });
     break;
   default:
+    // if we want to test the reactivity
     this.id = 2;
 </proto>
 ```
