@@ -94,8 +94,9 @@ deno run --allow-all --unstable example/app/index.ts
 ### Async component example
 
 ```typescript
-// require statements tell to the parent component what is needed inside the component.
+// require statement tells to the parent component what is needed inside the component.
 require id as Number;
+// use statement tells to Ogone to use the file as store-component
 use @/path/to/store as 'store-component';
 
 <store-component namespace="user"/>
