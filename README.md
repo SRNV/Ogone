@@ -89,7 +89,34 @@ to see more stuffs from Ogone, clone this repository
 deno run --allow-all --unstable example/app/index.ts
 ```
 
-## Some examples
+# Some examples
+
+### Async component example
+
+```shell
+// require statements tell to the parent component what is needed inside the component.
+require id as Number;
+use @/path/to/store as 'store-component';
+
+<store-component namespace="user"/>
+<div --if="user"> Welcome ${user.name} </div>
+<proto type="async">
+  def:
+    user: null
+  default:
+    Store.dispatch('user/getUser', this.id)
+      .then((user) => {
+        this.user = user;
+        // when we have the data of the user
+        // warn the parent component that we are ready to render
+        Async.resolve();
+      });
+</proto>
+```
+
+## these examples are in this project.
+
+### menu component example
 ```shell
 use @/example/app/stores/menu.store.o3 as 'store'
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
@@ -119,7 +146,7 @@ use @/example/app/components/logo.o3 as 'logo-el'
   break;
 </proto>
 ```
-
+### recursive component example
 ```shell
 require item as Object
 
