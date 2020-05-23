@@ -90,6 +90,35 @@ deno run --allow-all --unstable example/app/index.ts
 ```
 
 ## Some examples
+```shell
+use @/example/app/stores/menu.store.o3 as 'store'
+use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/example/app/components/logo.o3 as 'logo-el'
+
+
+<store namespace="menu" />
+<div class="left-menu"
+  --class="{ close: !isOpen }"
+  --html="innerHTML">
+  <div class="header">
+    <logo-el --click:toggle-menu></logo-el>
+    <div>0.1.0</div>
+  </div>
+  <div class="tree">
+    <tree-recursive --for="menu as (item)" :item="item">
+    </tree-recursive>
+  </div>
+</div>
+<div --class="{ darken: isOpen }" --click:toggle-menu></div>
+
+<proto def="example/app/defs/menu-main.yml">
+  def:
+    isOpen: false
+  case 'click:toggle-menu':
+    Store.dispatch('menu/toggle');
+  break;
+</proto>
+```
 
 ```shell
 require item as Object
