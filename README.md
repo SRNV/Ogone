@@ -19,7 +19,7 @@ o3.serve({
 });
 ```
 # Usage
-following the first example in your root-component.o3 you can make this first greeting app
+After the first example, in your root-component.o3, you can make this first greeting app
 ```
 <p>Hello ${name}</p>
 <proto>
