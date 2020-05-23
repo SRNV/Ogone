@@ -97,7 +97,7 @@ deno run --allow-all --unstable example/app/index.ts
 // require statement tells to the parent component what is needed inside the component.
 require id as Number;
 // use statement tells to Ogone to use the file as store-component
-use @/path/to/store as 'store-component';
+use @/path/to/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
 <div --if="user"> Welcome ${user.name} </div>
@@ -112,6 +112,26 @@ use @/path/to/store as 'store-component';
         // warn the parent component that we are ready to render
         Async.resolve();
       });
+</proto>
+```
+
+let's see what we can do inside parent
+
+```typescript
+use @/path/to/component.o3 as 'async-component';
+
+<async-component :id="id" --await --then:user-loaded />
+<proto type="async">
+  def:
+    id: 0
+  case 'then:user-loaded':
+    Store.commit('user/USER-IS-LOADED', ctx)
+      .then(() => {
+        Async.resolve();
+      });
+    break;
+  default:
+    this.id = 2;
 </proto>
 ```
 
@@ -194,6 +214,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 
 - [ ] HMR **
 - [ ] Imports modules *
+- [ ] Complete Async Component feature
 - [ ] Integrated Ogone-Dev-Tools
 - [ ] Integrated test environment **
   - [ ] case 'test' is supported **
