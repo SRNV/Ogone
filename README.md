@@ -20,7 +20,7 @@ o3.run({
 ```
 # Usage
 After the first example, in your root-component.o3, you can make this first greeting app
-```javascript
+```shell
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -29,7 +29,7 @@ After the first example, in your root-component.o3, you can make this first gree
 ```
 let's change the name after 1 second.
 
-```javascript
+```shell
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -81,12 +81,50 @@ Following this structure of declarations is strongly recommanded:
 - case
 - default
 
-* only supported by Ogone
+*only supported by Ogone
 # Learn Ogone
 
 to see more stuffs from Ogone, clone this repository
 ```
 deno run --allow-all --unstable example/app/index.ts
+```
+
+## Some examples
+
+```shell
+require item as Object
+
+use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/example/app/components/scroll.o3 as 'scroll'
+
+
+<div class="container">
+  <div class="title" --click:toggle --router-go="item.route">
+    <span>
+     ${item.name}
+    </span>
+    <span --class="!item.children && item.status ? `status ${item.status}` : ''">
+      ${!item.children && item.status ? item.status : ''}
+    </span>
+    <span --if="item.children && !openTree"> > </span>
+    <span --else-if="item.children && openTree"> < </span>
+  </div>
+  <div class="child" --if="item.children" --class="{ 'child-open': openTree }">
+    <scroll>
+      <tree-recursive
+        --if="!!item.children"
+        --for="item.children as (child)"
+        :item="child ? child : {}"></tree-recursive>
+    </scroll>
+  </div>
+</div>
+<proto>
+  def:
+    openTree: false
+  case 'click:toggle':
+    this.openTree = !this.openTree
+  break;
+</proto>
 ```
 
 # Support
