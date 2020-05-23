@@ -80,3 +80,19 @@ Following this structure of declarations is strongly recommanded:
 - before-each* (TODO, for global declarations)
 - case
 - default
+
+* only supported by Ogone
+
+# Todo
+- [ ] HMR
+- [ ] Imports modules
+- [ ] integrated test environment
+  - [ ] case 'test' is supported
+  - [ ] stress mode is supported
+- [ ] Controllers Components
+- [ ] write Robust test for Ogone
+- [ ] switch every files to Typescript
+- [ ] Typescript supported in `<proto>`
+- [ ] write more exceptions for each features
+- [ ] write docs
+- [ ] write more examples
