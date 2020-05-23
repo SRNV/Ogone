@@ -43,6 +43,7 @@ let's change the name after 1 second.
 ```
 this will only update the textnode containing 'Hello ${name}' and replace name by it's value.
 You certainly recognized the default expression of a switch statement.
+
 ### so now what is proto def ?
 Making the choice to use only the switch statement to rule the code, causes that the wordings has to be clear enough to understand what is going on.
 
@@ -65,3 +66,17 @@ the state of the component, the context of the function and an event (Event | un
   }
 })
 ```
+
+### why in a switch statement ?
+
+Switch statement provides a out-of-box well structured code. it's globally readable and understood by all.
+And Ogone is follwing a minimalistic philosophy. using few options/expressions to structure the code is a good way to make it clear, readable, radically clean.
+
+## Expressions and Custom Expressions
+
+Following this structure of declarations is strongly recommanded:
+
+- def* (YAML)
+- before-each* (TODO, for global declarations)
+- case
+- default
