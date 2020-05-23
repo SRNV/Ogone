@@ -4,10 +4,10 @@
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
 # Description
-use Ogone to compile web-components for your applications. it's based on Deno, it use YAML for the minimalism.
+use Ogone to compile web-components for your applications. it's based on Deno.
 Actually Ogone is under an experimental phase. avoid using it for production.
 Ogone has it own extension `*.o3` which allow some new features.
-No Proxies, no getters, no setters are used for the reactivity, just code...
+No Proxies, no getters, no setters used for the reactivity, just code...
 
 # Installation
 ```
@@ -82,17 +82,31 @@ Following this structure of declarations is strongly recommanded:
 - default
 
 * only supported by Ogone
+# Learn Ogone
+
+to see more stuffs from Ogone, clone this repository
+```
+deno run --allow-all --unstable example/app/index.ts
+```
+
+# Support
+To support, join the [discord](https://discord.com/channels/710950501398610061/710950501398610064) server or do not hesitate to write issues.
+
 
 # Todo
 - [ ] HMR
 - [ ] Imports modules
-- [ ] integrated test environment
+- [ ] Integrated test environment
   - [ ] case 'test' is supported
   - [ ] stress mode is supported
 - [ ] Controllers Components
-- [ ] write Robust test for Ogone
-- [ ] switch every files to Typescript
+- [ ] Write robust tests for Ogone
+  - [ ] Dom-parser is solid
+  - [ ] Js-this is solid
+  - [ ] Scope-css is solid
+- [ ] Switch every files to Typescript
+  - [ ] Write types
 - [ ] Typescript supported in `<proto>`
-- [ ] write more exceptions for each features
-- [ ] write docs
-- [ ] write more examples
+- [ ] Write more exceptions for each features
+- [ ] Write docs
+- [ ] Write more examples
