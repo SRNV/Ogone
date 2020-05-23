@@ -189,19 +189,23 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 
 
 # Todo
-- [ ] HMR
-- [ ] Imports modules
-- [ ] Integrated test environment
-  - [ ] case 'test' is supported
-  - [ ] stress mode is supported
-- [ ] Controllers Components
-- [ ] Write robust tests for Ogone
-  - [ ] Dom-parser is solid
-  - [ ] Js-this is solid
-  - [ ] Scope-css is solid
-- [ ] Switch every files to Typescript
-  - [ ] Write types
-- [ ] Typescript supported in `<proto>`
-- [ ] Write more exceptions for each features
-- [ ] Write docs
-- [ ] Write more examples
+*required before publication
+** required before 1.0.0
+
+- [ ] HMR **
+- [ ] Imports modules *
+- [ ] Integrated Ogone-Dev-Tools
+- [ ] Integrated test environment **
+  - [ ] case 'test' is supported **
+  - [ ] stress mode is supported **
+- [ ] Controllers Components *
+- [ ] Write robust tests for Ogone **
+  - [ ] Dom-parser is solid **
+  - [ ] Js-this is solid **
+  - [ ] Scope-css is solid **
+- [ ] Switch every files to Typescript *
+  - [ ] Write types **
+- [ ] Typescript supported in `<proto>` **
+- [ ] Write more exceptions for each features **
+- [ ] Write docs *
+- [ ] Write more examples **
