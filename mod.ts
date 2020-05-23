@@ -6,7 +6,34 @@ import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import compile from "./src/ogone/compilation/index.ts";
 
-async function run(opts: any) {
+interface OgoneOptions {
+  /**
+   * @property entrypoint
+   * @description path to the root component, this one has to be an untyped component
+   */
+  entrypoint: string;
+
+  /**
+   * @property port
+   * @description which port to use for development
+   */
+  port: number;
+
+  /**
+   * @property static
+   * @description allow user to serve files to client
+   */
+  static?: string;
+}
+interface OgoneAPIType {
+  /**
+   * @function run
+   * @description run the application in development
+   */
+  run: (opts: OgoneOptions) => Promise<void>;
+}
+
+async function run(opts: OgoneOptions): Promise<void> {
   Ogone.config = opts || Ogone.config;
   const port: number = Ogone.config.port;
   // open the server
@@ -78,7 +105,7 @@ async function run(opts: any) {
     }
   }
 }
-
-export default {
+const OgoneAPI: OgoneAPIType = {
   run,
 };
+export default OgoneAPI;
