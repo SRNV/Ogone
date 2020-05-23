@@ -44,5 +44,20 @@ let's change the name after 1 second.
 this will only update the textnode containing 'Hello ${name}' and replace name by it's value.
 You certainly recognized the default expression of a switch statement.
 ### so now what is proto def ?
-I decided to not use the tag script, or module because this tag will contain your code but proto is a pseudo switch block
-and you will use the native default, case but also other ogone's tokens (def, before-each, etc...).
+Making the choice to use only the switch statement to rule the code, causes that the wordings has to be clear enough to understand what is going on.
+
+instead of using script tag, I choosed to use proto which is a custom element. the fact is, when we define the Ogone components we are not building a module js. you wont be able to use inside `<proto>` the import/export statements.
+
+at this point, it means Ogone has to read something that is undefined because it's all new to code component only in a switch statement.
+
+### output
+
+Ogone will wrap your code into a tiny function which takes 3 arguments.
+the state of the component, the context of the function and an event (Event | undefined)
+```
+(function(_state, ctx, event) {
+  switch(_state) {
+    // there is your code
+  }
+})
+```

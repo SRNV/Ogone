@@ -25,13 +25,13 @@ interface OgoneOptions {
    */
   static?: string;
 }
-interface OgoneAPIType {
+type OgoneAPIType = {
   /**
    * @function run
    * @description run the application in development
    */
   run: (opts: OgoneOptions) => Promise<void>;
-}
+};
 
 async function run(opts: OgoneOptions): Promise<void> {
   Ogone.config = opts || Ogone.config;
