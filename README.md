@@ -20,7 +20,7 @@ o3.run({
 ```
 # Usage
 After the first example, in your root-component.o3, you can make this first greeting app
-```typescript
+```javascript
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -29,7 +29,7 @@ After the first example, in your root-component.o3, you can make this first gree
 ```
 let's change the name after 1 second.
 
-```typescript
+```javascript
 <p>Hello ${name}</p>
 <proto>
   def:
@@ -93,7 +93,7 @@ deno run --allow-all --unstable example/app/index.ts
 
 ### Async component example
 
-```typescript
+```javascript
 // require statement tells to the parent component what is needed inside the component.
 require id as Number;
 // use statement tells to Ogone to use the file as store-component
@@ -118,7 +118,7 @@ use @/path/to/store.o3 as 'store-component';
 
 let's see what we can do inside the parent component
 
-```typescript
+```javascript
 use @/path/to/component.o3 as 'async-component';
 
 <async-component :id="id" --await --then:user-loaded />
@@ -140,7 +140,7 @@ use @/path/to/component.o3 as 'async-component';
 ## these examples are in this project.
 
 ### menu component example
-```typescript
+```javascript
 use @/example/app/stores/menu.store.o3 as 'store'
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/example/app/components/logo.o3 as 'logo-el'
@@ -170,7 +170,7 @@ use @/example/app/components/logo.o3 as 'logo-el'
 </proto>
 ```
 ### recursive component example
-```typescript
+```javascript
 require item as Object
 
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
