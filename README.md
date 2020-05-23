@@ -121,7 +121,9 @@ let's see what we can do inside the parent component
 ```typescript
 use @/path/to/component.o3 as 'async-component';
 
-<async-component :id="id" --await --then:user-loaded />
+<async-component :id="id" --await --then:user-loaded>
+  ...loading user ${ this.id }
+</async-component>
 <proto type="async">
   def:
     id: 0
