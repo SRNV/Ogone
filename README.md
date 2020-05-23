@@ -50,6 +50,10 @@ instead of using script tag, I choosed to use proto which is a custom element. t
 
 at this point, it means Ogone has to read something that is undefined because it's all new to code component only in a switch statement.
 
+### ok but def ?
+`def` means 'definition' (like Python), this custom statement let you define the data of your component.
+`def` is the area that only accepts YAML
+
 ### output
 
 Ogone will wrap your code into a tiny function which takes 3 arguments.
