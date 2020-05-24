@@ -310,7 +310,11 @@ function setNodesPragma(expressions) {
             key.startsWith("o-") ||
             key.startsWith("_"))
         )
-        .map(([key, value]) => key !== 'ref' ? `${nId}.setAttribute('${key}', '${value}');`: `ctx.refs['${value}'] = ${nId};`)
+        .map(([key, value]) =>
+          key !== "ref"
+            ? `${nId}.setAttribute('${key}', '${value}');`
+            : `ctx.refs['${value}'] = ${nId};`
+        )
         .join("");
       pragma = (idComponent, isRoot = true, imports = [], getId) => {
         const isImported = imports.includes(node.tagName);
@@ -355,7 +359,11 @@ function setNodesPragma(expressions) {
         (function(${params}) {
           ${nodeCreation}
           if (position) position[level] = index;
-          ${node.attributes && node.attributes.await ? `${nId}.setAttribute('await', '');`: ''}
+          ${
+          node.attributes && node.attributes.await
+            ? `${nId}.setAttribute('await', '');`
+            : ""
+        }
           ${
           isImported || nodeIsDynamic && !isImported && !isRoot
             ? `${nId}.setOgone({
@@ -364,17 +372,23 @@ function setNodesPragma(expressions) {
               ${isImported ? `levelInParentComponent: level,` : ""}
               ${isImported ? `parentComponent: ctx,` : ""}
               ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
-
+              ${
+              isImported
+                ? `dependencies: ${
+                  JSON.stringify(
+                    Object.values(node.attributes).filter((v) =>
+                      typeof v !== "boolean"
+                    ),
+                  )
+                },`
+                : ""
+            }
               ${
               nodeIsDynamic && !isImported || node.tagName === null
                 ? "component: ctx,"
                 : ""
             }
-              ${
-              isImported
-                ? `props: (${props ? JSON.stringify(props) : null}),`
-                : ""
-            }
+              ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
               ${node.tagName === null ? `renderChildNodes: true,` : ""}
               directives: ${directives},
             });`
@@ -395,11 +409,13 @@ function setNodesPragma(expressions) {
         const registerText = isEvaluated
           ? `
           const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
-          const txt = '\`${node.rawText.replace(/\n/gi, " ")
-          // preserve regular expressions
-            .replace(/\\/gi, '\\\\')
-          // preserve quotes
-            .replace(/\'/gi, '\\\'').trim()}\`';
+          const txt = '\`${
+            node.rawText.replace(/\n/gi, " ")
+              // preserve regular expressions
+              .replace(/\\/gi, "\\\\")
+              // preserve quotes
+              .replace(/\'/gi, "\\'").trim()
+          }\`';
           function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;
             const v = g({

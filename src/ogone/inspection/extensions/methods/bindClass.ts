@@ -1,6 +1,14 @@
-export default function bindClassMethod(component: any, node: any, opts: any): string {
+export default function bindClassMethod(
+  component: any,
+  node: any,
+  opts: any,
+): string {
   const { isStore, isRouter } = opts;
-  if (isRouter || isStore || (!node.directives || !node.directives.class)) return `bindClass() {}`;
+  if (
+    isRouter || isStore || (!node.directives || !node.directives.class)
+  ) {
+    return `bindClass() {}`;
+  }
   return `
     bindClass() {
       const o = this.ogone;
@@ -8,13 +16,15 @@ export default function bindClassMethod(component: any, node: any, opts: any): s
       function r(n) {
         const vl = o.getContext({
           position: o.position,
-          getText: '(${node.directives.class
-            // preserve regular expressions
-            .replace(/\\/gi, '\\\\')
-            // erase new line
-            .replace(/\n/gi, ' ')
-            // preserve quotes
-            .replace(/\'/gi, '\\\'').trim()})',
+          getText: '(${
+    node.directives.class
+      // preserve regular expressions
+      .replace(/\\/gi, "\\\\")
+      // erase new line
+      .replace(/\n/gi, " ")
+      // preserve quotes
+      .replace(/\'/gi, "\\'").trim()
+  })',
         });
         if (typeof vl === 'string') {
           n.classList.value = vl;

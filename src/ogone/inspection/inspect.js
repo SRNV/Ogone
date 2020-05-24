@@ -14,7 +14,9 @@ function startRecursiveInspectionOfComponent(textFile, p) {
           const file = Deno.readTextFileSync(path);
           startRecursiveInspectionOfComponent(file, path);
         } else {
-          const ComponentNotFoundException = new Error(`[Ogone] component not found. input: ${path}`);
+          const ComponentNotFoundException = new Error(
+            `[Ogone] component not found. input: ${path}`,
+          );
           throw ComponentNotFoundException;
         }
       });

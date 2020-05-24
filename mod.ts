@@ -59,8 +59,12 @@ async function run(opts: OgoneOptions): Promise<void> {
   ) => component.exportsExpressions).join("\n");
   const style = `<style>${styles.join("\n")}</style>`;
   const rootComponent = Ogone.components.get(Ogone.config.entrypoint);
-  if (rootComponent &&  ['router', 'store', 'async'].includes(rootComponent.type) ) {
-    const RootNodeTypeErrorException = new TypeError(`[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`);
+  if (
+    rootComponent && ["router", "store", "async"].includes(rootComponent.type)
+  ) {
+    const RootNodeTypeErrorException = new TypeError(
+      `[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+    );
     throw RootNodeTypeErrorException;
   }
   const script = `

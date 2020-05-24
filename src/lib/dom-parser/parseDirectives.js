@@ -1,4 +1,7 @@
-const SyntaxEventError = (event) => new SyntaxError(`[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`);
+const SyntaxEventError = (event) =>
+  new SyntaxError(
+    `[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`,
+  );
 const events = [
   "--click",
   "--mouseenter",
@@ -42,28 +45,28 @@ export default function parseDirectives(node, opts) {
     const keys = Object.keys(attributes);
     for (let key of keys) {
       for (let event of events) {
-        switch(true) {
+        switch (true) {
           case key.startsWith(event) &&
-          !key.match(/(\-){2}(\w+\:)([^\s]*)+/):
-          throw SyntaxEventError(event);
-        case key.startsWith(event):
-          const [input, t, ev, caseName] = key.match(
-            /(\-){2}(\w+\:)([^\s]*)+/,
-          );
-          const infos = {
-            type: event.slice(2),
-            case: `${ev}${caseName}`,
-            filter: null,
-            target: null,
-          };
-          if (event.startsWith('--key')) {
-            infos.target = 'document';
-          }
-          if (node.attributes[key] !== true) {
-            infos.filter = node.attributes[key];
-          }
-          result.events.push(infos);
-          break;
+            !key.match(/(\-){2}(\w+\:)([^\s]*)+/):
+            throw SyntaxEventError(event);
+          case key.startsWith(event):
+            const [input, t, ev, caseName] = key.match(
+              /(\-){2}(\w+\:)([^\s]*)+/,
+            );
+            const infos = {
+              type: event.slice(2),
+              case: `${ev}${caseName}`,
+              filter: null,
+              target: null,
+            };
+            if (event.startsWith("--key")) {
+              infos.target = "document";
+            }
+            if (node.attributes[key] !== true) {
+              infos.filter = node.attributes[key];
+            }
+            result.events.push(infos);
+            break;
         }
       }
     }

@@ -12,23 +12,39 @@ export default function oRenderNodesBehavior(
     const elementExtension = getWebComponent(component, node);
     Ogone.classes.push(elementExtension);
   }
-  if (node.attributes && node.attributes['--await'] && component.type !== 'async') {
-    const BadUseOfAwaitInSyncComponentException = `[Ogone] --await must be used in an async component. define type="async" to the proto.\n Error in component: ${component.file}\n node: ${node.tagName}`;
+  if (
+    node.attributes && node.attributes["--await"] && component.type !== "async"
+  ) {
+    const BadUseOfAwaitInSyncComponentException =
+      `[Ogone] --await must be used in an async component. define type="async" to the proto.\n Error in component: ${component.file}\n node: ${node.tagName}`;
     throw BadUseOfAwaitInSyncComponentException;
   }
-  if (node.attributes && node.attributes['--await'] && isImported && subcomp.type !== "async") {
-    const BadUseOfAwaitInSyncComponentException = `[Ogone] --await must be called only on async components. change type of <${node.tagName} --await /> or erase --await.\n Error in component: ${component.file}\n node: ${node.tagName}`;
+  if (
+    node.attributes && node.attributes["--await"] && isImported &&
+    subcomp.type !== "async"
+  ) {
+    const BadUseOfAwaitInSyncComponentException =
+      `[Ogone] --await must be called only on async components. change type of <${node.tagName} --await /> or erase --await.\n Error in component: ${component.file}\n node: ${node.tagName}`;
     throw BadUseOfAwaitInSyncComponentException;
   }
-  if (node.attributes && node.attributes['--defer'] && !isImported) {
-    const BadUseDeferFeatureException = `[Ogone] --defer must be called only on async components. discard <${node.tagName} --defer="${node.attributes['--defer']}" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
+  if (node.attributes && node.attributes["--defer"] && !isImported) {
+    const BadUseDeferFeatureException =
+      `[Ogone] --defer must be called only on async components. discard <${node.tagName} --defer="${
+        node.attributes["--defer"]
+      }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
     throw BadUseDeferFeatureException;
   }
-  if (node.attributes && node.attributes['--defer'] && isImported && subcomp.type !== "async") {
-    const BadUseDeferFeatureException = `[Ogone] --defer must be called only on async components. change type of <${node.tagName} --defer="${node.attributes['--defer']}" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
+  if (
+    node.attributes && node.attributes["--defer"] && isImported &&
+    subcomp.type !== "async"
+  ) {
+    const BadUseDeferFeatureException =
+      `[Ogone] --defer must be called only on async components. change type of <${node.tagName} --defer="${
+        node.attributes["--defer"]
+      }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
     throw BadUseDeferFeatureException;
   }
-  if (node.childNodes) {
+  if (node.childNodes && node.childNodes.length) {
     node.childNodes.forEach((child) => {
       if (node.nodeType === 1) {
         oRenderNodesBehavior(keyComponent, child);

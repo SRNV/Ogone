@@ -1,3 +1,4 @@
+import Ogone from "../../index.ts";
 import allConstructors from "./templating/extensions.js";
 import setEventsMethod from "./methods/setEvents.ts";
 import bindStyleMethod from "./methods/bindStyle.ts";
@@ -17,10 +18,19 @@ export default function getWebComponent(component, node) {
   const isRouter = isTemplate && component.type === "router";
   const isStore = isTemplate && component.type === "store";
   const isAsync = isTemplate && component.type === "async";
-  const isAsyncNode = !isTemplate && !isImported && node.directives && node.directives.await;
+  const isAsyncNode = !isTemplate && !isImported && node.directives &&
+    node.directives.await;
   const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
-  const opts = { isTemplate, isAsync, isRouter, isStore, isAsyncNode, isImported, isExtension };
+  const opts = {
+    isTemplate,
+    isAsync,
+    isRouter,
+    isStore,
+    isAsyncNode,
+    isImported,
+    isExtension,
+  };
   // no definition for imported component
   if (isImported) {
     return "";
@@ -66,7 +76,8 @@ export default function getWebComponent(component, node) {
     // global methods for components
     // mainly getters and setters
     ${utilsMethods(component, node, opts)}
-    connectedCallback() {
+
+    connectedCallback(rendered) {
       // set position of the template/component
       this.setPosition();
 
@@ -78,7 +89,9 @@ export default function getWebComponent(component, node) {
       ${isRouter ? "this.setActualRouterTemplate()" : ""}
 
       // set the props required by the node
-      ${isTemplate ? "this.setProps();" : ""}
+      ${
+    isTemplate ? "this.setProps(); this.ogone.component.updateProps();" : ""
+  }
 
       // use the jsx renderer only for templates
       this.setNodes();
@@ -107,15 +120,12 @@ export default function getWebComponent(component, node) {
         case ${isAsync}: this.renderAsync(); break;
         default: this.render(); break;
       }
-
     }
-
     setPosition() {
       this.ogone.position[this.ogone.level] = this.ogone.index;
     }
-
     setProps() {
-      const o = this.ogone
+      const o = this.ogone;
       if (!o.index) {
         o.index = 0;
       }
@@ -123,12 +133,14 @@ export default function getWebComponent(component, node) {
       o.component.positionInParentComponent = o.positionInParentComponent;
       o.positionInParentComponent[
         o.levelInParentComponent] = o.index;
+      o.component.updateProps();
     }
     setContext() {
       const o = this.ogone;
       const oc = o.component;
-      oc.key = o.key;
       if (${isTemplate}) {
+        oc.key = o.key;
+        oc.dependencies = o.dependencies;
         if (o.parentComponent) {
           oc.parent = o.parentComponent;
           oc.parent.childs.push(oc);
@@ -166,8 +178,8 @@ export default function getWebComponent(component, node) {
       const o = this.ogone;
       if (o.originalNode && o.getContext) {
             o.component${
-      isTemplate ? ".parent" : ""
-    }.react.push(() => this.renderContext());
+    isTemplate ? ".parent" : ""
+  }.react.push(() => this.renderContext());
             this.renderContext();
       }
     }
@@ -191,7 +203,6 @@ export default function getWebComponent(component, node) {
       const o = this.ogone;
       const oc = o.component;
       if (${isTemplate}) {
-
         // update Props before replace the element
         oc.updateProps();
 
@@ -204,18 +215,15 @@ export default function getWebComponent(component, node) {
         } else {
           this.replaceWith(...o.nodes);
         }
-
         // template/node is already connected
         // ask the component to evaluate the value of the textnodes
         oc.renderTexts(true);
 
         // trigger the init case of the component
         // we can pass the parameters of the router into the ctx
-
         if (${!isAsync}) {
           oc.startLifecycle(o.params, o.historyState);
         }
-
       } else {
         if (this.childNodes.length) {
           this.renderSlots();

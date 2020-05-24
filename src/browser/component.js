@@ -1,4 +1,6 @@
 function OComponent() {
+  this.dependencies = null;
+  this.state = 0;
   this.activated = true;
   this.namespace = null;
   this.store = {};
@@ -15,14 +17,13 @@ function OComponent() {
   };
   this.dispatchAwait = null;
   this.promiseResolved = false;
-  /* events describers */
+  // events describers
   this.events = {};
-  /*
-    all nodes that's are dynamics will save a function into this property
-    like if we have
-      <node --for="array as (el, i)" />
-    this node will register a function() { ... } that will be triggered each time there is an update
-  */
+  // all nodes that's are dynamics will save a function into this property
+  // like if we have
+  //  <node --for="array as (el, i)" />
+  // this node will register a function() { ... } that will be triggered each time there is an update
+  this.rerenderAsync = null;
   this.react = [];
   this.directRenders = {};
   this.texts = [];
@@ -39,8 +40,9 @@ function OComponent() {
       this.initStore();
     }
     // WIP
-    this.runtime("init", params, event);
     Object.seal(this.data);
+    this.runtime("init", params, event);
+    this.state = 1; // component is rendered
   };
   this.update = (dependency) => {
     if (!this.activated) return;
@@ -50,7 +52,7 @@ function OComponent() {
     }
     this.reactTo(dependency);
     this.renderTexts(dependency);
-    this.childs.forEach((c) => {
+    this.childs.filter((c) => c.type !== "store").forEach((c) => {
       c.updateProps(dependency);
     });
   };
@@ -71,9 +73,11 @@ function OComponent() {
   this.initStore = () => {
     if (!Ogone.stores[this.namespace]) {
       Ogone.stores[this.namespace] = {
-        ...this.data
+        ...this.data,
       };
     }
+    // save the component's reaction into Ogone.clients with the key of the component
+    // and a function
     Ogone.clients.push([this.key, (namespace, key, overwrite) => {
       if (namespace === this.namespace && key in this.parent.data) {
         if (!overwrite) {
@@ -92,13 +96,15 @@ function OComponent() {
     const [key, client] = Ogone.clients.find(([key]) => key === this.key);
     if (client) {
       // use the namespace, the dependency or property that should change
-      client(this.namespace, dependency, true );
+      client(this.namespace, dependency, true);
       // update other modules
-      Ogone.clients.filter(([key]) => key !== this.key).forEach(([key, f], i, arr) => {
-        if (f && !f(this.namespace, dependency, false )) {
-          delete arr[i];
-        }
-      });
+      Ogone.clients.filter(([key]) => key !== this.key).forEach(
+        ([key, f], i, arr) => {
+          if (f && !f(this.namespace, dependency, false)) {
+            delete arr[i];
+          }
+        },
+      );
     }
   };
   this.updateProps = (dependency) => {
@@ -158,10 +164,23 @@ function OComponent() {
       if (value !== this.data[key]) {
         this.data[key] = value;
         this.update(key);
+        if (this.type === "async") {
+          if (!this.dependencies) return;
+          if (
+            dependency &&
+            this.dependencies.find((d) => d.indexOf(dependency) > -1)
+          ) {
+            // let the user rerender
+            this.runtime("async:update", {
+              updatedParentProp: dependency,
+            });
+          }
+        }
       }
     });
   };
   this.render = (Onode, /** original node */ opts) => {
+    if (!Onode || !opts) return;
     // Onode is a web component
     // based on the user token
     // this web component is a custom Element

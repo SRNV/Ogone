@@ -10,6 +10,7 @@ export default function (component) {
           const promise = this.resolve(...args);
           if (this.dispatchAwait) {
             this.dispatchAwait();
+            this.dispatchAwait = false;
             this.promiseResolved = true;
           }
           this.resolve = null;
@@ -17,7 +18,7 @@ export default function (component) {
         } else if (this.resolve === null) {
           const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
           Ogone.error(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
-            message: \`component: ${component.file}\`
+           message: \`component: ${component.file}\`
           });
           throw DoubleUseOfResolveException;
         }
@@ -29,7 +30,9 @@ export default function (component) {
     let result = `
     Ogone.components['${component.uuid}'] = function () {
       OComponent.call(this);
-      ${component.hasStore ? `
+      ${
+      component.hasStore
+        ? `
       const Store = {
         dispatch: (id, ctx) => {
           const path = id.split('/');
@@ -37,13 +40,13 @@ export default function (component) {
             const [namespace, action] = path;
             const mod = this.store[namespace];
             if (mod && mod.runtime) {
-              return mod.runtime(action, ctx)
+              return mod.runtime(\`action:$\{action}\`, ctx)
                 .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: ${component.file}\`, err));
             }
           } else {
             const mod = this.store[null];
             if (mod && mod.runtime) {
-              return mod.runtime(id,ctx)
+              return mod.runtime(\`action:$\{id}\`, ctx)
                 .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: ${component.file}\`, err));
             }
           }
@@ -54,16 +57,16 @@ export default function (component) {
             const [namespace, mutation] = path;
             const mod = this.store[namespace];
             if (mod && mod.runtime) {
-              return mod.runtime(mutation, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${mutation} component: ${component.file}\`, err));
+              return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${mutation} component: ${component.file}\`, err));
             }
           } else {
             const mod = this.store[null];
             if (mod && mod.runtime) {
-              return mod.runtime(id,ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${id} component: ${component.file}\`, err));
+              return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${id} component: ${component.file}\`, err));
             }
           }
         },
-        get: (id, ctx) => {
+        get: (id) => {
           const path = id.split('/');
           if (path.length > 1) {
             const [namespace, get] = path;
@@ -78,7 +81,9 @@ export default function (component) {
             }
           }
         },
-      };` : ""}
+      };`
+        : ""
+    }
       const ____ = (prop, inst) => {
         this.update(prop);
       };
@@ -96,7 +101,7 @@ export default function (component) {
     }
       }
       const Refs = this.refs;
-      ${component.type === 'async' ? asyncResolve : ""}
+      ${component.type === "async" ? asyncResolve : ""}
       const run = ${runtime}
       this.runtime = (run || function(){}).bind(this.data);
     };

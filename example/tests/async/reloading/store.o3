@@ -1,0 +1,21 @@
+<proto type="store" namespace="user">
+  def:
+    loaded: false
+    user: 0
+    users:
+        - name: Ogone
+        - name: SRNV
+        - name: Proto
+        - name: Store
+        - name: 2020
+  case 'action:getUser':
+    // code for getting user
+    const b = await fetch(`https://jsonplaceholder.typicode.com/users/${ctx}`);
+    const a = await b.blob();
+    const user = await a.text();
+    return JSON.parse(user);
+  break;
+  case 'mutation:USER-IS-LOADED':
+    this.loaded = ctx;
+  break;
+</proto>

@@ -2,7 +2,7 @@
 <proto type="store" namespace="menu">
   def:
     isOpen: false
-  case 'toggle':
+  case 'action:toggle':
     this.isOpen = !this.isOpen;
   break;
 </proto>

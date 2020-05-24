@@ -1,5 +1,19 @@
-export default function utilsMethods(component: any, node: any, opts: any): string {
+export default function utilsMethods(
+  component: any,
+  node: any,
+  opts: any,
+): string {
   const { isTemplate } = opts;
+  const cloneProps: string = isTemplate
+    ? `
+    props: this.ogone.props,
+    params: this.ogone.params,
+    parentComponent: this.ogone.parentComponent,
+    parentCTXId: this.ogone.parentCTXId,
+    positionInParentComponent: this.ogone.positionInParentComponent
+      .slice(),
+    levelInParentComponent: this.ogone.levelInParentComponent,`
+    : "component: this.ogone.component,";
   return `
     get context() {
       const o = this.ogone;
@@ -30,5 +44,19 @@ export default function utilsMethods(component: any, node: any, opts: any): stri
     }
     get isComponent() {
       return ${isTemplate};
-    }`;
+    }
+    get clone() {
+      const node = document.createElement(this.name, { is: this.extends });
+      node.setOgone({
+        index: this.ogone.index,
+        originalNode: true,
+        level: this.ogone.level,
+        position: this.ogone.position,
+        directives: this.ogone.directives,
+        dependencies: this.ogone.dependencies,
+        ${cloneProps}
+      })
+      return node;
+    }
+    `;
 }

@@ -131,7 +131,7 @@ function jsThis(str, opts) {
           typedExpressions,
           expressions,
           typedExpressions.parentheses[key],
-          "linkCases"
+          "linkCases",
         );
       }
     }
@@ -183,7 +183,7 @@ function jsThis(str, opts) {
           typedExpressions,
           expressions,
           typedExpressions.blocks[key],
-          "linkCases"
+          "linkCases",
         );
       }
     }

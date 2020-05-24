@@ -1,20 +1,24 @@
 import Ogone from "../../../index.ts";
 
-export default function setOgoneMethod(component: any, node: any, opts: any): string {
+export default function setOgoneMethod(
+  component: any,
+  node: any,
+  opts: any,
+): string {
   const { isTemplate, isRouter, isAsyncNode } = opts;
-    const componentPragma = node.pragma(
-      component.uuid,
-      true,
-      Object.keys(component.imports),
-      (tagName: string) => {
-        if (component.imports[tagName]) {
-          const newcomponent = Ogone.components.get(component.imports[tagName]);
-          if (!newcomponent) return null;
-          return newcomponent.uuid;
-        }
-        return null;
-      },
-    );
+  const componentPragma = node.pragma(
+    component.uuid,
+    true,
+    Object.keys(component.imports),
+    (tagName: string) => {
+      if (component.imports[tagName]) {
+        const newcomponent = Ogone.components.get(component.imports[tagName]);
+        if (!newcomponent) return null;
+        return newcomponent.uuid;
+      }
+      return null;
+    },
+  );
   return `
   setOgone(def = {}) {
     this.ogone = {
@@ -64,6 +68,8 @@ export default function setOgoneMethod(component: any, node: any, opts: any): st
       // promise for await directive
       promise: null,
 
+      dependencies: [],
+
       // set unique key
       key: '${node.id}'+\`\${Math.random()}\`,
 
@@ -85,15 +91,15 @@ export default function setOgoneMethod(component: any, node: any, opts: any): st
 
       // set state to pass it through the history.state
       ${
-  isRouter
-    ? `
+    isRouter
+      ? `
             historyState: { ...(() => {
               const url = new URL(location.href);
               const query = new Map(url.searchParams.entries());
               return { query }
             })(),  },`
-    : ""
-}
+      : ""
+  }
 
       // overwrite properties
       ...def,
@@ -101,12 +107,12 @@ export default function setOgoneMethod(component: any, node: any, opts: any): st
     // use the jsx function and save it into this.ogone.render
     // this function generates all the childNodes or the template
     this.ogone.render = ${
-  componentPragma
-    .replace(/\n/gi, "")
-    .replace(/\s+/gi, " ")
-}
+    componentPragma
+      .replace(/\n/gi, "")
+      .replace(/\s+/gi, " ")
+  }
     // set Async context for Async nodes
-    ${isAsyncNode ? 'this.setNodeAsyncContext();':''}
+    ${isAsyncNode ? "this.setNodeAsyncContext();" : ""}
   }
   `;
 }

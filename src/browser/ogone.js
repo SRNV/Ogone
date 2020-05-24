@@ -129,9 +129,9 @@ const Ogone = {
     this.errorPanel.style.gridGap = "10px";
     this.errorPanel.style.gridAutoRows = "max-content";
     this.errorPanel.style.gridTemplateAreas = newgrid;
-    err.style.animationName = 'popup';
-    err.style.animationIterationCoutn = '1';
-    err.style.animationDuration = '1.2s';
+    err.style.animationName = "popup";
+    err.style.animationIterationCoutn = "1";
+    err.style.animationDuration = "0.5s";
     // append elements
     err.append(h, code, stack);
     this.errorPanel.append(err);

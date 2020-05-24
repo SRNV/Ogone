@@ -46,12 +46,15 @@ export default function oRenderScripts() {
       };
       const { value } = ogoneScript;
       let script = `(${
-        proto.attributes && ["async", "store"].includes(proto.attributes.type) ? "async" : ""
+        proto.attributes && ["async", "store"].includes(proto.attributes.type)
+          ? "async"
+          : ""
       } function (_state, ctx, event, _once = 0) {
           try {
             switch(_state) { ${value} }
           } catch(err) {
             Ogone.error('Error in the component: \\n\\t ${component.file}' ,err.message, err);
+            throw err;
           }
         });`;
       component.scripts.runtime = script;
@@ -94,6 +97,5 @@ export default function oRenderScripts() {
         }
       }
     }
-
   });
 }

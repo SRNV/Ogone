@@ -99,6 +99,7 @@ export default function oRenderContext(keyComponent) {
             return eval(GET_TEXT);
           } catch(err) {
             Ogone.error('Error in component:\\n\\t ${component.file}', err.message ,err);
+            throw err;
           }
         }
         return {${[...Object.keys(ctx), ...Object.keys(component.data)]}};

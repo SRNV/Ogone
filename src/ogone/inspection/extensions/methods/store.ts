@@ -1,7 +1,11 @@
-export default function storeMethods(component: any, node: any, opts: any): string {
-    const { isStore } = opts;
-    if (!isStore) return 'renderStore(){}'
-    return `
+export default function storeMethods(
+  component: any,
+  node: any,
+  opts: any,
+): string {
+  const { isStore } = opts;
+  if (!isStore) return "renderStore(){}";
+  return `
     renderStore() {
         const o = this.ogone;
         const oc = o.component;
@@ -19,4 +23,4 @@ export default function storeMethods(component: any, node: any, opts: any): stri
         oc.startLifecycle();
         this.remove();
       }`;
-  }
+}

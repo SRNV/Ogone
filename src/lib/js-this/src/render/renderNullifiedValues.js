@@ -1,24 +1,6 @@
 import gen from "../generator.js";
 
 const nullish = [
-  {
-    split: ["/*", "*/"],
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§comment${gen.next().value}§§`;
-      expressions[id] = value;
-      return id;
-    },
-  },
-  {
-    open: "//",
-    reg: /\/\/([^\n])+\n/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§commentLine${gen.next().value}§§`;
-      expressions[id] = value;
-      return id;
-    },
-    close: "/",
-  },
   // strings
   {
     open: '"',
@@ -81,6 +63,24 @@ const nullish = [
     close: "\`",
   },
   // end annulations
+  {
+    split: ["/*", "*/"],
+    id: (value, matches, typedExpressions, expressions) => {
+      const id = `§§comment${gen.next().value}§§`;
+      expressions[id] = value;
+      return id;
+    },
+  },
+  {
+    open: "//",
+    reg: /\/\/([^\n])+\n/,
+    id: (value, matches, typedExpressions, expressions) => {
+      const id = `§§commentLine${gen.next().value}§§`;
+      expressions[id] = value;
+      return id;
+    },
+    close: "/",
+  },
 ];
 export default function (typedExpressions, expressions, str, name) {
   let result = str;

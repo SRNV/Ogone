@@ -42,6 +42,23 @@ export default function oRenderDOM(
     let query = "";
     let contextLegacy = {};
     node.dependencies = [];
+    if (node.attributes) {
+      const attrs = Object.keys(node.attributes);
+      const keyData = Object.keys(component.data);
+      attrs.forEach((key) => {
+        if (!key.startsWith("--")) return;
+        node.hasDirective = true;
+        keyData.forEach((key2) => {
+          if (
+            node.attributes[key].indexOf &&
+            node.attributes[key].indexOf(key2) > -1 &&
+            !node.dependencies.includes(key2)
+          ) {
+            node.dependencies.push(key2);
+          }
+        });
+      });
+    }
     // LEGACY - node now have all attributes starting with -- or @ or :
     if (node.rawAttrs && node.rawAttrs.length) {
       const parsedAttrs = parseAttrs(node.rawAttrs);
@@ -89,14 +106,6 @@ export default function oRenderDOM(
     ) {
       contextLegacy.tree.push(`'[${nUuid}-0]'`);
     }
-
-    const dom = {
-      id,
-      rawText: node.rawText?.trim(),
-      tagName: node.tagName,
-      querySelector: query,
-      type: node.nodeType,
-    };
     const domDirective = {
       querySelector: query,
       directives: [],

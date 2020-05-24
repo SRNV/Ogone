@@ -1,6 +1,14 @@
-export default function bindStyleMethod(component: any, node: any, opts: any): string {
+export default function bindStyleMethod(
+  component: any,
+  node: any,
+  opts: any,
+): string {
   const { isStore, isRouter } = opts;
-  if (isRouter || isStore || (!node.directives || !node.directives.style)) return `bindStyle() {}`;
+  if (
+    isRouter || isStore || (!node.directives || !node.directives.style)
+  ) {
+    return `bindStyle() {}`;
+  }
   return `
     bindStyle(value) {
       const o = this.ogone;
@@ -8,13 +16,15 @@ export default function bindStyleMethod(component: any, node: any, opts: any): s
       function r(n) {
         const vl = o.getContext({
           position: o.position,
-          getText: '(${node.directives.style
-            // preserve regular expressions
-            .replace(/\\/gi, '\\\\')
-            // erase new line
-            .replace(/\n/gi, ' ')
-            // preserve quotes
-            .replace(/\'/gi, '\\\'').trim()})',
+          getText: '(${
+    node.directives.style
+      // preserve regular expressions
+      .replace(/\\/gi, "\\\\")
+      // erase new line
+      .replace(/\n/gi, " ")
+      // preserve quotes
+      .replace(/\'/gi, "\\'").trim()
+  })',
         });
         if (typeof vl === 'string') {
           n.style = vl;

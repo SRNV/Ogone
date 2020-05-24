@@ -1,9 +1,13 @@
-export default function slotsMethods(component: any, node: any, opts: any): string {
+export default function slotsMethods(
+  component: any,
+  node: any,
+  opts: any,
+): string {
   return `
     renderSlots() {
       const o = this.ogone;
       const slots = this.querySelectorAll('[slot]');
-      for (let node of o.nodes) {
+      for (let node of o.nodes.filter(n => n.nodeType === 1)) {
         // d for default slots
         const d = node.querySelector('slot:not([name])');
         if (d) {

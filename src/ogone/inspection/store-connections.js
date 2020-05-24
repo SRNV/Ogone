@@ -9,11 +9,10 @@ export default function getStoreConnections() {
     const cr = component.rootNodePure.childNodes;
     const stores = cr.filter((child) => {
       const { tagName } = child;
+      if (!tagName) return;
       const isImported = component.imports[tagName];
-      if (isImported) {
-        const subComponent = Ogone.components.get(isImported);
-        return subComponent.type === "store";
-      }
+      const subComponent = Ogone.components.get(isImported);
+      return subComponent && subComponent.type === "store";
     });
     component.hasStore = stores.length > 0;
     stores.forEach((store) => {

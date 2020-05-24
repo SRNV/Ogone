@@ -1,10 +1,12 @@
 export default function routerMethods(component: any, node: any, opts: any) {
   const { isRouter } = opts;
-  if (!isRouter) return `
+  if (!isRouter) {
+    return `
     triggerLoad() {}
     routerSearch() {}
     setActualRouterTemplate() {}
     renderRouter() {}`;
+  }
   return `
     triggerLoad() {
       const o = this.ogone;
