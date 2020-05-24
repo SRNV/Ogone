@@ -209,6 +209,9 @@ use @/example/app/components/scroll.o3 as 'scroll'
 </proto>
 ```
 
+# Format
+Ogone is formatted by `deno fmt`
+
 # Support
 To support, join the [discord](https://discord.com/channels/710950501398610061/710950501398610064) server or do not hesitate to write issues.
 
