@@ -101,7 +101,7 @@ require id as Number;
 use @/example/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
-<div> Welcome ${user ? user.username : ''}</div>
+<div> Welcome ${user.name}</div>
 <img src="public/ogone.svg"  --await />
 <proto type="async">
   def:
@@ -135,8 +135,6 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 <proto type="async">
   def:
     id: 1
-    interval: null
-    promise: null
   case 'then:user-loaded':
     Store.commit('user/USER-IS-LOADED', ctx)
       .then(() => {
