@@ -98,13 +98,20 @@ deno run --allow-all --unstable example/app/index.ts
 // require statement tells to the parent component what is needed inside the component.
 require id as Number;
 // use statement tells to Ogone to use the file as store-component
-use @/path/to/store.o3 as 'store-component';
+use @/example/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
-<div --if="user"> Welcome ${user.name} </div>
+<div> Welcome ${user ? user.username : ''}</div>
+<img src="public/ogone.svg"  --await />
 <proto type="async">
   def:
     user: null
+  case 'async:update':
+    Store.dispatch('user/getUser', this.id)
+      .then((user) => {
+        this.user = user;
+      });
+  break;
   default:
     Store.dispatch('user/getUser', this.id)
       .then((user) => {
@@ -120,23 +127,22 @@ use @/path/to/store.o3 as 'store-component';
 let's see what we can do inside the parent component
 
 ```typescript
-use @/path/to/component.o3 as 'async-component';
+use @/example/tests/async/reloading/async.o3 as 'async-component';
+use @/example/tests/async/reloading/store.o3 as 'store-component';
 
-<async-component :id="id" --await --then:user-loaded>
-  ...loading user ${ this.id }
-</async-component>
+<store-component namespace="user" />
+<async-component :id="id" --await --then:user-loaded />
 <proto type="async">
   def:
-    id: 0
+    id: 1
+    interval: null
+    promise: null
   case 'then:user-loaded':
     Store.commit('user/USER-IS-LOADED', ctx)
       .then(() => {
         Async.resolve();
       });
     break;
-  default:
-    // if we want to test the reactivity
-    this.id = 2;
 </proto>
 ```
 
