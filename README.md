@@ -2,7 +2,8 @@
 # Ogone
 [![stars](https://img.shields.io/github/stars/SRNV/Ogone)](https://github.com/SRNV/Ogone/stargazers)
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
-[![release](https://img.shields.io/github/releases/SRNV/Ogone)](https://github.com/SRNV/Ogone/releases)
+[![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
+
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
 # Description
 use Ogone to compile web-components for your applications. it's based on Deno.
