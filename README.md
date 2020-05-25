@@ -148,8 +148,6 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 ```
 [for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
 
-## these examples are in this project.
-
 ### menu component example
 ```typescript
 use @/example/app/stores/menu.store.o3 as 'store'
