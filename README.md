@@ -95,6 +95,7 @@ deno run --allow-all --unstable example/app/index.ts
 # Some examples
 
 ### Async component example
+[for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
 
 ```typescript
 // require statement tells to the parent component what is needed inside the component.
@@ -145,6 +146,7 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
     break;
 </proto>
 ```
+[for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
 
 ## these examples are in this project.
 
