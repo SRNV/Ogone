@@ -37,6 +37,7 @@ or any event:
 
 we can also wait for a component to resolve all it's internal promises:
 ```typescript
+// async-parent-component.o3
 // Ogone use this component as 'async-component'
 use @/path/to/async-component.o3 as 'async-component';
 
