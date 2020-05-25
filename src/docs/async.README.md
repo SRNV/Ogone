@@ -49,7 +49,7 @@ use @/path/to/async-component.o3 as 'async-component';
 <async-component --await />
 <proto type="async"/>
 ```
-![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/src/docs/assets/async.2.jpg)
+![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/src/docs/assets/async.3.jpg)
 ________
 
 ### --then:...
