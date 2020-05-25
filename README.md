@@ -3,13 +3,17 @@
 [![stars](https://img.shields.io/github/stars/SRNV/Ogone)](https://github.com/SRNV/Ogone/stargazers)
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
-
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
+
+_____
+
 # Description
 use Ogone to compile web-components for your applications. it's based on Deno.
 Actually Ogone is under an experimental phase. avoid using it for production.
 Ogone has it own extension `*.o3` which allow some new features.
 No Proxies, no getters, no setters used for the reactivity, just code...
+
+_____
 
 # Installation
 ```typescript
@@ -20,6 +24,9 @@ o3.run({
   port: 8080,
 });
 ```
+
+_____
+
 # Usage
 After the first example, in your root-component.o3, you can make this first greeting app
 ```typescript
@@ -85,12 +92,17 @@ Following this structure of declarations is strongly recommanded:
 - default
 
 *only supported by Ogone
+
+_____
+
 # Learn Ogone
 
 to see more stuffs from Ogone, clone this repository
 ```
 deno run --allow-all --unstable example/app/index.ts
 ```
+
+_____
 
 # Some examples
 
@@ -214,6 +226,8 @@ use @/example/app/components/scroll.o3 as 'scroll'
   break;
 </proto>
 ```
+
+_____
 
 # Format
 Ogone is formatted by `deno fmt`
