@@ -107,7 +107,7 @@ _____
 # Some examples
 
 ### Async component example
-[for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
+[read this documentation on Async Components](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
 
 ```typescript
 // require statement tells to the parent component what is needed inside the component.
