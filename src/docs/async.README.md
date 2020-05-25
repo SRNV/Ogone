@@ -11,7 +11,7 @@ Ogone supports Async Components (AC). AC are those components that are waiting f
     - --finally:...
     - --defer
 
-by setting type="async" to the proto of the component, you're making this component an AC:
+by setting type="async" to the proto of the component, you're making it an AC:
 ```typescript
 // async-component.o3
 <proto type="async"/>
