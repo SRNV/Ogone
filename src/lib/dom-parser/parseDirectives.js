@@ -1,4 +1,4 @@
-const SyntaxEventError = (event) =>
+const SyntaxEventException = (event) =>
   new SyntaxError(
     `[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`,
   );
@@ -48,7 +48,7 @@ export default function parseDirectives(node, opts) {
         switch (true) {
           case key.startsWith(event) &&
             !key.match(/(\-){2}(\w+\:)([^\s]*)+/):
-            throw SyntaxEventError(event);
+            throw SyntaxEventException(event);
           case key.startsWith(event):
             const [input, t, ev, caseName] = key.match(
               /(\-){2}(\w+\:)([^\s]*)+/,
