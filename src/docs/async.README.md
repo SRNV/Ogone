@@ -69,6 +69,7 @@ use @/path/to/async-component.o3 as 'async-component';
   break;
 </proto>
 ```
+![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/src/docs/assets/async.4.jpg)
 ________
 
 ### --catch:...
