@@ -1,8 +1,8 @@
 # Async Components
 
-Ogone supports Async Components (AC). AC are those components that are waiting for all promises internals or externals to be resolved before rendering.
+Ogone supports Async Components. Async Components are those components that are waiting for all promises internals or externals to be resolved before rendering.
 
-6 features rules an AC
+6 features rules an Async Component
 
     - type="async"
     - --await
@@ -11,7 +11,7 @@ Ogone supports Async Components (AC). AC are those components that are waiting f
     - --finally:...
     - --defer
 
-by setting type="async" to the proto of the component, you're making it an AC:
+by setting type="async" to the proto of the component, you're making it an Async Component:
 ```typescript
 // async-component.o3
 <proto type="async"/>
@@ -21,7 +21,7 @@ ________
 ### --await
 _only in an Async Component_
 
-In this AC you will be allowed to use --await feature, this component will wait for the img tag to dispatch load event:
+In this Async Component you will be allowed to use --await feature, this component will wait for the img tag to dispatch load event:
 ```typescript
 // async-component.o3
 <img --await src="public/ogone.svg">
@@ -49,7 +49,7 @@ ________
 ### --then:...
 _in any Component_
 
-Waiting for the resolution of the AC.
+Waiting for the resolution of the Async Component.
 Then is a mixed feature/case, it means that it requires the name of case that you will use after the resolution of the component.
 Use `--then` like in JS:
 ```typescript
@@ -68,8 +68,8 @@ ________
 ### --catch:...
 _in any Component_
 
-Any error inside an AC.
-catch is a mixed feature/case, it means that it requires the name of case that you will use after an error in AC.
+Any error inside an Async Component.
+catch is a mixed feature/case, it means that it requires the name of case that you will use after an error in Async Component.
 Use `--catch` like in JS:
 ```typescript
 // Ogone use this component as 'async-component'
@@ -89,7 +89,7 @@ ________
 _in any Component_
 
 internal promises all fulfilled successfully or rejected.
-finally is a mixed feature/case, it means that it requires the name of case that you will use after resolution/error in AC.
+finally is a mixed feature/case, it means that it requires the name of case that you will use after resolution/error in Async Component.
 Use `--finally` like in JS:
 ```typescript
 // Ogone use this component as 'async-component'
@@ -108,8 +108,8 @@ ________
 ### --defer
 _in any Component_
 
-Inserts a promise or anything into an AC.
-the AC will includes this promises in it's own promise group.
+Inserts a promise or anything into an Async Component.
+the Async Component will includes this promise in it's own promise group.
 
 ```typescript
 // Ogone use this component as 'async-component'
