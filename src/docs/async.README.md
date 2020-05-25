@@ -131,4 +131,4 @@ use @/path/to/async-component.o3 as 'async-component';
 ________
 
 # Todo
-define the shape ctx object sent to --then feature.
+define the shape of `ctx` object sent to --then feature.
