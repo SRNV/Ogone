@@ -50,7 +50,7 @@ ________
 _in any Component_
 
 Waiting for the resolution of the AC.
-Then is a mixed feature/case, it means that it requires the name of case taht we will use after the resolution of the component.
+Then is a mixed feature/case, it means that it requires the name of case that you will use after the resolution of the component.
 Use `--then` like in JS:
 ```typescript
 // Ogone use this component as 'async-component'
@@ -59,7 +59,46 @@ use @/path/to/async-component.o3 as 'async-component';
 <async-component --await --then:caseName/>
 <proto type="async">
   case 'then:caseName':
-    console.log('promise resolved');
+    console.log('promise resolved', ctx);
+  break;
+</proto>
+```
+________
+
+### --catch:...
+_in any Component_
+
+Any error inside an AC.
+catch is a mixed feature/case, it means that it requires the name of case that you will use after an error in AC.
+Use `--catch` like in JS:
+```typescript
+// Ogone use this component as 'async-component'
+use @/path/to/async-component.o3 as 'async-component';
+
+<async-component --await --catch:caseName/>
+<proto type="async">
+  case 'catch:caseName':
+    console.log('promise error caught', ctx);
+  break;
+</proto>
+```
+________
+
+
+### --finally:...
+_in any Component_
+
+internal promises all fulfilled successfully or rejected.
+finally is a mixed feature/case, it means that it requires the name of case that you will use after resolution/error in AC.
+Use `--finally` like in JS:
+```typescript
+// Ogone use this component as 'async-component'
+use @/path/to/async-component.o3 as 'async-component';
+
+<async-component --await --finally:caseName/>
+<proto type="async">
+  case 'finally:caseName':
+    console.log('promise fulfilled', ctx);
   break;
 </proto>
 ```
