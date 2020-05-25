@@ -98,7 +98,7 @@ _____
 # Learn Ogone
 
 to see more stuffs from Ogone, clone this repository
-```
+```shell
 deno run --allow-all --unstable example/app/index.ts
 ```
 
