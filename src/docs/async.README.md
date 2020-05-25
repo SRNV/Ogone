@@ -1,4 +1,5 @@
 # Async Components
+_v 0.3.0_
 
 Ogone supports Async Components. Async Components are those components that are waiting for all promises internals or externals to be resolved before rendering.
 
