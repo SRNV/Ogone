@@ -16,6 +16,8 @@ by setting type="async" to the proto of the component, you're making this compon
 // async-component.o3
 <proto type="async"/>
 ```
+________
+
 ### --await
 _only in AC_
 
