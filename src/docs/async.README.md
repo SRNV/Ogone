@@ -105,7 +105,7 @@ use @/path/to/async-component.o3 as 'async-component';
 ________
 
 
-### --defer:...
+### --defer
 _in any Component_
 
 Inserts a promise or anything into an AC.
@@ -129,3 +129,6 @@ use @/path/to/async-component.o3 as 'async-component';
 </proto>
 ```
 ________
+
+# Todo
+define the shape ctx object sent to --then feature.
