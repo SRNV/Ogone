@@ -6,9 +6,9 @@ Ogone supports Async Components (AC). AC are those components that are waiting f
 
     - type="async"
     - --await
-    - --then
-    - --catch
-    - --finally
+    - --then:...
+    - --catch:...
+    - --finally:...
     - --defer
 
 by setting type="async" to the proto of the component, you're making this component an AC:
@@ -43,7 +43,23 @@ use @/path/to/async-component.o3 as 'async-component';
 <async-component --await />
 <proto type="async"/>
 ```
-
 ________
 
+### --then:...
+_in any Component_
 
+Waiting for the resolution of the AC.
+Then is a mixed feature/case, it means that it requires the name of case taht we will use after the resolution of the component.
+Use `--then` like in JS:
+```typescript
+// Ogone use this component as 'async-component'
+use @/path/to/async-component.o3 as 'async-component';
+
+<async-component --await --then:caseName/>
+<proto type="async">
+  case 'then:caseName':
+    console.log('promise resolved');
+  break;
+</proto>
+```
+________
