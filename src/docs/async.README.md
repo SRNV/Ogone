@@ -19,7 +19,7 @@ by setting type="async" to the proto of the component, you're making this compon
 ________
 
 ### --await
-_only in AC_
+_only in an Async Component_
 
 In this AC you will be allowed to use --await feature, this component will wait for the img tag to dispatch load event:
 ```typescript
