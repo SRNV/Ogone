@@ -16,7 +16,11 @@ by setting type="async" to the component's proto, you're making it an Async Comp
 ```typescript
 // async-component.o3
 <proto type="async"/>
+
 ```
+
+note that root component can't be async, we will follow this structure:
+![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/src/docs/assets/async.1.jpg)
 ________
 
 ### --await
