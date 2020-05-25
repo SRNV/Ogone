@@ -11,7 +11,7 @@ Ogone supports Async Components. Async Components are those components that are 
     - --finally:...
     - --defer
 
-by setting type="async" to the proto of the component, you're making it an Async Component:
+by setting type="async" to the component's proto, you're making it an Async Component:
 ```typescript
 // async-component.o3
 <proto type="async"/>
