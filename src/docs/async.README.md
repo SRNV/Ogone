@@ -103,3 +103,29 @@ use @/path/to/async-component.o3 as 'async-component';
 </proto>
 ```
 ________
+
+
+### --defer:...
+_in any Component_
+
+Inserts a promise or anything into an AC.
+the AC will includes this promises in it's own promise group.
+
+```typescript
+// Ogone use this component as 'async-component'
+use @/path/to/async-component.o3 as 'async-component';
+
+<async-component --await --defer="promise"/>
+<proto type="async">
+  def:
+    promise: null
+  default:
+  this.promise = new Promise((resolve) => {
+     setTimeout(() => {
+        // aync-component will render only after this resolution
+        resolve();
+     }, 1500);
+  })
+</proto>
+```
+________
