@@ -142,6 +142,7 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
         });
   case 'async:update':
     getUser();
+  break;
   default:
     getUser().then(user => Async.resolve(user));
 </proto>
