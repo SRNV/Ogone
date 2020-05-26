@@ -100,7 +100,7 @@ And Ogone is follwing a minimalistic philosophy. using few options/expressions t
 Following this structure of declarations is strongly recommanded:
 
 - def\* (YAML)
-- before-each\* (TODO, for global declarations)
+- before-each\* (for global declarations)
 - case
 - default
 
@@ -131,26 +131,27 @@ require id as Number;
 use @/example/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
-<div> Welcome ${user.name}</div>
+<div> Welcome ${user ? user.username : ''}</div>
 <img src="public/ogone.svg"  --await />
 <proto type="async">
   def:
     user: null
+  before-each:
+    const getUser = () => {
+      Store.dispatch('user/getUser', this.id)
+        .then((user) => {
+          this.user = user;
+          if (_state !== 'async:update') {
+            // when we have the data of the user
+            // warn the parent component that we are ready to render
+            // we send the user as context to the parent component
+            Async.resolve(user);
+          }
+        });
+    };
   case 'async:update':
-    Store.dispatch('user/getUser', this.id)
-      .then((user) => {
-        this.user = user;
-      });
-  break;
   default:
-    Store.dispatch('user/getUser', this.id)
-      .then((user) => {
-        this.user = user;
-        // when we have the data of the user
-        // warn the parent component that we are ready to render
-        // we send the user as context to the parent component
-        Async.resolve(user);
-      });
+    getUser();
 </proto>
 ```
 
