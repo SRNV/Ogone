@@ -6,13 +6,15 @@ interface StressOptions {
   root: string;
 }
 const [cmd, option] = Deno.args;
-if (cmd === '--stress') {
+if (cmd === "--stress") {
   if (option) {
     stressMode({
       root: option,
     });
   } else {
-    throw new Error('[Ogone] Stress Mode: no root specified. usage: ... --stress <path-to-tests>');
+    throw new Error(
+      "[Ogone] Stress Mode: no root specified. usage: ... --stress <path-to-tests>",
+    );
   }
 }
 function read(path: string): void {
@@ -39,10 +41,10 @@ function read(path: string): void {
   }
 }
 function runTests() {
-  console.warn('[Ogone] Stress mode: running.')
+  console.warn("[Ogone] Stress mode: running.");
   stressMap.forEach((path) => {
     Deno.run({
-      cmd: ['deno', 'test', '--failfast', path],
+      cmd: ["deno", "test", "--failfast", path],
     });
   });
 }
@@ -55,17 +57,19 @@ export default async function stressMode(opts: StressOptions) {
   */
   if (existsSync(opts.root)) {
     const stress = Deno.watchFs(Deno.cwd());
-    console.warn(`[Ogone] Stress mode enabled: using ${opts.root}`)
+    console.warn(`[Ogone] Stress mode enabled: using ${opts.root}`);
     read(opts.root);
     runTests();
     for await (const event of stress) {
       const { kind } = event;
       if (kind === "access") {
-        console.log('[Ogone] Stress mode: ', ...event.paths);
+        console.log("[Ogone] Stress mode: ", ...event.paths);
         runTests();
       }
     }
   } else {
-    throw new Error(`[Ogone] ${opts.root} is not a file or directory. please specify in options a existing file or directory.`);
+    throw new Error(
+      `[Ogone] ${opts.root} is not a file or directory. please specify in options a existing file or directory.`,
+    );
   }
 }
