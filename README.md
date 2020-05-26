@@ -136,7 +136,7 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 <proto type="async">
   def:
     user: null
-  before-each:
+  before-each: // 0.6.0
     const getUser = () => {
       Store.dispatch('user/getUser', this.id)
         .then((user) => {
