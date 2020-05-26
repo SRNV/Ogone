@@ -34,9 +34,11 @@ export default function oRenderScripts() {
           data: true,
           reactivity: true,
           casesAreLinkables: true,
+          beforeCases: true,
         },
       );
       const cases = jsThis(moduleScript.rawText, { parseCases: true });
+      const { each } = ogoneScript.body.switch.before;
       // here set the cases and if the default is present in the script
       component.switch = cases.body.switch;
       // set the datas of the component
@@ -51,6 +53,7 @@ export default function oRenderScripts() {
           : ""
       } function (_state, ctx, event, _once = 0) {
           try {
+            ${each ? each : ""}
             switch(_state) { ${value} }
           } catch(err) {
             Ogone.error('Error in the component: \\n\\t ${component.file}' ,err.message, err);

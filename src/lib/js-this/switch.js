@@ -11,6 +11,7 @@ import renderSetterExpression from "./src/render/setter-expression.js";
 import renderO3Syntax from "./src/render/o3-syntax-render.js";
 import yamelize from "./src/render/yamelize.js";
 import parseCases from "./src/caseParser.ts";
+import beforeCase from "./src/render/before-case.js";
 
 function recursiveTranslate(expressions, prog) {
   let str = prog;
@@ -55,6 +56,9 @@ function jsThis(str, opts) {
       value: prog,
       body: typedExpressions,
     };
+  }
+  if (opts && opts.beforeCases) {
+    prog = beforeCase(typedExpressions, expressions, prog);
   }
   prog = renderExpressions(typedExpressions, expressions, elements, prog);
   if (opts && opts.cjs) {

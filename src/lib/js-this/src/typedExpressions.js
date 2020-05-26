@@ -9,6 +9,10 @@ export default () => ({
   properties: [],
   data: {},
   switch: {
+    before: {
+      each: null,
+      cases: {},
+    },
     cases: [],
     default: false,
   },

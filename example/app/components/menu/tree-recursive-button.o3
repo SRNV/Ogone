@@ -27,6 +27,8 @@ use @/example/app/components/scroll.o3 as 'scroll'
 <proto>
   def:
     openTree: false
+  before-each:
+    const { content } = Refs;
   case 'click:toggle':
     this.openTree = !this.openTree
   break;
