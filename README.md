@@ -82,10 +82,8 @@ the state of the component, the context of the function and an event (Event | un
 
 ```typescript
 (function (_state, ctx, event) {
-  switch (
-    _state
-    // there is your code
-  ) {
+  switch (_state) {
+    ${yourCode}
   }
 });
 ```
