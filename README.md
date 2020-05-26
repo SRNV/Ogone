@@ -135,21 +135,15 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
   def:
     user: null
   before-each: // 0.6.0
-    const getUser = () => {
-      Store.dispatch('user/getUser', this.id)
+    const getUser = () => Store.dispatch('user/getUser', this.id)
         .then((user) => {
           this.user = user;
-          if (_state !== 'async:update') {
-            // when we have the data of the user
-            // warn the parent component that we are ready to render
-            // we send the user as context to the parent component
-            Async.resolve(user);
-          }
+          return user;
         });
-    };
   case 'async:update':
-  default:
     getUser();
+  default:
+    getUser().then(user => Async.resolve(user));
 </proto>
 ```
 
