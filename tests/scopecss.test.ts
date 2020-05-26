@@ -108,10 +108,10 @@ Deno.test('- scopecss doesn\'t scope @font-feature-values', () => {
 
 Deno.test('- scopecss doesn\'t scope pseudo elements', () => {
   const css = `
-    #id1::tllhqdskfq_rezraez4324_pseudo---dsfdsfds {}
+    #id1::tllhqdskfq_rezraez4324_pseudo---dsfdsfds::t {}
   `.trim();
   const expected = `
-  #id1[data-1]::tllhqdskfq_rezraez4324_pseudo---dsfdsfds {}
+  #id1[data-1]::tllhqdskfq_rezraez4324_pseudo---dsfdsfds::t {}
   `.trim();
   const scoped = scopeCss(css, "data-1");
   assertEquals(scoped, expected);
