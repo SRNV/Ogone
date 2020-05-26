@@ -170,6 +170,26 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 
 [for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
 
+### computed datas
+
+```typescript
+<p>Hello ${fullname}</p>
+<proto>
+  def:
+    name: SRNV
+    fullname: ''
+  before-each:
+    const computed = () => this.name + Math.random()
+  case 'update:name':
+    this.fullname = computed();
+  break;
+  default:
+    setTimeout(() => {
+      this.name = 'Rudy';
+    }, 1000);
+  break;
+</proto>
+```
 ### menu component example
 
 ```typescript
