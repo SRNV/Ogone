@@ -41,12 +41,11 @@ case 'update:y':
         x: 0
         y: 0
     before-each:
-        const computePosition = () => ´${this.x},${this.y}´;
+        const setPosition = () => {
+            this.position = ´${this.x},${this.y}´;
+        };
     case 'update:x':
-    case 'update:y':
-        // do things
-        this.position = computePosition();
-        break;
+    case 'update:y': setPosition(); break;
     default:
         setInterval(() => {
             this.x++;
