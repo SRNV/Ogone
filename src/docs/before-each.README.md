@@ -1,11 +1,12 @@
 # before-each
+
 _v0.6.0_
 
 `before-each` is a custom statement used inside the proto, this let you declare all the global variables you need in all cases/default statements.
 
 ### why using a before-each
 
-to avoid this situation
+to avoid this situation.
 
 ```javascript
 case 'update:x':
@@ -29,15 +30,14 @@ case 'update:y':
    break;
 ```
 
-## faking computed datas
+## faking computed data
+
 ```javascript
 before-each:
-    const computePosition = () => {
-      this.position = ´${this.x},${this.y}´
-    };
+    const computePosition = () => ´${this.x},${this.y}´;
 case 'update:x':
 case 'update:y':
     // do things
-   computePosition();
+   this.position = computePosition();
    break;
 ```
