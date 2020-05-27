@@ -110,7 +110,7 @@ export default function getWebComponent(component, node) {
       // bind style
       this.bindStyle();
 
-      // set history state and trigger case 'load'
+      // set history state and trigger default code for router
       ${isRouter ? "this.triggerLoad();" : ""}
 
       // now ... just render ftw!

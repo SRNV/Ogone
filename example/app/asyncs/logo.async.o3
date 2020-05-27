@@ -5,7 +5,7 @@
 </div>
 
 <proto type="async">
-  case 'init':
+  default:
    Async.resolve();
   break;
 </proto>

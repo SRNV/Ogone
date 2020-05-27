@@ -2,21 +2,21 @@ articles:
   - title: Experimental tool for a fullstack use.
     text: "Ogone is an experimental tool for Fullstack dev. \nFully based on Deno."
     code: "
-        o3.run({\n
+      o3.run({\n
       \tentrypoint: '/app/index.o3',\n
       \tport: 4000,\n
-        })"
+      })"
 
   - title: Get Started with the classic greeting app
     text: TODO
     code: "<p>Hello ${name}</p>\n
-        <proto>\n
-        \tdef:\n
-        \t\tname: Rudy\n
-        </proto>"
+      <proto>\n
+      \tdef:\n
+      \t\tname: Rudy\n
+      </proto>"
 
   - title: Install Ogone
-    text:  TODO
+    text: TODO
     code: 'import o3 from "https://deno.land/x/ogone/mod.ts"'
 
   - title: Using def, case, default keywords to rule the component
@@ -25,7 +25,6 @@ articles:
       <proto>\n
       \tdef:\n
       \t\tyaml: true\n
-      \tcase 'init':\n
       \tcase 'update:yaml':\n
       \tdefault:\n
       \t\tthis.yaml = true;\n
@@ -46,11 +45,11 @@ articles:
       <proto>\n
       \tdef:\n
       \t\tcount:0\n
-      \tcase 'init':\n
-      \t\tthis.count = 0;\n
-      \tbreak;\n
       \tcase 'click:increase':\n
       \t\tthis.count++;\n
-      \t\tif (this.count > 5) execute case 'init';\n
+      \t\tif (this.count > 5) execute default;\n
+      \tbreak;\n
+      \tdefault:\n
+      \t\tthis.count = 0;\n
       \tbreak;\n
       </proto>"

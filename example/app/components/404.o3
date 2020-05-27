@@ -7,7 +7,7 @@
 <proto>
   def:
     param: ''
-  case 'init':
+  default:
     if (ctx) {
       this.param = Object.values(ctx).join()
     }

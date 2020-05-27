@@ -41,7 +41,7 @@ function OComponent() {
     }
     // WIP
     Object.seal(this.data);
-    this.runtime("init", params, event);
+    this.runtime(0, params, event);
     this.state = 1; // component is rendered
   };
   this.update = (dependency) => {
@@ -50,12 +50,12 @@ function OComponent() {
       this.updateStore(dependency);
       return;
     }
+    this.runtime(`update:${dependency}`);
     this.reactTo(dependency);
     this.renderTexts(dependency);
     this.childs.filter((c) => c.type !== "store").forEach((c) => {
       c.updateProps(dependency);
     });
-    this.runtime(`update:${dependency}`);
   };
   this.renderTexts = (dependency) => {
     if (!this.activated) return;

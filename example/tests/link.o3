@@ -26,13 +26,10 @@
   case 'click:increase':
     this.count ++;
     execute case `test${this.count}` use [ctx];
-  case 'init':
+  default:
     this.count = 0;
     execute case `test${this.count}` use [ctx];
   break;
-  default:
-    console.warn('it\s finished');
-    execute case 'init';
 </proto>
 <style>
 * {

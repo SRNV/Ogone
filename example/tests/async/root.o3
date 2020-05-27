@@ -6,7 +6,7 @@ use @/example/tests/async/async.o3 as 'async-promise'
 <proto>
   def:
     promise: null
-  case 'init':
+  default:
     console.warn('iniiiit');
     this.promise = new Promise((resolve) => {
       setTimeout(() => {

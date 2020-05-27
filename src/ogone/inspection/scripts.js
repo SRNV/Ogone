@@ -42,6 +42,15 @@ export default function oRenderScripts() {
       // here set the cases and if the default is present in the script
       component.switch = cases.body.switch;
       // set the datas of the component
+      const { cases: declaredCases, default: declaredDefault } =
+        component.switch;
+      let caseGate = declaredCases.length || declaredDefault
+        ? `
+      if (typeof _state === "string" && ![${declaredCases}].includes(_state)) {
+        return;
+      }
+      `
+        : null;
       component.data = {
         ...ogoneScript.body.data,
         ...defData,
@@ -53,6 +62,7 @@ export default function oRenderScripts() {
           : ""
       } function (_state, ctx, event, _once = 0) {
           try {
+            ${caseGate ? caseGate : ""}
             ${each ? each : ""}
             switch(_state) { ${value} }
           } catch(err) {

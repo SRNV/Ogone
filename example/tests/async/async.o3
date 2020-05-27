@@ -8,7 +8,7 @@
 <proto type="async">
   def:
     user: null
-  case 'init':
+  default:
     setTimeout(() => {
       // should trigger the then case of parent
     }, 0);

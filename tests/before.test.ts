@@ -31,7 +31,7 @@ Deno.test("- beforeCase should erase before-each statements", () => {
 ${beforeEachExpression}
   def:
     user: null
-  case 'init':
+  default:
     setTimeout(() => {
       // should trigger the then case of parent
     }, 0);
@@ -59,7 +59,7 @@ Deno.test("- beforeCase should erase before-each statements and get the content 
     user: null
 ${beforeEachExpression}
 
-  case 'init':
+  default:
     setTimeout(() => {
       // should trigger the then case of parent
     }, 0);

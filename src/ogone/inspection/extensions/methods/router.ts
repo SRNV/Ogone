@@ -13,7 +13,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
       const oc = o.component;
       const rr = Ogone.router.react;
 
-      oc.runtime('load', o.historyState);
+      oc.runtime(0, o.historyState);
       rr.push((path) => {
         o.locationPath = path;
         this.setActualRouterTemplate();
