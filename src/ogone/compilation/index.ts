@@ -11,8 +11,8 @@ import getStoreConnections from "../inspection/store-connections.js";
 export default function () {
   oInspect();
   oRender();
-  oRenderImports();
   oRenderScripts();
+  oRenderImports();
   getStoreConnections();
   oRenderStyles();
   oTopLevelTextNodeException();
