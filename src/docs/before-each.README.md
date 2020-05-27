@@ -57,6 +57,8 @@ case 'update:y':
 
 ## use Reflections syntax instead
 
+Reflections are custom features only supported by Ogone
+
 ```typescript
 <p>${position}</p>
 <proto>
