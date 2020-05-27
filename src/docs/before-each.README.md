@@ -31,12 +31,12 @@ case 'update:y':
 ## faking computed datas
 ```javascript
 before-each:
-    const compute = () => {
+    const computePosition = () => {
       this.position = ´${this.x},${this.y}´
     };
 case 'update:x':
 case 'update:y':
     // do things
-   compute();
+   computePosition();
    break;
 ```
