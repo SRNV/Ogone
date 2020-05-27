@@ -66,7 +66,7 @@ case 'update:y':
     before-each:
     //  this is a reflection
         this.position => {
-            treturn ´${this.x},${this.y}´;
+            return ´${this.x},${this.y}´;
         };
     default:
         setInterval(() => {
