@@ -4,7 +4,7 @@
 
 ### why using a before-each
 
-to avoid this case of declaration
+to avoid this situation
 
 ```javascript
 case 'update:x':
