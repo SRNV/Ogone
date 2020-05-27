@@ -27,3 +27,16 @@ case 'update:y':
     // do things
    break;
 ```
+
+## faking computed datas
+```javascript
+before-each:
+    const compute = () => {
+      this.position = ´${this.x},${this.y}´
+    };
+case 'update:x':
+case 'update:y':
+    // do things
+   compute();
+   break;
+```
