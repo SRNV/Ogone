@@ -1,5 +1,5 @@
-use @/example/app/stores/menu.store.o3 as 'menu-store'
-<menu-store namespace="menu" />
+use @/example/app/stores/menu.store.o3 as 'store-menu'
+<store-menu namespace="menu" />
 
 <div class="container" --click:openMenu>
   <div class="line"></div>

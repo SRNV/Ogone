@@ -44,6 +44,21 @@ export default function oRenderNodesBehavior(
       }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
     throw BadUseDeferFeatureException;
   }
+  switch (true) {
+    case subcomp &&
+      ["async", "store", "router"].includes(subcomp.type) &&
+      !node.tagName.startsWith(`${subcomp.type}-`):
+      const InvalidTagNameForTypedComponentException = new Error(
+        `[Ogone] '${node.tagName}' is not a valid selector of ${subcomp.type} component. please use the following syntax:
+
+                use @/${isImported} as '${subcomp.type}-${node.tagName}'
+
+                input: use @/${isImported} as '${node.tagName}'
+                component: ${component.file}
+              `,
+      );
+      throw InvalidTagNameForTypedComponentException;
+  }
   if (node.childNodes && node.childNodes.length) {
     node.childNodes.forEach((child) => {
       if (node.nodeType === 1) {

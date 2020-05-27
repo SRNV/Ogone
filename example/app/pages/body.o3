@@ -1,10 +1,10 @@
-use @/example/app/components/content.o3 as "content";
+use @/example/app/components/content.o3 as "content-page";
 <div class="container">
-  <content
+  <content-page
     --for="articles as (article)"
     :text="article.text"
     :title="article.title"
-    :code="article.code"></content>
+    :code="article.code"></content-page>
 </div>
 <proto def="example/app/defs/body.proto.yml" />
 <style>

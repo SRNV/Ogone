@@ -1,7 +1,7 @@
 require item as Object
 
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/example/app/components/scroll.o3 as 'scroll'
+use @/example/app/components/scroll.o3 as 'scroll-component'
 
 
 <div class="container">
@@ -16,19 +16,17 @@ use @/example/app/components/scroll.o3 as 'scroll'
     <span --else-if="item.children && openTree"> < </span>
   </div>
   <div class="child" --if="item.children" --class="{ 'child-open': openTree }">
-    <scroll>
+    <scroll-component>
       <tree-recursive
         --if="!!item.children"
         --for="item.children as (child)"
         :item="child ? child : {}"></tree-recursive>
-    </scroll>
+    </scroll-component>
   </div>
 </div>
 <proto>
   def:
     openTree: false
-  before-each:
-    const { content } = Refs;
   case 'click:toggle':
     this.openTree = !this.openTree
   break;

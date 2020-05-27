@@ -1,2 +1,2 @@
-use @/example/tests/nested.o3 as 'nested';
-<nested :name="'test'"/>
+use @/example/tests/nested.o3 as 'nested-el';
+<nested-el :name="'test'"/>

@@ -62,19 +62,6 @@ export default function oRenderImports() {
               `,
               );
               throw InvalidTagNameForComponentException;
-            case subComponent &&
-              ["async", "store", "router"].includes(subComponent.type) &&
-              !tagName.startsWith(`${subComponent.type}-`):
-              const InvalidTagNameForTypedComponentException = new Error(
-                `[Ogone] '${tagName}' is not a valid selector of ${subComponent.type} component. please use the following syntax:
-
-                use @/${item.path} as '${subComponent.type}-${tagName}'
-
-                input: use @/${item.path} as ${item.as}
-                component: ${component.file}
-              `,
-              );
-              throw InvalidTagNameForTypedComponentException;
             case !tagName.length:
               const EmptyTagNameForComponentException = new Error(
                 `[Ogone] empty component name. please use the following syntax:

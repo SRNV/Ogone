@@ -190,15 +190,16 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
   break;
 </proto>
 ```
+
 ### menu component example
 
 ```typescript
-use @/example/app/stores/menu.store.o3 as 'store'
+use @/example/app/stores/menu.store.o3 as 'store-component'
 use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/example/app/components/logo.o3 as 'logo-el'
 
 
-<store namespace="menu" />
+<store-component namespace="menu" />
 <div class="left-menu"
   --class="{ close: !isOpen }"
   --html="innerHTML">
