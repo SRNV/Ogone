@@ -54,3 +54,25 @@ case 'update:y':
         break;
 </proto>
 ```
+
+## use Reflections syntax instead
+
+```typescript
+<p>${position}</p>
+<proto>
+    def:
+        x: 0
+        y: 0
+    before-each:
+    //  this is a reflection
+        this.position => {
+            treturn ´${this.x},${this.y}´;
+        };
+    default:
+        setInterval(() => {
+            this.x++;
+            this.y--;
+        }, 500);
+        break;
+</proto>
+```
