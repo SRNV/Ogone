@@ -179,10 +179,7 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
     name: SRNV
     fullname: ''
   before-each:
-    const computed = () => this.name + Math.random()
-  case 'update:name':
-    this.fullname = computed();
-  break;
+    this.fullname => this.name + Math.random();
   default:
     setTimeout(() => {
       this.name = 'Rudy';
