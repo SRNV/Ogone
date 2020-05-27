@@ -67,7 +67,7 @@ Reflections are custom features only supported by Ogone
         y: 0
     before-each:
         //  this is a reflection
-        this.position => ´${this.x},${this.y}´;
+        this.position => ´${this.x},${this.y}´; //  todo
         // or
         this.position => {
             return ´${this.x},${this.y}´;

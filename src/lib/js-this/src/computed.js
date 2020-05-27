@@ -14,7 +14,7 @@ export default [
   {
     open: false,
     reg:
-      /(§{2})(ponctuation\d+)(§{2})(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort)(§{2})(parenthese\d+)(§{2})/,
+      /(§{2})(ponctuation\d+)(§{2})(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(§{2})(parenthese\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§arrayModifier${gen.next().value}§§`;
       expressions[id] = value;
