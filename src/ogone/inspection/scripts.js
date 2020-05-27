@@ -62,8 +62,8 @@ export default function oRenderScripts() {
           : ""
       } function (_state, ctx, event, _once = 0) {
           try {
-            ${caseGate ? caseGate : ""}
             ${each ? each : ""}
+            ${caseGate ? caseGate : ""}
             switch(_state) { ${value} }
           } catch(err) {
             Ogone.error('Error in the component: \\n\\t ${component.file}' ,err.message, err);

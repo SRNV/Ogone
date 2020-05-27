@@ -30,14 +30,28 @@ case 'update:y':
    break;
 ```
 
+# Examples
+
 ## faking computed data
 
-```javascript
-before-each:
-    const computePosition = () => ´${this.x},${this.y}´;
-case 'update:x':
-case 'update:y':
-    // do things
-   this.position = computePosition();
-   break;
+```typescript
+<p>${position}</p>
+<proto>
+    def:
+        x: 0
+        y: 0
+    before-each:
+        const computePosition = () => ´${this.x},${this.y}´;
+    case 'update:x':
+    case 'update:y':
+        // do things
+        this.position = computePosition();
+        break;
+    default:
+        setInterval(() => {
+            this.x++;
+            this.y--;
+        }, 500);
+        break;
+</proto>
 ```
