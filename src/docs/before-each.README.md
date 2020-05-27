@@ -83,4 +83,4 @@ Reflections are custom features only supported by Ogone
 
 ### Rules
 
-- Reflection are only accepted in before-each
+- Reflections are only accepted in before-each
