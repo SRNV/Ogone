@@ -80,3 +80,7 @@ Reflections are custom features only supported by Ogone
         break;
 </proto>
 ```
+
+### Rules
+
+- Reflection are only accepted in before-each
