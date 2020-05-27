@@ -46,7 +46,7 @@ Deno.test("- scopecss doesn't scope special character", () => {
   );
 });
 
-Deno.test('- scopecss doesn\'t scope @keyframe\'s body: from, to, 100%,', () => {
+Deno.test("- scopecss doesn't scope @keyframe's body: from, to, 100%,", () => {
   const css = `
   @keyframes dfdqfsq$___6546543- -'("-(65 _$$anim {
     from {}
@@ -60,7 +60,7 @@ Deno.test('- scopecss doesn\'t scope @keyframe\'s body: from, to, 100%,', () => 
   assertEquals(scoped, css);
 });
 
-Deno.test('- scopecss doesn\'t scope @page', () => {
+Deno.test("- scopecss doesn't scope @page", () => {
   const css = `
 @page {
   margin: 1cm;
@@ -74,7 +74,7 @@ Deno.test('- scopecss doesn\'t scope @page', () => {
   assertEquals(scoped, css);
 });
 
-Deno.test('- scopecss doesn\'t scope @font-face', () => {
+Deno.test("- scopecss doesn't scope @font-face", () => {
   const css = `
   @font-face {
   font-family: "Open Sans";
@@ -85,7 +85,7 @@ Deno.test('- scopecss doesn\'t scope @font-face', () => {
   assertEquals(scoped, css);
 });
 
-Deno.test('- scopecss doesn\'t scope @font-feature-values', () => {
+Deno.test("- scopecss doesn't scope @font-feature-values", () => {
   const css = `
   @font-feature-values Font One {
   /* On active la caractéristique nice-style
@@ -106,7 +106,7 @@ Deno.test('- scopecss doesn\'t scope @font-feature-values', () => {
   assertEquals(scoped, css);
 });
 
-Deno.test('- scopecss doesn\'t scope pseudo elements', () => {
+Deno.test("- scopecss doesn't scope pseudo elements", () => {
   const css = `
     #id1::tllhqdskfq_rezraez4324_pseudo---dsfdsfds::t {}
   `.trim();

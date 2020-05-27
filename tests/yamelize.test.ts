@@ -19,14 +19,16 @@ function renderDefExpression(str: string, opts?: any): string {
   prog = yamelize(typedExpressions, expressions, prog);
   return prog;
 }
-Deno.test('- yamelize should erase def expression', () => {
+Deno.test("- yamelize should erase def expression", () => {
   const def = renderDefExpression(`
     def: name: Rudy
     case '': break;
   `);
-  if (def.indexOf('def: name: Rudy') > -1) fail('def statement is not erased by yamelize');
-})
-Deno.test('- yamelize should erase def expression 2', () => {
+  if (def.indexOf("def: name: Rudy") > -1) {
+    fail("def statement is not erased by yamelize");
+  }
+});
+Deno.test("- yamelize should erase def expression 2", () => {
   const defExp = `
     def:
         test: l
@@ -37,30 +39,30 @@ Deno.test('- yamelize should erase def expression 2', () => {
             - name: a
             - name: b
             - name: a
-            - name: b`
+            - name: b`;
   const def = renderDefExpression(`
   ${defExp}
     case '': break;
   `);
-  if (def.indexOf(defExp) > -1) fail('def statement is not erased by yamelize');
+  if (def.indexOf(defExp) > -1) fail("def statement is not erased by yamelize");
 });
-Deno.test('- yamelize should erase def expression 3', () => {
+Deno.test("- yamelize should erase def expression 3", () => {
   const defExp = `
     def:
         name: Rudy
-        pseudo: SRNV`
+        pseudo: SRNV`;
   const def = renderDefExpression(`
     case '': break;
 ${defExp}
     default: break;
   `);
-  if (def.indexOf(defExp) > -1) fail('def statement is not erased by yamelize');
+  if (def.indexOf(defExp) > -1) fail("def statement is not erased by yamelize");
 });
-Deno.test('- yamelize should erase def expression 4', () => {
+Deno.test("- yamelize should erase def expression 4", () => {
   const defExp = `
     def:
         name: R
-        case: inyaml`
+        case: inyaml`;
   const def = renderDefExpression(`
     case '': break;
 ${defExp}
@@ -68,6 +70,6 @@ default: wont be in yaml
     default: return;
   `);
   if (def.indexOf(defExp) > -1) {
-      fail('def statement is not erased by yamelize');
+    fail("def statement is not erased by yamelize");
   }
 });
