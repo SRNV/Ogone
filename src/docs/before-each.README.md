@@ -1,4 +1,5 @@
 # before-each
+_v0.6.0_
 
 `before-each` is a custom statement used inside the proto, this let you declare all the global variables you need in all cases/default statements.
 
