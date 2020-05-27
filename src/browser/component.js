@@ -55,6 +55,7 @@ function OComponent() {
     this.childs.filter((c) => c.type !== "store").forEach((c) => {
       c.updateProps(dependency);
     });
+    this.runtime(`update:${dependency}`);
   };
   this.renderTexts = (dependency) => {
     if (!this.activated) return;
