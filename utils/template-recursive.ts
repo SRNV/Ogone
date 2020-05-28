@@ -1,7 +1,7 @@
 export default function templateReplacer(
   str: string,
   template: any,
-  callback: (key: string) => string,
+  callback?: (key: string) => string,
 ): string {
   let result: string = str;
   if (!template) return result;
