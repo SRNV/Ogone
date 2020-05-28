@@ -204,6 +204,7 @@ function jsThis(str, opts) {
           "exports",
           "require",
           "switch",
+          "reflections",
         ]
           .includes(key)
       ) {

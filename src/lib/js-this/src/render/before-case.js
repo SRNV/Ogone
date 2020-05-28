@@ -29,7 +29,7 @@ export default function beforeCase(
     );
     data = renderComputed(typedExpressions, expressions, computedExp, data);
     // data = renderSetterExpression(typedExpressions, expressions, data);
-    // data = o3(typedExpressions, expressions, data);
+    data = o3(typedExpressions, expressions, data);
     console.warn(data);
     while (Object.keys(expressions).find((k) => data.indexOf(k) > -1)) {
       const key = Object.keys(expressions).find((k) => data.indexOf(k) > -1);

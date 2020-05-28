@@ -63,6 +63,7 @@ export default function oRenderScripts() {
       } function (_state, ctx, event, _once = 0) {
           try {
             ${each ? each : ""}
+            ${ogoneScript.body.reflections.join("\n")}
             ${caseGate ? caseGate : ""}
             switch(_state) { ${value} }
           } catch(err) {

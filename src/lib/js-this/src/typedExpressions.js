@@ -16,4 +16,5 @@ export default () => ({
     cases: [],
     default: false,
   },
+  reflections: [],
 });
