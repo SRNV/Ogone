@@ -14,7 +14,7 @@ export default [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§reflection${gen.next().value}§§`;
       expressions[id] = value;
-      return id;
+      return "";
     },
     close: false,
   },
@@ -54,10 +54,13 @@ export default [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§use${gen.next().value}§§`;
       let path = expressions[matches[2]];
-      while (Object.keys(expressions).find((k) => path.indexOf(k) > -1)) {
-        Object.keys(expressions).forEach((k) => {
-          path = path.replace(k, expressions[k]);
-        });
+      const keys = Object.keys(expressions);
+      while (
+        keys.find((k) =>
+          path.indexOf(k) > -1 &&
+          (path = path.replace(k, expressions[k]))
+        )
+      ) {
       }
       typedExpressions.use[id] = {
         path,

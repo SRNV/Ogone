@@ -128,9 +128,11 @@ export default function scopeCSS(cssStr, scopeId) {
         arr[i].value = value;
       });
 
-      while (inputs.find((inp) => s.indexOf(inp.key) > -1)) {
-        const newinput = inputs.find((inp) => s.indexOf(inp.key) > -1);
-        s = s.replace(newinput.key, newinput.value);
+      while (
+        inputs.find((inp) =>
+          s.indexOf(inp.key) > -1 && (s = s.replace(inp.key, inp.value))
+        )
+      ) {
       }
       result = result.replace(selector, s);
     });

@@ -1,4 +1,9 @@
-import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
+import computedExp from "../../src/computed.js";
+import renderExpressions from "../../src/render/renderExpressions.js";
+import renderComputed from "../../src/render/computed.js";
+import renderNullifiedValues from "../../src/render/renderNullifiedValues.js";
+import elements from "../../src/elements.js";
+import o3 from "../../src/render/o3-syntax-render.js";
 
 export default function beforeCase(
   typedExpressions,
@@ -14,6 +19,18 @@ export default function beforeCase(
     let before = p.find((el, i, arr) => arr[i + 1] && arr[i + 1] === data);
     const content = `${m}:${data}`;
     result = result.replace(content, "");
+    // reflection
+    data = renderNullifiedValues(typedExpressions, expressions, data);
+    data = renderExpressions(
+      typedExpressions,
+      expressions,
+      elements,
+      data,
+    );
+    data = renderComputed(typedExpressions, expressions, computedExp, data);
+    // data = renderSetterExpression(typedExpressions, expressions, data);
+    // data = o3(typedExpressions, expressions, data);
+    console.warn(data);
     while (Object.keys(expressions).find((k) => data.indexOf(k) > -1)) {
       const key = Object.keys(expressions).find((k) => data.indexOf(k) > -1);
       const index = data.indexOf(key);

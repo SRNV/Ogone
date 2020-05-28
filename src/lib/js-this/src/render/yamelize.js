@@ -21,10 +21,12 @@ export default function (typedExpressions, expressions, prog) {
   if (!data) return result;
   let def = p.find((el, i, arr) => arr[i + 1] && arr[i + 1] === data);
   let previous = data;
-  while (data.indexOf("§§") > -1) {
-    Object.entries(expressions).forEach(([key, value]) => {
-      data = data.replace(key, expressions[key]);
-    });
+  const keys = Object.entries(expressions);
+  while (
+    keys.find((key) =>
+      data.indexOf(key) > -1 && (data = data.replace(key, expressions[key]))
+    )
+  ) {
   }
   const declaration = `${def}:${previous}`;
   const yaml = YAML.parse(data);

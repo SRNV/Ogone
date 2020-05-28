@@ -48,7 +48,10 @@ Deno.test("- beforeCase should erase before-each statements and get the content 
 		content.style.background = 'red';
 		new Map().forEach(() => {
 			console.warn('test')
-		})
+		});
+    this.position => {
+      return \`x,y\`
+    };
 		`;
   const beforeEachExpression = `
       before-each:

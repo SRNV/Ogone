@@ -277,10 +277,13 @@ function cleanNodes(expressions) {
     if (node.nodeType === 3) {
       const { value } = node;
       let rawText = value;
-      while (rawText.match(/§{2}\d*/)) {
-        for (let key of Object.keys(expressions)) {
-          rawText = rawText.replace(key, expressions[key].expression);
-        }
+      const keys = Object.keys(expressions);
+      while (
+        keys.find((key) =>
+          rawText.indexOf(key) > -1 &&
+          (rawText = rawText.replace(key, expressions[key].expression))
+        )
+      ) {
       }
       node.rawText = rawText;
     }

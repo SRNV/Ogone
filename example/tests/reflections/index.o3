@@ -1,0 +1,19 @@
+<p>${position}</p>
+<proto>
+    def:
+        x: 0
+        y: 0
+    before-each:
+        //  this is a reflection
+        this.position => ´${this.x},${this.y}´; //  todo
+        // or
+        this.position => {
+            return ´${this.x},${this.y}´;
+        };
+    default:
+        setInterval(() => {
+            this.x++;
+            this.y--;
+        }, 500);
+        break;
+</proto>
