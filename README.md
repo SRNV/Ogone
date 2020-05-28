@@ -6,7 +6,7 @@
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
-
+[![HitCount](http://hits.dwyl.com/SRNV/Ogone.svg)](http://hits.dwyl.com/SRNV/Ogone)
 ---
 
 # Description
