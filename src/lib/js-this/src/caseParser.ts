@@ -1,4 +1,5 @@
 import gen from "./generator.js";
+import templateReplacer from "../../../../utils/template-recursive.ts";
 
 export default function parseCases(
   typedExpressions: any,
@@ -24,16 +25,9 @@ export default function parseCases(
   // get the matching cases
   result = str2.match(reg);
   if (result) {
-    const keys = Object.keys(expressions);
     result = result.map((s) => {
       let sr = s;
-      while (
-        keys.find((key) =>
-          sr.indexOf(key) > -1 &&
-          (sr = sr.replace(key, expressions[key]).trim())
-        )
-      ) {
-      }
+      sr = templateReplacer(sr, expressions).trim();
       return sr;
     });
     typedExpressions.switch.cases.push(...result);

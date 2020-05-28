@@ -1,4 +1,5 @@
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
+import templateReplacer from "../../../../../utils/template-recursive.ts";
 
 export default function (typedExpressions, expressions, prog) {
   let result = prog;
@@ -21,13 +22,7 @@ export default function (typedExpressions, expressions, prog) {
   if (!data) return result;
   let def = p.find((el, i, arr) => arr[i + 1] && arr[i + 1] === data);
   let previous = data;
-  const keys = Object.keys(expressions);
-  while (
-    keys.find((key) =>
-      data.indexOf(key) > -1 && (data = data.replace(key, expressions[key]))
-    )
-  ) {
-  }
+  data = templateReplacer(data, expressions);
   const declaration = `${def}:${previous}`;
   const yaml = YAML.parse(data);
   result = result.replace(declaration, "");

@@ -1,4 +1,5 @@
 import gen from "./generator.js";
+import templateReplacer from "../../../../utils/template-recursive.ts";
 let rid = 0;
 
 export default [
@@ -17,15 +18,8 @@ export default [
       expressions[id] = value;
       const cases = [];
       let translate = block;
-      const keys = Object.keys(expressions);
       function template() {
-        while (
-          keys.find((key) =>
-            translate.indexOf(key) > -1 &&
-            (translate = translate.replace(key, expressions[key]))
-          )
-        ) {
-        }
+        translate = templateReplacer(translate, expressions);
       }
       template();
       const getPropertyRegExpGI = /(this\.)([\w])+/gi;
@@ -71,13 +65,7 @@ export default [
       let translate = block.replace(/(§§endPonctuation\d+§§)/gi, "");
       const keys = Object.keys(expressions);
       function template() {
-        while (
-          keys.find((key) =>
-            translate.indexOf(key) > -1 &&
-            (translate = translate.replace(key, expressions[key]))
-          )
-        ) {
-        }
+        translate = templateReplacer(translate, expressions);
       }
       template();
       const getPropertyRegExpGI = /(this\.)([\w])+/gi;
@@ -162,14 +150,7 @@ not supported in this version of Ogone
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§use${gen.next().value}§§`;
       let path = expressions[matches[2]];
-      const keys = Object.keys(expressions);
-      while (
-        keys.find((k) =>
-          path.indexOf(k) > -1 &&
-          (path = path.replace(k, expressions[k]))
-        )
-      ) {
-      }
+      path = templateReplacer(path, expressions);
       typedExpressions.use[id] = {
         path,
         as: expressions[matches[4]],

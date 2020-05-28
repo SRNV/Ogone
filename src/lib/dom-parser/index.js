@@ -1,4 +1,5 @@
 import parseDirectives from "./parseDirectives.js";
+import templateReplacer from "../../../utils/template-recursive.ts";
 
 let i = 0;
 const openComment = "<!--";
@@ -277,14 +278,11 @@ function cleanNodes(expressions) {
     if (node.nodeType === 3) {
       const { value } = node;
       let rawText = value;
-      const keys = Object.keys(expressions);
-      while (
-        keys.find((key) =>
-          rawText.indexOf(key) > -1 &&
-          (rawText = rawText.replace(key, expressions[key].expression))
-        )
-      ) {
-      }
+      rawText = templateReplacer(
+        rawText,
+        expressions,
+        (key) => expressions[key].expression,
+      );
       node.rawText = rawText;
     }
   }

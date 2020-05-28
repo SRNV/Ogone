@@ -1,3 +1,5 @@
+import templateReplacer from "../../../utils/template-recursive.ts";
+
 let i = 0;
 function getId(type) {
   i++;
@@ -137,15 +139,7 @@ export default function scopeCSS(cssStr, scopeId) {
       result = result.replace(selector, s);
     });
   }
-  while (Object.keys(expressions).find((key) => result.indexOf(key) > -1)) {
-    const key = Object.keys(expressions).find((key) =>
-      result.indexOf(key) > -1
-    );
-    const index = result.indexOf(key);
-    const firstPart = result.substring(0, index);
-    const secondPart = result.substring(index + key.length, result.length);
-    result = `${firstPart}${expressions[key]}${secondPart}`;
-  }
+  result = templateReplacer(result, expressions);
 
   return result;
 }

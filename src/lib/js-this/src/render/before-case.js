@@ -4,6 +4,7 @@ import renderComputed from "../../src/render/computed.js";
 import renderNullifiedValues from "../../src/render/renderNullifiedValues.js";
 import elements from "../../src/elements.js";
 import o3 from "../../src/render/o3-syntax-render.js";
+import templateReplacer from "../../../../../utils/template-recursive.ts";
 
 export default function beforeCase(
   typedExpressions,
@@ -35,13 +36,7 @@ export default function beforeCase(
       "$1§§endExpression0§§$3",
     );
     data = o3(typedExpressions, expressions, data);
-    while (Object.keys(expressions).find((k) => data.indexOf(k) > -1)) {
-      const key = Object.keys(expressions).find((k) => data.indexOf(k) > -1);
-      const index = data.indexOf(key);
-      const firstPart = data.substring(0, index);
-      const secondPart = data.substring(index + key.length, data.length);
-      data = `${firstPart}${expressions[key]}${secondPart}`;
-    }
+    data = templateReplacer(data, expressions);
     if (m.trim() === "before-each") {
       typedExpressions.switch.before.each = data;
     } else {
