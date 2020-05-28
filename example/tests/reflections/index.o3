@@ -6,7 +6,7 @@
         position: null
     before-each:
         //  this is a reflection
-        // this.position => `${this.x},${this.y}`; //  todo
+        this.position => 0;
         // or
         this.position => {
             return `${this.x}, test ${this.y}`;
@@ -15,6 +15,6 @@
         setInterval(() => {
             this.x++;
             this.y--;
-        }, 500);
+        }, 5);
         break;
 </proto>

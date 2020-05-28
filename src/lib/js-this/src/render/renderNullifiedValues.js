@@ -68,7 +68,7 @@ const nullish = [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§comment${gen.next().value}§§`;
       expressions[id] = value;
-      return id;
+      return "";
     },
   },
   {
@@ -77,7 +77,7 @@ const nullish = [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§commentLine${gen.next().value}§§`;
       expressions[id] = value;
-      return id;
+      return "";
     },
     close: "/",
   },

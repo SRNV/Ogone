@@ -21,7 +21,7 @@ export default function (typedExpressions, expressions, prog) {
   if (!data) return result;
   let def = p.find((el, i, arr) => arr[i + 1] && arr[i + 1] === data);
   let previous = data;
-  const keys = Object.entries(expressions);
+  const keys = Object.keys(expressions);
   while (
     keys.find((key) =>
       data.indexOf(key) > -1 && (data = data.replace(key, expressions[key]))

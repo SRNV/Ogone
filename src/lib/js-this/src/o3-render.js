@@ -31,20 +31,97 @@ export default [
       const getPropertyRegExpGI = /(this\.)([\w])+/gi;
       const getPropertyRegExp = /(this\.)([\w])+/;
       const thisMatch = translate.match(getPropertyRegExpGI);
-      thisMatch.forEach((thisExpression) => {
-        const [input, keywordThis, property] = thisExpression.match(
-          getPropertyRegExp,
-        );
-        cases.push(`'update:${property}'`);
-      });
-      translate = `
-        if ([${cases}].includes(_state) || _state === 0) {
-          ${keywordThis +
-        identifier} = (() => ${translate})();____("${identifier}", this);
-        }
-      `;
+      if (thisMatch) {
+        thisMatch.forEach((thisExpression) => {
+          const [input, keywordThis, property] = thisExpression.match(
+            getPropertyRegExp,
+          );
+          cases.push(`'update:${property}'`);
+        });
+        translate = `
+          if ([${cases}].includes(_state) || _state === 0) {
+            ${keywordThis +
+          identifier} = (() => ${translate})();____("${identifier}", this);
+          }
+        `;
+      } else {
+        translate = `
+          if (_state === 0) {
+            ${keywordThis +
+          identifier} = (() => ${translate})();____("${identifier}", this);
+          }
+        `;
+      }
       template();
       typedExpressions.reflections.push(translate);
+      return "";
+    },
+    close: false,
+  },
+  {
+    name: "reflection",
+    open: false,
+    reg:
+      /(§{2}keywordThis\d+§{2})\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
+    id: (value, matches, typedExpressions, expressions) => {
+      const id = `§§reflection${gen.next().value}§§`;
+      const [input, keywordThis, identifier, arrowFunction, block] = matches;
+      expressions[id] = value;
+      const cases = [];
+      let translate = block.replace(/(§§endPonctuation\d+§§)/gi, "");
+      const keys = Object.keys(expressions);
+      function template() {
+        while (
+          keys.find((key) =>
+            translate.indexOf(key) > -1 &&
+            (translate = translate.replace(key, expressions[key]))
+          )
+        ) {
+        }
+      }
+      template();
+      const getPropertyRegExpGI = /(this\.)([\w])+/gi;
+      const getPropertyRegExp = /(this\.)([\w])+/;
+      const thisMatch = translate.match(getPropertyRegExpGI);
+      if (thisMatch) {
+        thisMatch.forEach((thisExpression) => {
+          const [input, keywordThis, property] = thisExpression.match(
+            getPropertyRegExp,
+          );
+          cases.push(`'update:${property}'`);
+        });
+        translate = `
+        if ([${cases}].includes(_state) || _state === 0) {
+          ${keywordThis +
+          identifier} = (() => ${translate})();____("${identifier}", this);
+        }
+      `;
+      } else {
+        translate = `
+        if (_state === 0) {
+          ${keywordThis +
+          identifier} = (() => ${translate})();____("${identifier}", this);
+        }
+      `;
+      }
+      template();
+      typedExpressions.reflections.push(translate);
+      return "";
+    },
+    close: false,
+  },
+  {
+    name: "reflection",
+    open: false,
+    reg:
+      /(§{2}keywordThis\d+§{2})\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+/,
+    id: (value, matches, typedExpressions, expressions) => {
+      const UpsupportedReflectionSyntax = new Error(
+        `[Ogone] Unsupported syntax of reflection.
+${value}
+not supported in this version of Ogone
+      `,
+      );
       return "";
     },
     close: false,
