@@ -170,7 +170,9 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 
 [for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
 
-### computed datas
+### reflected datas
+
+[read the docs on reflected datas](https://github.com/SRNV/Ogone/blob/master/src/docs/before-each.README.md)
 
 ```typescript
 <p>Hello ${fullname}</p>
@@ -187,6 +189,7 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
   break;
 </proto>
 ```
+[for more informations on reflected datas](https://github.com/SRNV/Ogone/blob/master/src/docs/before-each.README.md)
 
 ### menu component example
 
