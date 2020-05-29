@@ -1,20 +1,29 @@
-<p>${position}</p>
+<p>${position.name} ${position.origin}</p>
+<p --for="position.test as (item)">
+  ${item}
+</p>
 <proto>
-    def:
-        x: 0
-        y: 0
-        position: null
-    before-each:
-        //  this is a reflection
-        this.position => 0;
-        // or
-        this.position => {
-            return `${this.x}, test ${this.y}`;
-        };
-    default:
-        setInterval(() => {
-            this.x++;
-            this.y--;
-        }, 5);
-        break;
+  def:
+    x: 0
+    y: 0
+    position:
+      name: Test
+      origin: 0
+      test: []
+  before-each:
+    //  this is a reflection
+    this.position.origin => this.x;
+    // you can reflect any property of your data
+    this.position.test[this.position.origin -1] => this.position.origin;
+    this.position.test[this.position.origin] => 'yup';
+    // or
+    this.position.name => {
+      return `${this.x}, test ${this.y}`;
+    };
+  default:
+    setInterval(() => {
+      this.x++;
+      this.y--;
+    }, 500);
+    break;
 </proto>

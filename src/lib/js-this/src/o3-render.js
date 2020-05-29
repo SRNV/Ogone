@@ -1,7 +1,35 @@
 import gen from "./generator.js";
 import templateReplacer from "../../../../utils/template-recursive.ts";
 let rid = 0;
-
+export function translateReflection({ body, identifier }) {
+  const cases = [];
+  const getPropertyRegExpGI = /(this\.)([\w\.]*)+/gi;
+  const getPropertyRegExp = /(this\.)([\w\.]*)+/;
+  const a = body.match(getPropertyRegExpGI);
+  const b = identifier.match(getPropertyRegExpGI);
+  const array = [...(a ? a : []), ...(b ? b : [])];
+  const n = identifier.replace(/^(\.)/, "");
+  if (array.length) {
+    array.forEach((thisExpression) => {
+      const [input, keywordThis, property] = thisExpression.match(
+        getPropertyRegExp,
+      );
+      const key = `'update:${property.replace(/^(\.)/, "")}'`;
+      if (!cases.includes(key)) {
+        cases.push(key);
+      }
+    });
+    return `
+      if ([${cases}].includes(_state) || _state === 0) {
+        this${identifier} = (() => ${body})();____("${n}", this);
+      }`;
+  } else {
+    return `
+      if (_state === 0) {
+        this${identifier} = (() => ${body})();____("${n}", this);
+      }`;
+  }
+}
 export default [
   // reflection regexp this.name => {};
   // reflection is the same feature for computed datas but with the following syntax
@@ -11,41 +39,28 @@ export default [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*(§{2}block\d+§{2})/,
+      /(§{2}keywordThis\d+§{2})\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})\s*(§{2}block\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§reflection${gen.next().value}§§`;
-      const [input, keywordThis, identifier, arrowFunction, block] = matches;
+      const [input, keywordThis, identifier] = matches;
+      const fnbody = matches.find((k, i, arr) =>
+        arr[i - 1] && arr[i - 1].startsWith("§§arrowFunction")
+      );
       expressions[id] = value;
-      const cases = [];
-      let translate = block;
+      let translate = fnbody;
+      let translateIdentifier = identifier;
       function template() {
         translate = templateReplacer(translate, expressions);
+        translateIdentifier = templateReplacer(
+          translateIdentifier,
+          expressions,
+        );
       }
       template();
-      const getPropertyRegExpGI = /(this\.)([\w])+/gi;
-      const getPropertyRegExp = /(this\.)([\w])+/;
-      const thisMatch = translate.match(getPropertyRegExpGI);
-      if (thisMatch) {
-        thisMatch.forEach((thisExpression) => {
-          const [input, keywordThis, property] = thisExpression.match(
-            getPropertyRegExp,
-          );
-          cases.push(`'update:${property}'`);
-        });
-        translate = `
-          if ([${cases}].includes(_state) || _state === 0) {
-            ${keywordThis +
-          identifier} = (() => ${translate})();____("${identifier}", this);
-          }
-        `;
-      } else {
-        translate = `
-          if (_state === 0) {
-            ${keywordThis +
-          identifier} = (() => ${translate})();____("${identifier}", this);
-          }
-        `;
-      }
+      translate = translateReflection({
+        body: translate,
+        identifier: translateIdentifier,
+      });
       template();
       typedExpressions.reflections.push(translate);
       return "";
@@ -56,42 +71,29 @@ export default [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
+      /(§{2}keywordThis\d+§{2})\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§reflection${gen.next().value}§§`;
-      const [input, keywordThis, identifier, arrowFunction, block] = matches;
+      const [input, keywordThis, identifier] = matches;
+      const fnbody = matches.find((k, i, arr) =>
+        arr[i - 1] && arr[i - 1].startsWith("§§arrowFunction")
+      );
       expressions[id] = value;
       const cases = [];
-      let translate = block.replace(/(§§endPonctuation\d+§§)/gi, "");
-      const keys = Object.keys(expressions);
+      let translate = fnbody.replace(/(§§endPonctuation\d+§§)/gi, "");
+      let translateIdentifier = identifier;
       function template() {
         translate = templateReplacer(translate, expressions);
+        translateIdentifier = templateReplacer(
+          translateIdentifier,
+          expressions,
+        );
       }
       template();
-      const getPropertyRegExpGI = /(this\.)([\w])+/gi;
-      const getPropertyRegExp = /(this\.)([\w])+/;
-      const thisMatch = translate.match(getPropertyRegExpGI);
-      if (thisMatch) {
-        thisMatch.forEach((thisExpression) => {
-          const [input, keywordThis, property] = thisExpression.match(
-            getPropertyRegExp,
-          );
-          cases.push(`'update:${property}'`);
-        });
-        translate = `
-        if ([${cases}].includes(_state) || _state === 0) {
-          ${keywordThis +
-          identifier} = (() => ${translate})();____("${identifier}", this);
-        }
-      `;
-      } else {
-        translate = `
-        if (_state === 0) {
-          ${keywordThis +
-          identifier} = (() => ${translate})();____("${identifier}", this);
-        }
-      `;
-      }
+      translate = translateReflection({
+        body: translate,
+        identifier: translateIdentifier,
+      });
       template();
       typedExpressions.reflections.push(translate);
       return "";

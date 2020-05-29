@@ -1,12 +1,14 @@
 ![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/public/ogone_small.svg?token=AI44MA4AIHORIV6GFZ2OFBK6ZBGUI)
 
 # Ogone
+
 [![deno version](https://img.shields.io/badge/deno-^1.0.2-informational)](https://github.com/denoland/deno)
 [![stars](https://img.shields.io/github/stars/SRNV/Ogone)](https://github.com/SRNV/Ogone/stargazers)
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
 [![HitCount](http://hits.dwyl.com/SRNV/Ogone.svg)](http://hits.dwyl.com/SRNV/Ogone)
+
 ---
 
 # Description
@@ -189,6 +191,42 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
   break;
 </proto>
 ```
+
+more on reflected datas
+
+```typescript
+<p>${position.name} ${position.origin}</p>
+<p --for="position.test as (item)">
+  ${item}
+</p>
+<proto>
+  def:
+    x: 0
+    y: 0
+    position:
+      name: Test
+      origin: 0
+      test: []
+  before-each:
+    //  this is a reflection
+    this.position.origin => this.x;
+    // you can reflect any property of your data
+    this.position.test[this.position.origin -1] => this.position.origin;
+    this.position.test[this.position.origin] => 'yup';
+    // or
+    this.position.name => {
+      return `${this.x}, test ${this.y}`;
+    };
+  default:
+    setInterval(() => {
+      this.x++;
+      this.y--;
+    }, 500);
+    break;
+</proto>
+
+```
+
 [for more informations on reflected datas](https://github.com/SRNV/Ogone/blob/master/src/docs/before-each.README.md)
 
 ### menu component example
