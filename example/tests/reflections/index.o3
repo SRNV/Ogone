@@ -11,7 +11,7 @@
       origin: 0
       test: []
   before-each:
-    //  this is a reflection
+    // this is a reflection
     this.position.origin => this.x;
     // you can reflect any property of your data
     this.position.test[this.position.origin -1] => this.position.origin;

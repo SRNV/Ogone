@@ -19,7 +19,7 @@ articles:
     text: TODO
     code: 'import o3 from "https://deno.land/x/ogone/mod.ts"'
 
-  - title: Using def, case, default keywords to rule the component
+  - title: Using case, default, def, before-each keywords to rule the component
     text: TODO
     code: "
       <proto>\n
