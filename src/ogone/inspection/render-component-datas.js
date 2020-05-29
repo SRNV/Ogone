@@ -102,7 +102,11 @@ export default function (component) {
       }
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}
-      this.runtime = ${runtime ? runtime : "(function(){}).bind(this.data);"}
+      this.runtime = ${
+      runtime
+        ? `(${runtime}).bind(this.data);`
+        : "(function(){}).bind(this.data);"
+    }
     };
     `;
     Ogone.datas.push(result);
