@@ -8,7 +8,7 @@ function startRecursiveInspectionOfComponent(textFile, p) {
   Ogone.files.push(p);
   if (tokens.body && tokens.body.use) {
     Object.values(tokens.body.use)
-      .forEach(({ path, as }) => {
+      .forEach(({ path }) => {
         if (path === p) return;
         if (existsSync(path)) {
           const file = Deno.readTextFileSync(path);

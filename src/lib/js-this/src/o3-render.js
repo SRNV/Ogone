@@ -135,7 +135,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!§§string)/,
+      /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!(§§string))/,
     id: (value, matches, typedExpressions, expressions) => {
       const MissingStringInUseExpressionException = new Error(
         "[Ogone] please follow this pattern for use expression: use @/absolute/path.o3 as <string>\n\n",

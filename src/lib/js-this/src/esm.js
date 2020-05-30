@@ -431,7 +431,6 @@ export default [
     open: false,
     reg: /(§{2}keywordImport\d+§{2})([^\s\S]*)+/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = ``;
       const UnsupportedSyntaxOfImport = new SyntaxError(
         `[Ogone] this syntax of import is not supported\n`,
       );

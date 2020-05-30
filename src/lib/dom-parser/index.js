@@ -46,7 +46,7 @@ function parseNodes(html, expressions) {
     .forEach(([key, value]) => {
       const { expression, rawAttrs } = value;
       // we need to pad for the regexp
-      // any modification of the following line is forbidden
+      // critical modifications here
       let rawAttrsPadded = `${rawAttrs} `;
       // get rawAttrs
       const attrRE = /([^§\s]*)+(§{2}\d*attr§§)/gi;

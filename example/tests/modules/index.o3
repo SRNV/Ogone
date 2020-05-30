@@ -1,0 +1,8 @@
+import random from 'https://raw.githubusercontent.com/naktrem/rug/master/app.ts';
+<p>user ${name}</p>
+<proto>
+  def:
+    name: null
+  default:
+    this.name = random.generateUsername();
+</proto>

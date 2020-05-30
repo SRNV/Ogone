@@ -26,6 +26,7 @@ export default function renderEsm(typedExpressions, expressions, str, name) {
           item.reg,
           item.id(value, matches, typedExpressions, expressions),
         );
+        console.warn(result);
       }
     }
     if (item.split) {
