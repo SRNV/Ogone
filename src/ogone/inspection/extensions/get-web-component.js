@@ -197,6 +197,8 @@ export default function getWebComponent(component, node) {
     removeNodes() {
       /* use it before removing template node */
       this.ogone.nodes.forEach((n) => n.remove());
+      this.ogone.component.runtime('destroy');
+      this.ogone.component.activated = false;
       return this;
     }
     render() {

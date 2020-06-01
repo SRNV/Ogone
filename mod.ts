@@ -72,19 +72,22 @@ async function run(opts: OgoneOptions): Promise<void> {
     );
   }
   //start compilation of o3 files
-  compile();
-
-  const styles = Array.from(Ogone.components.entries()).map(([p, component]) =>
-    component.style.join("\n")
-  );
+  await compile(Ogone.config.entrypoint);
+  const stylesDev = Array.from(Ogone.components.entries())
+    .map((
+      [p, component],
+    ) =>
+      `<style id="${component.uuid}">
+  ${component.style.join("\n")}
+</style>`
+    ).join("\n");
+  const stylesProd = Array.from(Ogone.components.entries()).map((
+    [p, component],
+  ) => component.style.join("\n")).join("\n");
   const esm = Array.from(Ogone.components.entries()).map(([p, component]) =>
     component.esmExpressions
   ).join("\n");
-
-  const exportsExpression = Array.from(Ogone.components.entries()).map((
-    [p, component],
-  ) => component.exportsExpressions).join("\n");
-  const style = `<style>${styles.join("\n")}</style>`;
+  const style = stylesDev ? stylesDev : `<style>${(stylesProd)}</style>`;
   const rootComponent = Ogone.components.get(Ogone.config.entrypoint);
   if (
     rootComponent && ["router", "store", "async"].includes(rootComponent.type)
@@ -137,13 +140,13 @@ async function run(opts: OgoneOptions): Promise<void> {
     const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
     let isUrlFile: boolean = existsSync(pathToPublic);
     switch (true) {
-      case isUrlFile && req.url.startsWith(Ogone.config.modules):
-        const denoReqUrl = req.url.slice(1);
+      case req.url.startsWith(Ogone.config.modules):
+        const denoReqUrl = req.url.slice(1).split("?")[0];
         HMR(denoReqUrl);
         req.respond({
           body: Deno.readTextFileSync(denoReqUrl),
           headers: new Headers([
-            getHeaderContentTypeOf(req.url),
+            getHeaderContentTypeOf(denoReqUrl),
             ["X-Content-Type-Options", "nosniff"],
           ]),
         });

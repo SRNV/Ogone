@@ -22,8 +22,7 @@ function startRecursiveInspectionOfComponent(textFile, p) {
       });
   }
 }
-export default function oInspect() {
-  const { entrypoint } = Ogone.config;
+export default function oInspect(entrypoint) {
   if (existsSync(entrypoint)) {
     const rootComponentFile = Deno.readTextFileSync(entrypoint);
     startRecursiveInspectionOfComponent(rootComponentFile, entrypoint);

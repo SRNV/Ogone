@@ -115,7 +115,15 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ""),
-        constantDeclaration: [`const ${key} = Ogone.mod[${str}]`],
+        constantDeclaration: [`let ${key} = Ogone.mod[${str}];
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${key} = m;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
         expression: `Ogone.imp(${str}),`,
       };
       return ``;
@@ -179,7 +187,15 @@ export default [
         block: null,
         default: expressions[id2].replace(/['"\s`]/gi, ""),
         expression: `Ogone.imp(${str}),`,
-        constantDeclaration: [`const ${key} = Ogone.mod[${str}].default`],
+        constantDeclaration: [`let ${key} = Ogone.mod[${str}].default;
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${key} = m.default;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
       };
       return ``;
     },
@@ -203,7 +219,15 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ""),
-        constantDeclaration: [`const ${alias} = Ogone.mod[${str}]`],
+        constantDeclaration: [`let ${alias} = Ogone.mod[${str}];
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${alias} = m;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
         expression: `Ogone.imp(${str}),`,
       };
       typedExpressions.imports[
@@ -214,7 +238,15 @@ export default [
         block: null,
         default: str,
         expression: `Ogone.imp(${str}),`,
-        constantDeclaration: [`const ${key} = Ogone.mod[${str}].default`],
+        constantDeclaration: [`let ${key} = Ogone.mod[${str}].default;
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${key} = m.default;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
       };
 
       return ``;
@@ -239,7 +271,15 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ""),
-        constantDeclaration: [`const ${kAlias} = Ogone.mod[${str}]`],
+        constantDeclaration: [`let ${kAlias} = Ogone.mod[${str}];
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${kAlias} = m;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
         expression: `Ogone.imp(${str}),`,
       };
       typedExpressions.imports[
@@ -250,7 +290,15 @@ export default [
         block: null,
         default: str,
         expression: `Ogone.imp(${str}),`,
-        constantDeclaration: [`const ${key} = Ogone.mod[${str}].default`],
+        constantDeclaration: [`let ${key} = Ogone.mod[${str}].default;
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${key} = m.default;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
       };
 
       return ``;
@@ -284,7 +332,17 @@ export default [
         expression: `Ogone.imp(${str}),`,
         constantDeclaration: arrayOfKey.map((
           prop,
-        ) => `const ${prop} = Ogone.mod[${str}].${prop}`),
+        ) =>
+          `let ${prop} = Ogone.mod[${str}].${prop};
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${prop} = m.${prop};
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `
+        ),
       };
       return ``;
     },
@@ -317,7 +375,17 @@ export default [
         expression: `Ogone.imp(${str}),`,
         constantDeclaration: arrayOfKey.map((
           prop,
-        ) => `const ${prop} = Ogone.mod[${str}].${prop}`),
+        ) =>
+          `let ${prop} = Ogone.mod[${str}].${prop};
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${prop} = m.${prop};
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `
+        ),
       };
       typedExpressions.imports[
         kDef.trim()
@@ -327,7 +395,15 @@ export default [
         block: null,
         default: str,
         expression: `Ogone.imp(${str}),`,
-        constantDeclaration: [`const ${kDef} = Ogone.mod[${str}].default`],
+        constantDeclaration: [`let ${kDef} = Ogone.mod[${str}].default;
+          Ogone.mod['*'].push([${str}, (m) => {
+            if (!this.activated) return false;
+            ${kDef} = m.default;
+            this.runtime('destroy');
+            this.runtime(0);
+            return this.activated;
+          }]);
+        `],
       };
       return ``;
     },

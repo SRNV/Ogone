@@ -1,4 +1,4 @@
-import * as test from '/modules/allAS.js';
+import c from '/modules/module.js';
 
 <div class="container">
   <div class="logo-back">
@@ -9,10 +9,19 @@ import * as test from '/modules/allAS.js';
 <proto>
   def:
     param: ''
+    interval: null
+  before-each:
+    this.param => c;
   default:
     if (ctx) {
       this.param = Object.values(ctx).join()
     }
+    this.interval = setInterval(() => {
+      console.warn(c);
+    }, 1500);
+  break;
+  case 'destroy':
+    clearInterval(this.interval);
   break;
 </proto>
 <style>

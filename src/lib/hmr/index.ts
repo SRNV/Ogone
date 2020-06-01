@@ -11,13 +11,15 @@ const wss: WebSocketServer = new WebSocketServer(4000);
 wss.on("connection", (socket: WebSocket) => {
   ws = socket;
 });
+const watchingFiles: string[] = [];
 
 export default async function HMR(modulePath: string): Promise<void> {
+  if (watchingFiles.includes(modulePath)) return;
+  watchingFiles.push(modulePath);
   const module = Deno.watchFs(modulePath);
   for await (let event of module) {
     const { kind, paths } = event;
     const url = paths[0].replace(Deno.cwd(), "");
-    console.warn(url);
     if (kind === "access" && ws) {
       ws.send(JSON.stringify({
         url,

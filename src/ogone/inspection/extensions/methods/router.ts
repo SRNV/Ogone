@@ -122,6 +122,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
         for (let n of replacer) {
           n.isConnected ? n.replaceWith(...o.actualTemplate) : '';
         }
+        o.replacer[0] && o.replacer[0].isComponent ? o.replacer[0].removeNodes() : 0;
       }
       if (o.actualTemplate && o.actualTemplate[0].ogone && o.actualTemplate[0].isConnected) {
         // router stopped cause the template is still connected to the document
