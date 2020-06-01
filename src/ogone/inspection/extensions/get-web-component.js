@@ -233,12 +233,12 @@ export default function getWebComponent(component, node) {
       }
     }
   }
-  customElements.define('${component.uuid}-${
+`;
+  const definition = `customElements.define('${component.uuid}-${
     isTemplate ? "nt" : node.id
   }', Ogone.classes['${component.uuid}${
     isTemplate ? "" : "-" + node.id
-  }'], { extends: '${isTemplate ? "template" : extensionId}' });
-`;
-
+  }'], { extends: '${isTemplate ? "template" : extensionId}' });`;
+  Ogone.customElements.push(definition);
   return componentExtension;
 }

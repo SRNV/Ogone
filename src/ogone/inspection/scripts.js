@@ -56,12 +56,14 @@ export default function oRenderScripts() {
         ...defData,
       };
       const { value } = ogoneScript;
+      const { modules } = component;
       let script = `(${
         proto.attributes && ["async", "store"].includes(proto.attributes.type)
           ? "async"
           : ""
       } function (_state, ctx, event, _once = 0) {
           try {
+            ${modules ? modules.flat().join(";\n") : ""}
             ${each ? each : ""}
             ${ogoneScript.body.reflections.join("\n")}
             ${caseGate ? caseGate : ""}

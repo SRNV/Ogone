@@ -1,8 +1,12 @@
-import random from 'https://raw.githubusercontent.com/naktrem/rug/master/app.ts';
+import random from '/modules/module.js';
+import * as test, defaulto from '/modules/allAS.js';
+import { lol, instance } from '/modules/allAS.js';
+
 <p>user ${name}</p>
 <proto>
   def:
     name: null
   default:
-    this.name = random.generateUsername();
+    this.name = random;
+    console.warn(test, defaulto, instance, lol);
 </proto>

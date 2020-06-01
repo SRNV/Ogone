@@ -11,6 +11,9 @@ export default function oRenderImports() {
     const textNodes = component.rootNodePure.childNodes.filter((node, id) =>
       node.nodeType === 3 && id < index
     );
+    const proto = component.rootNodePure.childNodes.find((c) =>
+      c.tagName === "proto"
+    );
     let declarations = ``;
     textNodes.forEach((node) => {
       declarations += node.rawText;
@@ -24,18 +27,15 @@ export default function oRenderImports() {
       });
       if (importBody.body && importBody.body.imports) {
         const { imports } = importBody.body;
-        component.esmExpressions = Object.values(imports).map((imp) =>
-          imp.expression
-        ).join("\n");
-        component.exportsExpressions = Object.values(imports).map((imp) =>
-          imp.exports
-        ).join("\n");
+        component.esmExpressions = Object.entries(imports).map(([key, imp]) => {
+          component.modules.push(imp.constantDeclaration);
+          return imp.expression;
+        }).join("\n");
       }
       if (tokens.body && tokens.body.use) {
         Object.values(tokens.body.use).forEach((item) => {
           const pathComponent = item.path;
           const tagName = item.as.replace(/['"`]/gi, "");
-          const subComponent = Ogone.components.get(pathComponent);
           switch (true) {
             case tagName === "proto":
               const ReservedTagNameException = new Error(

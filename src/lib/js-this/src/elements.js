@@ -13,7 +13,7 @@ export default [
   },
   {
     open: "this",
-    reg: /\bthis(\s|\b){0,1}/,
+    reg: /\bthis\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordThis${gen.next().value}§§`;
       expressions[id] = value;
@@ -24,7 +24,7 @@ export default [
   // for o3
   {
     open: "use",
-    reg: /\buse(\s|\b){0,1}/,
+    reg: /\buse\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordUse${gen.next().value}§§`;
       expressions[id] = value;
@@ -35,7 +35,7 @@ export default [
   // for o3
   {
     open: "require",
-    reg: /\brequire(\s|\b){0,1}/,
+    reg: /\brequire\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordRequire${gen.next().value}§§`;
       expressions[id] = value;
@@ -46,7 +46,7 @@ export default [
   // for o3
   {
     open: "as",
-    reg: /\bas(\s|\b){0,1}/,
+    reg: /\bas\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordAs${gen.next().value}§§`;
       expressions[id] = value;
@@ -87,7 +87,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(default)(\s|\b){0,1}/,
+    reg: /\b(default)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordDefault${gen.next().value}§§`;
       expressions[id] = value;
@@ -97,7 +97,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(while)(\s|\b){0,1}/,
+    reg: /\b(while)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordWhile${gen.next().value}§§`;
       expressions[id] = value;
@@ -107,7 +107,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(if)(\s|\b){0,1}/,
+    reg: /\b(if)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordIf${gen.next().value}§§`;
       expressions[id] = value;
@@ -117,7 +117,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(for)(\s|\b){0,1}/,
+    reg: /\b(for)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordFor${gen.next().value}§§`;
       expressions[id] = value;
@@ -127,7 +127,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(async)(\s|\b){0,1}/,
+    reg: /\b(async)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordAsync${gen.next().value}§§`;
       expressions[id] = value;
@@ -137,7 +137,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(await)(\s|\b){0,1}/,
+    reg: /\b(await)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordAwait${gen.next().value}§§`;
       expressions[id] = value;
@@ -147,7 +147,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(function)(\s|\b){0,1}/,
+    reg: /\b(function)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordFunction${gen.next().value}§§`;
       expressions[id] = value;
@@ -157,7 +157,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(switch)(\s|\b){0,1}/,
+    reg: /\b(switch)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordSwitch${gen.next().value}§§`;
       expressions[id] = value;
@@ -167,7 +167,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(return)(\s|\b){0,1}/,
+    reg: /\b(return)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordReturn${gen.next().value}§§`;
       expressions[id] = value;
@@ -177,7 +177,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(yield)(\s|\b){0,1}/,
+    reg: /\b(yield)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordYield${gen.next().value}§§`;
       expressions[id] = value;
@@ -187,7 +187,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(case)(\s|\b){0,1}/,
+    reg: /\b(case)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordCase${gen.next().value}§§`;
       expressions[id] = value;
@@ -207,7 +207,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(break)(\s|\b){0,1}/,
+    reg: /\b(break)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordBreak${gen.next().value}§§`;
       expressions[id] = value;
@@ -217,7 +217,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(const)(\s|\b){0,1}/,
+    reg: /\b(const)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordConst${gen.next().value}§§`;
       expressions[id] = value;
@@ -227,7 +227,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(let)(\s|\b){0,1}/,
+    reg: /\b(let)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordLet${gen.next().value}§§`;
       expressions[id] = value;
@@ -237,7 +237,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(import)(\s|\b){0,1}/,
+    reg: /\b(import)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordImport${gen.next().value}§§`;
       expressions[id] = value;
@@ -247,7 +247,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(export)(\s|\b){0,1}/,
+    reg: /\b(export)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordExport${gen.next().value}§§`;
       expressions[id] = value;
@@ -257,7 +257,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(class)(\s|\b){0,1}/,
+    reg: /\b(class)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordClass${gen.next().value}§§`;
       expressions[id] = value;
@@ -267,7 +267,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(extends)(\s|\b){0,1}/,
+    reg: /\b(extends)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordExtends${gen.next().value}§§`;
       expressions[id] = value;
@@ -277,7 +277,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(from)(\s|\b){0,1}/,
+    reg: /\b(from)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordFrom${gen.next().value}§§`;
       expressions[id] = value;
@@ -287,7 +287,7 @@ export default [
   },
   {
     open: false,
-    reg: /\b(delete)(\s|\b){0,1}/,
+    reg: /\b(delete)\b/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§keywordDelete${gen.next().value}§§`;
       expressions[id] = value;

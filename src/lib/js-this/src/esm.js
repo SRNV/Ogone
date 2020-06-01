@@ -106,22 +106,19 @@ export default [
       const id = `§§importAllAs${gen.next().value}§§`;
       const [input, imp, allAs, key, f, id2] = matches;
       expressions[id] = value;
+      const str = expressions[id2].replace(
+        /[\s]/gi,
+        "",
+      );
       typedExpressions.imports[key] = {
         ambient: null,
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${key} from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        };`,
-        exports: `import ${key} from ${
-          expressions[id2].replace(/[\s]/gi, "")
-        };`,
+        constantDeclaration: [`const ${key} = Ogone.mod[${str}]`],
+        expression: `Ogone.imp(${str}),`,
       };
-      return `import ${key} from ${id2};`;
+      return ``;
     },
     close: false,
   },
@@ -139,29 +136,9 @@ export default [
         allAs: null,
         block: null,
         default: null,
-        expression: `import ${expressions[id2]};`,
+        expression: `Ogone.imp(${expressions[id2]})`,
       };
-      return `require(${id2});`;
-    },
-    close: false,
-  },
-  {
-    name: "default direct import",
-    open: false,
-    reg:
-      /\s*(§{2}keywordImport\d+§{2})\s+([^§]*)+\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§import${gen.next().value}§§`;
-      const [input, imp, key] = matches;
-      expressions[id] = value;
-      typedExpressions.imports[key] = {
-        ambient: null,
-        allAs: null,
-        block: null,
-        default: key.replace(/['"`]/gi, "").trim(),
-        expression: `import ${key} from '${key}';`,
-      };
-      return `const ${key} = require('${key}');`;
+      return ``;
     },
     close: false,
   },
@@ -187,28 +164,24 @@ export default [
     name: "default import",
     open: false,
     reg:
-      /\s*(§{2}keywordImport\d+§{2})\s+([\w\d]*)+\s+(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
+      /\s*(§{2}keywordImport\d+§{2})\s+([\w\d]*)+\s+(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*((§{2}(endLine|endExpression|endPonctuation)\d+§{2}))/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§import${gen.next().value}§§`;
       const [input, imp, key, f, id2] = matches;
+      const str = expressions[id2].replace(
+        /[\s]/gi,
+        "",
+      );
       expressions[id] = value;
       typedExpressions.imports[key] = {
         ambient: null,
         allAs: null,
         block: null,
         default: expressions[id2].replace(/['"\s`]/gi, ""),
-        expression: `import { ${key} } from ${
-          expressions[id2].replace(/^(['"`])/, "$1./node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        }`,
-        exports: `
-          import o_${key} from ${expressions[id2].replace(/[\s]/gi, "")}
-          export const ${key} = o_${key};
-        `,
+        expression: `Ogone.imp(${str}),`,
+        constantDeclaration: [`const ${key} = Ogone.mod[${str}].default`],
       };
-      return `import ${key} from ${id2}`;
+      return ``;
     },
     close: false,
   },
@@ -222,20 +195,7 @@ export default [
       const id = `§§import${gen.next().value}§§`;
       const [input, imp, key, allAs, alias, f, id2] = matches;
       expressions[id] = value;
-      typedExpressions.imports[
-        expressions[key].replace(/[,\s\n]/gi, "")
-      ] = {
-        ambient: null,
-        allAs: null,
-        block: null,
-        default: expressions[id2].replace(/['"\s`]/gi, ""),
-        expression: `import ${expressions[key].replace(/[,\s\n]/gi, "")} from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        }`,
-      };
+      const str = expressions[id2].replace(/['"\s`]/gi, "");
       typedExpressions.imports[
         alias.replace(/[,\s\n]/gi, "")
       ] = {
@@ -243,17 +203,21 @@ export default [
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${alias} from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        };`,
+        constantDeclaration: [`const ${alias} = Ogone.mod[${str}]`],
+        expression: `Ogone.imp(${str}),`,
       };
-      return `
-        import ${key} from ${id2};
-        import ${alias} from ${id2};
-      `;
+      typedExpressions.imports[
+        expressions[key].replace(/[,\s\n]/gi, "")
+      ] = {
+        ambient: null,
+        allAs: null,
+        block: null,
+        default: str,
+        expression: `Ogone.imp(${str}),`,
+        constantDeclaration: [`const ${key} = Ogone.mod[${str}].default`],
+      };
+
+      return ``;
     },
     close: false,
   },
@@ -266,38 +230,30 @@ export default [
       const id = `§§import${gen.next().value}§§`;
       const [input, imp, allAs, alias, key, f, id2] = matches;
       expressions[id] = value;
+      const str = expressions[id2].replace(/[\s]/gi, "");
+      const kAlias = expressions[alias].replace(/[,\s\n]/gi, "");
       typedExpressions.imports[
-        key.replace(/[,\s\n]/gi, "")
-      ] = {
-        ambient: null,
-        allAs: null,
-        block: null,
-        default: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${expressions[key].replace(/[,\s\n]/gi, "")} from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        }`,
-      };
-      typedExpressions.imports[
-        expressions[alias].replace(/[,\s\n]/gi, "")
+        kAlias
       ] = {
         ambient: null,
         default: null,
         block: null,
         allAs: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${alias} from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        };`,
+        constantDeclaration: [`const ${kAlias} = Ogone.mod[${str}]`],
+        expression: `Ogone.imp(${str}),`,
       };
-      return `
-        import ${key} from ${id2};
-        import ${alias} from ${id2};
-      `;
+      typedExpressions.imports[
+        key.trim()
+      ] = {
+        ambient: null,
+        allAs: null,
+        block: null,
+        default: str,
+        expression: `Ogone.imp(${str}),`,
+        constantDeclaration: [`const ${key} = Ogone.mod[${str}].default`],
+      };
+
+      return ``;
     },
     close: false,
   },
@@ -310,27 +266,27 @@ export default [
       const id = `§§import${gen.next().value}§§`;
       const [input, imp, key, f, id2] = matches;
       expressions[id] = value;
+      const str = expressions[id2].replace(/[\s]/gi, "");
+      const realKey = expressions[key]
+        .replace(/\n,/gi, ",")
+        .replace(/,\}/gi, "}").trim();
+      const arr = realKey.replace(/^(\{)/, "[")
+        .replace(/(\})$/, "]")
+        .replace(/([\w]+)+/gi, "'$1'");
+      const arrayOfKey = eval(arr);
       typedExpressions.imports[
-        expressions[key]
-          .replace(/\n,/gi, ",")
-          .replace(/,\}/gi, "}")
+        realKey
       ] = {
         ambient: null,
         default: null,
         allAs: null,
         block: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${
-          expressions[key].replace(/\n,/gi, ",").replace(/,\}/gi, "}")
-        } from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        }`,
+        expression: `Ogone.imp(${str}),`,
+        constantDeclaration: arrayOfKey.map((
+          prop,
+        ) => `const ${prop} = Ogone.mod[${str}].${prop}`),
       };
-      return `
-        import ${key} from ${id2};
-      `;
+      return ``;
     },
     close: false,
   },
@@ -342,40 +298,38 @@ export default [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§import${gen.next().value}§§`;
       const [input, imp, key, def, f, id2] = matches;
-      typedExpressions.imports[def.replace(/[,\s\n]/gi, "")] = {
-        ambient: null,
-        block: null,
-        allAs: null,
-        default: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${def.replace(/[,\s\n]/gi, "")} from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        };`,
-      };
+      const kDef = def.replace(/[,\s\n]/gi, "");
+      const str = expressions[id2].replace(/[\s]/gi, "");
+      const realKey = expressions[key]
+        .replace(/\n,/gi, ",")
+        .replace(/,\}/gi, "}").trim();
+      const arr = realKey.replace(/^(\{)/, "[")
+        .replace(/(\})$/, "]")
+        .replace(/([\w]+)+/gi, "'$1'");
+      const arrayOfKey = eval(arr);
       typedExpressions.imports[
-        expressions[key]
-          .replace(/\n,/gi, ",")
-          .replace(/,\}/gi, "}")
+        realKey
       ] = {
         ambient: null,
         default: null,
         allAs: null,
         block: expressions[id2].replace(/['"`]/gi, ""),
-        expression: `import ${
-          expressions[key].replace(/\n,/gi, ",").replace(/,\}/gi, "}")
-        } from ${
-          expressions[id2].replace(/^(['"`])/, "$1/node_modules/").replace(
-            /[\s]/gi,
-            "",
-          )
-        };`,
+        expression: `Ogone.imp(${str}),`,
+        constantDeclaration: arrayOfKey.map((
+          prop,
+        ) => `const ${prop} = Ogone.mod[${str}].${prop}`),
       };
-      return `
-        import ${key} from ${id2};
-        import ${def} from ${id2};
-      `;
+      typedExpressions.imports[
+        kDef.trim()
+      ] = {
+        ambient: null,
+        allAs: null,
+        block: null,
+        default: str,
+        expression: `Ogone.imp(${str}),`,
+        constantDeclaration: [`const ${kDef} = Ogone.mod[${str}].default`],
+      };
+      return ``;
     },
     close: false,
   },
@@ -419,10 +373,7 @@ export default [
           )
         };`,
       };
-      return `
-        import ${key} from ${id2};
-        import ${def} from ${id2};
-      `;
+      return ``;
     },
     close: false,
   },

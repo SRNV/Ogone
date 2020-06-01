@@ -27,6 +27,7 @@ export default function oRender() {
         routes: null,
         // if the component type is store
         namespace: null,
+        modules: [],
       });
     } else {
       console.warn("[Ogone] passed", dir);
