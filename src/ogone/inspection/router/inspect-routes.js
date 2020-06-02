@@ -1,5 +1,3 @@
-import Ogone from "../../index.ts";
-
 const allowedKeys = [
   "path",
   "redirect",
@@ -13,7 +11,7 @@ const requiredKeys = [
   "path",
   "component",
 ];
-function startRecursiveRouterInspection(component, route, opts) {
+function startRecursiveRouterInspection(bundle, component, route, opts) {
   if (!route) return;
   const keys = Object.keys(route);
   const unsupported = keys.find((k) => !allowedKeys.includes(k));
@@ -35,12 +33,12 @@ function startRecursiveRouterInspection(component, route, opts) {
   if (route.component) {
     const c = component.imports[route.component];
     if (c) {
-      if (!Ogone.components.get(c)) {
+      if (!bundle.components.get(c)) {
         throw new Error(
           `[Ogone] incorrect path: ${c} is not a component. error found in: ${component.file}`,
         );
       }
-      const { uuid } = Ogone.components.get(c);
+      const { uuid } = bundle.components.get(c);
       route.component = `${uuid}-nt`;
     } else {
       const RouterUndefinedComponentException = new Error(
@@ -63,6 +61,7 @@ function startRecursiveRouterInspection(component, route, opts) {
 
     route.children.forEach((child) => {
       startRecursiveRouterInspection(
+        bundle,
         component,
         child,
         { routes: opts.routes, parentPath: route.path },
@@ -71,7 +70,7 @@ function startRecursiveRouterInspection(component, route, opts) {
   }
   opts.routes.push(route);
 }
-export default function inspectRoutes(component, routes) {
+export default function inspectRoutes(bundle, component, routes) {
   if (!Array.isArray(routes)) {
     const InpectRoutesWaitingForAnArrayException = new TypeError(
       `[Ogone] inspectRoutes is waiting for an array as argument 2.
@@ -85,7 +84,7 @@ export default function inspectRoutes(component, routes) {
     routes: [],
   };
   routes.forEach((route) => {
-    startRecursiveRouterInspection(component, route, opts);
+    startRecursiveRouterInspection(bundle, component, route, opts);
   });
   return opts.routes;
 }

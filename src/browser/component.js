@@ -187,7 +187,7 @@ function OComponent() {
     // this web component is a custom Element
     // not an extension of an element cause the attr "is" is not dynamic
     // at the first call of this function Onode is not "rendered" (replaced by the required element)
-    let { key, callingNewComponent, length: dataLength } = opts;
+    let { callingNewComponent, length: dataLength } = opts;
     typeof dataLength === "object" ? dataLength = 1 : [];
     const context = Onode.context;
     // no need to render if it's the same
@@ -202,6 +202,7 @@ function OComponent() {
         level: Onode.ogone.level,
         position: Onode.ogone.position,
         directives: Onode.ogone.directives,
+        orinal: Onode,
         ...(!callingNewComponent ? { component: this } : {
           props: Onode.ogone.props,
           params: Onode.ogone.params,

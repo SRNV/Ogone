@@ -1,13 +1,11 @@
-// import BABEL from "@babel/core";
-import Ogone from "../index.ts";
 import jsThis from "../../lib/js-this/switch.js";
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
 import allowedTypes from "./rules/component-types.js";
 import { existsSync } from "../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.js";
 
-export default function oRenderScripts() {
-  const entries = Array.from(Ogone.components.entries());
+export default function oRenderScripts(bundle) {
+  const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     const proto = component.rootNodePure.childNodes.find((node) =>
       node.tagName === "proto"
@@ -98,6 +96,7 @@ export default function oRenderScripts() {
       component.type = type;
       if (type === "router") {
         component.routes = inspectRoutes(
+          bundle,
           component,
           Object.values(component.data),
         );

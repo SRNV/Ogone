@@ -26,6 +26,8 @@ export default function constructorMethods(
       this.dependencies = (${JSON.stringify(node.dependencies)});
       this.positionInParentComponent = ${isTemplate ? "[]" : null};
       ${templateConstruction}
+      // define templates of hmr
+      Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];
     }
   `;
 }

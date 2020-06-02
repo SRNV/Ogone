@@ -5,7 +5,7 @@ import { browserBuild, template } from "./src/browser/readfiles.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import compile from "./src/ogone/compilation/index.ts";
-import HMR from "./src/lib/hmr/index.ts";
+import HMR, { HCR } from "./src/lib/hmr/index.ts";
 
 interface OgoneOptions {
   /**
@@ -72,8 +72,8 @@ async function run(opts: OgoneOptions): Promise<void> {
     );
   }
   //start compilation of o3 files
-  await compile(Ogone.config.entrypoint);
-  const stylesDev = Array.from(Ogone.components.entries())
+  const bundle = await compile(Ogone.config.entrypoint);
+  const stylesDev = Array.from(bundle.components.entries())
     .map((
       [p, component],
     ) =>
@@ -81,14 +81,14 @@ async function run(opts: OgoneOptions): Promise<void> {
   ${component.style.join("\n")}
 </style>`
     ).join("\n");
-  const stylesProd = Array.from(Ogone.components.entries()).map((
+  const stylesProd = Array.from(bundle.components.entries()).map((
     [p, component],
   ) => component.style.join("\n")).join("\n");
-  const esm = Array.from(Ogone.components.entries()).map(([p, component]) =>
+  const esm = Array.from(bundle.components.entries()).map(([p, component]) =>
     component.esmExpressions
   ).join("\n");
   const style = stylesDev ? stylesDev : `<style>${(stylesProd)}</style>`;
-  const rootComponent = Ogone.components.get(Ogone.config.entrypoint);
+  const rootComponent = bundle.components.get(Ogone.config.entrypoint);
   if (
     rootComponent && ["router", "store", "async"].includes(rootComponent.type)
   ) {
@@ -99,10 +99,11 @@ async function run(opts: OgoneOptions): Promise<void> {
   }
   const scriptDev = `
   ${browserBuild}
-  ${Ogone.datas.join("\n")}
-  ${Ogone.contexts.reverse().join("\n")}
-  ${Ogone.classes.reverse().join("\n")}
-  ${Ogone.customElements.join("\n")}
+  ${bundle.datas.join("\n")}
+  ${bundle.contexts.reverse().join("\n")}
+  ${bundle.classes.reverse().join("\n")}
+  ${bundle.customElements.join("\n")}
+  ${bundle.render.join("\n")}
   Promise.all([
     ${esm}
   ]).then(() => {
@@ -116,10 +117,11 @@ async function run(opts: OgoneOptions): Promise<void> {
   const scriptProd = `
   ${browserBuild}
   ${esm}
-  ${Ogone.datas.join("\n")}
-  ${Ogone.contexts.reverse().join("\n")}
-  ${Ogone.classes.reverse().join("\n")}
-  ${Ogone.customElements.join("\n")}
+  ${bundle.datas.join("\n")}
+  ${bundle.contexts.reverse().join("\n")}
+  ${bundle.classes.reverse().join("\n")}
+  ${bundle.customElements.join("\n")}
+  ${bundle.render.join("\n")}
   `;
   // in production DOM has to be
   // <template is="${rootComponent.uuid}-nt"></template>
@@ -134,6 +136,8 @@ async function run(opts: OgoneOptions): Promise<void> {
     .replace(/%%head%%/, head)
     .replace(/%%dom%%/, (DOMDev || DOMProd));
 
+  // start watching components
+  HCR(bundle);
   // Ogone is now ready to serve
   console.warn(`[Ogone] Success http://localhost:${port}/`);
   for await (const req of server) {

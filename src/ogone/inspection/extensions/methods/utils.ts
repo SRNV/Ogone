@@ -54,6 +54,7 @@ export default function utilsMethods(
         position: this.ogone.position,
         directives: this.ogone.directives,
         dependencies: this.ogone.dependencies,
+        render: this.ogone.render,
         ${cloneProps}
       })
       return node;

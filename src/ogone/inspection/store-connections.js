@@ -1,7 +1,6 @@
-import Ogone from "../index.ts";
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
-export default function getStoreConnections() {
-  const entries = Array.from(Ogone.components.entries());
+export default function getStoreConnections(bundle) {
+  const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     if (!component.rootNodePure || component.type === "store") return;
     // not recursive
@@ -11,7 +10,7 @@ export default function getStoreConnections() {
       const { tagName } = child;
       if (!tagName) return;
       const isImported = component.imports[tagName];
-      const subComponent = Ogone.components.get(isImported);
+      const subComponent = bundle.components.get(isImported);
       return subComponent && subComponent.type === "store";
     });
     component.hasStore = stores.length > 0;

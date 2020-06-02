@@ -18,7 +18,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
         o.locationPath = path;
         this.setActualRouterTemplate();
         this.renderRouter();
-        return true;
+        return oc.activated;
       });
     }
     routerSearch(route, locationPath) {

@@ -1,15 +1,14 @@
 import { existsSync } from "../../../utils/exists.ts";
-import Ogone from "../index.ts";
 import domparse from "../../lib/dom-parser/index.js";
 
-export default function oRender() {
-  Ogone.files.forEach((file, i) => {
+export default function oRender(bundle) {
+  bundle.files.forEach((file, i) => {
     const index = file;
     if (existsSync(index)) {
       const html = Deno.readTextFileSync(index);
       const rootNodePure = domparse(html);
 
-      Ogone.components.set(index, {
+      bundle.components.set(index, {
         rootNodePure,
         uuid: `data-${i}`,
         file: index,

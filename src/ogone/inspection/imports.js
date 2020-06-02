@@ -1,8 +1,7 @@
-import Ogone from "../index.ts";
 import jsThis from "../../lib/js-this/switch.js";
 
-export default function oRenderImports() {
-  const entries = Array.from(Ogone.components.entries());
+export default function oRenderImports(bundle) {
+  const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     const firstNode = component.rootNodePure.childNodes.find((node) =>
       node.nodeType !== 3
@@ -10,9 +9,6 @@ export default function oRenderImports() {
     const index = component.rootNodePure.childNodes.indexOf(firstNode);
     const textNodes = component.rootNodePure.childNodes.filter((node, id) =>
       node.nodeType === 3 && id < index
-    );
-    const proto = component.rootNodePure.childNodes.find((c) =>
-      c.tagName === "proto"
     );
     let declarations = ``;
     textNodes.forEach((node) => {

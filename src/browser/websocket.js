@@ -33,6 +33,21 @@ Ogone.hmr = async function (url) {
       module's url: ${url}
       `,
     });
+    throw err;
+  }
+};
+Ogone.hmrTemplate = async function (uuid, pragma) {
+  try {
+    const templates = Ogone.mod[uuid];
+    if (templates) {
+      templates.forEach((f, i, arr) => {
+        f && !f(pragma) ? delete arr[i] : 0;
+      });
+    }
+    return templates;
+  } catch (err) {
+    Ogone.error(err.message, "HMR-Error", err);
+    throw err;
   }
 };
 const ws = new WebSocket(`ws://localhost:4000/`);
@@ -40,10 +55,15 @@ ws.onopen = () => {
   ws.send("test");
 };
 ws.onmessage = (msg) => {
-  const { url, type } = JSON.parse(msg.data);
+  const { url, type, uuid, pragma } = JSON.parse(msg.data);
   if (type === "javascript") {
     Ogone.hmr(url).then(() => {
       console.warn("[Ogone] hmr:", url);
+    });
+  }
+  if (type === "template" && pragma && uuid) {
+    Ogone.hmrTemplate(uuid, pragma).then(() => {
+      console.warn("[Ogone] hmr replace template of component:", uuid);
     });
   }
 };

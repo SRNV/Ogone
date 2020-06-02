@@ -1,5 +1,4 @@
-import Ogone from "../index.ts";
-export default function (component) {
+export default function (bundle, component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     const { modules } = component;
@@ -107,6 +106,6 @@ export default function (component) {
       this.runtime = (__run || function(){}).bind(this.data);
     };
     `;
-    Ogone.datas.push(result);
+    bundle.datas.push(result);
   }
 }

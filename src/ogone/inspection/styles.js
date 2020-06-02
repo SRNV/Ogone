@@ -1,8 +1,7 @@
-import Ogone from "../index.ts";
 import scopeCSS from "../../lib/html-this/scopeCSS.js";
 
-export default function oRenderStyles() {
-  const entries = Array.from(Ogone.components.entries());
+export default function oRenderStyles(bundle) {
+  const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component], i) => {
     const styles = component.rootNodePure.childNodes.filter((node) =>
       node.tagName === "style"

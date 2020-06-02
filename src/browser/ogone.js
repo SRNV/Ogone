@@ -3,7 +3,7 @@ const Ogone = {
   stores: {},
   clients: [],
 
-  render: [],
+  render: {},
   events: [],
   styles: [],
   templates: {},

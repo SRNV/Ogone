@@ -1,24 +1,10 @@
-import Ogone from "../../../index.ts";
-
 export default function setOgoneMethod(
+  bundle: any,
   component: any,
   node: any,
   opts: any,
 ): string {
   const { isTemplate, isRouter, isAsyncNode } = opts;
-  const componentPragma = node.pragma(
-    component.uuid,
-    true,
-    Object.keys(component.imports),
-    (tagName: string) => {
-      if (component.imports[tagName]) {
-        const newcomponent = Ogone.components.get(component.imports[tagName]);
-        if (!newcomponent) return null;
-        return newcomponent.uuid;
-      }
-      return null;
-    },
-  );
   return `
   setOgone(def = {}) {
     this.ogone = {
@@ -106,11 +92,7 @@ export default function setOgoneMethod(
     };
     // use the jsx function and save it into this.ogone.render
     // this function generates all the childNodes or the template
-    this.ogone.render = ${
-    componentPragma
-      .replace(/\n/gi, "")
-      .replace(/\s+/gi, " ")
-  }
+    this.ogone.render = Ogone.render[this.extends];
     // set Async context for Async nodes
     ${isAsyncNode ? "this.setNodeAsyncContext();" : ""}
   }
