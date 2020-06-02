@@ -314,9 +314,9 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 (\*) required before publication
 (\*\*) required before 1.0.0
 
-- [ ] HMR \*\*
-- [ ] Imports modules \*
-- [ ] Complete Async Component feature \*\*
+- [x] HMR \*\*
+- [x] Imports modules \*
+- [x] Complete Async Component feature \*\*
 - [ ] Integrated Ogone-Dev-Tools \*\*
 - [ ] Integrated test environment \*\*
   - [ ] case 'test' is supported \*\*
