@@ -51,7 +51,7 @@ export default function getWebComponent(bundle, component, node) {
     ? "HTMLTemplateElement"
     : `${isExtension ? allConstructors[node.tagName] : "HTMLDivElement"}`;
   const OnodeClassId = isTemplate
-    ? `${component.uuid}`
+    ? `${component.uuid}-nt`
     : `${component.uuid}-${node.id}`;
   const componentExtension = `
   Ogone.classes['${OnodeClassId}'] = class extends ${OnodeClassExtension} {
@@ -298,7 +298,7 @@ export default function getWebComponent(bundle, component, node) {
   customElements.define('${component.uuid}-${
     isTemplate ? "nt" : node.id
   }', Ogone.classes['${component.uuid}${
-    isTemplate ? "" : "-" + node.id
+    isTemplate ? "-nt" : "-" + node.id
   }'], { extends: '${isTemplate ? "template" : extensionId}' });`;
 
   const render = `Ogone.render['${component.uuid}-${

@@ -31,31 +31,33 @@ function renderScript(proto: any) {
   );
 }
 function renderUsePath(declarations: any) {
-  return Object.values(jsThis(declarations, { onlyDeclarations: true }).body.use);
+  return Object.values(
+    jsThis(declarations, { onlyDeclarations: true }).body.use,
+  );
 }
-Deno.test('- jsThis can parse use statements', () => {
+Deno.test("- jsThis can parse use statements", () => {
   const [infos, infos2] = renderUsePath(`
     use @/path/to/comp.o3 as 'component';
     use @/second.o3 as 'should-be-parsed';
   `);
   assertEquals(infos, {
-    path:  "path/to/comp.o3",
+    path: "path/to/comp.o3",
     as: "'component'",
   });
   assertEquals(infos2, {
-    path:  "second.o3",
+    path: "second.o3",
     as: "'should-be-parsed'",
   });
 });
-Deno.test('- jsThis can parse wrong use statements', () => {
+Deno.test("- jsThis can parse wrong use statements", () => {
   assertThrows(() => {
     renderUsePath(`
       use @/path/to/comp.o3 as 'component';
       use
         @/second.o3 as
         'should-be-parsed';
-    `)
-  })
+    `);
+  });
 });
 /*
 Deno.test('- jsThis can parse missing string', () => {

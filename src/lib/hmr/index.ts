@@ -2,10 +2,14 @@ import {
   WebSocket,
   WebSocketServer,
 } from "https://deno.land/x/websocket/mod.ts";
-import compile from "../../ogone/compilation/index.ts";
+import compile from "../../../src/ogone/compilation/index.ts";
+import Env from "../env/Env.ts";
+import Ogone from "../../../src/ogone/index.ts";
 let ws: WebSocket | null = null;
 // open the websocket
 const wss: WebSocketServer = new WebSocketServer(4000);
+//
+let newApplicationCompilation: boolean = false;
 // when client open the connection
 // assign to ws the socket
 wss.on("connection", (socket: WebSocket) => {
@@ -31,12 +35,14 @@ export default async function HMR(modulePath: string): Promise<void> {
   }
 }
 
+const watchedFiles: string[] = [];
 // hot component replacement
 const componentRegistry: any = {
   styles: {},
   templates: {},
   scripts: {},
   nodes: {},
+  components: {},
 };
 function getPragma(bundle: any, component: any, node: any) {
   return node.pragma(
@@ -65,7 +71,7 @@ function startSavingNodesDNA(component: any, registry: any, node: any) {
     }
   }
 }
-function startNodeCompareDNA(opts: any) {
+async function startNodeCompareDNA(opts: any) {
   const {
     node,
     component,
@@ -76,6 +82,9 @@ function startNodeCompareDNA(opts: any) {
   } = opts;
   const isTemplate = node.tagName === null && node.nodeType === 1;
   const uuid = `${component.uuid}-${!isTemplate ? node.id : "nt"}`;
+  const ctx = newBundle.contexts.find((ctx: string) =>
+    ctx.indexOf(`Ogone.contexts['${uuid}'] =`) > -1
+  );
   if (node.childNodes) {
     for (let child of node.childNodes) {
       startNodeCompareDNA({
@@ -86,40 +95,64 @@ function startNodeCompareDNA(opts: any) {
       });
     }
   }
-  if (registry[uuid] !== node.dna) {
+  if (registry.nodes[uuid] !== node.dna) {
     const newPragma = getPragma(newBundle, newComponent, node).replace(
       newComponentRegExpID,
       component.uuid,
     );
-
-    if (ws) {
+    if (ws && ctx) {
       ws.send(JSON.stringify({
-        pragma: newPragma,
         uuid,
+        ctx: `
+                  ${ctx}
+                `,
+        pragma: newPragma,
         type: "template",
       }));
+    } else if (ws && !ctx) {
+      // start new application
+      forceReloading();
     }
-    registry[uuid] = node.dna;
+    registry.nodes[uuid] = node.dna;
+  }
+}
+async function forceReloading(): Promise<void> {
+  if (newApplicationCompilation === false && ws) {
+    newApplicationCompilation = true;
+    const newApplication = await compile(Ogone.config.entrypoint);
+    Env.setBundle(newApplication);
+    ws.send(JSON.stringify({
+      type: "reload",
+    }));
   }
 }
 export async function HCR(bundle: any): Promise<void> {
   // start saving state of components
+  newApplicationCompilation = false;
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([path, component]: any) => {
     componentRegistry.templates[path] = component.rootNodePure.dna;
+    componentRegistry.components[component.uuid] = true;
+    componentRegistry.styles[component.uuid] = component.style.join("\n");
     startSavingNodesDNA(component, componentRegistry, component.rootNodePure);
   });
   // watch
   bundle.files.forEach(async (path: string) => {
+    if (watchedFiles.includes(path)) {
+      return;
+    }
+    watchedFiles.push(path);
     const module = Deno.watchFs(path);
     for await (let event of module) {
-      const { kind, paths } = event;
+      const { kind } = event;
       if (kind === "access" && ws) {
         const newBundle = await compile(path);
         const newComponent = newBundle.components.get(path);
         const component = bundle.components.get(path);
-        const newTemplate = newComponent.rootNodePure.dna;
         const newComponentRegExpID = new RegExp(newComponent.uuid, "gi");
+        styleHasChanged(component, newComponent, {
+          newComponentRegExpID,
+        });
         startNodeCompareDNA({
           component,
           registry: componentRegistry,
@@ -131,4 +164,27 @@ export async function HCR(bundle: any): Promise<void> {
       }
     }
   });
+}
+function styleHasChanged(
+  component: any,
+  newComponent: any,
+  opts: any,
+): boolean {
+  const { newComponentRegExpID } = opts;
+  const style = newComponent.style.join("\n").replace(
+    newComponentRegExpID,
+    component.uuid,
+  );
+  console.warn(style);
+  const styleHasChanged = componentRegistry.styles[newComponent.uuid] !== style;
+  if (styleHasChanged && ws) {
+    ws.send(JSON.stringify({
+      uuid: component.uuid,
+      style,
+      type: "style",
+    }));
+    componentRegistry.styles[newComponent.uuid] = style;
+    return true;
+  }
+  return false;
 }

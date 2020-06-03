@@ -4,7 +4,7 @@ import templateReplacer from "../../../utils/template-recursive.ts";
 const openComment = "<!--";
 const closeComment = "-->";
 function getUniquekey(id = "", iterator) {
-  iterator.value++
+  iterator.value++;
   // critical all regexp are based on this line
   return `§§${iterator.value}${id}§§`;
 }
@@ -12,7 +12,7 @@ function getDNA(rootnode, node, expressions) {
   if (node.tagName === "style") return;
   if (node.tagName === "proto") return;
   if (!node.dna) {
-    node.dna = '';
+    node.dna = "";
   }
   if (node.tagName) {
     node.dna += node.tagName;
@@ -33,7 +33,7 @@ function getDNA(rootnode, node, expressions) {
     node.dna,
     expressions,
     (key) => expressions[key].expression,
-  )
+  );
   if (node.childNodes && node.childNodes.length) {
     node.childNodes.forEach((child, i, arr) => {
       // recursive for childNodes
@@ -481,7 +481,7 @@ export default function parse(html) {
   };
   let expressions = {};
   let iterator = {
-    value: 0
+    value: 0,
   };
   let str = `<template>${html}</template>`;
   // preserve comments

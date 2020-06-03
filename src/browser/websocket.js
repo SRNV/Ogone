@@ -55,16 +55,24 @@ ws.onopen = () => {
   ws.send("test");
 };
 ws.onmessage = (msg) => {
-  const { url, type, uuid, pragma } = JSON.parse(msg.data);
+  const { url, type, uuid, pragma, ctx, style } = JSON.parse(msg.data);
   if (type === "javascript") {
     Ogone.hmr(url).then(() => {
       console.warn("[Ogone] hmr:", url);
     });
   }
   if (type === "template" && pragma && uuid) {
-    Ogone.hmrTemplate(uuid, pragma).then(() => {
-      console.warn("[Ogone] hmr replace template of component:", uuid);
-    });
+    eval(ctx);
+    Ogone.hmrTemplate(uuid, pragma);
+  }
+  if (type === "reload") {
+    console.warn("[Ogone] hmr: reloading the application");
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  }
+  if (type === "style") {
+    document.querySelector(`style[id="${uuid}"]`).innerHTML = style;
   }
 };
 

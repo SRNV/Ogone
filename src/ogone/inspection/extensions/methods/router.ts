@@ -118,6 +118,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
         const replacer = o.replacer && o.replacer[0].ogone ?
           [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes].find(n => n[0].isConnected)
           : o.replacer;
+        if (!replacer) return;
         replacer.slice(1, replacer.length).forEach(n => n.remove());
         for (let n of replacer) {
           n.isConnected ? n.replaceWith(...o.actualTemplate) : '';
