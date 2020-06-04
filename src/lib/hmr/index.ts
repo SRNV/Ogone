@@ -79,22 +79,67 @@ async function startNodeCompareDNA(opts: any) {
     bundle,
     newBundle,
     newComponent,
-    newComponentRegExpID,
     registry,
   } = opts;
+  const newComponentRegExpID = new RegExp(newComponent.uuid, "gi");
   const uuid = `${component.uuid}-${node.id}`;
-  let ctx: string = bundle.contexts.find((c: string) =>
+  let ctx: string = newBundle.contexts.find((c: string) =>
     c.indexOf(`Ogone.contexts['${uuid}'] =`) > -1
   );
-  let render = bundle.render.find((r: string) =>
+  let render = newBundle.render.find((r: string) =>
     r.indexOf(`Ogone.render['${uuid}'] =`) > -1
   );
-  let klass = bundle.classes.find((k: string) =>
+  let klass = newBundle.classes.find((k: string) =>
     k.indexOf(`Ogone.classes['${uuid}'] =`) > -1
   );
-  let customElements = bundle.customElements.find((c: string) =>
+  let customElements = newBundle.customElements.find((c: string) =>
     c.indexOf(`customElements.define('${uuid}'`) > -1
   );
+  if (!registry.nodes[uuid]) {
+    const newPragma = getPragma(newBundle, newComponent, node).replace(
+      newComponentRegExpID,
+      component.uuid,
+    );
+    ctx = ctx
+      ? ctx.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    render = render
+      ? render.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    klass = klass
+      ? klass.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    customElements = customElements
+      ? customElements.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    if (ws) {
+      ws.send(JSON.stringify({
+        uuid,
+        ctx: `
+        ${render}
+        ${ctx}
+        ${klass}
+        ${customElements}
+        `,
+        pragma: newPragma,
+        type: "template",
+      }));
+    }
+    registry.nodes[uuid] = node.dna;
+  }
+
   if (node.childNodes) {
     for (let child of node.childNodes) {
       startNodeCompareDNA({
@@ -123,7 +168,6 @@ async function startNodeCompareDNA(opts: any) {
         component.uuid,
       )
       : "";
-    console.warn(render);
     klass = klass
       ? klass.replace(
         newComponentRegExpID,
@@ -143,9 +187,7 @@ async function startNodeCompareDNA(opts: any) {
         ${render}
         ${ctx}
         ${klass}
-        if (!customElements.get('${uuid}')) {
-          ${customElements}
-        }
+        ${customElements}
         `,
         pragma: newPragma,
         type: "template",

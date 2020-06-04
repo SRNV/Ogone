@@ -1,6 +1,6 @@
 <div
   --for="counts as (c, i)"
-  --click:increase> click ${c} </div>
+  --click:increase> click ${c}</div>
 <proto>
   def:
     count: 0
