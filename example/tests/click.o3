@@ -11,11 +11,10 @@
   case 'click:increase':
     const { i, c } = ctx;
     this.counts[i] = c+1;
-    this.count++;
 </proto>
 <style>
-* {
-    cursor: pointer;
-    user-select: none;
+div {
+  cursor: pointer;
+  user-select: none;
 }
 </style>
