@@ -1,0 +1,36 @@
+use @/example/tests/click.o3 as 'click-c'
+<h1>HMR tests</h1>
+<h3> update nodes </h3>
+<ul>
+  <li>change this li and it's attributes</li>
+  <li lol > add one attribute to this li</li>
+  <li><!--add textnode here--></li>
+  <li> add one other element</li>
+  <span> add one other element</span>
+  <li> add one component</li>
+  <li> add one text </li>
+  <li> change the text </li>
+  <li> change the style of the component </li>
+  <li class="hmr-update"> change the style of the component </li>
+</ul>
+
+<h3> update dynamics nodes </h3>
+<p> those updates shouldn't throw an error </p>
+<ul>
+  <li --for="[1, 2, 3] as (n)">add one dynamic node after ${n}</li>
+</ul>
+
+<h3> update components </h3>
+<click-c></click-c>
+<proto>
+  def:
+    content: change the content
+  default:
+    console.warn('change the default')
+</proto>
+<style>
+.hmr-update {
+  background: red;
+  color: brown;
+}
+</style>

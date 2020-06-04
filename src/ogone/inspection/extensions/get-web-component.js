@@ -9,6 +9,7 @@ import asyncMethods from "./methods/async.ts";
 import utilsMethods from "./methods/utils.ts";
 import constructorMethods from "./methods/constructor.ts";
 import setOgoneMethod from "./methods/ogone.ts";
+import Env from "../../../lib/env/Env.ts";
 
 export default function getWebComponent(bundle, component, node) {
   if (!component) return "";
@@ -19,7 +20,6 @@ export default function getWebComponent(bundle, component, node) {
   const isAsync = isTemplate && component.type === "async";
   const isAsyncNode = !isTemplate && !isImported && node.directives &&
     node.directives.await;
-  const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
   const opts = {
     isTemplate,
@@ -49,7 +49,7 @@ export default function getWebComponent(bundle, component, node) {
   }
   const OnodeClassExtension = isTemplate
     ? "HTMLTemplateElement"
-    : `${isExtension ? allConstructors[node.tagName] : "HTMLDivElement"}`;
+    : `HTMLElement`;
   const OnodeClassId = isTemplate
     ? `${component.uuid}-nt`
     : `${component.uuid}-${node.id}`;
@@ -106,11 +106,22 @@ export default function getWebComponent(bundle, component, node) {
       ${
     isTemplate ? "this.setProps(); this.ogone.component.updateProps();" : ""
   }
+      this.renderingProcess();
 
+      // now ... just render ftw!
+      switch(true) {
+        case ${isRouter}: this.renderRouter(); break;
+        case ${isStore}: this.renderStore(); break;
+        case ${isAsync}: this.renderAsync(); break;
+        default: this.render(); break;
+      }
+    }
+    renderingProcess() {
       // use the jsx renderer only for templates
       this.setNodes();
 
-
+      // set Async context for Async nodes
+      ${isAsyncNode ? "this.setNodeAsyncContext();" : ""}
       // use the previous jsx and push the result into ogone.nodes
       // set the dependencies of the node into the component
       this.setDeps();
@@ -126,14 +137,6 @@ export default function getWebComponent(bundle, component, node) {
 
       // set history state and trigger default code for router
       ${isRouter ? "this.triggerLoad();" : ""}
-
-      // now ... just render ftw!
-      switch(true) {
-        case ${isRouter}: this.renderRouter(); break;
-        case ${isStore}: this.renderStore(); break;
-        case ${isAsync}: this.renderAsync(); break;
-        default: this.render(); break;
-      }
     }
     setPosition() {
       this.ogone.position[this.ogone.level] = this.ogone.index;
@@ -174,23 +177,25 @@ export default function getWebComponent(bundle, component, node) {
     }
     setHMRContext() {
       // register to hmr
-      if (this.ogone.originalNode && !this.ogone.original) {
         Ogone.mod[this.extends].push((pragma) => {
           Ogone.render[this.extends] = eval(pragma);
           if (${!isTemplate}) {
-            this.destroy();
-            return false;
+            return true;
           }
-          const clone = this.clone;
-          this.ogone.component.render(this, {
-            length: 0
+          this.ogone.render = Ogone.render[this.extends];
+          const invalidatedNodes = this.ogone.nodes.slice();
+          this.renderingProcess();
+          invalidatedNodes.forEach((n, i) => {
+            if (n.ogone) {
+              if (i === 0) n.firstNode.replaceWith(...this.ogone.nodes);
+              n.destroy();
+            } else {
+              if (i === 0) n.replaceWith(...this.ogone.nodes);
+              n.remove();
+            }
           })
-          const r = this.context.placeholder;
-          r.replaceWith(clone);
-          this.destroy();
-          return false;
+          return true;
         });
-      }
     }
     setNodes() {
       const o = this.ogone;
@@ -199,13 +204,7 @@ export default function getWebComponent(bundle, component, node) {
         // so we need to keep the childnodes
         o.nodes = Array.from(o.render(o.component).childNodes);
       } else {
-        o.nodes.push(
-          o.render(o.component,
-            o.position,
-            o.index,
-            o.level
-          ),
-        );
+        o.nodes = [o.render(o.component, o.position, o.index, o.level)];
       }
     }
     setDeps() {
@@ -294,13 +293,24 @@ export default function getWebComponent(bundle, component, node) {
     }
   }
 `;
-  const definition = `
-  customElements.define('${component.uuid}-${
-    isTemplate ? "nt" : node.id
-  }', Ogone.classes['${component.uuid}${
-    isTemplate ? "-nt" : "-" + node.id
-  }'], { extends: '${isTemplate ? "template" : extensionId}' });`;
+  let definition =
+    `customElements.define('${component.uuid}-nt', Ogone.classes['${component.uuid}-nt'], { extends: 'template' });`;
 
+  if (!isTemplate) {
+    definition =
+      `customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
+  }
+  if (Env.env === "development") {
+    // for HMR
+    // asking if the customElement is already defined
+    definition = `
+      if (!customElements.get("${component.uuid}-${
+      isTemplate ? "nt" : node.id
+    }")) {
+        ${definition}
+      }
+    `;
+  }
   const render = `Ogone.render['${component.uuid}-${
     isTemplate ? "nt" : node.id
   }'] = ${

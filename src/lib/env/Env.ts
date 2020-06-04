@@ -42,10 +42,10 @@ export default abstract class Env {
     const scriptDev = `
       ${browserBuild}
       ${Env.bundle.datas.join("\n")}
+      ${Env.bundle.render.join("\n")}
       ${Env.bundle.contexts.reverse().join("\n")}
       ${Env.bundle.classes.reverse().join("\n")}
       ${Env.bundle.customElements.join("\n")}
-      ${Env.bundle.render.join("\n")}
       Promise.all([
         ${esm}
       ]).then(() => {
@@ -60,10 +60,10 @@ export default abstract class Env {
       ${browserBuild}
       ${esm}
       ${Env.bundle.datas.join("\n")}
+      ${Env.bundle.render.join("\n")}
       ${Env.bundle.contexts.reverse().join("\n")}
       ${Env.bundle.classes.reverse().join("\n")}
       ${Env.bundle.customElements.join("\n")}
-      ${Env.bundle.render.join("\n")}
       `;
     // in production DOM has to be
     // <template is="${rootComponent.uuid}-nt"></template>

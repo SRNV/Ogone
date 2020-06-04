@@ -43,6 +43,7 @@ const componentRegistry: any = {
   scripts: {},
   nodes: {},
   components: {},
+  lengthOfNodes: {},
 };
 function getPragma(bundle: any, component: any, node: any) {
   return node.pragma(
@@ -75,20 +76,30 @@ async function startNodeCompareDNA(opts: any) {
   const {
     node,
     component,
+    bundle,
     newBundle,
     newComponent,
     newComponentRegExpID,
     registry,
   } = opts;
-  const isTemplate = node.tagName === null && node.nodeType === 1;
-  const uuid = `${component.uuid}-${!isTemplate ? node.id : "nt"}`;
-  const ctx = newBundle.contexts.find((ctx: string) =>
-    ctx.indexOf(`Ogone.contexts['${uuid}'] =`) > -1
+  const uuid = `${component.uuid}-${node.id}`;
+  let ctx: string = bundle.contexts.find((c: string) =>
+    c.indexOf(`Ogone.contexts['${uuid}'] =`) > -1
+  );
+  let render = bundle.render.find((r: string) =>
+    r.indexOf(`Ogone.render['${uuid}'] =`) > -1
+  );
+  let klass = bundle.classes.find((k: string) =>
+    k.indexOf(`Ogone.classes['${uuid}'] =`) > -1
+  );
+  let customElements = bundle.customElements.find((c: string) =>
+    c.indexOf(`customElements.define('${uuid}'`) > -1
   );
   if (node.childNodes) {
     for (let child of node.childNodes) {
       startNodeCompareDNA({
         ...opts,
+        bundle,
         component,
         registry,
         node: child,
@@ -100,27 +111,57 @@ async function startNodeCompareDNA(opts: any) {
       newComponentRegExpID,
       component.uuid,
     );
-    if (ws && ctx) {
+    ctx = ctx
+      ? ctx.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    render = render
+      ? render.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    console.warn(render);
+    klass = klass
+      ? klass.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    customElements = customElements
+      ? customElements.replace(
+        newComponentRegExpID,
+        component.uuid,
+      )
+      : "";
+    if (ws) {
       ws.send(JSON.stringify({
         uuid,
         ctx: `
-                  ${ctx}
-                `,
+        ${render}
+        ${ctx}
+        ${klass}
+        if (!customElements.get('${uuid}')) {
+          ${customElements}
+        }
+        `,
         pragma: newPragma,
         type: "template",
       }));
-    } else if (ws && !ctx) {
-      // start new application
-      forceReloading();
     }
     registry.nodes[uuid] = node.dna;
   }
 }
-async function forceReloading(): Promise<void> {
+async function setNewApplication(): Promise<void> {
+  newApplicationCompilation = true;
+  const newApplication = await compile(Ogone.config.entrypoint);
+  Env.setBundle(newApplication);
+}
+function forceReloading() {
   if (newApplicationCompilation === false && ws) {
-    newApplicationCompilation = true;
-    const newApplication = await compile(Ogone.config.entrypoint);
-    Env.setBundle(newApplication);
+    setNewApplication();
     ws.send(JSON.stringify({
       type: "reload",
     }));
@@ -134,6 +175,8 @@ export async function HCR(bundle: any): Promise<void> {
     componentRegistry.templates[path] = component.rootNodePure.dna;
     componentRegistry.components[component.uuid] = true;
     componentRegistry.styles[component.uuid] = component.style.join("\n");
+    componentRegistry.lengthOfNodes[component.uuid] =
+      component.rootNodePure.nodeList.length;
     startSavingNodesDNA(component, componentRegistry, component.rootNodePure);
   });
   // watch
@@ -153,13 +196,15 @@ export async function HCR(bundle: any): Promise<void> {
         styleHasChanged(component, newComponent, {
           newComponentRegExpID,
         });
+        setNewApplication();
         startNodeCompareDNA({
           component,
-          registry: componentRegistry,
-          node: newComponent.rootNodePure,
+          bundle,
           newComponent,
           newBundle,
           newComponentRegExpID,
+          registry: componentRegistry,
+          node: newComponent.rootNodePure,
         });
       }
     }
@@ -175,15 +220,14 @@ function styleHasChanged(
     newComponentRegExpID,
     component.uuid,
   );
-  console.warn(style);
-  const styleHasChanged = componentRegistry.styles[newComponent.uuid] !== style;
+  const styleHasChanged = componentRegistry.styles[component.uuid] !== style;
   if (styleHasChanged && ws) {
     ws.send(JSON.stringify({
       uuid: component.uuid,
       style,
       type: "style",
     }));
-    componentRegistry.styles[newComponent.uuid] = style;
+    componentRegistry.styles[component.uuid] = style;
     return true;
   }
   return false;

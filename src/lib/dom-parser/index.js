@@ -8,9 +8,22 @@ function getUniquekey(id = "", iterator) {
   // critical all regexp are based on this line
   return `§§${iterator.value}${id}§§`;
 }
+function getNodeUniquekey(id = "", iterator) {
+  iterator.node++;
+  // critical all regexp are based on this line
+  return `§§${iterator.node}${id}§§`;
+}
+function getTextUniquekey(id = "", iterator) {
+  iterator.text++;
+  // critical all regexp are based on this line
+  return `§§${iterator.text}${id}§§`;
+}
 function getDNA(rootnode, node, expressions) {
   if (node.tagName === "style") return;
   if (node.tagName === "proto") return;
+  if (rootnode !== node && node.nodeType === 1) {
+    rootnode.nodeList.push(node);
+  }
   if (!node.dna) {
     node.dna = "";
   }
@@ -152,12 +165,12 @@ function parseTextNodes(html, expression, iterator) {
   textnodes
     .filter((content) => content.trim().length)
     .forEach((content) => {
-      const key = getUniquekey("text", iterator);
+      const key = getTextUniquekey("text", iterator);
       expression[key] = {
         type: "text",
         value: content,
         expression: content,
-        id: iterator.value,
+        id: iterator.text,
         nodeType: 3,
       };
       result = result.replace(`>${content}<`, `>${key}<`);
@@ -173,7 +186,7 @@ function preserveNodes(html, expression, iterator) {
     const id = node.match(regexpID);
     if (id) {
       const [input, slash, tagName, attrs, closingSlash] = id;
-      const key = `<${getUniquekey("node", iterator)}>`;
+      const key = `<${getNodeUniquekey("node", iterator)}>`;
       if (!!slash) {
         // get the openning tag by tagname, id -1 and closingTag === null
         const tag = Object.entries(expression)
@@ -181,7 +194,7 @@ function preserveNodes(html, expression, iterator) {
           .find(([k, v]) =>
             v.type === "node" &&
             v.tagName.trim() === tagName.trim() &&
-            v.id < iterator.value &&
+            v.id < iterator.node &&
             v.closingTag === null &&
             !v.closing &&
             !v.autoclosing
@@ -195,7 +208,7 @@ function preserveNodes(html, expression, iterator) {
         expression[key] = {
           key,
           tagName,
-          id: iterator.value,
+          id: iterator.node,
           rawAttrs: attrs,
           attributes: {},
           closing: !!slash,
@@ -377,7 +390,7 @@ function setNodesPragma(expressions) {
         if (nodeIsDynamic && !isImported && !isRoot) {
           // create a custom element if the element as a directive or prop or event;
           nodeCreation =
-            `const ${nId} = document.createElement('${node.tagName}', { is: '${idComponent}-${node.id}' });`;
+            `const ${nId} = document.createElement("${idComponent}-${node.id}");`;
         } else if (isImported) {
           nodeCreation =
             `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
@@ -428,7 +441,7 @@ function setNodesPragma(expressions) {
             : ""
         }
           ${nId}.setAttribute('${idComponent}', '');
-          ${setAttributes}
+          ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
           ${nodesPragma.length ? appending : ""}
           return ${nId};
         })${callComponent}`;
@@ -482,6 +495,8 @@ export default function parse(html) {
   let expressions = {};
   let iterator = {
     value: 0,
+    node: 0,
+    text: 0,
   };
   let str = `<template>${html}</template>`;
   // preserve comments
@@ -501,6 +516,7 @@ export default function parse(html) {
   // get rootNode
   result = getRootnode(str, expressions, iterator);
   result.id = "t";
+  result.nodeList = [];
   // delete last useless props and set rawtext to textnodes
   cleanNodes(expressions);
   // set to all nodes the jsx pragma

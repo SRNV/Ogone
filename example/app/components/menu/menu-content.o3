@@ -1,7 +1,7 @@
 use @/example/app/components/burger.o3 as 'burger-el';
 use @/example/app/components/menu/menu-button.o3 as 'menu-button';
 
-<div class="menu">
+<div id="test" class="menu">
   <menu-button --for="menu as (t)" :item="t" />
   <div>
     <burger-el />
