@@ -39,8 +39,7 @@ const watchedFiles: string[] = [];
 // hot component replacement
 const componentRegistry: any = {
   styles: {},
-  templates: {},
-  scripts: {},
+  runtimes: {},
   nodes: {},
   components: {},
   lengthOfNodes: {},
@@ -183,8 +182,11 @@ export async function HCR(bundle: any): Promise<void> {
   newApplicationCompilation = false;
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([path, component]: any) => {
-    componentRegistry.templates[path] = component.rootNodePure.dna;
+    // defined components
     componentRegistry.components[component.uuid] = true;
+    // save the protos of components
+    componentRegistry.runtimes[component.uuid] = component.scripts.runtime;
+    // save the styles of components
     componentRegistry.styles[component.uuid] = component.style.join("\n");
     componentRegistry.lengthOfNodes[component.uuid] =
       component.rootNodePure.nodeList.length;
@@ -207,6 +209,7 @@ export async function HCR(bundle: any): Promise<void> {
         styleHasChanged(component, newComponent, {
           newComponentRegExpID,
         });
+        protoHasChanged(component, newComponent);
         setNewApplication();
         startNodeCompareDNA({
           component,
@@ -239,6 +242,24 @@ function styleHasChanged(
       type: "style",
     }));
     componentRegistry.styles[component.uuid] = style;
+    return true;
+  }
+  return false;
+}
+function protoHasChanged(
+  component: any,
+  newComponent: any,
+): boolean {
+  if (!newComponent.scripts.runtime) return false;
+  const { runtime } = newComponent.scripts;
+  const runtimeHasChanged = componentRegistry.runtimes[component.uuid] !== runtime;
+  if (runtimeHasChanged && ws) {
+    ws.send(JSON.stringify({
+      uuid: component.uuid,
+      runtime,
+      type: "runtime",
+    }));
+    componentRegistry.runtimes[component.uuid] = runtime;
     return true;
   }
   return false;

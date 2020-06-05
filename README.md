@@ -313,15 +313,19 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 
 (\*) required before publication
 (\*\*) required before 1.0.0
+(...) in conception
 
-- [ ] HMR \*\*
+- [x] HMR \*\*
+  - [ ] Completed HMR module \*\*
 - [ ] Imports modules \*
 - [ ] Complete Async Component feature \*\*
 - [ ] Integrated Ogone-Dev-Tools \*\*
 - [ ] Integrated test environment \*\*
   - [ ] case 'test' is supported \*\*
+  - [ ] Automated e2e tests \*\*
   - [x] stress mode is supported \*\*
 - [ ] Controllers Components \*
+- [ ] Sounds Components (...)
 - [ ] Write robust tests for Ogone \*\*
   - [x] Dom-parser is solid \*\*
   - [ ] Js-this is solid \*\*

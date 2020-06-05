@@ -29,7 +29,7 @@ use @/example/tests/hmr/sub.o3 as 'sub-1';
   <div --for="[1, 2, 3] as (n)">add one dynamic node after ${n}</div>
 </ul>
 
-<h3> update components </h3>
+<h3> update components</h3>
 <!-- try
   using a new component
   the greeting component thrown an error at the begining of hmr development -->

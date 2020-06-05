@@ -176,25 +176,28 @@ export default function getWebComponent(bundle, component, node) {
       }
     }
     setHMRContext() {
+      const o = this.ogone;
+      const oc = o.component;
       // register to hmr
+        if (${isTemplate}) Ogone.run['${component.uuid}'].push(oc);
         Ogone.mod[this.extends].push((pragma) => {
           Ogone.render[this.extends] = eval(pragma);
           if (${!isTemplate}) {
             return true;
           }
-          this.ogone.render = Ogone.render[this.extends];
-          const invalidatedNodes = this.ogone.nodes.slice();
+          o.render = Ogone.render[this.extends];
+          const invalidatedNodes = o.nodes.slice();
           this.renderingProcess();
           invalidatedNodes.forEach((n, i) => {
             if (n.ogone) {
-              if (i === 0) n.firstNode.replaceWith(...this.ogone.nodes);
+              if (i === 0) n.firstNode.replaceWith(...o.nodes);
               n.destroy();
             } else {
-              if (i === 0) n.replaceWith(...this.ogone.nodes);
+              if (i === 0) n.replaceWith(...o.nodes);
               n.remove();
             }
           });
-          this.ogone.component.renderTexts(true);
+          oc.renderTexts(true);
           return true;
         });
     }

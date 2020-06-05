@@ -17,6 +17,8 @@ export default function constructorMethods(
       this.component = component;
       this.component.type = '${component.type || "component"}';
       this.setOgone();
+      // define runtime for hmr
+      Ogone.run['${component.uuid}'] = Ogone.run['${component.uuid}'] || [];
     `;
   }
   //define dependencies of the node

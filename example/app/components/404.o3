@@ -4,7 +4,7 @@ import c from '/modules/module.js';
   <div class="logo-back">
     <img class="logo" src="/public/ogone.svg" />
   </div>
-  <div class="text">404 route not found. ${param} </div>
+  <div class="text">404 route not found. ${param}</div>
 </div>
 <proto>
   def:
