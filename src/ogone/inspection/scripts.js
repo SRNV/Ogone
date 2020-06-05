@@ -19,7 +19,7 @@ export default function oRenderScripts(bundle) {
         defData = YAML.parse(def);
       } else {
         const DefinitionOfProtoNotFoundException = new Error(
-          `[Ogone] can't find the definition of proto: ${proto.attributes.def}`,
+          `[Ogone] can't find the definition file of proto: ${proto.attributes.def}`,
         );
         throw DefinitionOfProtoNotFoundException;
       }

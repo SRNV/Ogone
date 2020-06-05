@@ -6,6 +6,7 @@ use @/example/app/stores/menu.store.o3 as 'store-menu'
   <div class="line"></div>
   <div class="line"></div>
 </div>
+
 <proto>
   def:
     isOpen: false

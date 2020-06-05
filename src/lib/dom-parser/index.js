@@ -338,15 +338,15 @@ function setNodesPragma(expressions) {
   for (let node of nodes) {
     const params = "ctx, position = [], index = 0, level = 0";
     if (node.nodeType === 1 && node.tagName !== "style") {
-      const nId = `n${node.id}`;
-      node.id = nId;
-      let nodeIsDynamic = !!Object.keys(node.attributes).find((attr) =>
+      const nodeIsDynamic = !!Object.keys(node.attributes).find((attr) =>
         attr.startsWith(":") ||
         attr.startsWith("--") ||
         attr.startsWith("@") ||
         attr.startsWith("&") ||
         attr.startsWith("_")
       );
+      const nId = `n${nodeIsDynamic ? 'd': ''}${node.id}`;
+      node.id = nId;
       let setAttributes = Object.entries(node.attributes)
         .filter(([key, value]) =>
           !(key.startsWith(":") ||

@@ -76,6 +76,9 @@ async function run(opts: OgoneOptions): Promise<void> {
   Env.setBundle(bundle);
   // Ogone is now ready to serve
   console.warn(`[Ogone] Success http://localhost:${port}/`);
+  Deno.run({
+    cmd: ["google-chrome",'--sandbox --disable-gpu',`--app=http://localhost:${port}/`, '--name=ogone']
+  });
   for await (const req of server) {
     const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
     let isUrlFile: boolean = existsSync(pathToPublic);

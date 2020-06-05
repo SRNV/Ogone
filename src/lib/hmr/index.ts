@@ -81,48 +81,32 @@ async function startNodeCompareDNA(opts: any) {
     newComponent,
     registry,
   } = opts;
-  const newComponentRegExpID = new RegExp(newComponent.uuid, "gi");
   const uuid = `${component.uuid}-${node.id}`;
   let ctx: string = newBundle.contexts.find((c: string) =>
-    c.indexOf(`Ogone.contexts['${uuid}'] =`) > -1
+    c.indexOf(`${node.id}'] =`) > -1
   );
   let render = newBundle.render.find((r: string) =>
-    r.indexOf(`Ogone.render['${uuid}'] =`) > -1
+    r.indexOf(`${node.id}'] =`) > -1
   );
   let klass = newBundle.classes.find((k: string) =>
-    k.indexOf(`Ogone.classes['${uuid}'] =`) > -1
+    k.indexOf(`${node.id}'] =`) > -1
   );
   let customElements = newBundle.customElements.find((c: string) =>
-    c.indexOf(`customElements.define('${uuid}'`) > -1
+    c.indexOf(`${node.id}'`) > -1
   );
   if (!registry.nodes[uuid]) {
-    const newPragma = getPragma(newBundle, newComponent, node).replace(
-      newComponentRegExpID,
-      component.uuid,
-    );
+    const newPragma = mergeComponentsUUIDs(getPragma(newBundle, newComponent, node), opts);
     ctx = ctx
-      ? ctx.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(ctx, opts)
       : "";
     render = render
-      ? render.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(render, opts)
       : "";
     klass = klass
-      ? klass.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(klass, opts)
       : "";
     customElements = customElements
-      ? customElements.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(customElements, opts)
       : "";
     if (ws) {
       ws.send(JSON.stringify({
@@ -152,33 +136,18 @@ async function startNodeCompareDNA(opts: any) {
     }
   }
   if (registry.nodes[uuid] !== node.dna) {
-    const newPragma = getPragma(newBundle, newComponent, node).replace(
-      newComponentRegExpID,
-      component.uuid,
-    );
+    const newPragma = mergeComponentsUUIDs(getPragma(newBundle, newComponent, node), opts);
     ctx = ctx
-      ? ctx.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(ctx, opts)
       : "";
     render = render
-      ? render.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(render, opts)
       : "";
     klass = klass
-      ? klass.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(klass, opts)
       : "";
     customElements = customElements
-      ? customElements.replace(
-        newComponentRegExpID,
-        component.uuid,
-      )
+      ? mergeComponentsUUIDs(customElements, opts)
       : "";
     if (ws) {
       ws.send(JSON.stringify({
@@ -273,4 +242,26 @@ function styleHasChanged(
     return true;
   }
   return false;
+}
+function mergeComponentsUUIDs(txt: string,opts: any) {
+  let result = txt;
+  const { bundle, newBundle, registry, newComponent, component } = opts;
+  const comps = Array.from(newBundle.components.entries());
+  while(result.indexOf(newComponent.uuid) > -1) {
+    result = result.replace(newComponent.uuid, component.uuid);
+  }
+  let comp: any = comps.find((entry: any) => result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0]))
+  let oldComp: any = bundle.components.get((comp || [''])[0]);
+  while(comp) {
+    comp = comps.find((entry: any) => result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0]))
+    if (comp && oldComp) {
+      oldComp = bundle.components.get(comp[0]);
+      result = result.replace(comp[1].uuid, oldComp.uuid);
+    }
+    if (!oldComp) {
+      const index = comps.indexOf(comp);
+      delete comps[index];
+    }
+  }
+  return result;
 }

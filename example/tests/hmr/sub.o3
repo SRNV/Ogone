@@ -1,0 +1,8 @@
+use @/example/tests/hmr/sub2.o3 as 'sub-2';
+
+<p>Hello ${name}</p>
+<sub-2/>
+<proto>
+    def:
+        name: World
+</proto>

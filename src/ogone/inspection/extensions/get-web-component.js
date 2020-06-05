@@ -193,7 +193,8 @@ export default function getWebComponent(bundle, component, node) {
               if (i === 0) n.replaceWith(...this.ogone.nodes);
               n.remove();
             }
-          })
+          });
+          this.ogone.component.renderTexts(true);
           return true;
         });
     }
@@ -304,16 +305,12 @@ export default function getWebComponent(bundle, component, node) {
     // for HMR
     // asking if the customElement is already defined
     definition = `
-      if (!customElements.get("${component.uuid}-${
-      isTemplate ? "nt" : node.id
-    }")) {
+      if (!customElements.get("${component.uuid}-${node.id}")) {
         ${definition}
       }
     `;
   }
-  const render = `Ogone.render['${component.uuid}-${
-    isTemplate ? "nt" : node.id
-  }'] = ${
+  const render = `Ogone.render['${component.uuid}-${node.id}'] = ${
     componentPragma
       .replace(/\n/gi, "")
       .replace(/\s+/gi, " ")

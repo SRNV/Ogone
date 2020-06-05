@@ -51,9 +51,7 @@ Ogone.hmrTemplate = async function (uuid, pragma) {
   }
 };
 const ws = new WebSocket(`ws://localhost:4000/`);
-ws.onopen = () => {
-  ws.send("test");
-};
+
 ws.onmessage = (msg) => {
   const { url, type, uuid, pragma, ctx, style } = JSON.parse(msg.data);
   if (type === "javascript") {
