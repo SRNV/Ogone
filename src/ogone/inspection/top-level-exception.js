@@ -1,7 +1,5 @@
-import Ogone from "../index.ts";
-
-export default function oTopLevelTextNodeException() {
-  Ogone.components.forEach((c) => {
+export default function oTopLevelTextNodeException(bundle) {
+  bundle.components.forEach((c) => {
     c.rootNodePure.childNodes.filter((node, id) => id !== 0).forEach(
       (node, id) => {
         if (node.nodeType === 3 && node.rawText.trim().length) {

@@ -1,7 +1,5 @@
-import Ogone from "../index.ts";
-
-export default function oRenderContext(keyComponent) {
-  const component = Ogone.components.get(keyComponent);
+export default function oRenderContext(bundle, keyComponent) {
+  const component = bundle.components.get(keyComponent);
   Object.entries(component.for).forEach(([nId, directive]) => {
     const { script } = directive;
     const { node, ctx, getLength, array } = script;
@@ -106,6 +104,6 @@ export default function oRenderContext(keyComponent) {
       };
     `
         : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
-    Ogone.contexts.push(contextScript);
+    bundle.contexts.push(contextScript);
   });
 }

@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@v0.42.0/http/server.ts";
 import { getHeaderContentTypeOf } from "./utils/extensions-resolution.ts";
 import renderApp from "./src/renderApp.ts";
-import { browserBuild, template } from "./src/browser/readfiles.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import compile from "./src/ogone/compilation/index.ts";
+import HMR, { HCR } from "./src/lib/hmr/index.ts";
+import Env from "./src/lib/env/Env.ts";
 
 interface OgoneOptions {
   /**
@@ -24,6 +25,12 @@ interface OgoneOptions {
    * @description allow user to serve files to client
    */
   static?: string;
+
+  /**
+   * @property static
+   * @description allow user to serve files to client
+   */
+  modules: string;
 }
 type OgoneAPIType = {
   /**
@@ -36,64 +43,54 @@ type OgoneAPIType = {
 async function run(opts: OgoneOptions): Promise<void> {
   Ogone.config = opts || Ogone.config;
   const port: number = Ogone.config.port;
+  const modulesPath: string = Ogone.config.modules;
   // open the server
   const server = serve({ port });
+
   // start rendering Ogone system
-  if (!existsSync(Ogone.config.entrypoint)) {
+  if (!Ogone.config.entrypoint || !existsSync(Ogone.config.entrypoint)) {
     server.close();
     throw new Error(
       "[Ogone] can't find entrypoint, please specify a correct path",
     );
   }
-  //start compilation of o3 files
-  compile();
-
-  const styles = Array.from(Ogone.components.entries()).map(([p, component]) =>
-    component.style.join("\n")
-  );
-  const esm = Array.from(Ogone.components.entries()).map(([p, component]) =>
-    component.esmExpressions
-  ).join("\n");
-  const exportsExpression = Array.from(Ogone.components.entries()).map((
-    [p, component],
-  ) => component.exportsExpressions).join("\n");
-  const style = `<style>${styles.join("\n")}</style>`;
-  const rootComponent = Ogone.components.get(Ogone.config.entrypoint);
-  if (
-    rootComponent && ["router", "store", "async"].includes(rootComponent.type)
-  ) {
-    const RootNodeTypeErrorException = new TypeError(
-      `[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+  if (!modulesPath || !existsSync(modulesPath.slice(1))) {
+    server.close();
+    throw new Error(
+      "[Ogone] can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' })",
     );
-    throw RootNodeTypeErrorException;
   }
-  const script = `
-    ${esm}
-    ${browserBuild}
-    ${Ogone.datas.join("\n")}
-    ${Ogone.contexts.reverse().join("\n")}
-    ${Ogone.templates.join("\n")}
-    ${Ogone.classes.reverse().join("\n")}
-    ${Ogone.customElements.join("\n")}
-  `;
-  const DOM = `
-  <template is="${rootComponent.uuid}-nt" ></template>
-  `;
-  let head = `
-    ${style}
-    <script type="module">
-      ${script.trim()}
-    </script>`;
-  let body = template
-    .replace(/%%head%%/, head)
-    .replace(/%%dom%%/, DOM);
-
+  if (!Ogone.config.modules.startsWith("/")) {
+    server.close();
+    throw new Error(
+      "[Ogone] modules path has to start with: /",
+    );
+  }
+  if (!("port" in Ogone.config) || typeof Ogone.config.port !== "number") {
+    throw new Error(
+      "[Ogone] please provide a port for the server. it has to be a number.",
+    );
+  }
+  //start compilation of o3 files
+  const bundle = await compile(Ogone.config.entrypoint);
+  Env.setBundle(bundle);
   // Ogone is now ready to serve
   console.warn(`[Ogone] Success http://localhost:${port}/`);
   for await (const req of server) {
     const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
     let isUrlFile: boolean = existsSync(pathToPublic);
     switch (true) {
+      case req.url.startsWith(Ogone.config.modules):
+        const denoReqUrl = req.url.slice(1).split("?")[0];
+        HMR(denoReqUrl);
+        req.respond({
+          body: Deno.readTextFileSync(denoReqUrl),
+          headers: new Headers([
+            getHeaderContentTypeOf(denoReqUrl),
+            ["X-Content-Type-Options", "nosniff"],
+          ]),
+        });
+        break;
       case isUrlFile && req.url.startsWith("/public/"):
         req.respond({
           body: Deno.readTextFileSync(pathToPublic),
@@ -104,7 +101,7 @@ async function run(opts: OgoneOptions): Promise<void> {
         });
         break;
       default:
-        req.respond({ body: renderApp(body) });
+        req.respond({ body: renderApp(Env.application) });
         break;
     }
   }

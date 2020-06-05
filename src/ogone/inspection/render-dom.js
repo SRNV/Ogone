@@ -1,5 +1,4 @@
 import iterator from "../../lib/iterator.js";
-import Ogone from "../index.ts";
 import parseAttrs from "../../lib/html-this/parseAttrs.js";
 import oRenderForDirective from "./render-for-directive.js";
 
@@ -22,6 +21,7 @@ const directives = [
   "--input",
 ];
 export default function oRenderDOM(
+  bundle,
   keyComponent,
   node,
   structure = "",
@@ -37,7 +37,7 @@ export default function oRenderDOM(
   },
 ) {
   try {
-    const component = Ogone.components.get(keyComponent);
+    const component = bundle.components.get(keyComponent);
     const nUuid = `o-${iterator.next().value}`;
     let query = "";
     let contextLegacy = {};
@@ -192,7 +192,7 @@ export default function oRenderDOM(
               }
             });
           }
-          oRenderDOM(keyComponent, el, query, i, {
+          oRenderDOM(bundle, keyComponent, el, query, i, {
             ...contextLegacy,
             ctx: { ...contextLegacy.ctx },
             tree: [...contextLegacy.tree],

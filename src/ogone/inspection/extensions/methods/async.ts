@@ -13,7 +13,7 @@ export default function asyncMethods(
         if (o.directives && o.directives.await) {
           const promise = new Promise((resolve, reject) => {
           if (typeof o.directives.await === 'boolean') {
-            this.addEventListener('load', (ev) => {
+            this.firstNode.addEventListener('load', (ev) => {
               resolve(false);
             });
           } else {
@@ -21,7 +21,7 @@ export default function asyncMethods(
               getText: o.directives.await,
               position: o.position,
             })
-            this.addEventListener(type, (ev) => {
+            this.firstNode.addEventListener(type, (ev) => {
               resolve(false);
             });
           }

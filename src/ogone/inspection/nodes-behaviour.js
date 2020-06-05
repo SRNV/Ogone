@@ -1,16 +1,16 @@
-import Ogone from "../index.ts";
 import getWebComponent from "./extensions/get-web-component.js";
 
 export default function oRenderNodesBehavior(
+  bundle,
   keyComponent,
   node,
 ) {
-  const component = Ogone.components.get(keyComponent);
+  const component = bundle.components.get(keyComponent);
   const isImported = component.imports[node.tagName];
-  const subcomp = Ogone.components.get(isImported);
+  const subcomp = bundle.components.get(isImported);
   if (node.tagName === null || (node.hasDirective && node.tagName)) {
-    const elementExtension = getWebComponent(component, node);
-    Ogone.classes.push(elementExtension);
+    const elementExtension = getWebComponent(bundle, component, node);
+    bundle.classes.push(elementExtension);
   }
   if (
     node.attributes && node.attributes["--await"] && component.type !== "async"
@@ -62,7 +62,7 @@ export default function oRenderNodesBehavior(
   if (node.childNodes && node.childNodes.length) {
     node.childNodes.forEach((child) => {
       if (node.nodeType === 1) {
-        oRenderNodesBehavior(keyComponent, child);
+        oRenderNodesBehavior(bundle, keyComponent, child);
       }
     });
   }

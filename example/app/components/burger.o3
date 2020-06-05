@@ -1,11 +1,11 @@
 use @/example/app/stores/menu.store.o3 as 'store-menu'
 <store-menu namespace="menu" />
-
 <div class="container" --click:openMenu>
   <div class="line"></div>
   <div class="line"></div>
   <div class="line"></div>
 </div>
+
 <proto>
   def:
     isOpen: false

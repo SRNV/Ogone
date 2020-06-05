@@ -8,14 +8,25 @@ import oRenderStyles from "../inspection/styles.js";
 import oStartRenderingDom from "./start-render.js";
 import getStoreConnections from "../inspection/store-connections.js";
 
-export default function () {
-  oInspect();
-  oRender();
-  oRenderImports();
-  oRenderScripts();
-  getStoreConnections();
-  oRenderStyles();
-  oTopLevelTextNodeException();
-  oCleanPureRootNode();
-  oStartRenderingDom();
+export default async function (path: string) {
+  const bundle = {
+    files: [],
+    datas: [],
+    context: [],
+    classes: [],
+    contexts: [],
+    customElements: [],
+    components: new Map(),
+    render: [],
+  };
+  await oInspect(path, bundle);
+  await oRender(bundle);
+  await oRenderImports(bundle);
+  await oRenderScripts(bundle);
+  await getStoreConnections(bundle);
+  await oRenderStyles(bundle);
+  await oTopLevelTextNodeException(bundle);
+  await oCleanPureRootNode(bundle);
+  await oStartRenderingDom(bundle);
+  return bundle;
 }

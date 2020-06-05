@@ -1,0 +1,50 @@
+use @/example/tests/click.o3 as 'click-c'
+use @/example/tests/greeting.o3 as 'greeting-g'
+use @/example/tests/hmr/sub.o3 as 'sub-1';
+
+<h1>HMR tests</h1>
+<h3> update nodes </h3>
+<ul>
+  <li>change this li and it's attributes</li>
+  <li lol > add one attribute to this li</li>
+  <li><!--add textnode here--></li>
+  <li> add one other element</li>
+  <span> add one other element</span>
+  <li> add one component</li>
+  <li> add one text a </li>
+  <li> change the text </li>
+  <li> change the style of the component </li>
+  <li class="hmr-update"> change the style of the component </li>
+</ul>
+
+<h3> update dynamics nodes </h3>
+<p> those updates shouldn't throw an error </p>
+<ul>
+  <!--- adding or deleting any node shouldn't throw an error here -->
+<div></div>
+<div>aaa</div>
+<div>aaa</div>
+<div>aaa</div>
+  <li --for="[1, 2, 3] as (n)">add one dynamic node after ${n}a</li>
+  <div --for="[1, 2, 3] as (n)">add one dynamic node after ${n}</div>
+</ul>
+
+<h3> update components</h3>
+<!-- try
+  using a new component
+  the greeting component thrown an error at the begining of hmr development -->
+<click-c></click-c>
+<greeting-g></greeting-g>
+<sub-1 />
+<proto>
+  def:
+    content: change the content
+  default:
+    console.warn('change the default')
+</proto>
+<style>
+.hmr-update {
+  background: blue;
+  color: brown;
+}
+</style>

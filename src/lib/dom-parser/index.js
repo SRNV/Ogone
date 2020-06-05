@@ -1,13 +1,58 @@
 import parseDirectives from "./parseDirectives.js";
 import templateReplacer from "../../../utils/template-recursive.ts";
 
-let i = 0;
 const openComment = "<!--";
 const closeComment = "-->";
-function getUniquekey(id = "") {
-  i++;
+function getUniquekey(id = "", iterator) {
+  iterator.value++;
   // critical all regexp are based on this line
-  return `§§${i}${id}§§`;
+  return `§§${iterator.value}${id}§§`;
+}
+function getNodeUniquekey(id = "", iterator) {
+  iterator.node++;
+  // critical all regexp are based on this line
+  return `§§${iterator.node}${id}§§`;
+}
+function getTextUniquekey(id = "", iterator) {
+  iterator.text++;
+  // critical all regexp are based on this line
+  return `§§${iterator.text}${id}§§`;
+}
+function getDNA(rootnode, node, expressions) {
+  if (node.tagName === "style") return;
+  if (node.tagName === "proto") return;
+  if (rootnode !== node && node.nodeType === 1) {
+    rootnode.nodeList.push(node);
+  }
+  if (!node.dna) {
+    node.dna = "";
+  }
+  if (node.tagName) {
+    node.dna += node.tagName;
+    rootnode.dna += node.tagName;
+    if (node.parentNode) node.parentNode.dna += node.tagName;
+  }
+  if (node.rawAttrs) {
+    node.dna += node.rawAttrs;
+    rootnode.dna += node.rawAttrs;
+    if (node.parentNode) node.parentNode.dna += node.rawAttrs;
+  }
+  if (node.rawText) {
+    node.dna += node.rawText;
+    rootnode.dna += node.rawText;
+    if (node.parentNode) node.parentNode.dna += node.rawText;
+  }
+  node.dna = templateReplacer(
+    node.dna,
+    expressions,
+    (key) => expressions[key].expression,
+  );
+  if (node.childNodes && node.childNodes.length) {
+    node.childNodes.forEach((child, i, arr) => {
+      // recursive for childNodes
+      getDNA(rootnode, child, expressions);
+    });
+  }
 }
 function setElementSiblings(node) {
   if (node.childNodes && node.childNodes.length) {
@@ -46,7 +91,7 @@ function parseNodes(html, expressions) {
     .forEach(([key, value]) => {
       const { expression, rawAttrs } = value;
       // we need to pad for the regexp
-      // any modification of the following line is forbidden
+      // critical modifications here
       let rawAttrsPadded = `${rawAttrs} `;
       // get rawAttrs
       const attrRE = /([^§\s]*)+(§{2}\d*attr§§)/gi;
@@ -113,26 +158,26 @@ function parseNodes(html, expressions) {
     });
   return result;
 }
-function parseTextNodes(html, expression) {
+function parseTextNodes(html, expression, iterator) {
   let result = html;
   const regexp = /(\<)§§\d*node§§(\>)/;
   const textnodes = result.split(regexp);
   textnodes
     .filter((content) => content.trim().length)
     .forEach((content) => {
-      const key = getUniquekey("text");
+      const key = getTextUniquekey("text", iterator);
       expression[key] = {
         type: "text",
         value: content,
         expression: content,
-        id: i,
+        id: iterator.text,
         nodeType: 3,
       };
       result = result.replace(`>${content}<`, `>${key}<`);
     });
   return result;
 }
-function preserveNodes(html, expression) {
+function preserveNodes(html, expression, iterator) {
   let result = html;
   const regexp = /<(\/){0,1}([a-zA-Z][^>\s]*)([^\>]*)+(\/){0,1}>/gi;
   const matches = result.match(regexp);
@@ -141,7 +186,7 @@ function preserveNodes(html, expression) {
     const id = node.match(regexpID);
     if (id) {
       const [input, slash, tagName, attrs, closingSlash] = id;
-      const key = `<${getUniquekey("node")}>`;
+      const key = `<${getNodeUniquekey("node", iterator)}>`;
       if (!!slash) {
         // get the openning tag by tagname, id -1 and closingTag === null
         const tag = Object.entries(expression)
@@ -149,7 +194,7 @@ function preserveNodes(html, expression) {
           .find(([k, v]) =>
             v.type === "node" &&
             v.tagName.trim() === tagName.trim() &&
-            v.id < i &&
+            v.id < iterator.node &&
             v.closingTag === null &&
             !v.closing &&
             !v.autoclosing
@@ -163,7 +208,7 @@ function preserveNodes(html, expression) {
         expression[key] = {
           key,
           tagName,
-          id: i,
+          id: iterator.node,
           rawAttrs: attrs,
           attributes: {},
           closing: !!slash,
@@ -180,7 +225,7 @@ function preserveNodes(html, expression) {
   });
   return result;
 }
-function preserveTemplates(html, expression) {
+function preserveTemplates(html, expression, iterator) {
   let result = html;
   const templates = ["${", "}"];
   const [beginTemplate, traillingTemplate] = templates;
@@ -191,7 +236,7 @@ function preserveTemplates(html, expression) {
     .forEach((content) => {
       let str = content.split(/(?<!\\)(\})/gi)[0];
       const allTemplate = `${beginTemplate}${str}${traillingTemplate}`;
-      const key = getUniquekey("templ");
+      const key = getUniquekey("templ", iterator);
       expression[key] = {
         expression: allTemplate,
         value: str,
@@ -201,7 +246,7 @@ function preserveTemplates(html, expression) {
     });
   return result;
 }
-function preserveLitterals(html, expression) {
+function preserveLitterals(html, expression, iterator) {
   let result = html;
   result.split(/((?<!\\)`)/)
     .filter((content) => content !== "`")
@@ -210,7 +255,7 @@ function preserveLitterals(html, expression) {
       str.forEach((contentOfStr) => {
         const allLit = `\`${contentOfStr}\``;
         if (result.indexOf(allLit) < 0) return;
-        const key = getUniquekey("str");
+        const key = getUniquekey("str", iterator);
         expression[key] = {
           expression: allLit,
           value: contentOfStr,
@@ -221,14 +266,14 @@ function preserveLitterals(html, expression) {
     });
   return result;
 }
-function preserveStringsAttrs(html, expression) {
+function preserveStringsAttrs(html, expression, iterator) {
   let result = html;
   const regEmptyStr = /\=\"\"/gi;
   const quotes = ['="', '"'];
   const [beginQuote, closinQuote] = quotes;
   const matchesEmpty = result.match(regEmptyStr);
   matchesEmpty?.forEach((match) => {
-    const key = getUniquekey("attr");
+    const key = getUniquekey("attr", iterator);
     result = result.replace(match, key);
     expression[key] = {
       expression: match,
@@ -241,7 +286,7 @@ function preserveStringsAttrs(html, expression) {
     .forEach((content) => {
       let str = content.split(/(?<!\\)(")/gi)[0];
       const allstring = `${beginQuote}${str}${closinQuote}`;
-      const key = getUniquekey("attr");
+      const key = getUniquekey("attr", iterator);
       expression[key] = {
         expression: allstring,
         value: str,
@@ -251,13 +296,13 @@ function preserveStringsAttrs(html, expression) {
     });
   return result;
 }
-function preserveComments(html, expression) {
+function preserveComments(html, expression, iterator) {
   let result = html;
   result.split(openComment)
     .filter((open) => open.indexOf(closeComment) > -1)
     .forEach((open) => {
       let comment = open.split(closeComment)[0];
-      let key = getUniquekey("com");
+      let key = getUniquekey("com", iterator);
       const allComment = `${openComment}${comment}${closeComment}`;
       result = result.replace(allComment, "");
       expression[key] = {
@@ -293,15 +338,15 @@ function setNodesPragma(expressions) {
   for (let node of nodes) {
     const params = "ctx, position = [], index = 0, level = 0";
     if (node.nodeType === 1 && node.tagName !== "style") {
-      const nId = `n${node.id}`;
-      node.id = nId;
-      let nodeIsDynamic = !!Object.keys(node.attributes).find((attr) =>
+      const nodeIsDynamic = !!Object.keys(node.attributes).find((attr) =>
         attr.startsWith(":") ||
         attr.startsWith("--") ||
         attr.startsWith("@") ||
         attr.startsWith("&") ||
         attr.startsWith("_")
       );
+      const nId = `n${nodeIsDynamic ? 'd': ''}${node.id}`;
+      node.id = nId;
       let setAttributes = Object.entries(node.attributes)
         .filter(([key, value]) =>
           !(key.startsWith(":") ||
@@ -345,7 +390,7 @@ function setNodesPragma(expressions) {
         if (nodeIsDynamic && !isImported && !isRoot) {
           // create a custom element if the element as a directive or prop or event;
           nodeCreation =
-            `const ${nId} = document.createElement('${node.tagName}', { is: '${idComponent}-${node.id}' });`;
+            `const ${nId} = document.createElement("${idComponent}-${node.id}");`;
         } else if (isImported) {
           nodeCreation =
             `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
@@ -396,7 +441,7 @@ function setNodesPragma(expressions) {
             : ""
         }
           ${nId}.setAttribute('${idComponent}', '');
-          ${setAttributes}
+          ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
           ${nodesPragma.length ? appending : ""}
           return ${nId};
         })${callComponent}`;
@@ -448,30 +493,44 @@ export default function parse(html) {
     comments: {},
   };
   let expressions = {};
+  let iterator = {
+    value: 0,
+    node: 0,
+    text: 0,
+  };
   let str = `<template>${html}</template>`;
   // preserve comments
-  str = preserveComments(str, expressions);
+  str = preserveComments(str, expressions, iterator);
   // preserve strings of attrs
-  str = preserveStringsAttrs(str, expressions);
-  str = preserveLitterals(str, expressions);
+  str = preserveStringsAttrs(str, expressions, iterator);
+  str = preserveLitterals(str, expressions, iterator);
   // preserve templates ${}
-  str = preserveTemplates(str, expressions);
+  str = preserveTemplates(str, expressions, iterator);
   // preserve nodes
-  str = preserveNodes(str, expressions);
+  str = preserveNodes(str, expressions, iterator);
   // parse text nodes
-  str = parseTextNodes(str, expressions);
+  str = parseTextNodes(str, expressions, iterator);
   // parse nodes
-  str = parseNodes(str, expressions);
+  str = parseNodes(str, expressions, iterator);
 
   // get rootNode
-  result = getRootnode(str, expressions);
+  result = getRootnode(str, expressions, iterator);
   result.id = "t";
+  result.nodeList = [];
   // delete last useless props and set rawtext to textnodes
   cleanNodes(expressions);
   // set to all nodes the jsx pragma
   setNodesPragma(expressions);
   // set next/previous element sibling
   setElementSiblings(result);
+  // get DNA of node
+  // this will register any changes in the template
+  getDNA(result, result, expressions);
+  result.dna = templateReplacer(
+    result.dna,
+    expressions,
+    (key) => expressions[key].expression,
+  );
   // critical this will say to o3 that is the rootNode
   result.tagName = null;
   return result;

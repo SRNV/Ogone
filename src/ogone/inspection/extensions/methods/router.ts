@@ -18,7 +18,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
         o.locationPath = path;
         this.setActualRouterTemplate();
         this.renderRouter();
-        return true;
+        return oc.activated;
       });
     }
     routerSearch(route, locationPath) {
@@ -118,10 +118,12 @@ export default function routerMethods(component: any, node: any, opts: any) {
         const replacer = o.replacer && o.replacer[0].ogone ?
           [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes].find(n => n[0].isConnected)
           : o.replacer;
+        if (!replacer) return;
         replacer.slice(1, replacer.length).forEach(n => n.remove());
         for (let n of replacer) {
           n.isConnected ? n.replaceWith(...o.actualTemplate) : '';
         }
+        o.replacer[0] && o.replacer[0].isComponent ? o.replacer[0].destroy() : 0;
       }
       if (o.actualTemplate && o.actualTemplate[0].ogone && o.actualTemplate[0].isConnected) {
         // router stopped cause the template is still connected to the document

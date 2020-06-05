@@ -28,6 +28,7 @@ use @/example/app/components/scroll.o3 as 'scroll-component'
   def:
     openTree: false
   case 'click:toggle':
+  console.warn(this.openTree)
     this.openTree = !this.openTree
   break;
 </proto>

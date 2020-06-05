@@ -1,8 +1,7 @@
-import Ogone from "../index.ts";
-export default function (component) {
+export default function (bundle, component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
-    const keysOfData = Object.keys(component.data);
+    const { modules } = component;
     const asyncResolve = `
     const Async = {
       resolve: (...args) => {
@@ -102,10 +101,11 @@ export default function (component) {
       }
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}
-      const run = ${runtime}
-      this.runtime = (run || function(){}).bind(this.data);
+      ${modules ? modules.flat().join(";\n") : ""}
+      const __run = ${runtime}
+      this.runtime = (__run || function(){}).bind(this.data);
     };
     `;
-    Ogone.datas.push(result);
+    bundle.datas.push(result);
   }
 }

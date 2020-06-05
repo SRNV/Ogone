@@ -11,9 +11,9 @@ use @/example/app/components/menu/menu-main.o3 as 'menu-main';
   </div>
   <menu-content />
 </div>
-<router-component name="new"/>
-<left-menu :test="scrollY" />
+<router-component name="new" />
 <menu-main />
+<left-menu :test="scrollY" />
 <proto>
   def:
     scrollY: 0

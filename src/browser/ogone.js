@@ -3,7 +3,7 @@ const Ogone = {
   stores: {},
   clients: [],
 
-  render: [],
+  render: {},
   events: [],
   styles: [],
   templates: {},
@@ -12,6 +12,9 @@ const Ogone = {
   components: {},
   classes: {},
   errorPanel: null,
+  warnPanel: null,
+  successPanel: null,
+  infossPanel: null,
   historyError: null,
   errors: 0,
   firstErrorPerf: null,

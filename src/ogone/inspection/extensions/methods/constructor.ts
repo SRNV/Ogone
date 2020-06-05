@@ -17,6 +17,8 @@ export default function constructorMethods(
       this.component = component;
       this.component.type = '${component.type || "component"}';
       this.setOgone();
+      // define runtime for hmr
+      Ogone.run['${component.uuid}'] = Ogone.run['${component.uuid}'] || [];
     `;
   }
   //define dependencies of the node
@@ -26,6 +28,8 @@ export default function constructorMethods(
       this.dependencies = (${JSON.stringify(node.dependencies)});
       this.positionInParentComponent = ${isTemplate ? "[]" : null};
       ${templateConstruction}
+      // define templates of hmr
+      Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];
     }
   `;
 }

@@ -1,4 +1,3 @@
-import Ogone from "../../index.ts";
 import allConstructors from "./templating/extensions.js";
 import setEventsMethod from "./methods/setEvents.ts";
 import bindStyleMethod from "./methods/bindStyle.ts";
@@ -10,8 +9,9 @@ import asyncMethods from "./methods/async.ts";
 import utilsMethods from "./methods/utils.ts";
 import constructorMethods from "./methods/constructor.ts";
 import setOgoneMethod from "./methods/ogone.ts";
+import Env from "../../../lib/env/Env.ts";
 
-export default function getWebComponent(component, node) {
+export default function getWebComponent(bundle, component, node) {
   if (!component) return "";
   const isTemplate = node.tagName === null;
   const isImported = component.imports[node.tagName];
@@ -20,7 +20,6 @@ export default function getWebComponent(component, node) {
   const isAsync = isTemplate && component.type === "async";
   const isAsyncNode = !isTemplate && !isImported && node.directives &&
     node.directives.await;
-  const extensionId = node.tagName;
   const isExtension = !!allConstructors[node.tagName];
   const opts = {
     isTemplate,
@@ -31,22 +30,35 @@ export default function getWebComponent(component, node) {
     isImported,
     isExtension,
   };
+  const componentPragma = node.pragma(
+    component.uuid,
+    true,
+    Object.keys(component.imports),
+    (tagName) => {
+      if (component.imports[tagName]) {
+        const newcomponent = bundle.components.get(component.imports[tagName]);
+        if (!newcomponent) return null;
+        return newcomponent.uuid;
+      }
+      return null;
+    },
+  );
   // no definition for imported component
   if (isImported) {
     return "";
   }
   const OnodeClassExtension = isTemplate
     ? "HTMLTemplateElement"
-    : `${isExtension ? allConstructors[node.tagName] : "HTMLDivElement"}`;
+    : `HTMLElement`;
   const OnodeClassId = isTemplate
-    ? `${component.uuid}`
+    ? `${component.uuid}-nt`
     : `${component.uuid}-${node.id}`;
   const componentExtension = `
   Ogone.classes['${OnodeClassId}'] = class extends ${OnodeClassExtension} {
     ${constructorMethods(component, node, opts)}
 
     // set the modifier object for Ogone fe atures
-    ${setOgoneMethod(component, node, opts)}
+    ${setOgoneMethod(bundle, component, node, opts)}
 
     // use bindStyle method
     // this method allow --style feature
@@ -85,6 +97,8 @@ export default function getWebComponent(component, node) {
       // set the context of the node
       this.setContext();
 
+      this.setHMRContext();
+
       // parse the route that match with location.pathname
       ${isRouter ? "this.setActualRouterTemplate()" : ""}
 
@@ -92,11 +106,22 @@ export default function getWebComponent(component, node) {
       ${
     isTemplate ? "this.setProps(); this.ogone.component.updateProps();" : ""
   }
+      this.renderingProcess();
 
+      // now ... just render ftw!
+      switch(true) {
+        case ${isRouter}: this.renderRouter(); break;
+        case ${isStore}: this.renderStore(); break;
+        case ${isAsync}: this.renderAsync(); break;
+        default: this.render(); break;
+      }
+    }
+    renderingProcess() {
       // use the jsx renderer only for templates
       this.setNodes();
 
-
+      // set Async context for Async nodes
+      ${isAsyncNode ? "this.setNodeAsyncContext();" : ""}
       // use the previous jsx and push the result into ogone.nodes
       // set the dependencies of the node into the component
       this.setDeps();
@@ -112,14 +137,6 @@ export default function getWebComponent(component, node) {
 
       // set history state and trigger default code for router
       ${isRouter ? "this.triggerLoad();" : ""}
-
-      // now ... just render ftw!
-      switch(true) {
-        case ${isRouter}: this.renderRouter(); break;
-        case ${isStore}: this.renderStore(); break;
-        case ${isAsync}: this.renderAsync(); break;
-        default: this.render(); break;
-      }
     }
     setPosition() {
       this.ogone.position[this.ogone.level] = this.ogone.index;
@@ -158,6 +175,32 @@ export default function getWebComponent(component, node) {
         oc.parent.store[oc.namespace] = oc;
       }
     }
+    setHMRContext() {
+      const o = this.ogone;
+      const oc = o.component;
+      // register to hmr
+        if (${isTemplate}) Ogone.run['${component.uuid}'].push(oc);
+        Ogone.mod[this.extends].push((pragma) => {
+          Ogone.render[this.extends] = eval(pragma);
+          if (${!isTemplate}) {
+            return true;
+          }
+          o.render = Ogone.render[this.extends];
+          const invalidatedNodes = o.nodes.slice();
+          this.renderingProcess();
+          invalidatedNodes.forEach((n, i) => {
+            if (n.ogone) {
+              if (i === 0) n.firstNode.replaceWith(...o.nodes);
+              n.destroy();
+            } else {
+              if (i === 0) n.replaceWith(...o.nodes);
+              n.remove();
+            }
+          });
+          oc.renderTexts(true);
+          return true;
+        });
+    }
     setNodes() {
       const o = this.ogone;
       if (${isTemplate}) {
@@ -165,13 +208,7 @@ export default function getWebComponent(component, node) {
         // so we need to keep the childnodes
         o.nodes = Array.from(o.render(o.component).childNodes);
       } else {
-        o.nodes.push(
-          o.render(o.component,
-            o.position,
-            o.index,
-            o.level
-          ),
-        );
+        o.nodes = [o.render(o.component, o.position, o.index, o.level)];
       }
     }
     setDeps() {
@@ -196,8 +233,34 @@ export default function getWebComponent(component, node) {
     }
     removeNodes() {
       /* use it before removing template node */
-      this.ogone.nodes.forEach((n) => n.remove());
+      if (this.ogone.actualTemplate) {
+        this.ogone.actualTemplate.forEach((n) => {
+          if (n.ogone) {
+            n.destroy();
+          } else {
+            n.remove();
+          }
+        })
+      }
+      this.ogone.nodes.forEach((n) => {
+        if (n.ogone) {
+          n.destroy();
+        } else {
+          n.remove();
+        }
+      });
       return this;
+    }
+    destroy() {
+      this.context.forEach((n) => {
+        n.removeNodes().remove();
+      });
+      this.removeNodes();
+      if (${isTemplate}) {
+        this.ogone.component.runtime('destroy');
+        this.ogone.component.activated = false;
+      }
+      this.remove();
     }
     render() {
       const o = this.ogone;
@@ -233,12 +296,29 @@ export default function getWebComponent(component, node) {
       }
     }
   }
-  customElements.define('${component.uuid}-${
-    isTemplate ? "nt" : node.id
-  }', Ogone.classes['${component.uuid}${
-    isTemplate ? "" : "-" + node.id
-  }'], { extends: '${isTemplate ? "template" : extensionId}' });
 `;
+  let definition =
+    `customElements.define('${component.uuid}-nt', Ogone.classes['${component.uuid}-nt'], { extends: 'template' });`;
 
+  if (!isTemplate) {
+    definition =
+      `customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
+  }
+  if (Env.env === "development") {
+    // for HMR
+    // asking if the customElement is already defined
+    definition = `
+      if (!customElements.get("${component.uuid}-${node.id}")) {
+        ${definition}
+      }
+    `;
+  }
+  const render = `Ogone.render['${component.uuid}-${node.id}'] = ${
+    componentPragma
+      .replace(/\n/gi, "")
+      .replace(/\s+/gi, " ")
+  }`;
+  bundle.customElements.push(definition);
+  bundle.render.push(render);
   return componentExtension;
 }

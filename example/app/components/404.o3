@@ -1,16 +1,27 @@
+import c from '/modules/module.js';
+
 <div class="container">
   <div class="logo-back">
     <img class="logo" src="/public/ogone.svg" />
   </div>
-  <div class="text">404 route not found. ${param} </div>
+  <div class="text">404 route not found. ${param}</div>
 </div>
 <proto>
   def:
     param: ''
+    interval: null
+  before-each:
+    this.param => c;
   default:
     if (ctx) {
       this.param = Object.values(ctx).join()
     }
+    this.interval = setInterval(() => {
+      console.warn(c);
+    }, 1500);
+  break;
+  case 'destroy':
+    clearInterval(this.interval);
   break;
 </proto>
 <style>

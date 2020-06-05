@@ -1,7 +1,5 @@
-import Ogone from "../index.ts";
-
-export default function oCleanPureRootNode() {
-  Ogone.components.forEach((c) => {
+export default function oCleanPureRootNode(bundle) {
+  bundle.components.forEach((c) => {
     c.rootNodePure.childNodes = c.rootNodePure.childNodes.filter((node, id) => {
       return node.tagName !== "style" &&
           node.tagName !== "script" &&

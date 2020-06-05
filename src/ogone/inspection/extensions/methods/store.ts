@@ -21,6 +21,6 @@ export default function storeMethods(
           throw BadNamspaceException;
         }
         oc.startLifecycle();
-        this.remove();
+        this.removeNodes().remove();
       }`;
 }
