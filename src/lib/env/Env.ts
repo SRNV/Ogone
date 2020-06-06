@@ -1,6 +1,7 @@
 import { browserBuild, template } from "../../../src/browser/readfiles.ts";
 import { HCR } from "../../../src/lib/hmr/index.ts";
 import Ogone from "../../../src/ogone/index.ts";
+import compile from "../../../src/ogone/compilation/index.ts";
 
 export default abstract class Env {
   private static bundle: any;
@@ -8,10 +9,30 @@ export default abstract class Env {
   constructor(opts: any) {
     Env.bundle = opts.bundle;
   }
+
+  /**
+   * set the current bundle for the environment
+   * @param bundle
+   */
   public static setBundle(bundle: any) {
     Env.bundle = bundle;
   }
-  public static get application(): any {
+
+  /**
+   * Compile your application by giving the path to the root component.
+   * @param entrypoint path to root component
+   * @param shouldBundle set the bundle of the component after compilation
+   */
+  public static async compile(entrypoint: string, shouldBundle?:boolean): Promise<any> {
+    const bundle = await compile(entrypoint);
+    if (shouldBundle) {
+      Env.setBundle(bundle);
+      return bundle;
+    } else {
+      return bundle;
+    }
+  }
+  public static get application(): string {
     const stylesDev = Array.from(Env.bundle.components.entries())
       .map((
         entry: any,

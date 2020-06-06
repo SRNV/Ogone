@@ -316,7 +316,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 (...) in conception
 
 - [x] HMR \*\*
-  - [ ] Completed HMR module \*\*
+  - [ ] [Completed Hmr Module](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
 - [x] Imports modules \*
 - [x] Complete Async Component feature \*\*
 - [ ] Integrated Ogone-Dev-Tools \*\*

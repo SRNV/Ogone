@@ -1,12 +1,7 @@
 import { serve } from "https://deno.land/std@v0.42.0/http/server.ts";
-import { getHeaderContentTypeOf } from "./utils/extensions-resolution.ts";
-import renderApp from "./src/renderApp.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
-import compile from "./src/ogone/compilation/index.ts";
-import HMR, { HCR } from "./src/lib/hmr/index.ts";
-import Env from "./src/lib/env/Env.ts";
-
+import EnvServer from './src/lib/env/EnvServer.ts';
 interface OgoneOptions {
   /**
    * @property entrypoint
@@ -72,39 +67,11 @@ async function run(opts: OgoneOptions): Promise<void> {
     );
   }
   //start compilation of o3 files
-  const bundle = await compile(Ogone.config.entrypoint);
-  Env.setBundle(bundle);
-  // Ogone is now ready to serve
-  console.warn(`[Ogone] Success http://localhost:${port}/`);
-  for await (const req of server) {
-    const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
-    let isUrlFile: boolean = existsSync(pathToPublic);
-    switch (true) {
-      case req.url.startsWith(Ogone.config.modules):
-        const denoReqUrl = req.url.slice(1).split("?")[0];
-        HMR(denoReqUrl);
-        req.respond({
-          body: Deno.readTextFileSync(denoReqUrl),
-          headers: new Headers([
-            getHeaderContentTypeOf(denoReqUrl),
-            ["X-Content-Type-Options", "nosniff"],
-          ]),
-        });
-        break;
-      case isUrlFile && req.url.startsWith("/public/"):
-        req.respond({
-          body: Deno.readTextFileSync(pathToPublic),
-          headers: new Headers([
-            getHeaderContentTypeOf(req.url),
-            ["X-Content-Type-Options", "nosniff"],
-          ]),
-        });
-        break;
-      default:
-        req.respond({ body: renderApp(Env.application) });
-        break;
-    }
-  }
+  EnvServer.compile(Ogone.config.entrypoint, true)
+    .then(() => {
+      // Ogone is now ready to serve
+      EnvServer.use(server, port);
+    });
 }
 const OgoneAPI: OgoneAPIType = {
   run,
