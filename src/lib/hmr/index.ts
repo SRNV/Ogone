@@ -189,8 +189,8 @@ export async function HCR(bundle: any): Promise<void> {
     // save the styles of components
     componentRegistry.styles[component.uuid] = component.style.join("\n");
     componentRegistry.lengthOfNodes[component.uuid] =
-      component.rootNodePure.nodeList.length;
-    startSavingNodesDNA(component, componentRegistry, component.rootNodePure);
+      component.rootNode.nodeList.length;
+    startSavingNodesDNA(component, componentRegistry, component.rootNode);
   });
   // watch
   bundle.files.forEach(async (path: string) => {
@@ -204,22 +204,24 @@ export async function HCR(bundle: any): Promise<void> {
       if (kind === "access" && ws) {
         const newBundle = await compile(path);
         const newComponent = newBundle.components.get(path);
-        const component = bundle.components.get(path);
-        const newComponentRegExpID = new RegExp(newComponent.uuid, "gi");
-        styleHasChanged(component, newComponent, {
-          newComponentRegExpID,
-        });
-        protoHasChanged(component, newComponent);
-        setNewApplication();
-        startNodeCompareDNA({
-          component,
-          bundle,
-          newComponent,
-          newBundle,
-          newComponentRegExpID,
-          registry: componentRegistry,
-          node: newComponent.rootNodePure,
-        });
+        if (newComponent) {
+          const component = bundle.components.get(path);
+          const newComponentRegExpID = new RegExp(newComponent.uuid, "gi");
+          styleHasChanged(component, newComponent, {
+            newComponentRegExpID,
+          });
+          protoHasChanged(component, newComponent);
+          setNewApplication();
+          startNodeCompareDNA({
+            component,
+            bundle,
+            newComponent,
+            newBundle,
+            newComponentRegExpID,
+            registry: componentRegistry,
+            node: newComponent.rootNode,
+          });
+        }
       }
     }
   });
@@ -264,16 +266,16 @@ function protoHasChanged(
   }
   return false;
 }
-function mergeComponentsUUIDs(txt: string,opts: any) {
+function mergeComponentsUUIDs(txt: string, opts: any) {
   let result = txt;
   const { bundle, newBundle, registry, newComponent, component } = opts;
   const comps = Array.from(newBundle.components.entries());
-  while(result.indexOf(newComponent.uuid) > -1) {
+  while (result.indexOf(newComponent.uuid) > -1) {
     result = result.replace(newComponent.uuid, component.uuid);
   }
   let comp: any = comps.find((entry: any) => result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0]))
   let oldComp: any = bundle.components.get((comp || [''])[0]);
-  while(comp) {
+  while (comp) {
     comp = comps.find((entry: any) => result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0]))
     if (comp && oldComp) {
       oldComp = bundle.components.get(comp[0]);

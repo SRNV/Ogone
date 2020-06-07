@@ -6,9 +6,9 @@ import oRenderNodesBehavior from "../inspection/nodes-behaviour.js";
 export default function oStartRenderingDom(bundle) {
   const entries = Array.from(bundle.components);
   entries.forEach(([path, component]) => {
-    oRenderDOM(bundle, path, component.rootNodePure);
+    oRenderDOM(bundle, path, component.rootNode);
     oRenderComponentDatasMjs(bundle, component);
     oRenderContext(bundle, path);
-    oRenderNodesBehavior(bundle, path, component.rootNodePure);
+    oRenderNodesBehavior(bundle, path, component.rootNode);
   });
 }

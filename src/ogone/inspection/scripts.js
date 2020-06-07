@@ -7,7 +7,7 @@ import inspectRoutes from "./router/inspect-routes.js";
 export default function oRenderScripts(bundle) {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
-    const proto = component.rootNodePure.childNodes.find((node) =>
+    const proto = component.rootNode.childNodes.find((node) =>
       node.tagName === "proto"
     );
     const moduleScript = proto?.childNodes[0];

@@ -1,4 +1,4 @@
-import domparse from "../src/lib/dom-parser/index.js";
+import domparse from "../src/lib/dom-parser/index.ts";
 import {
   assertEquals,
   assertThrows,
@@ -24,7 +24,6 @@ Deno.test("- domparser first node is a template", () => {
   assertEquals(root.childNodes, []);
   assertEquals(root.id, "nt");
   assertEquals(root.pragma instanceof Function, true);
-  assertStrContains(root.pragma(), docCreateNull);
 });
 Deno.test("- domparser can parse div and attrs", () => {
   const root = domparse(`<div
@@ -83,7 +82,7 @@ Deno.test("- domparser can parse Textnodes", () => {
   const [a, span, node] = root.childNodes;
   const [text] = span.childNodes;
   assertEquals(a.rawText, "a");
-  assertEquals(span.rawText, undefined);
+  assertEquals(span.rawText, '');
   assertEquals(node.rawText, "node");
   assertEquals(span.nodeType, 1);
   assertEquals(text.nodeType, 3);

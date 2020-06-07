@@ -7,4 +7,5 @@ export default [
   "controller",
   // to use promise to rule the component
   "async",
+  "component",
 ];

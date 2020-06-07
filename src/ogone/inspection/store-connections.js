@@ -2,10 +2,10 @@ import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/i
 export default function getStoreConnections(bundle) {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
-    if (!component.rootNodePure || component.type === "store") return;
+    if (!component.rootNode || component.type === "store") return;
     // not recursive
     // get all top level store declarations
-    const cr = component.rootNodePure.childNodes;
+    const cr = component.rootNode.childNodes;
     const stores = cr.filter((child) => {
       const { tagName } = child;
       if (!tagName) return;

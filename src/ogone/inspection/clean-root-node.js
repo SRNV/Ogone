@@ -1,6 +1,6 @@
 export default function oCleanPureRootNode(bundle) {
   bundle.components.forEach((c) => {
-    c.rootNodePure.childNodes = c.rootNodePure.childNodes.filter((node, id) => {
+    c.rootNode.childNodes = c.rootNode.childNodes.filter((node, id) => {
       return node.tagName !== "style" &&
           node.tagName !== "script" &&
           node.tagName !== "proto" &&

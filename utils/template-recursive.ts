@@ -1,5 +1,5 @@
 export default function templateReplacer(
-  str: string,
+  str: string = '',
   template: any,
   callback?: (key: string) => string,
 ): string {
@@ -15,7 +15,7 @@ export default function templateReplacer(
       const secondPart = result.substring(index + key.length, result.length);
       result = `${firstPart}${
         callback ? callback(key) : template[key]
-      }${secondPart}`;
+        }${secondPart}`;
     }
   }
   return result;

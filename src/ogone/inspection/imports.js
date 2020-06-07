@@ -3,11 +3,11 @@ import jsThis from "../../lib/js-this/switch.js";
 export default function oRenderImports(bundle) {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
-    const firstNode = component.rootNodePure.childNodes.find((node) =>
+    const firstNode = component.rootNode.childNodes.find((node) =>
       node.nodeType !== 3
     );
-    const index = component.rootNodePure.childNodes.indexOf(firstNode);
-    const textNodes = component.rootNodePure.childNodes.filter((node, id) =>
+    const index = component.rootNode.childNodes.indexOf(firstNode);
+    const textNodes = component.rootNode.childNodes.filter((node, id) =>
       node.nodeType === 3 && id < index
     );
     let declarations = ``;
