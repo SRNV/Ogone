@@ -313,14 +313,14 @@ Minimalist:
 
 All in one. including:
 
-  - [ ] Store
-  - [ ] Router
-  - [ ] Controllers for Stubs
-  - [ ] Tests
-    - [ ] unit tests
-    - [ ] Integrations tests
-    - [ ] e2e
-  - [ ] HMR
+  - Store
+  - Router
+  - Controllers for Stubs
+  - Tests
+    - unit tests
+    - Integrations tests
+    - e2e
+  - HMR
 
 ---
 
