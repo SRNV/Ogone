@@ -54,7 +54,7 @@ let's change the name after 1 second.
     name: SRNV
   default:
     setTimeout(() => {
-      this.name = 'Rudy';
+      this.name = 'World';
     }, 1000);
   break;
 </proto>
