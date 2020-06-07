@@ -356,7 +356,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 - [ ] Write more exceptions for each flags \*\*
 - [ ] Write docs \*
 - [ ] Write more examples \*\*
-- [ ] [Complete Hmr feature](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
+- [ ] [Complete HMR](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
 - [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/async.md) \*\*
 - [ ] [Complete Router Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/router.md) \*\*
 - [ ] [Complete Syntax-HighLighting](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/syntax-highlight.md) \*\*
