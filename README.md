@@ -343,12 +343,12 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 - [ ] Integrated test environment \*\*
   - [ ] case 'test' is supported \*\*
   - [ ] Automated stress tests \*\*
-- [x] Stress mode is supported \*\*
 - [ ] Controllers Components (...)
 - [ ] Sounds Components (...)
 - [ ] Write robust tests for Ogone \*\*
   - [x] Dom-parser is solid \*\*
   - [ ] Js-this is solid \*\*
+  - [x] Stress mode is supported \*\*
   - [x] Scope-css is solid \*\*
 - [ ] Switch every files to Typescript \*
   - [ ] Write types \*\*
