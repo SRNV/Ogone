@@ -360,6 +360,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 - [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/async.md) \*\*
 - [ ] [Complete Router Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/router.md) \*\*
 - [ ] [Complete Syntax-HighLighting](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/syntax-highlight.md) \*\*
+- [ ] [Complete Reaction Observer](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/reaction-observer.md) \*\*
 
 # Tests
 

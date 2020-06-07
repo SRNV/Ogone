@@ -1,9 +1,9 @@
-export const browserBuild = ([
+export const browserBuild: string = [
   // readTextFileSync uses absolute path;
   Deno.readTextFileSync("./src/browser/component.js"),
   Deno.readTextFileSync("./src/browser/ogone.js"),
   Deno.readTextFileSync("./src/browser/router.js"),
   Deno.readTextFileSync("./src/browser/oscillator.js"),
   Deno.readTextFileSync("./src/browser/websocket.js"),
-]).join("\n");
-export const template = Deno.readTextFileSync("./src/browser/index.html");
+].join("\n");
+export const template: string = Deno.readTextFileSync("./src/browser/index.html");
