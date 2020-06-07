@@ -301,6 +301,29 @@ use @/example/app/components/scroll.o3 as 'scroll'
 
 ---
 
+# Theory
+
+Minimalist:
+
+  - the less is more.
+  - Every solutions have a minimalist alternative solution (cleaner, scalable).
+  - what you wrote twice, you have to write it once.
+  - no useless code has to be compiled.
+  - everything is a component, because everything is a part of a composition.
+
+All in one. including:
+
+  - [ ] Store
+  - [ ] Router
+  - [ ] Controllers for Stubs
+  - [ ] Tests
+    - [ ] unit tests
+    - [ ] Integrations tests
+    - [ ] e2e
+  - [ ] HMR
+
+---
+
 # Format
 
 Ogone is formatted by `deno fmt`
