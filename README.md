@@ -315,16 +315,13 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 (\*\*) required before 1.0.0
 (...) in conception
 
-- [x] HMR \*\*
-  - [ ] [Complete Hmr feature](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
 - [x] Imports modules \*
-- [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/async.md) \*\*
 - [ ] Integrated Ogone-Dev-Tools \*\*
 - [ ] Integrated test environment \*\*
   - [ ] case 'test' is supported \*\*
   - [ ] Automated stress tests \*\*
 - [x] Stress mode is supported \*\*
-- [ ] Controllers Components \*
+- [ ] Controllers Components (...)
 - [ ] Sounds Components (...)
 - [ ] Write robust tests for Ogone \*\*
   - [x] Dom-parser is solid \*\*
@@ -332,10 +329,14 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
   - [x] Scope-css is solid \*\*
 - [ ] Switch every files to Typescript \*
   - [ ] Write types \*\*
-- [ ] Typescript supported in `<proto>` \*\*
+  - [ ] Typescript supported in `<proto>` \*\*
 - [ ] Write more exceptions for each flags \*\*
 - [ ] Write docs \*
 - [ ] Write more examples \*\*
+- [ ] [Complete Hmr feature](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
+- [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/async.md) \*\*
+- [ ] [Complete Router Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/router.md) \*\*
+- [ ] [Complete Syntax-HighLighting](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/syntax-highlight.md) \*\*
 
 # Tests
 

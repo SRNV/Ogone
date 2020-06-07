@@ -1,0 +1,13 @@
+## Router Components Todos
+- [x] can update a router-view
+- [ ] can update a namespaced router-view (done but needs tests).
+- [x] supports childs components matching routes
+- [x] fallbacks
+- [x] can pass parameters through the route
+    - [ ] supports regexp
+- [ ] life-cycle (done but needs more specifications)
+    - [ ] before-load ?
+    - [x] load
+    - [ ] before-update ?
+    - [ ] before-destroy ?
+    - [ ] destroy ?

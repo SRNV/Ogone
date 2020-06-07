@@ -8,3 +8,4 @@
 - [ ] hmr update the component when a case of a component is changed
 - [x] hmr can update any module
 - [ ] hmr can update assets
+- [ ] hmr is testable

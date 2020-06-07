@@ -1,0 +1,17 @@
+## O3 syntax High-Lighting
+- [ ] SH can high light:
+    - [ ] default
+    - [ ] case
+    - [ ] def
+    - [ ] before-each
+    - [ ] custom elements
+        - [ ] proto
+        - [ ] test
+    - [ ] use @/
+    - [ ] require props
+    - [ ] imports
+- [ ] no syntax-error on the following global Objects:
+    - [ ] Refs
+    - [ ] Async
+    - [ ] Store
+    - [ ] Proto (...)
