@@ -10,8 +10,8 @@ menu:
         route: /doc/install
       - name: Get Started
         route: /doc/get-started
-      - name: Features
-        route: /features
+      - name: flags
+        route: /flags
         children:
           - name: --if --else --else-if
             status: ok

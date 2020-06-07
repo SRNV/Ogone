@@ -28,21 +28,21 @@ export default function oRenderNodesBehavior(
     throw BadUseOfAwaitInSyncComponentException;
   }
   if (node.attributes && node.attributes["--defer"] && !isImported) {
-    const BadUseDeferFeatureException =
+    const BadUseDeferFlagException =
       `[Ogone] --defer must be called only on async components. discard <${node.tagName} --defer="${
         node.attributes["--defer"]
       }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
-    throw BadUseDeferFeatureException;
+    throw BadUseDeferFlagException;
   }
   if (
     node.attributes && node.attributes["--defer"] && isImported &&
     subcomp.type !== "async"
   ) {
-    const BadUseDeferFeatureException =
+    const BadUseDeferFlagException =
       `[Ogone] --defer must be called only on async components. change type of <${node.tagName} --defer="${
         node.attributes["--defer"]
       }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
-    throw BadUseDeferFeatureException;
+    throw BadUseDeferFlagException;
   }
   switch (true) {
     case subcomp &&

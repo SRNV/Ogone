@@ -1,0 +1,13 @@
+## Async Todos
+- [x] AC can wait  a node's load event before rendering
+- [x] AC can wait  a node's any custom event before rendering
+- [x] AC can wait until all internal promises resolve before rendering
+- [x] AC lets the dev knows it's actual step
+- [x] AC can wait an sub-AC to resolve all it's internal promises
+- [x] Async.resolve() is supported
+- [x] all async flags are supported:
+    - [x] --defer
+    - [x] --async
+    - [x] --then:...
+    - [x] --catch:...
+    - [x] --finally:...

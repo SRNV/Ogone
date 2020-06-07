@@ -316,14 +316,14 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 (...) in conception
 
 - [x] HMR \*\*
-  - [ ] [Completed Hmr Module](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
+  - [ ] [Complete Hmr feature](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
 - [x] Imports modules \*
-- [x] Complete Async Component feature \*\*
+- [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/async.md) \*\*
 - [ ] Integrated Ogone-Dev-Tools \*\*
 - [ ] Integrated test environment \*\*
   - [ ] case 'test' is supported \*\*
-  - [ ] Automated e2e tests \*\*
-  - [x] stress mode is supported \*\*
+  - [ ] Automated stress tests \*\*
+- [x] Stress mode is supported \*\*
 - [ ] Controllers Components \*
 - [ ] Sounds Components (...)
 - [ ] Write robust tests for Ogone \*\*
@@ -333,7 +333,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 - [ ] Switch every files to Typescript \*
   - [ ] Write types \*\*
 - [ ] Typescript supported in `<proto>` \*\*
-- [ ] Write more exceptions for each features \*\*
+- [ ] Write more exceptions for each flags \*\*
 - [ ] Write docs \*
 - [ ] Write more examples \*\*
 

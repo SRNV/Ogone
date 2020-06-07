@@ -61,11 +61,11 @@ export default function getWebComponent(bundle, component, node) {
     ${setOgoneMethod(bundle, component, node, opts)}
 
     // use bindStyle method
-    // this method allow --style feature
+    // this method allow --style flag
     ${bindStyleMethod(component, node, opts)}
 
     // use bindClass method
-    // this method allow --class feature
+    // this method allow --class flag
     ${bindClassMethod(component, node, opts)}
 
     // set events on the node

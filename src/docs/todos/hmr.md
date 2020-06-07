@@ -1,3 +1,4 @@
+## HMR Todos
 - [ ] hmr update the component's style when the style of a component is updated
 - [ ] hmr update the component when a node is updated
 - [ ] hmr update the component when a dynamic node is updated

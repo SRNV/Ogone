@@ -3,7 +3,7 @@ _v 0.3.0_
 
 Ogone supports Async Components. Async Components are those components that are waiting for all promises internals or externals to be resolved before rendering.
 
-6 features rules an Async Component
+6 flags rules an Async Component
 
     - type="async"
     - --await
@@ -26,7 +26,7 @@ ________
 ### --await
 _only in an Async Component_
 
-In this Async Component you will be allowed to use --await feature, this component will wait for the img tag to dispatch load event:
+In this Async Component you will be allowed to use --await flag, this component will wait for the img tag to dispatch load event:
 ```typescript
 // async-component.o3
 <img --await src="public/ogone.svg">
@@ -56,7 +56,7 @@ ________
 _in any Component_
 
 Waiting for the resolution of the Async Component.
-Then is a mixed feature/case, it means that it requires the name of case that you will use after the resolution of the component.
+Then is a mixed flag/case, it means that it requires the name of case that you will use after the resolution of the component.
 Use `--then` like in JS:
 ```typescript
 // Ogone use this component as 'async-component'
@@ -77,7 +77,7 @@ ________
 _in any Component_
 
 Any error inside an Async Component.
-catch is a mixed feature/case, it means that it requires the name of case that you will use after an error in Async Component.
+catch is a mixed flag/case, it means that it requires the name of case that you will use after an error in Async Component.
 Use `--catch` like in JS:
 ```typescript
 // Ogone use this component as 'async-component'
@@ -97,7 +97,7 @@ ________
 _in any Component_
 
 internal promises all fulfilled successfully or rejected.
-finally is a mixed feature/case, it means that it requires the name of case that you will use after resolution/error in Async Component.
+finally is a mixed flag/case, it means that it requires the name of case that you will use after resolution/error in Async Component.
 Use `--finally` like in JS:
 ```typescript
 // Ogone use this component as 'async-component'
@@ -139,4 +139,4 @@ use @/path/to/async-component.o3 as 'async-component';
 ________
 
 # Todo
-define the shape of `ctx` object sent to --then feature.
+define the shape of `ctx` object sent to --then flag.
