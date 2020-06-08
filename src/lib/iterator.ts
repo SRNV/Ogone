@@ -1,8 +1,8 @@
-function* gen(i) {
+function* gen(i: number): Generator {
   yield i;
   while (true) {
     yield i++;
   }
 }
-const iterator = gen(0);
+const iterator: Generator = gen(0);
 export default iterator;

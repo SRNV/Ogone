@@ -1,4 +1,4 @@
-import iterator from "../../lib/iterator.js";
+import iterator from "../../lib/iterator.ts";
 
 export default function oRenderForFlag(flagValue) {
   if (flagValue.indexOf("as") === -1) {

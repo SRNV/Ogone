@@ -1,4 +1,4 @@
-import iterator from "../../lib/iterator.js";
+import iterator from "../../lib/iterator.ts";
 import oRenderForFlag from "./render-for-flag.js";
 
 const flags = [

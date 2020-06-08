@@ -1,4 +1,4 @@
-import iterator from "../src/lib/iterator.js";
+import iterator from "../src/lib/iterator.ts";
 import { assertEquals } from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
 
 Deno.test("- iterator increments", () => {
