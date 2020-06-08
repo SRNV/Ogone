@@ -1,12 +1,12 @@
-import oInspect from "../inspection/inspect.js";
+import oInspect from "../inspection/inspect.ts";
 import oRender from "../inspection/render.ts";
-import oRenderImports from "../inspection/imports.js";
-import oRenderScripts from "../inspection/scripts.js";
-import oTopLevelTextNodeException from "../inspection/top-level-exception.js";
-import oCleanPureRootNode from "../inspection/clean-root-node.js";
-import oRenderStyles from "../inspection/styles.js";
-import oStartRenderingDom from "./start-render.js";
-import getStoreConnections from "../inspection/store-connections.js";
+import oRenderImports from "../inspection/imports.ts";
+import oRenderScripts from "../inspection/scripts.ts";
+import oTopLevelTextNodeException from "../inspection/top-level-exception.ts";
+import oCleanPureRootNode from "../inspection/clean-root-node.ts";
+import oRenderStyles from "../inspection/styles.ts";
+import oStartRenderingDom from "./start-render.ts";
+import getStoreConnections from "../inspection/store-connections.ts";
 import { Bundle } from '../../../.d.ts';
 
 export default async function (path: string) {

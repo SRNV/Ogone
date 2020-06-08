@@ -1,5 +1,7 @@
+import { Bundle } from '../../../.d.ts';
+
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
-export default function getStoreConnections(bundle) {
+export default function getStoreConnections(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     if (!component.rootNode || component.type === "store") return;
@@ -16,8 +18,8 @@ export default function getStoreConnections(bundle) {
     component.hasStore = stores.length > 0;
     stores.forEach((store) => {
       // throw exceptions if there is anything else than textnode
-      const forbiddenElement = store.childNodes.filter((c) => c.nodeType !== 3);
-      if (forbiddenElement.length) {
+      const forbiddenElement = store.childNodes.find((c) => c.nodeType !== 3);
+      if (forbiddenElement) {
         const StoreChildElementsFoundException = new DOMException(
           `[Ogone] elements are note allowed inside store elements ${forbiddenElement.tagName} \n\t Error in component: ${component.file}`,
         );
@@ -26,7 +28,7 @@ export default function getStoreConnections(bundle) {
       // we need to get the textnode inside the store element
       const textnode = store.childNodes[0];
       if (textnode) {
-        const data = YAML.parse(textnode.value);
+        const data = YAML.parse(textnode.rawText, {});
         console.warn(data);
       } else {
         // store modules can be empty if the element is an auto-closing element

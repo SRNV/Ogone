@@ -5,6 +5,8 @@ import {
 import compile from "../../../src/ogone/compilation/index.ts";
 import Env from "../env/Env.ts";
 import Ogone from "../../../src/ogone/index.ts";
+import { Bundle, Component, XMLNodeDescription } from '../../../.d.ts';
+
 let ws: WebSocket | null = null;
 // open the websocket
 const wss: WebSocketServer = new WebSocketServer(4000);
@@ -44,22 +46,25 @@ const componentRegistry: any = {
   components: {},
   lengthOfNodes: {},
 };
-function getPragma(bundle: any, component: any, node: any) {
-  return node.pragma(
-    component.uuid,
-    true,
-    Object.keys(component.imports),
-    (tagName: string) => {
-      if (component.imports[tagName]) {
-        const newcomponent = bundle.components.get(
-          component.imports[tagName],
-        );
-        if (!newcomponent) return null;
-        return newcomponent.uuid;
-      }
-      return null;
-    },
-  );
+function getPragma(bundle: Bundle, component: Component, node: XMLNodeDescription): string {
+  if (node.pragma) {
+    return node.pragma(
+      component.uuid,
+      true,
+      Object.keys(component.imports),
+      (tagName: string) => {
+        if (component.imports[tagName]) {
+          const newcomponent = bundle.components.get(
+            component.imports[tagName],
+          );
+          if (!newcomponent) return null;
+          return newcomponent.uuid;
+        }
+        return null;
+      },
+    );
+  }
+  return 'undefined';
 }
 function startSavingNodesDNA(component: any, registry: any, node: any) {
   const isTemplate = node.tagName === null && node.nodeType === 1;
@@ -81,6 +86,7 @@ async function startNodeCompareDNA(opts: any) {
     registry,
   } = opts;
   const uuid = `${component.uuid}-${node.id}`;
+  const pragma = getPragma(newBundle, newComponent, node);
   let ctx: string = newBundle.contexts.find((c: string) =>
     c.indexOf(`${node.id}'] =`) > -1
   );
@@ -93,8 +99,8 @@ async function startNodeCompareDNA(opts: any) {
   let customElements = newBundle.customElements.find((c: string) =>
     c.indexOf(`${node.id}'`) > -1
   );
-  if (!registry.nodes[uuid]) {
-    const newPragma = mergeComponentsUUIDs(getPragma(newBundle, newComponent, node), opts);
+  if (!registry.nodes[uuid] && pragma) {
+    const newPragma = mergeComponentsUUIDs(pragma, opts);
     ctx = ctx
       ? mergeComponentsUUIDs(ctx, opts)
       : "";
@@ -134,8 +140,8 @@ async function startNodeCompareDNA(opts: any) {
       });
     }
   }
-  if (registry.nodes[uuid] !== node.dna) {
-    const newPragma = mergeComponentsUUIDs(getPragma(newBundle, newComponent, node), opts);
+  if (registry.nodes[uuid] !== node.dna && pragma) {
+    const newPragma = mergeComponentsUUIDs(pragma, opts);
     ctx = ctx
       ? mergeComponentsUUIDs(ctx, opts)
       : "";
@@ -166,7 +172,7 @@ async function startNodeCompareDNA(opts: any) {
 }
 async function setNewApplication(): Promise<void> {
   newApplicationCompilation = true;
-  const newApplication = await compile(Ogone.config.entrypoint);
+  const newApplication: Bundle = await compile(Ogone.config.entrypoint);
   Env.setBundle(newApplication);
 }
 function forceReloading() {
@@ -177,7 +183,7 @@ function forceReloading() {
     }));
   }
 }
-export async function HCR(bundle: any): Promise<void> {
+export async function HCR(bundle: Bundle): Promise<void> {
   // start saving state of components
   newApplicationCompilation = false;
   const entries = Array.from(bundle.components.entries());
@@ -207,28 +213,30 @@ export async function HCR(bundle: any): Promise<void> {
         if (newComponent) {
           const component = bundle.components.get(path);
           const newComponentRegExpID = new RegExp(newComponent.uuid, "gi");
-          styleHasChanged(component, newComponent, {
-            newComponentRegExpID,
-          });
-          protoHasChanged(component, newComponent);
-          setNewApplication();
-          startNodeCompareDNA({
-            component,
-            bundle,
-            newComponent,
-            newBundle,
-            newComponentRegExpID,
-            registry: componentRegistry,
-            node: newComponent.rootNode,
-          });
+          if (component) {
+            styleHasChanged(component, newComponent, {
+              newComponentRegExpID,
+            });
+            protoHasChanged(component, newComponent);
+            setNewApplication();
+            startNodeCompareDNA({
+              component,
+              bundle,
+              newComponent,
+              newBundle,
+              newComponentRegExpID,
+              registry: componentRegistry,
+              node: newComponent.rootNode,
+            });
+          }
         }
       }
     }
   });
 }
 function styleHasChanged(
-  component: any,
-  newComponent: any,
+  component: Component,
+  newComponent: Component,
   opts: any,
 ): boolean {
   const { newComponentRegExpID } = opts;
@@ -249,8 +257,8 @@ function styleHasChanged(
   return false;
 }
 function protoHasChanged(
-  component: any,
-  newComponent: any,
+  component: Component,
+  newComponent: Component,
 ): boolean {
   if (!newComponent.scripts.runtime) return false;
   const { runtime } = newComponent.scripts;

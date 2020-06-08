@@ -11,7 +11,7 @@ export default function constructorMethods(
     templateConstruction = `
       const component = new Ogone.components['${component.uuid}']();
       component.requirements = (${
-      component.properties ? JSON.stringify(component.properties) : null
+      component.requirements ? JSON.stringify(component.requirements) : null
     });
       component.dependencies = (${JSON.stringify(node.dependencies)});
       this.component = component;

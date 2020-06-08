@@ -1,4 +1,6 @@
-export default function (bundle, component) {
+import { Bundle, Component } from '../../../.d.ts';
+
+export default function (bundle: Bundle, component: Component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     const { modules } = component;

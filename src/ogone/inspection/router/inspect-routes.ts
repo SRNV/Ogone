@@ -1,3 +1,4 @@
+import { Bundle, Component, Route } from '../../../../.d.ts';
 const allowedKeys = [
   "path",
   "redirect",
@@ -11,11 +12,11 @@ const requiredKeys = [
   "path",
   "component",
 ];
-function startRecursiveRouterInspection(bundle, component, route, opts) {
+function startRecursiveRouterInspection(bundle: Bundle, component: Component, route: Route, opts: any) {
   if (!route) return;
   const keys = Object.keys(route);
   const unsupported = keys.find((k) => !allowedKeys.includes(k));
-  const missingKey = requiredKeys.find((k) => !route[k]);
+  const missingKey = requiredKeys.find((k) => !(k in route));
   if (missingKey) {
     const RequiredPropertyIsUndefinedException = new Error(
       `[Ogone] ${missingKey} is undefined in one route of component ${component.file}`,
@@ -38,8 +39,10 @@ function startRecursiveRouterInspection(bundle, component, route, opts) {
           `[Ogone] incorrect path: ${c} is not a component. error found in: ${component.file}`,
         );
       }
-      const { uuid } = bundle.components.get(c);
-      route.component = `${uuid}-nt`;
+      const newcomp = bundle.components.get(c);
+      if (newcomp) {
+        route.component = `${newcomp.uuid}-nt`;
+      }
     } else {
       const RouterUndefinedComponentException = new Error(
         `[Ogone] ${route.component} is not imported in the component.
@@ -70,7 +73,7 @@ function startRecursiveRouterInspection(bundle, component, route, opts) {
   }
   opts.routes.push(route);
 }
-export default function inspectRoutes(bundle, component, routes) {
+export default function inspectRoutes(bundle: Bundle, component: Component, routes: Route[]): Route[] {
   if (!Array.isArray(routes)) {
     const InpectRoutesWaitingForAnArrayException = new TypeError(
       `[Ogone] inspectRoutes is waiting for an array as argument 2.
@@ -80,7 +83,6 @@ export default function inspectRoutes(bundle, component, routes) {
   }
   const opts = {
     parentPath: null,
-    // to discard to recursivity
     routes: [],
   };
   routes.forEach((route) => {

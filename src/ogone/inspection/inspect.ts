@@ -1,12 +1,14 @@
 import { existsSync } from "../../../utils/exists.ts";
 import jsThis from "../../lib/js-this/switch.js";
+import { Bundle } from '../../../.d.ts';
 
-function startRecursiveInspectionOfComponent(textFile, p, bundle) {
+function startRecursiveInspectionOfComponent(textFile: string, p: string, bundle: Bundle) {
   const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
   const tokens = jsThis(splitTextUseFirstPart, { onlyDeclarations: true });
   bundle.files.push(p);
   if (tokens.body && tokens.body.use) {
     Object.values(tokens.body.use)
+      // @ts-ignore
       .forEach(({ path }) => {
         if (path === p) return;
         if (existsSync(path)) {
@@ -21,7 +23,7 @@ function startRecursiveInspectionOfComponent(textFile, p, bundle) {
       });
   }
 }
-export default function oInspect(entrypoint, bundle) {
+export default function oInspect(entrypoint: string, bundle: Bundle) {
   if (existsSync(entrypoint)) {
     const rootComponentFile = Deno.readTextFileSync(entrypoint);
     startRecursiveInspectionOfComponent(

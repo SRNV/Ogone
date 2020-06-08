@@ -45,34 +45,40 @@ export interface Bundle {
  * ```
  */
 export interface Component {
-  for: {};
+  for: any;
   refs: {};
-  data: {};
-  scripts: {};
+  flags: [];
   file: string;
   uuid: string;
   reactive: {};
-  flags: [];
   style: string[];
-  routes: null | [];
+  hasStore: boolean;
   modules: string[][];
+  routes: null | Route[];
   esmExpressions: string;
   namespace: null | string;
+  scripts: ComponentScript;
   exportsExpressions: string;
+  data: { [key: string]: any };
   rootNode: XMLNodeDescription;
   imports: { [key: string]: string };
+  requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
 }
 
+interface ComponentScript {
+  runtime: string;
+}
 export interface XMLNodeDescription {
   dna: string;
   type?: string;
-  nodeType: 1 | 3;
+  nodeType: 1 | 3 | 8;
   rawText?: string;
   rawAttrs?: string;
   hasFlag?: boolean;
   autoclosing?: boolean;
   tagName: null | string;
+  dependencies: string[];
   id: null | number | string;
   nodeList: XMLNodeDescription[];
   flags: ParseFlagsOutput | null;
@@ -131,4 +137,26 @@ export interface ParseFlagDescription {
   filter?: null | string;
   target?: null | string;
   eval?: string | boolean;
+}
+export interface RouteRedirection {
+  name: string;
+}
+export interface Route {
+  path: string;
+  redirect: string | RouteRedirection;
+  component: string;
+  name: string;
+  children: Route[];
+  title: string;
+  once: boolean;
+}
+export interface LegacyDescription {
+  ctx?: any;
+  script?: any;
+  limit?: number;
+  getLength?: string;
+  arrayName?: string;
+  callbackDeclaration?: "";
+  declarationScript?: string[];
+  getLengthDeclarationAfterArrayEvaluation?: "";
 }

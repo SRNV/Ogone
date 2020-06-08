@@ -1,10 +1,11 @@
 import jsThis from "../../lib/js-this/switch.js";
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
-import allowedTypes from "./rules/component-types.js";
+import allowedTypes from "./rules/component-types.ts";
 import { existsSync } from "../../../utils/exists.ts";
-import inspectRoutes from "./router/inspect-routes.js";
+import inspectRoutes from "./router/inspect-routes.ts";
+import { Bundle } from '../../../.d.ts';
 
-export default function oRenderScripts(bundle) {
+export default function oRenderScripts(bundle: Bundle): void {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
     const proto = component.rootNode.childNodes.find((node) =>
@@ -13,10 +14,10 @@ export default function oRenderScripts(bundle) {
     const moduleScript = proto?.childNodes[0];
     let defData;
     if (proto && "def" in proto.attributes) {
-      if (existsSync(proto.attributes.def)) {
+      if (existsSync(proto.attributes.def as string)) {
         console.warn(`[Ogone] definition of proto: ${proto.attributes.def}`);
-        const def = Deno.readTextFileSync(proto.attributes.def);
-        defData = YAML.parse(def);
+        const def = Deno.readTextFileSync(proto.attributes.def as string);
+        defData = YAML.parse(def, {});
       } else {
         const DefinitionOfProtoNotFoundException = new Error(
           `[Ogone] can't find the definition file of proto: ${proto.attributes.def}`,
@@ -37,10 +38,7 @@ export default function oRenderScripts(bundle) {
       const cases = jsThis(moduleScript.rawText, { parseCases: true });
       const { each } = ogoneScript.body.switch.before;
       // here set the cases and if the default is present in the script
-      component.switch = cases.body.switch;
-      // set the datas of the component
-      const { cases: declaredCases, default: declaredDefault } =
-        component.switch;
+      const { cases: declaredCases, default: declaredDefault } = cases.body.switch;
       let caseGate = declaredCases.length || declaredDefault
         ? `
       if (typeof _state === "string" && ![${declaredCases}].includes(_state)) {
@@ -54,7 +52,7 @@ export default function oRenderScripts(bundle) {
       };
       const { value } = ogoneScript;
       let script = `(${
-        proto.attributes && ["async", "store"].includes(proto.attributes.type)
+        proto && proto.attributes && ["async", "store"].includes(proto.attributes.type as string)
           ? "async"
           : ""
       } function (_state, ctx, event, _once = 0) {
@@ -72,8 +70,8 @@ export default function oRenderScripts(bundle) {
     } else if (defData) {
       component.data = defData;
     }
-    if (component.properties && component.data && component.properties.length) {
-      component.properties.forEach(([key]) => {
+    if (component.requirements && component.data && component.requirements.length) {
+      component.requirements.forEach(([key]) => {
         if (component.data[key]) {
           const AlreadyDefinedPropAsDatainComponentException = new Error(
             `${key} is already defined in datas for component ${component.file}`,
@@ -85,7 +83,7 @@ export default function oRenderScripts(bundle) {
     }
     if (proto && "type" in proto.attributes) {
       const { type } = proto.attributes;
-      if (!allowedTypes.includes(type)) {
+      if (!allowedTypes.includes(type as string)) {
         const UnsupportedTypeException = new TypeError(
           `[Ogone] ${type} is not supported, in this version.
           supported types of component: ${allowedTypes.join(" ")}
@@ -93,7 +91,7 @@ export default function oRenderScripts(bundle) {
         );
         throw UnsupportedTypeException;
       }
-      component.type = type;
+      component.type = (type as "component" | "async" | "store" | "router" | "controller");
       if (type === "router") {
         component.routes = inspectRoutes(
           bundle,
@@ -105,7 +103,7 @@ export default function oRenderScripts(bundle) {
       if (type === "store") {
         if (proto.attributes.namespace) {
           // set the component type, default is null
-          component.namespace = proto.attributes.namespace;
+          component.namespace = (proto.attributes.namespace as string);
         }
       }
     }

@@ -18,6 +18,7 @@ interface DOMParserExp {
   closing?: boolean;
   expression: string;
   autoclosing?: boolean;
+  dependencies: string[];
   childNodes: DOMParserExp[];
   closingTag?: null | string;
   flags: ParseFlagsOutput | null;
@@ -221,7 +222,7 @@ function parseTextNodes(html: string, expression: DOMParserExpressions, iterator
         tagName: undefined,
         attributes: {},
         flags: null,
-
+        dependencies: [],
       };
       result = result.replace(`>${content}<`, `>${key}<`);
     });
@@ -277,6 +278,7 @@ function preserveNodes(html: string, expression: DOMParserExpressions, iterator:
           parentNode: null,
           pragma: null,
           flags: null,
+          dependencies: [],
         };
       }
       result = result.replace(input, key);
@@ -310,6 +312,7 @@ function preserveTemplates(html: string, expression: DOMParserExpressions, itera
         nodeType: 1,
         attributes: {},
         flags: null,
+        dependencies: [],
       };
       result = result.replace(allTemplate, key);
     });
@@ -338,6 +341,7 @@ function preserveLitterals(html: string, expression: DOMParserExpressions, itera
           tagName: undefined,
           nodeType: 0,
           attributes: {},
+          dependencies: [],
           flags: null,
         };
         result = result.replace(allLit, key);
@@ -367,6 +371,7 @@ function preserveStringsAttrs(html: string, expression: DOMParserExpressions, it
       nodeType: 0,
       tagName: undefined,
       attributes: {},
+      dependencies: [],
       flags: null,
     };
   });
@@ -389,6 +394,7 @@ function preserveStringsAttrs(html: string, expression: DOMParserExpressions, it
         tagName: undefined,
         nodeType: 0,
         attributes: {},
+        dependencies: [],
         flags: null,
       };
       result = result.replace(allstring, key);
@@ -417,6 +423,7 @@ function preserveComments(html: string, expression: DOMParserExpressions, iterat
         id: null,
         tagName: undefined,
         attributes: {},
+        dependencies: [],
         flags: null,
       };
     });

@@ -24,7 +24,9 @@ export default function oRender(bundle: Bundle) {
           exportsExpressions: "",
           data: {},
           style: [],
-          scripts: {},
+          scripts: {
+            runtime: 'function(){};',
+          },
           imports: {},
           flags: [],
           for: {},
@@ -36,6 +38,8 @@ export default function oRender(bundle: Bundle) {
           namespace: null,
           modules: [],
           type: "component",
+          requirements: null,
+          hasStore: false,
         });
       }
     }

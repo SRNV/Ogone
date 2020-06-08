@@ -1,6 +1,12 @@
 import iterator from "../../lib/iterator.ts";
 
-export default function oRenderForFlag(flagValue) {
+interface ForCtxDescription<T> {
+  index: string;
+  item: string;
+  array: string;
+  content: T;
+}
+export default function oRenderForFlag(flagValue: string): ForCtxDescription<string> {
   if (flagValue.indexOf("as") === -1) {
     const OgoneForFlagSyntaxException = new Error(
       `[Ogone] Syntax Error: ${flagValue}, no (as) found \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,
@@ -18,7 +24,7 @@ export default function oRenderForFlag(flagValue) {
     );
     throw OgoneForFlagSyntaxException;
   }
-  let [context, arrayName, item, index] = oForRegExp;
+  let [, arrayName, item, index] = oForRegExp;
   arrayName = flagValue.split("as")[0].trim();
   return {
     index: index ? index : `i${iterator.next().value}`,

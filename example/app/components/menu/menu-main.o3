@@ -38,6 +38,7 @@ use @/example/app/components/logo.o3 as 'logo-el'
     background: var(--o-header);
     z-index: 2000;
     display: flex;
+    filter: drop-shadow(2px 0px 5px #000000);
     flex-direction: column;
   }
   .close {
