@@ -40,9 +40,9 @@ export default function setOgoneMethod(
       nodes: [],
 
       // {}[]
-      directives: null,
+      flags: null,
 
-      // replacer is used for --ifElse directive
+      // replacer is used for --ifElse flag
       replacer: null,
 
       // critical function
@@ -51,7 +51,7 @@ export default function setOgoneMethod(
       // set as false by the component, preserves from maximum call stack
       originalNode: true,
 
-      // promise for await directive
+      // promise for await flag
       promise: null,
 
       dependencies: [],
@@ -85,7 +85,7 @@ export default function setOgoneMethod(
               return { query }
             })(),  },`
       : ""
-  }
+    }
 
       // overwrite properties
       ...def,

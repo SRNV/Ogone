@@ -1,7 +1,6 @@
-import parseDirectives from "./parseDirectives.js";
+import parseFlags from "./parseFlags.ts";
 import templateReplacer from "../../../utils/template-recursive.ts";
-import { XMLNodeDescription, XMLAttrsNodeDescription, DOMParserPragmaDescription } from '../../../.d.ts';
-import iterator from "../iterator.js";
+import { XMLNodeDescription, XMLAttrsNodeDescription, DOMParserPragmaDescription, ParseFlagsOutput } from '../../../.d.ts';
 
 interface DOMParserIterator {
   value: number;
@@ -19,9 +18,10 @@ interface DOMParserExp {
   closing?: boolean;
   expression: string;
   autoclosing?: boolean;
-  tagName: string | null | undefined;
-  closingTag?: null | string;
   childNodes: DOMParserExp[];
+  closingTag?: null | string;
+  flags: ParseFlagsOutput | null;
+  tagName: string | null | undefined;
   attributes: XMLAttrsNodeDescription;
   parentNode: null | DOMParserExpressions;
   pragma: DOMParserPragmaDescription | null;
@@ -144,7 +144,7 @@ function parseNodes(html: string, expressions: DOMParserExpressions) {
       )
         .forEach((attr) => {
           // @ts-ignore
-          expressions[key].attributes[attr.trim()] = ''
+          expressions[key].attributes[attr.trim()] = true
         });
     });
 
@@ -220,6 +220,7 @@ function parseTextNodes(html: string, expression: DOMParserExpressions, iterator
         pragma: null,
         tagName: undefined,
         attributes: {},
+        flags: null,
 
       };
       result = result.replace(`>${content}<`, `>${key}<`);
@@ -275,6 +276,7 @@ function preserveNodes(html: string, expression: DOMParserExpressions, iterator:
           rawText: '',
           parentNode: null,
           pragma: null,
+          flags: null,
         };
       }
       result = result.replace(input, key);
@@ -307,6 +309,7 @@ function preserveTemplates(html: string, expression: DOMParserExpressions, itera
         id: null,
         nodeType: 1,
         attributes: {},
+        flags: null,
       };
       result = result.replace(allTemplate, key);
     });
@@ -335,7 +338,7 @@ function preserveLitterals(html: string, expression: DOMParserExpressions, itera
           tagName: undefined,
           nodeType: 0,
           attributes: {},
-
+          flags: null,
         };
         result = result.replace(allLit, key);
       });
@@ -364,6 +367,7 @@ function preserveStringsAttrs(html: string, expression: DOMParserExpressions, it
       nodeType: 0,
       tagName: undefined,
       attributes: {},
+      flags: null,
     };
   });
   result.split(beginQuote)
@@ -385,6 +389,7 @@ function preserveStringsAttrs(html: string, expression: DOMParserExpressions, it
         tagName: undefined,
         nodeType: 0,
         attributes: {},
+        flags: null,
       };
       result = result.replace(allstring, key);
     });
@@ -412,6 +417,7 @@ function preserveComments(html: string, expression: DOMParserExpressions, iterat
         id: null,
         tagName: undefined,
         attributes: {},
+        flags: null,
       };
     });
   return result;
@@ -490,14 +496,14 @@ function setNodesPragma(expressions: DOMParserExpressions) {
         let nodeCreation =
           `const ${nId} = document.createElement('${node.tagName}');`;
         if (nodeIsDynamic && !isImported && !isRoot) {
-          // create a custom element if the element as a directive or prop or event;
+          // create a custom element if the element as a flag or prop or event;
           nodeCreation =
             `const ${nId} = document.createElement("${idComponent}-${node.id}");`;
         } else if (isImported) {
           nodeCreation =
             `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
         }
-        const directives = parseDirectives(node, { nodeIsDynamic, isImported });
+        const flags = parseFlags((node as unknown) as XMLNodeDescription, { nodeIsDynamic, isImported });
         /**
            * all we set in this function
            * will be usefull after the node is connected
@@ -538,7 +544,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
             }
               ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
               ${node.tagName === null ? `renderChildNodes: true,` : ""}
-              directives: ${directives},
+              flags: ${flags},
             });`
             : ""
           }

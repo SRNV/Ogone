@@ -18,8 +18,8 @@ export default function getWebComponent(bundle, component, node) {
   const isRouter = isTemplate && component.type === "router";
   const isStore = isTemplate && component.type === "store";
   const isAsync = isTemplate && component.type === "async";
-  const isAsyncNode = !isTemplate && !isImported && node.directives &&
-    node.directives.await;
+  const isAsyncNode = !isTemplate && !isImported && node.flags &&
+    node.flags.await;
   const isExtension = !!allConstructors[node.tagName];
   const opts = {
     isTemplate,

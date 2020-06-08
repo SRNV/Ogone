@@ -1,6 +1,6 @@
-use @/example/testdirectives.o3 as 'test-d'
+use @/example/testflags.o3 as 'test-d'
 <div>
-    <h1>Test des directives</h1>
+    <h1>Test des flags</h1>
     <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">
     ${o} t
     </div>

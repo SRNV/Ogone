@@ -10,15 +10,15 @@ export default function asyncMethods(
       setNodeAsyncContext() {
         const o = this.ogone;
         const oc = o.component;
-        if (o.directives && o.directives.await) {
+        if (o.flags && o.flags.await) {
           const promise = new Promise((resolve, reject) => {
-          if (typeof o.directives.await === 'boolean') {
+          if (typeof o.flags.await === 'boolean') {
             this.firstNode.addEventListener('load', (ev) => {
               resolve(false);
             });
           } else {
             const type = o.getContext({
-              getText: o.directives.await,
+              getText: o.flags.await,
               position: o.position,
             })
             this.firstNode.addEventListener(type, (ev) => {
@@ -128,7 +128,7 @@ export default function asyncMethods(
     oc.resolve = (...args) => {
       return new Promise((resolve) => {
         // we need to delay the execution
-        // for --defer directive
+        // for --defer flag
         setTimeout(() => {
           // set Async context for Async Components
           this.setAsyncContext();
@@ -177,18 +177,18 @@ export default function asyncMethods(
   setAsyncContext() {
     const o = this.ogone;
     const oc = o.component;
-    if (o.directives && o.directives.then) {
-      oc.async.then = o.directives.then;
+    if (o.flags && o.flags.then) {
+      oc.async.then = o.flags.then;
     }
-    if (o.directives && o.directives.catch) {
-      oc.async.catch = o.directives.catch;
+    if (o.flags && o.flags.catch) {
+      oc.async.catch = o.flags.catch;
     }
-    if (o.directives && o.directives.finally) {
-      oc.async.finally = o.directives.finally;
+    if (o.flags && o.flags.finally) {
+      oc.async.finally = o.flags.finally;
     }
-    if (o.directives && o.directives.defer) {
+    if (o.flags && o.flags.defer) {
       const promise = o.getContext({
-        getText: o.directives.defer,
+        getText: o.flags.defer,
         position: o.position,
       })
       oc.promises.push(promise);

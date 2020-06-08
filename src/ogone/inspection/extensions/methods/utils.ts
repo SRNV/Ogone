@@ -40,7 +40,7 @@ export default function utilsMethods(
     isTemplate
       ? `return '${component.uuid}-nt';`
       : `return '${component.uuid}-${node.id}';`
-  }
+    }
     }
     get isComponent() {
       return ${isTemplate};
@@ -52,7 +52,7 @@ export default function utilsMethods(
         originalNode: true,
         level: this.ogone.level,
         position: this.ogone.position,
-        directives: this.ogone.directives,
+        flags: this.ogone.flags,
         dependencies: this.ogone.dependencies,
         render: this.ogone.render,
         ${cloneProps}

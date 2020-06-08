@@ -26,7 +26,7 @@ export default function oRender(bundle: Bundle) {
           style: [],
           scripts: {},
           imports: {},
-          directives: [],
+          flags: [],
           for: {},
           refs: {},
           reactive: {},

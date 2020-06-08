@@ -1,4 +1,5 @@
-const SyntaxEventException = (event) =>
+import { XMLNodeDescription, XMLNodeDescriberDescription, ParseFlagsOutput } from './../../../.d.ts';
+const SyntaxEventException = (event: string) =>
   new SyntaxError(
     `[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`,
   );
@@ -35,9 +36,19 @@ const events = [
   "--touchstart",
   "--wheel",
 ];
-export default function parseDirectives(node, opts) {
-  let result = {
+export default function parseFlags(node: XMLNodeDescription, opts: XMLNodeDescriberDescription): null | string {
+  let result: ParseFlagsOutput = {
+    if: '',
+    then: '',
+    defer: '',
+    await: '',
+    style: '',
+    class: '',
+    catch: '',
     events: [],
+    elseIf: '',
+    finally: '',
+    else: false,
   };
   const { nodeIsDynamic, isImported } = opts;
   if (nodeIsDynamic || isImported) {
@@ -50,22 +61,25 @@ export default function parseDirectives(node, opts) {
             !key.match(/(\-){2}(\w+\:)([^\s]*)+/):
             throw SyntaxEventException(event);
           case key.startsWith(event):
-            const [input, t, ev, caseName] = key.match(
+            const m = key.match(
               /(\-){2}(\w+\:)([^\s]*)+/,
             );
-            const infos = {
-              type: event.slice(2),
-              case: `${ev}${caseName}`,
-              filter: null,
-              target: null,
-            };
-            if (event.startsWith("--key")) {
-              infos.target = "document";
+            if (m) {
+              const [input, t, ev, caseName] = m
+              const infos: any = {
+                type: event.slice(2),
+                case: `${ev}${caseName}`,
+                filter: null,
+                target: null,
+              };
+              if (event.startsWith("--key")) {
+                infos.target = "document";
+              }
+              if (node.attributes[key] !== true) {
+                infos.filter = node.attributes[key];
+              }
+              result.events.push(infos);
             }
-            if (node.attributes[key] !== true) {
-              infos.filter = node.attributes[key];
-            }
-            result.events.push(infos);
             break;
         }
       }
@@ -81,52 +95,52 @@ export default function parseDirectives(node, opts) {
           break;
         case key === "--class":
           result.class = `${attributes[key]}`;
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key === "--style":
           result.style = `${attributes[key]}`;
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key === "--if":
           result.if = `${attributes[key]}`;
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key === "--else":
           result.else = true;
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key === "--else-if":
           result.elseIf = `${attributes[key]}`;
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key === "--await":
-          result.await = attributes[key] === true ? true : `${attributes[key]}`;
+          result.await = attributes[key] === true ? '' : `${attributes[key]}`;
           if (isImported) {
             node.attributes.await = true;
           }
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key === "--defer":
           result.defer = `${attributes[key]}`;
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key.startsWith("--then"):
           result.then = key.slice(2);
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key.startsWith("--catch"):
           result.catch = key.slice(2);
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
         case key.startsWith("--finally"):
           result.finally = key.slice(2);
-          node.hasDirective = true;
+          node.hasFlag = true;
           break;
       }
     }
-    // directives that starts with --
-    node.hasDirective = true;
-    node.directives = result;
+    // flags that starts with --
+    node.hasFlag = true;
+    node.flags = result;
     return JSON.stringify(result);
   }
   return null;

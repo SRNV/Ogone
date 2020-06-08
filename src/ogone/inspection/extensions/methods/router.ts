@@ -87,7 +87,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
           index: o.index,
           level: o.level,
           position: o.position,
-          directives: o.directives,
+          flags: o.flags,
         });
 
         // if the route provide any title
@@ -107,7 +107,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
       // update Props before replacement of the element
       oc.updateProps();
 
-      // we will use o.replacer cause it's used in the directive if
+      // we will use o.replacer cause it's used in the flag if
       if (!o.actualTemplate) {
         o.actualTemplate = o.replacer;
       }

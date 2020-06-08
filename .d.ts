@@ -33,7 +33,7 @@ export interface Bundle {
   file: string;
   uuid: string;
   reactive: {};
-  directives: [];
+  flags: [];
   style: string[];
   routes: null | [];
   modules: string[][];
@@ -52,7 +52,7 @@ export interface Component {
   file: string;
   uuid: string;
   reactive: {};
-  directives: [];
+  flags: [];
   style: string[];
   routes: null | [];
   modules: string[][];
@@ -65,20 +65,22 @@ export interface Component {
 
 export interface XMLNodeDescription {
   dna: string;
-  pragma: DOMParserPragmaDescription | null;
+  type?: string;
   nodeType: 1 | 3;
   rawText?: string;
   rawAttrs?: string;
+  hasFlag?: boolean;
+  autoclosing?: boolean;
   tagName: null | string;
   id: null | number | string;
   nodeList: XMLNodeDescription[];
+  flags: ParseFlagsOutput | null;
   childNodes: XMLNodeDescription[];
-  parentNode: null | XMLNodeDescription;
-  previousElementSibling: null | XMLNodeDescription;
-  nextElementSibling: null | XMLNodeDescription;
-  autoclosing?: boolean;
   attributes: XMLAttrsNodeDescription;
-  type?: string;
+  parentNode: null | XMLNodeDescription;
+  pragma: null | DOMParserPragmaDescription;
+  nextElementSibling: null | XMLNodeDescription;
+  previousElementSibling: null | XMLNodeDescription;
 }
 
 /**
@@ -88,7 +90,44 @@ export interface XMLNodeDescription {
   ```
  */
 export interface XMLAttrsNodeDescription {
-  [key: string]: string;
+  [key: string]: string | boolean;
 }
 
 export type DOMParserPragmaDescription = (idComponent: string, isRoot?: boolean | undefined, imports?: string[] | undefined, getId?: ((id: string) => string) | undefined) => string;
+
+/**
+ * can be passed as an option of a method
+ * describes a <XMLNodeDescription>
+ */
+export interface XMLNodeDescriberDescription {
+  isAsync?: boolean;
+  isStore?: boolean;
+  isRouter?: boolean;
+  isTemplate?: boolean;
+  isImported?: boolean;
+  isAsyncNode?: boolean;
+  isExtension?: boolean;
+  nodeIsDynamic?: boolean;
+}
+
+export interface ParseFlagsOutput {
+  if: string;
+  then: string;
+  catch: string;
+  defer: string;
+  style: string;
+  class: string;
+  else: boolean;
+  elseIf: string;
+  finally: string;
+  await: string | boolean;
+  events: ParseFlagDescription[],
+}
+export interface ParseFlagDescription {
+  name: string;
+  type: string;
+  case?: string;
+  filter?: null | string;
+  target?: null | string;
+  eval?: string | boolean;
+}

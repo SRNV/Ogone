@@ -1,18 +1,18 @@
 export default function oRenderContext(bundle, keyComponent) {
   const component = bundle.components.get(keyComponent);
-  Object.entries(component.for).forEach(([nId, directive]) => {
-    const { script } = directive;
+  Object.entries(component.for).forEach(([nId, flag]) => {
+    const { script } = flag;
     const { node, ctx, getLength, array } = script;
     let contextIf = null;
     if (node.attributes && node.attributes["--if"]) {
       let nxt = node.nextElementSibling;
       node.ifelseBlock = {
         main: node.attributes["--if"],
-        ifDirective: {
+        ifFlag: {
           [node.id]: node.attributes["--if"],
         },
         elseIf: {},
-        elseDirective: {},
+        elseFlag: {},
       };
       while (
         nxt && nxt.attributes &&
@@ -22,7 +22,7 @@ export default function oRenderContext(bundle, keyComponent) {
         if (nxt.attributes["--else-if"]) {
           node.ifelseBlock.elseIf[nxt.id] = nxt.attributes["--else-if"];
         } else {
-          node.ifelseBlock.elseDirective[nxt.id] = nxt.attributes["--else"];
+          node.ifelseBlock.elseFlag[nxt.id] = nxt.attributes["--else"];
         }
 
         const elseDir = !!nxt.attributes["--else"];
@@ -32,17 +32,17 @@ export default function oRenderContext(bundle, keyComponent) {
           (!!nxt.attributes["--else"] || !!nxt.attributes["--else-if"])
         ) {
           throw new Error(
-            "[Ogone] else directive has to be the last in if-else-if blocks, no duplicate of --else are allowed.",
+            "[Ogone] else flag has to be the last in if-else-if blocks, no duplicate of --else are allowed.",
           );
         }
       }
     }
     if (node.ifelseBlock) {
-      node.hasDirective = true;
-      const { ifDirective, elseDirective, elseIf, main } = node.ifelseBlock;
-      const isElse = elseDirective[node.id];
+      node.hasFlag = true;
+      const { ifFlag, elseFlag, elseIf, main } = node.ifelseBlock;
+      const isElse = elseFlag[node.id];
       const isElseIf = elseIf[node.id];
-      const isMain = ifDirective[node.id];
+      const isMain = ifFlag[node.id];
       const allElseIf = Object.values(elseIf);
       if (!!isMain) {
         contextIf = `
@@ -73,20 +73,19 @@ export default function oRenderContext(bundle, keyComponent) {
         `;
       }
     }
-    const contextScript =
-      node.hasDirective || !node.tagName && node.nodeType === 1
-        ? `
+    const contextScript = node.hasFlag || !node.tagName && node.nodeType === 1
+      ? `
     Ogone.contexts['${component.uuid}-${nId}'] = function(opts) {
         const GET_TEXT = opts.getText;
         const GET_LENGTH = opts.getLength;
         const POSITION = opts.position;
         ${
-          component.data instanceof Object
-            ? Object.keys(component.data).map((prop) =>
-              `const ${prop} = this.${prop};`
-            ).join("\n")
-            : ""
-        }
+        component.data instanceof Object
+          ? Object.keys(component.data).map((prop) =>
+            `const ${prop} = this.${prop};`
+          ).join("\n")
+          : ""
+      }
         ${array ? `const _____a_ = ${array} || [];` : ""}
 
         ${contextIf ? contextIf : ""}
@@ -103,7 +102,7 @@ export default function oRenderContext(bundle, keyComponent) {
         return {${[...Object.keys(ctx), ...Object.keys(component.data)]}};
       };
     `
-        : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
+      : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
     bundle.contexts.push(contextScript);
   });
 }

@@ -5,7 +5,7 @@ export default function bindStyleMethod(
 ): string {
   const { isStore, isRouter } = opts;
   if (
-    isRouter || isStore || (!node.directives || !node.directives.style)
+    isRouter || isStore || (!node.flags || !node.flags.style)
   ) {
     return `bindStyle() {}`;
   }
@@ -17,14 +17,14 @@ export default function bindStyleMethod(
         const vl = o.getContext({
           position: o.position,
           getText: '(${
-    node.directives.style
+    node.flags.style
       // preserve regular expressions
       .replace(/\\/gi, "\\\\")
       // erase new line
       .replace(/\n/gi, " ")
       // preserve quotes
       .replace(/\'/gi, "\\'").trim()
-  })',
+    })',
         });
         if (typeof vl === 'string') {
           n.style = vl;

@@ -4,7 +4,7 @@ export default function setEventsMethod(
   opts: any,
 ): string {
   const { isTemplate } = opts;
-  if (!node.directives) return `setEvents(){}`;
+  if (!node.flags) return `setEvents(){}`;
   const position = isTemplate ? "oc.positionInParentComponent" : "o.position";
   return `
     setEvents() {
@@ -13,7 +13,7 @@ export default function setEventsMethod(
         let v;
         for (let node of o.nodes) {
           ${
-    node.directives.events
+    node.flags.events
       .map((dir: any) => {
         switch (true) {
           case dir.type === "wheel" && !!dir.filter:
@@ -34,22 +34,22 @@ export default function setEventsMethod(
                           case filter === 'right' && ev.wheelDeltaX < 0:
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                             break;
                           case filter === 'left' && ev.wheelDeltaX > 0:
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                             break;
                           case filter === 'up' && ev.wheelDeltaY > 0:
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                             break;
                           case filter === 'down' && ev.wheelDeltaY < 0:
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                             break;
                         }
                       });`;
@@ -65,7 +65,7 @@ export default function setEventsMethod(
                         });
                         oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                       });`;
           case dir.type.startsWith("key") && !!dir.case && !!dir.filter:
             return `
@@ -83,7 +83,7 @@ export default function setEventsMethod(
                               });
                               oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                             break;
                           case ev.key === filter:
                             ctx = o.getContext({
@@ -91,7 +91,7 @@ export default function setEventsMethod(
                             });
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                           break;
                           case ev.keyCode === filter:
                             ctx = o.getContext({
@@ -99,7 +99,7 @@ export default function setEventsMethod(
                             });
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                           break;
                           case ev.code.toLowerCase() === filter:
                             ctx = o.getContext({
@@ -107,7 +107,7 @@ export default function setEventsMethod(
                             });
                             oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                           break;
                         }
                       });`;
@@ -120,7 +120,7 @@ export default function setEventsMethod(
                         });
                         oc${
               isTemplate ? ".parent" : ""
-            }.runtime("${dir.case}", ctx, ev);
+              }.runtime("${dir.case}", ctx, ev);
                       });`;
           case dir.eval && dir.name === "router-go":
             return `
@@ -133,7 +133,7 @@ export default function setEventsMethod(
                       });`;
         }
       }).join("\n")
-  }
+    }
         }
     }`;
 }

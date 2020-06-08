@@ -1,8 +1,8 @@
 import iterator from "../../lib/iterator.js";
 import parseAttrs from "../../lib/html-this/parseAttrs.js";
-import oRenderForDirective from "./render-for-directive.js";
+import oRenderForFlag from "./render-for-flag.js";
 
-const directives = [
+const flags = [
   "--if",
   "--else",
   "--for",
@@ -47,7 +47,7 @@ export default function oRenderDOM(
       const keyData = Object.keys(component.data);
       attrs.forEach((key) => {
         if (!key.startsWith("--")) return;
-        node.hasDirective = true;
+        node.hasFlag = true;
         keyData.forEach((key2) => {
           if (
             node.attributes[key].indexOf &&
@@ -106,18 +106,18 @@ export default function oRenderDOM(
     ) {
       contextLegacy.tree.push(`'[${nUuid}-0]'`);
     }
-    const domDirective = {
+    const domFlag = {
       querySelector: query,
-      directives: [],
+      flags: [],
     };
     if (node.rawAttrs && node.rawAttrs.trim().length) {
-      // get the directives
-      directives.forEach((directive) => {
-        if (node.attributes[directive]) {
-          const onevent = node.attributes[directive];
-          const payload = [directive.slice(2)];
+      // get the flags
+      flags.forEach((flag) => {
+        if (node.attributes[flag]) {
+          const onevent = node.attributes[flag];
+          const payload = [flag.slice(2)];
           switch (true) {
-            case directive === "--model" &&
+            case flag === "--model" &&
               ["input", "textarea"].includes(node.tagName):
               if (onevent in component.data) {
                 if (!component.reactive[onevent]) {
@@ -133,12 +133,12 @@ export default function oRenderDOM(
               payload.push(function bounded(value) {
                 if (this[onevent] !== value) this[onevent] = value;
               });
-              delete node.attributes[directive];
+              delete node.attributes[flag];
               break;
-            case directive === "--for":
-              const oForDirective = oRenderForDirective(onevent);
-              const { item, index, array } = oForDirective;
-              node.oForDirective = oForDirective;
+            case flag === "--for":
+              const oForFlag = oRenderForFlag(onevent);
+              const { item, index, array } = oForFlag;
+              node.oForFlag = oForFlag;
               if (legacy.ctx[item]) {
                 const ItemNameAlreadyInUseException = new Error(
                   `[Ogone] '${item}' is already defined in the template, as item`,
@@ -152,8 +152,8 @@ export default function oRenderDOM(
                 throw IndexAlreadyInUseException;
               }
               legacy.ctx[index] = true;
-              legacy.ctx[item] = oForDirective;
-              node.hasDirective = true;
+              legacy.ctx[item] = oForFlag;
+              node.hasFlag = true;
               const getLengthScript = `
               if (GET_LENGTH) {
                 return (_____a_).length;
@@ -166,17 +166,17 @@ export default function oRenderDOM(
 
               contextLegacy.declarationScript = contextLegacy.declarationScript
                 .concat(declarationScript);
-              payload.push(oForDirective);
-              delete node.attributes[directive];
+              payload.push(oForFlag);
+              delete node.attributes[flag];
               break;
             default:
               break;
           }
-          domDirective.directives.push(payload);
+          domFlag.flags.push(payload);
         }
       });
     }
-    if (domDirective.directives.length) component.directives.push(domDirective);
+    if (domFlag.flags.length) component.flags.push(domFlag);
     if (node.childNodes?.length) {
       node.childNodes
         .forEach((el, i) => {

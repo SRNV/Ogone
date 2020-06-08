@@ -8,7 +8,7 @@ export default function oRenderNodesBehavior(
   const component = bundle.components.get(keyComponent);
   const isImported = component.imports[node.tagName];
   const subcomp = bundle.components.get(isImported);
-  if (node.tagName === null || (node.hasDirective && node.tagName)) {
+  if (node.tagName === null || (node.hasFlag && node.tagName)) {
     const elementExtension = getWebComponent(bundle, component, node);
     bundle.classes.push(elementExtension);
   }

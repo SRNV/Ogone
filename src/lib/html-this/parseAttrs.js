@@ -76,7 +76,7 @@ function ReadDescription(element) {
         value,
         name: attr.replace(/^(\-|\:|\@){1,2}/g, ""),
         savedName: attr.replace(/^(\-|\:|\@){1,2}/g, ""),
-        directive: attr[0] === "-" && attr[1] === "-",
+        flag: attr[0] === "-" && attr[1] === "-",
         prop: attr[0] === ":",
         event: attr[0] === "@",
         attr: attr[0] !== ":" && attr[0] !== "-" && attr[0] !== "@",
@@ -85,9 +85,9 @@ function ReadDescription(element) {
   });
   loop(resultattr, (att) => {
     if (att.attr) result.push(att);
-    if (att.directive) {
+    if (att.flag) {
       const resultChangeName = att;
-      resultChangeName.name = "o-directive:" + resultChangeName.name;
+      resultChangeName.name = "o-flag:" + resultChangeName.name;
       result.push(resultChangeName);
     }
     if (att.prop) {

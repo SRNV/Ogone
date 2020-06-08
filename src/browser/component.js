@@ -201,7 +201,7 @@ function OComponent() {
         originalNode: false,
         level: Onode.ogone.level,
         position: Onode.ogone.position.slice(),
-        directives: Onode.ogone.directives,
+        flags: Onode.ogone.flags,
         orinal: Onode,
         ...(!callingNewComponent ? { component: this } : {
           props: Onode.ogone.props,
