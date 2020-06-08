@@ -1,4 +1,4 @@
-import allConstructors from "./templating/extensions.js";
+import allConstructors from "./templating/extensions.ts";
 import setEventsMethod from "./methods/setEvents.ts";
 import bindStyleMethod from "./methods/bindStyle.ts";
 import bindClassMethod from "./methods/bindClass.ts";
@@ -20,7 +20,8 @@ export default function getWebComponent(bundle, component, node) {
   const isAsync = isTemplate && component.type === "async";
   const isAsyncNode = !isTemplate && !isImported && node.flags &&
     node.flags.await;
-  const isExtension = !!allConstructors[node.tagName];
+  const isExtension = !!allConstructors.html[node.tagName] ||
+    !!allConstructors.svg[node.tagName];
   const opts = {
     isTemplate,
     isAsync,
