@@ -470,7 +470,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
             : `ctx.refs['${value}'] = ${nId};`
         )
         .join("");
-      pragma = (idComponent: string, isRoot = true, imports = [], getId: ((id: string) => string) | undefined) => {
+      pragma = (idComponent: string, isRoot = true, imports = [], getId: ((id: string) => string | null) | undefined) => {
         const isImported = imports.includes(node.tagName || '');
         const callComponent = isRoot
           ? ";"
@@ -484,7 +484,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
           return child.pragma ? child.pragma(idComponent, false, imports, getId) : '';
         }).join(",");
         let appending = `${nId}.append(${nodesPragma});`;
-        let extensionId = "";
+        let extensionId: string | null = "";
         if (isImported && getId && node.tagName) {
           extensionId = getId(node.tagName);
         }

@@ -5,7 +5,7 @@ import compile from "../../../src/ogone/compilation/index.ts";
 import { Bundle, Environment } from "../../../.d.ts";
 export default abstract class Env {
   private static bundle: Bundle;
-  private static env: Environment = "development";
+  public static env: Environment = "development";
   constructor(opts: any) {
     Env.bundle = opts.bundle;
   }

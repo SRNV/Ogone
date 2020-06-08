@@ -1,4 +1,4 @@
-import getWebComponent from "./extensions/get-web-component.js";
+import getWebComponent from "./extensions/get-web-component.ts";
 
 export default function oRenderNodesBehavior(
   bundle,

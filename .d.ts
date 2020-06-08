@@ -49,7 +49,6 @@ export interface Component {
   refs: {};
   data: {};
   scripts: {};
-  imports: {};
   file: string;
   uuid: string;
   reactive: {};
@@ -61,6 +60,7 @@ export interface Component {
   namespace: null | string;
   exportsExpressions: string;
   rootNode: XMLNodeDescription;
+  imports: { [key: string]: string };
   type: "router" | "component" | "store" | "async" | "controller";
 }
 
@@ -94,7 +94,7 @@ export interface XMLAttrsNodeDescription {
   [key: string]: string | boolean;
 }
 
-export type DOMParserPragmaDescription = (idComponent: string, isRoot?: boolean | undefined, imports?: string[] | undefined, getId?: ((id: string) => string) | undefined) => string;
+export type DOMParserPragmaDescription = (idComponent: string, isRoot?: boolean | undefined, imports?: string[] | undefined, getId?: ((id: string) => string | null) | undefined) => string;
 
 /**
  * can be passed as an option of a method

@@ -1,4 +1,8 @@
-export default {
+type NodeConstructors = {
+  html: { [key: string]: string },
+  svg: { [key: string]: string },
+}
+const constructors: NodeConstructors = {
   html: {
     // list of all element apis
     // source: https://developer.mozilla.org/fr/docs/Web/API
@@ -167,3 +171,4 @@ export default {
     view: "SVGViewElement",
   }
 }
+export default constructors;

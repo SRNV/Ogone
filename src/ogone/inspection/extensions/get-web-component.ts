@@ -10,18 +10,19 @@ import utilsMethods from "./methods/utils.ts";
 import constructorMethods from "./methods/constructor.ts";
 import setOgoneMethod from "./methods/ogone.ts";
 import Env from "../../../lib/env/Env.ts";
+import { Bundle, Component, XMLNodeDescription } from "../../../../.d.ts";
 
-export default function getWebComponent(bundle, component, node) {
+export default function getWebComponent(bundle: Bundle, component: Component, node: XMLNodeDescription) {
   if (!component) return "";
   const isTemplate = node.tagName === null;
-  const isImported = component.imports[node.tagName];
+  const isImported = node.tagName ? component.imports[node.tagName] : false;
   const isRouter = isTemplate && component.type === "router";
   const isStore = isTemplate && component.type === "store";
   const isAsync = isTemplate && component.type === "async";
   const isAsyncNode = !isTemplate && !isImported && node.flags &&
     node.flags.await;
-  const isExtension = !!allConstructors.html[node.tagName] ||
-    !!allConstructors.svg[node.tagName];
+  const isExtension: boolean = !!node.tagName && !!allConstructors.html[node.tagName] ||
+    !!node.tagName && !!allConstructors.svg[node.tagName];
   const opts = {
     isTemplate,
     isAsync,
@@ -31,11 +32,11 @@ export default function getWebComponent(bundle, component, node) {
     isImported,
     isExtension,
   };
-  const componentPragma = node.pragma(
+  const componentPragma = node.pragma ? node.pragma(
     component.uuid,
     true,
     Object.keys(component.imports),
-    (tagName) => {
+    (tagName: string): string | null => {
       if (component.imports[tagName]) {
         const newcomponent = bundle.components.get(component.imports[tagName]);
         if (!newcomponent) return null;
@@ -43,7 +44,7 @@ export default function getWebComponent(bundle, component, node) {
       }
       return null;
     },
-  );
+  ) : '';
   // no definition for imported component
   if (isImported) {
     return "";
@@ -106,7 +107,7 @@ export default function getWebComponent(bundle, component, node) {
       // set the props required by the node
       ${
     isTemplate ? "this.setProps(); this.ogone.component.updateProps();" : ""
-  }
+    }
       this.renderingProcess();
 
       // now ... just render ftw!
@@ -217,7 +218,7 @@ export default function getWebComponent(bundle, component, node) {
       if (o.originalNode && o.getContext) {
             o.component${
     isTemplate ? ".parent" : ""
-  }.react.push(() => this.renderContext());
+    }.react.push(() => this.renderContext());
             this.renderContext();
       }
     }
@@ -318,7 +319,7 @@ export default function getWebComponent(bundle, component, node) {
     componentPragma
       .replace(/\n/gi, "")
       .replace(/\s+/gi, " ")
-  }`;
+    }`;
   bundle.customElements.push(definition);
   bundle.render.push(render);
   return componentExtension;
