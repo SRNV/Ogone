@@ -73,7 +73,7 @@ function getDNA(rootnode: XMLNodeDescription, node: XMLNodeDescription, expressi
   }
   node.dna = templateReplacer(
     node.dna,
-    expressions,
+    (expressions as unknown) as { [key: string]: string },
     (key) => expressions[key].expression,
   );
   if (node.childNodes && node.childNodes.length) {
