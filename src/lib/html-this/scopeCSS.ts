@@ -1,17 +1,18 @@
 import templateReplacer from "../../../utils/template-recursive.ts";
 
 let i = 0;
-function getId(type) {
+function getId(type: string): string {
   i++;
   return `§§${type}${i}§§`;
 }
-function preserveRegexp(str, expressions, regexp) {
+function preserveRegexp(str: string, expressions: any, regexp: RegExp): string {
   const reg = /\{([^\{\}])*\}/;
   const kReg = regexp;
   let result = str;
   let r = str;
   // preserve all blocks
   while (result.match(reg)) {
+    // @ts-ignore
     const [input] = result.match(reg);
     const key = getId("block");
     const content = input;
@@ -34,12 +35,14 @@ function preserveRegexp(str, expressions, regexp) {
   ) {
     const key = Object.keys(expressions).filter((k) => k.startsWith("§§block"))
       .find((k) => result.indexOf(k) > -1);
-    const expression = expressions[key];
-    result = result.replace(key, expression);
+    if (key) {
+      const expression = expressions[key];
+      result = result.replace(key, expression);
+    }
   }
   return result;
 }
-function preserve(str, expressions, template) {
+function preserve(str: string, expressions: any, template: string[]): string {
   let result = str;
   const splitted = result.split(template[0]).filter((s) =>
     s.indexOf(template[1]) > -1
@@ -53,8 +56,8 @@ function preserve(str, expressions, template) {
   });
   return result;
 }
-export default function scopeCSS(cssStr, scopeId) {
-  let result = cssStr;
+export default function scopeCSS(cssStr: string, scopeId: string): string {
+  let result: string = cssStr;
   let expressions = {};
   // preserve all attributes
   result = preserve(result, expressions, ["(", ")"]);
@@ -124,7 +127,7 @@ export default function scopeCSS(cssStr, scopeId) {
         value = value.replace(
           value,
           `${value}[${scopeId}]${
-            savedPseudoElement ? savedPseudoElement[0] : ""
+          savedPseudoElement ? savedPseudoElement[0] : ""
           }`,
         );
         arr[i].value = value;

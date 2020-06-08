@@ -1,4 +1,4 @@
-import scopeCSS from "../../lib/html-this/scopeCSS.js";
+import scopeCSS from "../../lib/html-this/scopeCSS.ts";
 
 export default function oRenderStyles(bundle) {
   const entries = Array.from(bundle.components.entries());

@@ -1,6 +1,6 @@
 export default function templateReplacer(
   str: string = '',
-  template: any,
+  template: { [key: string]: string },
   callback?: (key: string) => string,
 ): string {
   let result: string = str;

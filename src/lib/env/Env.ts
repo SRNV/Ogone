@@ -2,8 +2,7 @@ import { browserBuild, template } from "../../../src/browser/readfiles.ts";
 import { HCR } from "../../../src/lib/hmr/index.ts";
 import Ogone from "../../../src/ogone/index.ts";
 import compile from "../../../src/ogone/compilation/index.ts";
-import { Bundle } from "../../../.d.ts";
-type Environment = "development" | "production" | "staging";
+import { Bundle, Environment } from "../../../.d.ts";
 export default abstract class Env {
   private static bundle: Bundle;
   private static env: Environment = "development";
@@ -15,14 +14,17 @@ export default abstract class Env {
    * set the current bundle for the environment
    * @param bundle
    */
-  public static setBundle(bundle: Bundle) {
+  public static setBundle(bundle: Bundle): void {
     Env.bundle = bundle;
   }
   /**
- * set the current bundle for the environment
- * @param bundle
+ * set the current environment
+ * ```ts
+ *  Env.setEnv("development" | "staging" | "production");
+ * ```
+ * @param env
  */
-  public static setEnv(env: Environment) {
+  public static setEnv(env: Environment): void {
     Env.env = env;
   }
 

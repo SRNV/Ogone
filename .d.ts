@@ -1,3 +1,4 @@
+export type Environment = "development" | "production" | "staging";
 /**
  * Definition of a bundle
   ```ts

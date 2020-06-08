@@ -433,7 +433,7 @@ function cleanNodes(expressions: DOMParserExpressions) {
       let rawText = value;
       rawText = templateReplacer(
         rawText,
-        expressions,
+        (expressions as unknown) as { [key: string]: string },
         (key) => expressions[key].expression,
       );
       node.rawText = rawText;
@@ -636,7 +636,7 @@ export default function parse(html: string): XMLNodeDescription | null {
     getDNA(result, result, expressions);
     result.dna = templateReplacer(
       result.dna,
-      expressions,
+      (expressions as unknown) as { [key: string]: string },
       (key) => expressions[key].expression,
     );
     // critical this will say to o3 that is the rootNode
