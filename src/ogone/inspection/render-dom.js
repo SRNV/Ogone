@@ -1,5 +1,4 @@
 import iterator from "../../lib/iterator.js";
-import parseAttrs from "../../lib/html-this/parseAttrs.js";
 import oRenderForFlag from "./render-for-flag.js";
 
 const flags = [
@@ -55,32 +54,6 @@ export default function oRenderDOM(
             !node.dependencies.includes(key2)
           ) {
             node.dependencies.push(key2);
-          }
-        });
-      });
-    }
-    // LEGACY - node now have all attributes starting with -- or @ or :
-    if (node.rawAttrs && node.rawAttrs.length) {
-      const parsedAttrs = parseAttrs(node.rawAttrs);
-      node.props = parsedAttrs.filter((a) => a.prop);
-      node.event = parsedAttrs.filter((a) => a.event);
-      node.props.forEach((prop) => {
-        delete node.attributes[prop.savedName];
-        Object.keys(component.data).forEach((key) => {
-          if (
-            prop.value.indexOf(key) > -1 && !node.dependencies.includes(key)
-          ) {
-            node.dependencies.push(key);
-          }
-        });
-      });
-      node.event.forEach((event) => {
-        delete node.attributes[event.savedName];
-        Object.keys(component.data).forEach((key) => {
-          if (
-            event.value.indexOf(key) > -1 && !node.dependencies.includes(key)
-          ) {
-            node.dependencies.push(key);
           }
         });
       });

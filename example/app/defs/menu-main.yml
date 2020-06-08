@@ -10,7 +10,7 @@ menu:
         route: /doc/install
       - name: Get Started
         route: /doc/get-started
-      - name: flags
+      - name: Flags
         route: /flags
         children:
           - name: --if --else --else-if
@@ -32,22 +32,13 @@ menu:
           - name: --class --style
             status: ok
 
-          - name: --animation
+          - name: --anim
             status: todo
 
           - name: --router-go
             status: ok
 
-          - name: --click:...
-            status: ok
-
-          - name: --mousedown:...
-            status: ok
-
-          - name: --mousemove:...
-            status: ok
-
-          - name: --mouseup:...
+          - name: --<DOM L3>:..
             status: ok
 
           - name: --drag:...

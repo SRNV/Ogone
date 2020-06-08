@@ -3,9 +3,10 @@ import { HCR } from "../../../src/lib/hmr/index.ts";
 import Ogone from "../../../src/ogone/index.ts";
 import compile from "../../../src/ogone/compilation/index.ts";
 import { Bundle } from "../../../.d.ts";
+type Environment = "development" | "production" | "staging";
 export default abstract class Env {
   private static bundle: Bundle;
-  private static env: "development" | "production" | "staging";
+  private static env: Environment = "development";
   constructor(opts: any) {
     Env.bundle = opts.bundle;
   }
@@ -17,13 +18,20 @@ export default abstract class Env {
   public static setBundle(bundle: Bundle) {
     Env.bundle = bundle;
   }
+  /**
+ * set the current bundle for the environment
+ * @param bundle
+ */
+  public static setEnv(env: Environment) {
+    Env.env = env;
+  }
 
   /**
    * Compile your application by giving the path to the root component.
    * @param entrypoint path to root component
    * @param shouldBundle set the bundle of the component after compilation
    */
-  public static async compile(entrypoint: string, shouldBundle?:boolean): Promise<any> {
+  public static async compile(entrypoint: string, shouldBundle?: boolean): Promise<any> {
     const bundle: Bundle = await compile(entrypoint);
     if (shouldBundle) {
       Env.setBundle(bundle);
