@@ -350,7 +350,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
   - [ ] Js-this is solid \*\*
   - [x] Stress mode is supported \*\*
   - [x] Scope-css is solid \*\*
-- [ ] Switch every files to Typescript \*
+- [ ] Switch every files to Typescript (almost done, need to switch js-this) \*
   - [ ] Write types \*\*
   - [ ] Typescript supported in `<proto>` \*\*
 - [ ] Write more exceptions for each flags \*\*

@@ -10,7 +10,7 @@ export default function parseCases(
   let result: string[] | null;
   const reg: RegExp = /(?<=(case\s*))(([^\:]*)+)(?=:)/gi;
   // preserve truth
-  // is required because (0 ? 0 : 1) expressions the : character
+  // is required because (0 ? 0 : 1)
   const regT: RegExp = /\?([^\:]*)+:/;
 
   while (str2.match(regT)) {
