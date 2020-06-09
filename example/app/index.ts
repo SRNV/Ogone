@@ -5,5 +5,5 @@ o3.run({
   entrypoint: "example/app/index.o3",
   static: "./public",
   port: 8083,
-  modules: "/modules",
+  modules: "/example/modules",
 });

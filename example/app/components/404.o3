@@ -1,4 +1,4 @@
-import c from '/modules/module.js';
+import c from '/example/modules/module.js';
 
 <div class="container">
   <div class="logo-back">
