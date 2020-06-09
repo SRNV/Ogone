@@ -1,6 +1,6 @@
-import jsThis from "../src/lib/js-this/switch.js";
-import getTypedExpression from "../src/lib/js-this/src/typedExpressions.js";
-import renderNullifiedValues from "../src/lib/js-this/src/render/renderNullifiedValues.js";
+import jsThis from "../lib/js-this/switch.ts";
+import getTypedExpression from "../lib/js-this/src/typedExpressions.ts";
+import renderNullifiedValues from "../lib/js-this/src/render/renderNullifiedValues.js";
 import {
   assertEquals,
   assertThrows,

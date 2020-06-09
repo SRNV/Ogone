@@ -123,7 +123,7 @@ deno run --allow-all --unstable example/app/index.ts
 
 ### Async component example
 
-[read this documentation on Async Components](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
+[read this documentation on Async Components](https://github.com/SRNV/Ogone/blob/master/docs/async.README.md).
 
 ```typescript
 // require statement tells to the parent component what is needed inside the component.
@@ -171,11 +171,11 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 </proto>
 ```
 
-[for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/src/docs/async.README.md).
+[for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/docs/async.README.md).
 
 ### Reflected datas
 
-[read the docs on reflected datas](https://github.com/SRNV/Ogone/blob/master/src/docs/before-each.README.md)
+[read the docs on reflected datas](https://github.com/SRNV/Ogone/blob/master/docs/before-each.README.md)
 
 ```typescript
 <p>Hello ${fullname}</p>
@@ -228,7 +228,7 @@ more on reflected datas
 
 ```
 
-[for more informations on reflected datas](https://github.com/SRNV/Ogone/blob/master/src/docs/before-each.README.md)
+[for more informations on reflected datas](https://github.com/SRNV/Ogone/blob/master/docs/before-each.README.md)
 
 ### menu component example
 
@@ -357,11 +357,11 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 - [ ] Write more exceptions for each flags \*\*
 - [ ] Write docs \*
 - [ ] Write more examples \*\*
-- [ ] [Complete HMR](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/hmr.md) \*\*
-- [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/async.md) \*\*
-- [ ] [Complete Router Component](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/router.md) \*\*
-- [ ] [Complete Syntax-HighLighting](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/syntax-highlight.md) \*\*
-- [ ] [Complete Reaction Observer](https://github.com/SRNV/Ogone/blob/master/src/docs/todos/reaction-observer.md) \*\*
+- [ ] [Complete HMR](https://github.com/SRNV/Ogone/blob/master/docs/todos/hmr.md) \*\*
+- [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/docs/todos/async.md) \*\*
+- [ ] [Complete Router Component](https://github.com/SRNV/Ogone/blob/master/docs/todos/router.md) \*\*
+- [ ] [Complete Syntax-HighLighting](https://github.com/SRNV/Ogone/blob/master/docs/todos/syntax-highlight.md) \*\*
+- [ ] [Complete Reaction Observer](https://github.com/SRNV/Ogone/blob/master/docs/todos/reaction-observer.md) \*\*
 
 # Tests
 

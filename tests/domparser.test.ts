@@ -1,4 +1,4 @@
-import domparse from "../src/lib/dom-parser/index.ts";
+import domparse from "../lib/dom-parser/index.ts";
 import {
   assertEquals,
   assertThrows,

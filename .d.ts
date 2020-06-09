@@ -113,7 +113,6 @@ export interface XMLNodeDescriberDescription {
   isTemplate?: boolean;
   isImported?: boolean;
   isAsyncNode?: boolean;
-  isExtension?: boolean;
   nodeIsDynamic?: boolean;
 }
 
@@ -159,4 +158,25 @@ export interface LegacyDescription {
   callbackDeclaration?: "";
   declarationScript?: string[];
   getLengthDeclarationAfterArrayEvaluation?: "";
+}
+
+export interface TypedExpressions {
+  blocks: {[key: string] : string};
+  parentheses: {[key: string] : string};
+  setters: {[key: string] : string};
+  imports: {};
+  exports: {};
+  require: [];
+  use: {};
+  properties: [];
+  data: {};
+  switch: {
+    before: {
+      each: null;
+      cases: {};
+    };
+    cases: [];
+    default: false;
+  };
+  reflections: [];
 }

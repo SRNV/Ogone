@@ -1,6 +1,6 @@
-import getTypedExpression from "../src/lib/js-this/src/typedExpressions.js";
-import renderNullifiedValues from "../src/lib/js-this/src/render/renderNullifiedValues.js";
-import yamelize from "../src/lib/js-this/src/render/yamelize.js";
+import getTypedExpression from "../lib/js-this/src/typedExpressions.ts";
+import renderNullifiedValues from "../lib/js-this/src/render/renderNullifiedValues.js";
+import yamelize from "../lib/js-this/src/render/yamelize.js";
 import {
   assertEquals,
   assertThrows,

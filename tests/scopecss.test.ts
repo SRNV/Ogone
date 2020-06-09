@@ -1,4 +1,4 @@
-import scopeCss from "../src/lib/html-this/scopeCSS.ts";
+import scopeCss from "../lib/html-this/scopeCSS.ts";
 import { assertEquals } from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
 
 Deno.test("- scopecss can scope classes", () => {
