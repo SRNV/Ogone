@@ -26,7 +26,6 @@ No Proxies, no getters, no setters used for the reactivity, just code...
 
 ```typescript
 import o3 from 'https://raw.githubusercontent.com/SRNV/Ogone/master/mod.ts';
-...
 o3.run({
   entrypoint: 'path/to/root-component.o3',
   modules: '/modules',
