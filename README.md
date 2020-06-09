@@ -1,4 +1,6 @@
-![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/public/ogone_small.svg?token=AI44MA4AIHORIV6GFZ2OFBK6ZBGUI)
+<p align="center">
+  <img src="public/ogone_small.svg" width="350">
+</p>
 
 # Ogone
 
