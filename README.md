@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/ogone_small.svg" width="350">
+  <img src="public/ogone-svg.svg" width="350">
 </p>
 
 # Ogone
