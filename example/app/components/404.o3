@@ -48,6 +48,7 @@ import c from '/modules/module.js';
   margin: 40px;
 }
 .logo-back {
+  filter: drop-shadow(2px 4px 6px var(--o-primary));
   background: var(--o-primary);
   border-radius: 100%;
   padding: 56px;
