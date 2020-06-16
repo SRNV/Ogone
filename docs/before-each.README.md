@@ -30,7 +30,7 @@ case 'update:y':
    break;
 ```
 
-# Examples
+# examples/
 
 ## faking computed data
 

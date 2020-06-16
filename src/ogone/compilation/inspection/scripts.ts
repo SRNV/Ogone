@@ -5,9 +5,9 @@ import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
 import { Bundle } from '../../../../.d.ts';
 
-export default function oRenderScripts(bundle: Bundle): void {
+export default async function oRenderScripts(bundle: Bundle): Promise<void> {
   const entries = Array.from(bundle.components.entries());
-  entries.forEach(([pathToComponent, component]) => {
+  for await (let [, component] of entries) {
     const proto = component.rootNode.childNodes.find((node) =>
       node.tagName === "proto"
     );
@@ -51,16 +51,36 @@ export default function oRenderScripts(bundle: Bundle): void {
         ...defData,
       };
       const { value } = ogoneScript;
+      let sc = `
+      ${each ? each : ""}
+      ${ogoneScript.body.reflections.join("\n")}
+      ${caseGate ? caseGate : ""}
+      switch(_state) { ${value} }`;
+      // transpile ts
+      sc = (await Deno.transpileOnly({
+        'proto.ts': sc,
+      }, {
+        module: 'esnext',
+        target: 'esnext',
+        types: ['./proto.d.ts'],
+        resolveJsonModule: false,
+        experimentalDecorators: true,
+        allowUnreachableCode: false,
+        jsx: 'preserve',
+        jsxFactory: 'Ogone.r(',
+        inlineSourceMap: false,
+        inlineSources: false,
+        alwaysStrict: false,
+        sourceMap: false,
+        strictFunctionTypes: true,
+      }))['proto.ts'].source;
       let script = `(${
         proto && proto.attributes && ["async", "store"].includes(proto.attributes.type as string)
           ? "async"
           : ""
-      } function (_state, ctx, event, _once = 0) {
+        } function (_state, ctx, event, _once = 0) {
           try {
-            ${each ? each : ""}
-            ${ogoneScript.body.reflections.join("\n")}
-            ${caseGate ? caseGate : ""}
-            switch(_state) { ${value} }
+            ${sc}
           } catch(err) {
             Ogone.error('Error in the component: \\n\\t ${component.file}' ,err.message, err);
             throw err;
@@ -107,5 +127,5 @@ export default function oRenderScripts(bundle: Bundle): void {
         }
       }
     }
-  });
+  }
 }

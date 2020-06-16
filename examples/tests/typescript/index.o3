@@ -1,0 +1,32 @@
+import random from '/examples/modules/module.ts';
+import * as test, defaulto from '/examples/modules/allAS.js';
+import { lol, instance } from '/examples/modules/allAS.js';
+use @/examples.o3 as 'sqdfq-fdsqf';
+
+<div>
+user ${name + random('test', 3000)}</div>
+<div>user ${name + random('test', 3000)}</div>
+
+<proto def="/.yml" --for="dsqfdsqfdsqf as (trrere)"
+test>
+  def  :
+    name: null
+    env: null
+    y: test
+    Async: test
+  case 'click:div':
+    console.warn('test');
+    break;
+  default:
+    abstract class Env {
+      private static env: string = 'test';
+      static log(msg: string) {
+        console.warn(msg);
+      }
+    }
+    Async.resolve();
+    this.env = Env.env;
+    const str: string = 'aaa';
+    this.name = random('test') + str;
+    Env.log('this is a test');
+</proto>

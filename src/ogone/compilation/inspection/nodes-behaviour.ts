@@ -1,7 +1,7 @@
 import { Bundle, XMLNodeDescription } from '../../../../.d.ts';
 import getWebComponent from "../../../components/index.ts";
 
-export default function oRenderNodesBehavior(
+export default async function oRenderNodesBehavior(
   bundle: Bundle,
   keyComponent: string,
   node: XMLNodeDescription,
@@ -64,12 +64,10 @@ export default function oRenderNodesBehavior(
           throw InvalidTagNameForTypedComponentException;
         }
     }
-    if (node.childNodes && node.childNodes.length) {
-      node.childNodes.forEach((child) => {
-        if (node.nodeType === 1) {
-          oRenderNodesBehavior(bundle, keyComponent, child);
-        }
-      });
+    if (node.nodeType === 1 && node.childNodes && node.childNodes.length) {
+      for await(const child of node.childNodes) {
+          await oRenderNodesBehavior(bundle, keyComponent, child);
+      }
     }
   }
 }

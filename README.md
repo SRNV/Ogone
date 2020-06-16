@@ -115,12 +115,12 @@ Following this structure of declarations is strongly recommanded:
 to see more stuffs from Ogone, clone this repository
 
 ```shell
-deno run --allow-all --unstable example/app/index.ts
+deno run --allow-all --unstable examples/app/index.ts
 ```
 
 ---
 
-# Some examples
+# Some examples/
 
 ### Async component example
 
@@ -130,7 +130,7 @@ deno run --allow-all --unstable example/app/index.ts
 // require statement tells to the parent component what is needed inside the component.
 require id as Number;
 // use statement tells to Ogone to use the file as store-component
-use @/example/tests/async/reloading/store.o3 as 'store-component';
+use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
 <div> Welcome ${user ? user.username : ''}</div>
@@ -155,8 +155,8 @@ use @/example/tests/async/reloading/store.o3 as 'store-component';
 let's see what we can do inside the parent component
 
 ```typescript
-use @/example/tests/async/reloading/async.o3 as 'async-component';
-use @/example/tests/async/reloading/store.o3 as 'store-component';
+use @/examples/tests/async/reloading/async.o3 as 'async-component';
+use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user" />
 <async-component :id="id" --await --then:user-loaded />
@@ -234,9 +234,9 @@ more on reflected datas
 ### menu component example
 
 ```typescript
-use @/example/app/stores/menu.store.o3 as 'store-component'
-use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/example/app/components/logo.o3 as 'logo-el'
+use @/examples/app/stores/menu.store.o3 as 'store-component'
+use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/examples/app/components/logo.o3 as 'logo-el'
 
 
 <store-component namespace="menu" />
@@ -254,7 +254,7 @@ use @/example/app/components/logo.o3 as 'logo-el'
 </div>
 <div --class="{ darken: isOpen }" --click:toggle-menu></div>
 
-<proto def="example/app/defs/menu-main.yml">
+<proto def="examples/app/defs/menu-main.yml">
   def:
     isOpen: false
   case 'click:toggle-menu':
@@ -268,8 +268,8 @@ use @/example/app/components/logo.o3 as 'logo-el'
 ```typescript
 require item as Object
 
-use @/example/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/example/app/components/scroll.o3 as 'scroll'
+use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/examples/app/components/scroll.o3 as 'scroll'
 
 
 <div class="container">
@@ -357,7 +357,7 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
   - [ ] Typescript supported in `<proto>` \*\*
 - [ ] Write more exceptions for each flags \*\*
 - [ ] Write docs \*
-- [ ] Write more examples \*\*
+- [ ] Write more examples/ \*\*
 - [ ] [Complete HMR](https://github.com/SRNV/Ogone/blob/master/docs/todos/hmr.md) \*\*
 - [x] [Complete Async Component](https://github.com/SRNV/Ogone/blob/master/docs/todos/async.md) \*\*
 - [ ] [Complete Router Component](https://github.com/SRNV/Ogone/blob/master/docs/todos/router.md) \*\*

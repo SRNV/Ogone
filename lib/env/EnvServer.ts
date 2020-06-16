@@ -32,7 +32,7 @@ export default abstract class EnvServer extends Env {
           const denoReqUrl = req.url.slice(1).split("?")[0];
           HMR(denoReqUrl);
           req.respond({
-            body: Deno.readTextFileSync(denoReqUrl),
+            body: await Env.resolveAndReadText(denoReqUrl),
             headers: new Headers([
               getHeaderContentTypeOf(denoReqUrl),
               ["X-Content-Type-Options", "nosniff"],

@@ -3,7 +3,7 @@ import jsThis from "../../../../lib/js-this/switch.ts";
 
 export default function oRenderImports(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
-  entries.forEach(([pathToComponent, component]) => {
+  for (const [pathToComponent, component] of entries) {
     const firstNode = component.rootNode.childNodes.find((node) =>
       node.nodeType !== 3
     );
@@ -95,5 +95,5 @@ export default function oRenderImports(bundle: Bundle) {
         component.requirements = tokens.body.properties;
       }
     }
-  });
+  }
 }

@@ -1,0 +1,2 @@
+use @/examples/tests/nested.o3 as 'nested-el';
+<nested-el :name="'test'"/>

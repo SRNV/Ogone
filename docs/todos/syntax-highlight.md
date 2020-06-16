@@ -15,3 +15,8 @@
     - [ ] Async
     - [ ] Store
     - [ ] Proto (...)
+- [ ] supports for major IDE
+    - [ ] VS Code
+    - [ ] Atom
+    - [ ] Sublime Text
+    - [ ] Webstorm

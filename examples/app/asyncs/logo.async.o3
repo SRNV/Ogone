@@ -1,0 +1,27 @@
+<div class="container">
+  <div class="logo-back">
+    <img --await class="img" src="/public/ogone.svg"/>
+  </div>
+</div>
+<proto type="async">
+  default:
+   Async.resolve();
+  break;
+</proto>
+<style>
+  .img {
+    width: auto;
+  }
+  .logo-back {
+    background: var(--o-primary);
+    padding: 6px;
+    border-radius: 100%;
+    animation-name: fade-in-down;
+    animation-iteration-count: 1;
+    animation-duration: 1s;
+  }
+  .container {
+    width: 60px;
+    height: auto;
+  }
+</style>

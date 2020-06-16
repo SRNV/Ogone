@@ -1,6 +1,6 @@
 import { Bundle, Component } from '../../../../.d.ts';
 
-export default function (bundle: Bundle, component: Component) {
+export default async function (bundle: Bundle, component: Component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     const { modules } = component;
@@ -103,7 +103,7 @@ export default function (bundle: Bundle, component: Component) {
       }
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}
-      ${modules ? modules.flat().join(";\n") : ""}
+      ${modules ? modules.flat().join("\n") : ""}
       const __run = ${runtime}
       this.runtime = (__run || function(){}).bind(this.data);
     };

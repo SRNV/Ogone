@@ -199,7 +199,7 @@ export async function HCR(bundle: Bundle): Promise<void> {
     startSavingNodesDNA(component, componentRegistry, component.rootNode);
   });
   // watch
-  bundle.files.forEach(async (path: string) => {
+  for await (const path of bundle.files) {
     if (watchedFiles.includes(path)) {
       return;
     }
@@ -232,7 +232,7 @@ export async function HCR(bundle: Bundle): Promise<void> {
         }
       }
     }
-  });
+  }
 }
 function styleHasChanged(
   component: Component,

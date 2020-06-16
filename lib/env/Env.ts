@@ -72,6 +72,8 @@ export default abstract class Env {
         throw RootNodeTypeErrorException;
       }
       const scriptDev = `
+        const ___perfData = window.performance.timing;
+
         ${browserBuild}
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.render.join("\n")}
@@ -86,6 +88,14 @@ export default abstract class Env {
               is: "${rootComponent.uuid}-nt",
             })
           );
+
+          // debug tools
+          const ___connectTime = ___perfData.responseEnd - ___perfData.requestStart;
+          const ___renderTime = ___perfData.domComplete - ___perfData.domLoading;
+          const ___pageLoadTime = ___perfData.loadEventEnd - ___perfData.navigationStart;
+          console.log('[Ogone] server response', ___connectTime, 'ms');
+          console.log('[Ogone] app render time', ___renderTime, 'ms');
+          console.log('[Ogone] page load time', ___pageLoadTime, 'ms');
         });
         `;
       const scriptProd = `
@@ -116,5 +126,20 @@ export default abstract class Env {
     } else {
       return 'no root-component found';
     }
+  }
+
+  public static async resolveAndReadText(path: string) {
+    const isFile = path.startsWith('/')
+      || path.startsWith('./')
+      || path.startsWith('../')
+      || !path.startsWith('http://')
+      || !path.startsWith('https://');
+    const isTsFile = isFile && path.endsWith('.ts');
+    const text = Deno.readTextFileSync(path);
+    return isTsFile ? (await Deno.transpileOnly({
+      [path]: text,
+    }, {
+      sourceMap: false,
+    }))[path].source : text;
   }
 }

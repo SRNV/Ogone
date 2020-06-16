@@ -4,12 +4,12 @@ import oRenderContext from "./inspection/render-context.ts";
 import oRenderNodesBehavior from "./inspection/nodes-behaviour.ts";
 import { Bundle } from '../../../.d.ts';
 
-export default function oStartRenderingDom(bundle: Bundle) {
+export default async function oStartRenderingDom(bundle: Bundle) {
   const entries = Array.from(bundle.components);
-  entries.forEach(([path, component]) => {
+  for await (let [path, component] of entries) {
     oRenderDOM(bundle, path, component.rootNode);
-    oRenderComponentDatasMjs(bundle, component);
-    oRenderContext(bundle, path);
-    oRenderNodesBehavior(bundle, path, component.rootNode);
-  });
+    await oRenderComponentDatasMjs(bundle, component);
+    await oRenderContext(bundle, path);
+    await  oRenderNodesBehavior(bundle, path, component.rootNode);
+  }
 }

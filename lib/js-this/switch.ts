@@ -69,7 +69,6 @@ function jsThis(str: string, opts: any) {
   if (opts && opts.esm) {
     prog = renderEsm(typedExpressions, expressions, prog);
   }
-
   if (opts && opts.onlyDeclarations) {
     prog = renderO3Syntax(typedExpressions, expressions, prog, "declarations");
     return {

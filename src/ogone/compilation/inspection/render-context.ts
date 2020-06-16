@@ -6,6 +6,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
     Object.entries(component.for).forEach(([nId, flag]) => {
       // @ts-ignore
       const { script } = flag;
+      const { modules } = component;
       const { node, ctx, getLength, array } = script;
       let contextIf = null;
       if (node.attributes && node.attributes["--if"]) {
@@ -90,6 +91,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
             ).join("\n")
             : ""
         }
+          ${modules ? modules.map((md) => md[0]).join(";\n") : ""}
           ${array ? `const _____a_ = ${array} || [];` : ""}
 
           ${contextIf ? contextIf : ""}

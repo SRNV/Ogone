@@ -21,13 +21,13 @@ export default async function (path: string) {
     render: [],
   };
   await oInspect(path, bundle);
-  await oRender(bundle);
+  oRender(bundle);
   await oRenderImports(bundle);
   await oRenderScripts(bundle);
-  await getStoreConnections(bundle);
-  await oRenderStyles(bundle);
-  await oTopLevelTextNodeException(bundle);
-  await oCleanPureRootNode(bundle);
+  getStoreConnections(bundle);
+  oRenderStyles(bundle);
+  oTopLevelTextNodeException(bundle);
+  oCleanPureRootNode(bundle);
   await oStartRenderingDom(bundle);
   return bundle;
 }

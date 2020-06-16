@@ -1,0 +1,29 @@
+use @/examples/testflags.o3 as 'test-d'
+<div>
+    <h1>Test des flags</h1>
+    <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">
+    ${o} t
+    </div>
+</div>
+<proto>
+  def:
+    array:
+      - "1"
+      - "2"
+      - "3"
+  case 'update:array':
+  console.warn(this.array);
+    break;
+</proto>
+<style>
+@media screen and (max-width:200px) {
+    .container,
+    element,
+    [attr]:hover {
+        background: red;
+    }
+    *:not(.class#element test) > element:hover > [attr]:nth-child(2) {
+      background: red
+    }
+}
+</style>

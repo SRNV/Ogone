@@ -1,0 +1,17 @@
+<img --await="filter" src="public/ogone.svg" />
+<div>
+  should render only when:
+    - the img logo is loaded
+    - Async.resolve() is triggered
+    - --defer attribute is resolved
+</div>
+<proto type="async">
+  def:
+    user: null
+  default:
+    setTimeout(() => {
+      // should trigger the then case of parent
+    }, 0);
+      Async.resolve(true);
+  break;
+</proto>

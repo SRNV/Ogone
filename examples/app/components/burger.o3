@@ -1,0 +1,44 @@
+use @/examples/app/stores/menu.store.o3 as 'store-menu'
+<store-menu namespace="menu" />
+<proto>
+  def:
+    isOpen: false
+  case 'click:openMenu':
+    Store.dispatch('menu/toggle')
+  break;
+</proto>
+
+<div class="container" --click:openMenu>
+  <div class="line"></div>
+  <div class="line"></div>
+  <div class="line"></div>
+</div>
+
+<style>
+.line, .container {
+  border-radius: 5px;
+  transition: filter 0.2s ease;
+  cursor: pointer;
+}
+.container {
+    padding: 9px;
+    width: 28px;
+    height: auto;
+    background: var(--o-header);
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(0px 0px 0px #00000045);
+}
+.container:hover {
+    filter: drop-shadow(0px 5px 3px #00000045);
+}
+.line {
+  background: #848181;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  height: 4px;
+}
+.container:hover .line {
+    background: var(--o-primary);
+}
+</style>

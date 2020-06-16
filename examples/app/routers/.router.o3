@@ -1,0 +1,19 @@
+use @/examples/app/pages/body.o3 as 'route-2'
+use @/examples/app/components/404.o3 as 'route-404'
+
+<proto type="router">
+  def:
+    - path: /doc
+      name: documentation
+      component: route-2
+      title: Ogone - documentation
+
+    - path: /todos/:id
+      component: route-404
+      name: todo
+
+    - path: 404
+      name: 404
+      component: route-404
+      title: 404 route not found
+</proto>

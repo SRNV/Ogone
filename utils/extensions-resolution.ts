@@ -9,7 +9,7 @@ export const getHeaderContentTypeOf = function (url: string): string[] {
     html: "application/xml+html",
     css: "text/css",
     js: "text/javascript",
-    ts: "text/typescript",
+    ts: "text/javascript",
     webp: "image/webp",
     midi: "audio/midi",
     mpeg: "audio/mpeg",
