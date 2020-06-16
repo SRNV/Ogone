@@ -1,4 +1,5 @@
-// crée un contexteaudio
+export default
+`
 const contexteAudio = new (window.AudioContext || window.webkitAudioContext)();
 
 // create Oscillator node
@@ -27,3 +28,4 @@ Ogone.sound = (opts) => {
     if (opts.onended) opts.onended();
   };
 };
+`

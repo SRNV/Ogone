@@ -1,8 +1,7 @@
 <div class="container">
   <div
     ref="view"
-    class="view"
-    --wheel:effect>
+    class="view">
     <div ref="content" class="content">
       <slot></slot>
     </div>

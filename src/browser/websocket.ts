@@ -1,3 +1,5 @@
+export default
+`
 function hmrSound() {
   Ogone.sound({
     duration: 15,
@@ -28,15 +30,15 @@ Ogone.imp = async function (url) {
     return mod;
   } catch (err) {
     Ogone.error(err.message, "Error in Dynamic Import", {
-      message: `
-      module's url: ${url}
-      `,
+      message: \`
+      module's url: \${url}
+      \`,
     });
   }
 };
 Ogone.hmr = async function (url) {
   try {
-    const mod = await import(`${url}?p=${performance.now()}`);
+    const mod = await import(\`\${url}?p=\${performance.now()}\`);
     const keys = Object.keys(Ogone.mod);
     keys.filter((key) => key === url).forEach((key) => {
       Ogone.mod[key] = mod;
@@ -48,9 +50,9 @@ Ogone.hmr = async function (url) {
     return mod;
   } catch (err) {
     Ogone.error(err.message, "HMR-Error", {
-      message: `
-      module's url: ${url}
-      `,
+      message: \`
+      module's url: \${url}
+      \`,
     });
     throw err;
   }
@@ -90,7 +92,7 @@ Ogone.hmrRuntime = async function (uuid, runtime) {
     throw err;
   }
 };
-const ws = new WebSocket(`ws://localhost:4000/`);
+const ws = new WebSocket(\`ws://localhost:4000/\`);
 
 ws.onmessage = (msg) => {
   const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(msg.data);
@@ -99,7 +101,7 @@ ws.onmessage = (msg) => {
       console.warn("[Ogone] hmr:", url);
       hmrSound();
       Ogone.infos({
-        message: `[HMR] module updated: ${url}`,
+        message: \`[HMR] module updated: \${url}\`,
       });
     });
   }
@@ -108,7 +110,7 @@ ws.onmessage = (msg) => {
     Ogone.hmrTemplate(uuid, pragma).then(() => {
       hmrSound();
       Ogone.infos({
-        message: `[HMR] template updated: ${uuid}`,
+        message: \`[HMR] template updated: \${uuid}\`,
       });
     });
   }
@@ -116,17 +118,17 @@ ws.onmessage = (msg) => {
     console.warn("[Ogone] hmr: reloading the application");
     hmrSound();
     Ogone.infos({
-      message: `[HMR] socket lost. Reloading your application`,
+      message: \`[HMR] socket lost. Reloading your application\`,
     });
     setTimeout(() => {
       location.reload();
     }, 1000);
   }
   if (type === "style") {
-    document.querySelector(`style[id="${uuid}"]`).innerHTML = style;
+    document.querySelector(\`style[id="\${uuid}"]\`).innerHTML = style;
     hmrSound();
     Ogone.infos({
-      message: `[HMR] style updated: ${uuid}`,
+      message: \`[HMR] style updated: \${uuid}\`,
     });
   }
   if (type === "runtime") {
@@ -134,7 +136,7 @@ ws.onmessage = (msg) => {
     Ogone.hmrRuntime(uuid, (r || function() {})).then(() => {
       hmrSound();
       Ogone.infos({
-        message: `[HMR] component updated: ${uuid}`,
+        message: \`[HMR] component updated: \${uuid}\`,
       });
     });
   }
@@ -183,3 +185,4 @@ Ogone.infos = (opts) => {
   Ogone.infosPanel.innerHTML = p.outerHTML;
   Ogone.showPanel('infos', 2000);
 };
+`

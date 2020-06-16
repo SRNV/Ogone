@@ -1,4 +1,5 @@
-function OComponent() {
+export default
+`function OComponent() {
   this.dependencies = null;
   this.state = 0;
   this.activated = true;
@@ -50,7 +51,7 @@ function OComponent() {
       this.updateStore(dependency);
       return;
     }
-    this.runtime(`update:${dependency}`);
+    this.runtime(\`update:\${dependency}\`);
     this.reactTo(dependency);
     this.renderTexts(dependency);
     this.childs.filter((c) => c.type !== "store").forEach((c) => {
@@ -117,47 +118,47 @@ function OComponent() {
       const isAny = constructors.includes(null);
       if (!prop && !isAny) {
         const UndefinedPropertyForComponentException =
-          `${key} is required as property but still undefined. Please use this syntax\n\t\t<component :${key}="..."></component>`;
+          \`\${key} is required as property but still undefined. Please use this syntax\n\t\t<component :\${key}="..."></component>\`;
         const err = new Error(
           "[Ogone]  " + UndefinedPropertyForComponentException,
         );
         Ogone.error(
           UndefinedPropertyForComponentException,
-          `Undefined property ${key}. But ${key} is required in component`,
+          \`Undefined property \${key}. But \${key} is required in component\`,
           err,
         );
         throw err;
       }
       const value = this.parentContext({
-        getText: `${prop[1]}`,
+        getText: \`\${prop[1]}\`,
         position: this.positionInParentComponent,
       });
       if ((value === undefined || value === null) && !isAny) {
         const message =
-          `${key} is required as property but can\'t be null. Please use this syntax\n\t\t<component :${key}="${
+          \`\${key} is required as property but can\'t be null. Please use this syntax\n\t\t<component :\${key}="\${
             constructors.join(" | ")
-          }"></component>`;
+          }"></component>\`;
         const NullishPropertyException = new Error("[Ogone]  " + message);
         Ogone.error(
           message,
-          `Property ${key} can't be null for the component`,
+          \`Property \${key} can't be null for the component\`,
           NullishPropertyException,
         );
         throw NullishPropertyException;
       }
       if (!constructors.includes(value.constructor.name)) {
         const message =
-          `${key} is required as property but it's value is not one of ${
+          \`\${key} is required as property but it's value is not one of \${
             constructors.join(" | ")
           }
-          evaluated value: ${prop[1]}
-          constructor: ${value.constructor.name}`;
+          evaluated value: \${prop[1]}
+          constructor: \${value.constructor.name}\`;
         const PropertyDontMatchWithConstructorsException = new Error(
           "[Ogone] " + message,
         );
         Ogone.error(
           message,
-          `TypeError for property ${key}`,
+          \`TypeError for property \${key}\`,
           PropertyDontMatchWithConstructorsException,
         );
         throw PropertyDontMatchWithConstructorsException;
@@ -246,3 +247,4 @@ function OComponent() {
     }
   };
 }
+`

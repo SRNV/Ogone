@@ -1,4 +1,5 @@
-const Ogone = {
+export default
+`const Ogone = {
   // store
   stores: {},
   clients: [],
@@ -66,18 +67,18 @@ const Ogone = {
     const h = document.createElement("h4");
     const errorPin = document.createElement("div");
     // set the text
-    h.innerText = `[Ogone] Error ${errorId}: ${errorType || "Undefined Type"}`;
-    code.innerText = `${message.trim()}`;
-    stack.innerText = `${
+    h.innerText = \`[Ogone] Error \${errorId}: \${errorType || "Undefined Type"}\`;
+    code.innerText = \`\${message.trim()}\`;
+    stack.innerText = \`\${
       errorObject && errorObject.stack
         ? errorObject.stack.replace(message, "")
         : ""
-    }`;
+    }\`;
     // check if stack is empty or not
     if (!stack.innerText.length && errorObject && errorObject.message) {
-      stack.innerText = `${
+      stack.innerText = \`\${
         errorObject && errorObject.message ? errorObject.message : ""
-      }`;
+      }\`;
     }
     !stack.innerText.length ? stack.innerText = "undefined stack" : "";
     // set the styles
@@ -102,24 +103,24 @@ const Ogone = {
     const relativePinPosition =
       Math.round((this.firstErrorPerf / performance.now()) * 30) + 30;
     errorPin.style.left = this.firstErrorPerf
-      ? `${relativePinPosition}px`
+      ? \`\${relativePinPosition}px\`
       : "30px";
     if (!this.firstErrorPerf) {
       this.firstErrorPerf = performance.now();
     }
     this.errorPanel.style.paddingTop = "30px";
     // set the grid of errors
-    err.style.gridArea = `e${errorId}`;
+    err.style.gridArea = \`e\${errorId}\`;
     const m = 2;
     let grid = "";
     let i = 0;
     let a = 0;
     for (i = 0, a = this.errorPanel.childNodes.length + 1; i < a; i++) {
-      grid += `e${i + 1} `;
+      grid += \`e\${i + 1} \`;
     }
     let b = i;
     while (i % m) {
-      grid += `e${b} `;
+      grid += \`e\${b} \`;
       i++;
     }
     const cells = grid.split(" ");
@@ -127,7 +128,7 @@ const Ogone = {
     let newgrid = "";
     for (o = 0, j = cells.length - 1; o < j; o += chunk) {
       temparray = cells.slice(o, o + chunk);
-      newgrid += ` "${temparray.join(" ")}"`;
+      newgrid += \` "\${temparray.join(" ")}"\`;
     }
     this.errorPanel.style.gridGap = "10px";
     this.errorPanel.style.gridAutoRows = "max-content";
@@ -144,3 +145,4 @@ const Ogone = {
     !this.errorPanel.isConnected ? document.body.append(this.errorPanel) : [];
   },
 };
+`;

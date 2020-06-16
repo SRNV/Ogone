@@ -1,3 +1,5 @@
+export default
+`
 Ogone.router = {
   react: [],
   actualRoute: null,
@@ -14,3 +16,4 @@ Ogone.router = {
 window.onpopstate = function (event) {
   Ogone.router.go(location.pathname, event.state);
 };
+`
