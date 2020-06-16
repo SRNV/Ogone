@@ -9,7 +9,7 @@
         - [ ] test
     - [x] use @/
     - [x] require props
-    - [c] imports
+    - [x] imports
 - [x] no syntax-error on the following global Objects:
     - [x] Refs
     - [x] Async
