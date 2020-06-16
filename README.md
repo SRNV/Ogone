@@ -26,6 +26,7 @@ No Proxies, no getters, no setters used for the reactivity, just code...
 
 ```typescript
 import o3 from 'https://raw.githubusercontent.com/SRNV/Ogone/master/mod.ts';
+
 o3.run({
   entrypoint: 'path/to/root-component.o3',
   modules: '/modules',
@@ -40,17 +41,16 @@ o3.run({
 After the first example, in your root-component.o3, you can make this first greeting app
 
 ```typescript
-<p>Hello ${name}</p>
 <proto>
   def:
     name: SRNV
 </proto>
+<p>Hello ${name}</p>
 ```
 
 let's change the name after 1 second.
 
 ```typescript
-<p>Hello ${name}</p>
 <proto>
   def:
     name: SRNV
@@ -60,6 +60,7 @@ let's change the name after 1 second.
     }, 1000);
   break;
 </proto>
+<p>Hello ${name}</p>
 ```
 
 this will only update the textnode containing 'Hello \${name}' and replace name by it's value.
@@ -133,8 +134,6 @@ require id as Number;
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
-<div> Welcome ${user ? user.username : ''}</div>
-<img src="public/ogone.svg"  --await />
 <proto type="async">
   def:
     user: null
@@ -150,6 +149,10 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
   default:
     getUser().then(user => Async.resolve(user));
 </proto>
+
+<div> Welcome ${user ? user.username : ''}</div>
+<img src="public/ogone.svg"  --await />
+
 ```
 
 let's see what we can do inside the parent component
@@ -179,7 +182,6 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
 [read the docs on reflected datas](https://github.com/SRNV/Ogone/blob/master/docs/before-each.README.md)
 
 ```typescript
-<p>Hello ${fullname}</p>
 <proto>
   def:
     name: SRNV
@@ -192,15 +194,12 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
     }, 1000);
   break;
 </proto>
+<p>Hello ${fullname}</p>
 ```
 
 more on reflected datas
 
 ```typescript
-<p>${position.name} ${position.origin}</p>
-<p --for="position.test as (item)">
-  ${item}
-</p>
 <proto>
   def:
     x: 0
@@ -226,6 +225,10 @@ more on reflected datas
     }, 500);
     break;
 </proto>
+<p>${position.name} ${position.origin}</p>
+<p --for="position.test as (item)">
+  ${item}
+</p>
 
 ```
 
@@ -240,6 +243,14 @@ use @/examples/app/components/logo.o3 as 'logo-el'
 
 
 <store-component namespace="menu" />
+<proto def="examples/app/defs/menu-main.yml">
+  def:
+    isOpen: false
+  case 'click:toggle-menu':
+    Store.dispatch('menu/toggle');
+  break;
+</proto>
+
 <div class="left-menu"
   --class="{ close: !isOpen }"
   --html="innerHTML">
@@ -253,14 +264,6 @@ use @/examples/app/components/logo.o3 as 'logo-el'
   </div>
 </div>
 <div --class="{ darken: isOpen }" --click:toggle-menu></div>
-
-<proto def="examples/app/defs/menu-main.yml">
-  def:
-    isOpen: false
-  case 'click:toggle-menu':
-    Store.dispatch('menu/toggle');
-  break;
-</proto>
 ```
 
 ### recursive component example
@@ -271,6 +274,13 @@ require item as Object
 use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/scroll.o3 as 'scroll'
 
+<proto>
+  def:
+    openTree: false
+  case 'click:toggle':
+    this.openTree = !this.openTree
+  break;
+</proto>
 
 <div class="container">
   <div class="title" --click:toggle --router-go="item.route">
@@ -292,13 +302,6 @@ use @/examples/app/components/scroll.o3 as 'scroll'
     </scroll>
   </div>
 </div>
-<proto>
-  def:
-    openTree: false
-  case 'click:toggle':
-    this.openTree = !this.openTree
-  break;
-</proto>
 ```
 
 ---
