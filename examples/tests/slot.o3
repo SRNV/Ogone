@@ -1,5 +1,4 @@
 use @/examples/tests/template.o3 as 'el-component'
-
 <h2> test des slots </h2>
 <el-component>
     ceci est le test des slots

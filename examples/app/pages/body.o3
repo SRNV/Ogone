@@ -1,5 +1,6 @@
 use @/examples/app/components/content.o3 as "content-page";
 <proto def="examples/app/defs/body.proto.yml" />
+
 <div class="container">
   <content-page
     --for="articles as (article)"

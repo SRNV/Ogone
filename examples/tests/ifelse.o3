@@ -1,8 +1,5 @@
 use @/examples/tests/tests.o3 as 'test-el';
-<p>${count}</p>
-<div --if="count < 3">div 1</div>
-<test-el --else-if="count === 5" --for="[1, 3] as (t)">3eme doit remplacer la test-el 1</test-el>
-<test-el --for="art as (r)" --else></test-el>
+
 <proto>
   def:
     count: 0
@@ -18,3 +15,8 @@ use @/examples/tests/tests.o3 as 'test-el';
         }
     }, 500);
 </proto>
+
+<p>${count}</p>
+<div --if="count < 3">div 1</div>
+<test-el --else-if="count === 5" --for="[1, 3] as (t)">3eme doit remplacer la test-el 1</test-el>
+<test-el --for="art as (r)" --else></test-el>

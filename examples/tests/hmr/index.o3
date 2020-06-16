@@ -2,6 +2,13 @@ use @/examples/tests/click.o3 as 'click-c'
 use @/examples/tests/greeting.o3 as 'greeting-g'
 use @/examples/tests/hmr/sub.o3 as 'sub-1';
 
+<proto>
+  def:
+    content: change the content
+  default:
+    console.warn('change the default')
+</proto>
+
 <h1>HMR tests</h1>
 <h3> update nodes </h3>
 <ul>
@@ -36,12 +43,6 @@ use @/examples/tests/hmr/sub.o3 as 'sub-1';
 <click-c></click-c>
 <greeting-g></greeting-g>
 <sub-1 />
-<proto>
-  def:
-    content: change the content
-  default:
-    console.warn('change the default')
-</proto>
 <style>
 .hmr-update {
   background: blue;

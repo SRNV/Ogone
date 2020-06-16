@@ -1,5 +1,6 @@
-<p>Hello ${name}</p>
 <proto>
     def:
         name: Rudy
 </proto>
+
+<p>Hello ${name}</p>

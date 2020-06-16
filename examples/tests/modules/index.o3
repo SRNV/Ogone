@@ -2,7 +2,6 @@ import random from '/modules/module.js';
 import * as test, defaulto from '/modules/allAS.js';
 import { lol, instance } from '/modules/allAS.js';
 
-<p>user ${name}</p>
 <proto>
   def:
     name: null
@@ -10,3 +9,5 @@ import { lol, instance } from '/modules/allAS.js';
     this.name = random;
     console.warn(test, defaulto, instance, lol);
 </proto>
+
+<p>user ${name}</p>

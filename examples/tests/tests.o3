@@ -1,10 +1,4 @@
 use @/examples/testflags.o3 as 'test-d'
-<div>
-    <h1>Test des flags</h1>
-    <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">
-    ${o} t
-    </div>
-</div>
 <proto>
   def:
     array:
@@ -15,6 +9,14 @@ use @/examples/testflags.o3 as 'test-d'
   console.warn(this.array);
     break;
 </proto>
+
+<div>
+    <h1>Test des flags</h1>
+    <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">
+    ${o} t
+    </div>
+</div>
+
 <style>
 @media screen and (max-width:200px) {
     .container,

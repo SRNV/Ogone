@@ -1,22 +1,3 @@
-<div --click:increase> click ${countClick} </div>
-<div --dblclick:increase> dblclick ${countDblClick} </div>
-<div --mouseenter:increase> mouseEnter ${countmouseEnter} </div>
-<div --mouseover:increase> mouseOver ${countmouseOver} </div>
-<div --mousemove:increase> mouseMove ${countmouseMove} </div>
-<div --mousedown:increase> mouseDown ${countmouseDown} </div>
-<div --mouseup:increase> mouseUp ${countmouseUp} </div>
-<div --mouseleave:increase> mouseLeave ${countmouseLeave} </div>
-<div --keypress:increase> keypress ${countKeypress} </div>
-<div --keydown:increase> keydown ${countKeyDown} </div>
-<div --keydown:increaseSpace="'space'"> keydown space ${countKeyDownSpace} </div>
-<div --keyup:increaseSpace="'space'"> keyup space ${countKeyUpSpace} </div>
-<div --keyup:increase> keyup ${countKeyUp} </div>
-<div --wheel:increase> wheel ${wheelCount} </div>
-<div --wheel:increaseDown="'down'"> wheel down ${wheelDownCount} </div>
-<div --wheel:increaseUp="'up'"> wheel up ${wheelUpCount} </div>
-<div --wheel:increaseLeft="'left'"> wheel left ${wheelLeftCount} </div>
-<div --wheel:increaseRight="'right'"> wheel right ${wheelRightCount} </div>
-
 <proto>
   def:
     countClick: 0
@@ -92,3 +73,22 @@
     this.wheelRightCount++;
   break;
 </proto>
+
+<div --click:increase> click ${countClick} </div>
+<div --dblclick:increase> dblclick ${countDblClick} </div>
+<div --mouseenter:increase> mouseEnter ${countmouseEnter} </div>
+<div --mouseover:increase> mouseOver ${countmouseOver} </div>
+<div --mousemove:increase> mouseMove ${countmouseMove} </div>
+<div --mousedown:increase> mouseDown ${countmouseDown} </div>
+<div --mouseup:increase> mouseUp ${countmouseUp} </div>
+<div --mouseleave:increase> mouseLeave ${countmouseLeave} </div>
+<div --keypress:increase> keypress ${countKeypress} </div>
+<div --keydown:increase> keydown ${countKeyDown} </div>
+<div --keydown:increaseSpace="'space'"> keydown space ${countKeyDownSpace} </div>
+<div --keyup:increaseSpace="'space'"> keyup space ${countKeyUpSpace} </div>
+<div --keyup:increase> keyup ${countKeyUp} </div>
+<div --wheel:increase> wheel ${wheelCount} </div>
+<div --wheel:increaseDown="'down'"> wheel down ${wheelDownCount} </div>
+<div --wheel:increaseUp="'up'"> wheel up ${wheelUpCount} </div>
+<div --wheel:increaseLeft="'left'"> wheel left ${wheelLeftCount} </div>
+<div --wheel:increaseRight="'right'"> wheel right ${wheelRightCount} </div>

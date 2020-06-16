@@ -4,8 +4,6 @@ require id as Number;
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <store-component namespace="user"/>
-<div> Welcome ${user ? user.username : ''}</div>
-<img src="public/ogone.svg"  --await />
 <proto type="async">
   def:
     user: null
@@ -26,3 +24,5 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
   default:
     getUser();
 </proto>
+<div> Welcome ${user ? user.username : ''}</div>
+<img src="public/ogone.svg"  --await />

@@ -1,6 +1,3 @@
-<div
-  --for="counts as (c, i)"
-  --click:increase> click ${c}</div>
 <proto>
   def:
     count: 0
@@ -12,6 +9,11 @@
     const { i, c } = ctx;
     this.counts[i] = c+1;
 </proto>
+
+<div
+  --for="counts as (c, i)"
+  --click:increase> click ${c}</div>
+
 <style>
 div {
   cursor: pointer;

@@ -1,8 +1,4 @@
 use @/examples/tests/async/async.o3 as 'async-promise'
-<div>test</div>
-<async-promise --then:act --catch:err --defer="promise">
-  <div>...loading</div>
-</async-promise>
 <proto>
   def:
     promise: null
@@ -22,3 +18,8 @@ use @/examples/tests/async/async.o3 as 'async-promise'
     console.warn('catched err', ctx);
   break;
 </proto>
+
+<div>test</div>
+<async-promise --then:act --catch:err --defer="promise">
+  <div>...loading</div>
+</async-promise>
