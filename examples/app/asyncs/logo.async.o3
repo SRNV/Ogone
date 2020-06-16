@@ -1,13 +1,14 @@
-<div class="container">
-  <div class="logo-back">
-    <img --await class="img" src="/public/ogone.svg"/>
-  </div>
-</div>
 <proto type="async">
   default:
    Async.resolve();
   break;
 </proto>
+<div class="container">
+  <div class="logo-back">
+    <img --await class="img" src="/public/ogone.svg"/>
+  </div>
+</div>
+
 <style>
   .img {
     width: auto;
