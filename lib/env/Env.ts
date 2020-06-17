@@ -113,6 +113,7 @@ export default abstract class Env {
       const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>;`;
       let head = `
           ${style}
+          ${Ogone.config.head || ''}
           <script type="module">
             ${(Env.env === "development" ? scriptDev : scriptProd).trim()}
           </script>`;

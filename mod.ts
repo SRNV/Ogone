@@ -22,10 +22,15 @@ interface OgoneOptions {
   static?: string;
 
   /**
-   * @property static
-   * @description allow user to serve files to client
+   * @property modules
+   * @description path to all modules, this is usefull for the hmr
    */
   modules: string;
+  /**
+   * @property head
+   * @description insert tags in the <head> of the html
+   */
+  head?: string;
 }
 type OgoneAPIType = {
   /**

@@ -9,10 +9,4 @@
   break;
 </proto>
 
-<img --await="filter" src="public/ogone.svg" />
-<div>
-  should render only when:
-    - the img logo is loaded
-    - Async.resolve() is triggered
-    - --defer attribute is resolved
-</div>
+<img --await src="public/ogone.svg" width="200" />

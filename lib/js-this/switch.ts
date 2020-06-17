@@ -12,6 +12,7 @@ import renderO3Syntax from "./src/render/o3-syntax-render.js";
 import yamelize from "./src/render/yamelize.js";
 import beforeCase from "./src/render/before-case.js";
 import parseCases from "./src/case-parser.ts";
+import templateReplacer from "../../utils/template-recursive.ts";
 
 function recursiveTranslate(expressions: any, prog: string): string {
   let str = prog;
@@ -216,23 +217,8 @@ function jsThis(str: string, opts: any) {
       }
     });
   });
-  Object.entries(expressions).reverse().forEach(([key, value]) => {
-    Object.entries(expressions).reverse().forEach(([key2, value2]) => {
-      // @ts-ignore
-      expressions[key] = value.replace(key2, value2);
-    });
-  });
-  if (prog.indexOf("§§") > -1) {
-    Object.entries(expressions)
-      .filter(([key]) => prog.indexOf(key) > -1)
-      .reverse()
-      .forEach(([key, value]) => {
-        prog = prog.replace(key, value);
-      });
-  }
-  if (prog.indexOf("§§") > -1) {
-    prog = recursiveTranslate(expressions, prog);
-  }
+  // finally replace all keys
+  prog = templateReplacer(prog, expressions);
   return {
     value: prog,
     body: typedExpressions,

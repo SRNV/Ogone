@@ -90,6 +90,10 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     } else if (defData) {
       component.data = defData;
     }
+    if (proto) {
+      const indexofProto = component.rootNode.childNodes.indexOf(proto);
+      delete component.rootNode.childNodes[indexofProto];
+    }
     if (component.requirements && component.data && component.requirements.length) {
       component.requirements.forEach(([key]) => {
         if (component.data[key]) {

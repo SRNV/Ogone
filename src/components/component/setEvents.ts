@@ -3,7 +3,10 @@ export default function setEventsMethod(
   node: any,
   opts: any,
 ): string {
-  const { isTemplate } = opts;
+  const { isTemplate, isAsync } = opts;
+  if (isTemplate) {
+    return `setEvents(){ console.warn(this.ogone.flags)}`;
+  }
   if (!node.flags) return `setEvents(){}`;
   const position = isTemplate ? "oc.positionInParentComponent" : "o.position";
   return `

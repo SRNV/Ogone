@@ -5,7 +5,6 @@ use @/examples/app/components/menu/menu-content.o3 as 'menu-content';
 use @/examples/app/routers/.router.o3 as 'router-component';
 use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
 
-<router-component name="new" />
 <proto>
   def:
     scrollY: 0
@@ -28,6 +27,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
   </div>
   <menu-content />
 </div>
+<router-component name="new" />
 <menu-main />
 <left-menu :test="scrollY"/>
 
