@@ -100,7 +100,6 @@ export default function asyncMethods(
   renderAsync(shouldReportToParentComponent) {
     const o = this.ogone;
     const oc = o.component;
-    console.warn(this)
     // first render child stores component
     this.renderAsyncStores();
 

@@ -1,3 +1,4 @@
+use @/examples/tests/events/target-comp.o3 as 'target-component';
 <proto>
   def:
     countClick: 0
@@ -92,3 +93,24 @@
 <div --wheel:increaseUp="'up'"> wheel up ${wheelUpCount} </div>
 <div --wheel:increaseLeft="'left'"> wheel left ${wheelLeftCount} </div>
 <div --wheel:increaseRight="'right'"> wheel right ${wheelRightCount} </div>
+
+<h1> Components </h1>
+
+<target-component --click:increase> click ${countClick} </target-component>
+<target-component --dblclick:increase> dblclick ${countDblClick} </target-component>
+<target-component --mouseenter:increase> mouseEnter ${countmouseEnter} </target-component>
+<target-component --mouseover:increase> mouseOver ${countmouseOver} </target-component>
+<target-component --mousemove:increase> mouseMove ${countmouseMove} </target-component>
+<target-component --mousedown:increase> mouseDown ${countmouseDown} </target-component>
+<target-component --mouseup:increase> mouseUp ${countmouseUp} </target-component>
+<target-component --mouseleave:increase> mouseLeave ${countmouseLeave} </target-component>
+<target-component --keypress:increase="'a'"> keypress ${countKeypress} </target-component>
+<target-component --keydown:increase> keydown ${countKeyDown} </target-component>
+<target-component --keydown:increaseSpace="'space'"> keydown space ${countKeyDownSpace} </target-component>
+<target-component --keyup:increaseSpace="'space'"> keyup space ${countKeyUpSpace} </target-component>
+<target-component --keyup:increase> keyup ${countKeyUp} </target-component>
+<target-component --wheel:increase> wheel ${wheelCount} </target-component>
+<target-component --wheel:increaseDown="'down'"> wheel down ${wheelDownCount} </target-component>
+<target-component --wheel:increaseUp="'up'"> wheel up ${wheelUpCount} </target-component>
+<target-component --wheel:increaseLeft="'left'"> wheel left ${wheelLeftCount} </target-component>
+<target-component --wheel:increaseRight="'right'"> wheel right ${wheelRightCount} </target-component>

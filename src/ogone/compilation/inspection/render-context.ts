@@ -109,7 +109,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
         };
       `
         : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
-      bundle.contexts.push(contextScript);
+        bundle.contexts.push(contextScript);
     });
   }
 }

@@ -2,7 +2,7 @@ use @/examples/tests/async/root.o3 as 'test-el';
 
 <proto>
   def:
-    count: 5
+    count: 0
     art:
       - 1
       - 2
@@ -13,7 +13,7 @@ use @/examples/tests/async/root.o3 as 'test-el';
         if (this.count> 6) {
             this.count = 0;
         }
-    }, 1500);
+    }, 500);
 </proto>
 <!-- templates -->
 <p>${count}</p>

@@ -1,0 +1,14 @@
+<div>
+    <div class="title">
+        target component
+    </div>
+    <div>
+        <slot />
+    </div>
+</div>
+<style>
+.title {
+  background: grey;
+  color: white;
+}
+</style>

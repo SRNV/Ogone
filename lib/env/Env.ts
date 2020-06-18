@@ -46,11 +46,15 @@ export default abstract class Env {
     const stylesDev = Array.from(Env.bundle.components.entries())
       .map((
         entry: any,
-      ) =>
-        `<style id="${entry[1].uuid}">
-      ${entry[1].style.join("\n")}
-    </style>`
-      ).join("\n");
+      ) => {
+        let result = '';
+        if (entry[1].style.join("\n").trim().length) {
+          result = `<style id="${entry[1].uuid}">
+            ${entry[1].style.join("\n")}
+          </style>`
+        }
+        return result;
+      }).join("\n");
     const stylesProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].style.join("\n")).join("\n");
