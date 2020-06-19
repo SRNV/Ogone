@@ -1,4 +1,5 @@
 import { Bundle } from '../../../../.d.ts';
+import { XMLNodeDescription } from '../../../../.d.ts';
 
 export default function oRenderContext(bundle: Bundle, keyComponent: string) {
   const component = bundle.components.get(keyComponent);
@@ -11,6 +12,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
       let contextIf = null;
       if (node.attributes && node.attributes["--if"]) {
         let nxt = node.nextElementSibling;
+        node.hasFlag = true;
         node.ifelseBlock = {
           main: node.attributes["--if"],
           ifFlag: {
@@ -42,7 +44,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           }
         }
       }
-      if (node.ifelseBlock) {
+      if (node.ifelseBlock && node.attributes && !node.attributes['--for']) {
         node.hasFlag = true;
         const { ifFlag, elseFlag, elseIf, main } = node.ifelseBlock;
         const isElse = elseFlag[node.id];
@@ -78,6 +80,24 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           `;
         }
       }
+      function renderConditions(item: XMLNodeDescription) {
+        if (!!item.ifelseBlock && item.id) {
+          item.hasFlag = true;
+          const { ifFlag, elseFlag, elseIf, main } = item.ifelseBlock;
+          const isElse = elseFlag[item.id];
+          const isElseIf = elseIf[item.id];
+          const isMain = ifFlag[item.id];
+          const allElseIf = Object.values(elseIf);
+          if (!!isMain) {
+            return `(${main})`;
+          } else if (!!isElseIf) {
+            return `!(${main}) && (${isElseIf})`;
+          } else if (!!isElse) {
+            return `!(${main}) && !(${allElseIf.join(' && ')})`
+          }
+        }
+        return '';
+      }
       const contextScript = node.hasFlag || !node.tagName && node.nodeType === 1
         ? `
       Ogone.contexts['${component.uuid}-${nId}'] = function(opts) {
@@ -94,14 +114,16 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           ${modules ? modules.map((md) => md[0]).join(";\n") : ""}
           ${array ? `const _____a_ = ${array} || [];` : ""}
 
-          ${contextIf ? contextIf : ""}
           ${script.value || ""}
-          ${getLength ? getLength : ""}
+          ${contextIf ? contextIf : ""}
+          ${getLength ? getLength({
+            filter: renderConditions(node),
+          }) : ""}
           if (GET_TEXT) {
             try {
-              return eval(GET_TEXT);
+              return eval('('+GET_TEXT+')');
             } catch(err) {
-              Ogone.error('Error in component:\\n\\t ${component.file}', err.message ,err);
+              Ogone.error('Error in component:\\n\\t ${component.file} '+\`$\{GET_TEXT}\`, err.message ,err);
               throw err;
             }
           }

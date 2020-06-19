@@ -212,14 +212,15 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
     setDeps() {
       const o = this.ogone;
       if (o.originalNode && o.getContext) {
-            o.component${
+          o.component${
     isTemplate ? ".parent" : ""
     }.react.push(() => this.renderContext());
-            this.renderContext();
+          this.renderContext();
       }
     }
     renderContext() {
       const o = this.ogone;
+      const oc = o.component;
       const key = o.key;
       const length = o.getContext({ getLength: true, position: o.position });
       o.component${isTemplate ? ".parent" : ""}.render(this, {
@@ -250,7 +251,7 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
       return this;
     }
     destroy() {
-      this.context.forEach((n) => {
+      this.context.list.forEach((n) => {
         n.removeNodes().remove();
       });
       this.removeNodes();

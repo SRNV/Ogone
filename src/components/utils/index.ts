@@ -19,11 +19,49 @@ export default function utilsMethods(
       const o = this.ogone;
       const oc = o.component;
       if (!oc.contexts.for[o.key]) {
-        oc.contexts.for[o.key] = [this];
-        oc.contexts.for[o.key].placeholder = new Comment();
-        oc.contexts.for[o.key].name = this.name;
+        oc.contexts.for[o.key] = {
+          list: [this],
+          placeholder: document.createElement('template'),
+          parentNode: this.parentNode,
+          name: this.name,
+        };
       }
       return oc.contexts.for[o.key];
+    }
+    insertElement(p, el) {
+      if (!this.firstNode) {
+        this.insertAdjacentElement(p, el);
+        return;
+      }
+      let target;
+      switch(p) {
+        case 'beforebegin':
+          target = this.firstNode;
+          break;
+        case 'afterbegin':
+          target = this.firstNode;
+          break;
+        case 'beforeend':
+          target = this.lastNode;
+          break;
+        case 'afterend':
+          target = this.lastNode;
+        break;
+      }
+      return (!!target.ogone ?
+        (target.context.list[
+          target.context.list.length -1
+        ]).insertElement(p, el) :
+        target.insertAdjacentElement(p, el));
+    }
+    get isConnected() {
+      if (!this.firstNode) {
+        return false;
+      }
+      return !!this.ogone.nodes.find((n) => n.isConnected);
+    }
+    get isRecursiveConnected() {
+      return this.firstNode.isConnected && this.lastNode.isConnected;
     }
     get firstNode() {
       return this.ogone.nodes[0];

@@ -88,6 +88,18 @@ export interface XMLNodeDescription {
   pragma: null | DOMParserPragmaDescription;
   nextElementSibling: null | XMLNodeDescription;
   previousElementSibling: null | XMLNodeDescription;
+  ifelseBlock?: {
+    ifFlag: {
+      [k: string]: string;
+    };
+    elseFlag: {
+      [k: string]: string;
+    };
+    elseIf:{
+      [k: string]: string;
+    };
+    main: string;
+  };
 }
 
 /**
@@ -153,7 +165,7 @@ export interface LegacyDescription {
   ctx?: any;
   script?: any;
   limit?: number;
-  getLength?: string;
+  getLength?: (opts: any) => string;
   arrayName?: string;
   callbackDeclaration?: "";
   declarationScript?: string[];

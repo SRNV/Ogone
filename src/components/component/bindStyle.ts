@@ -5,7 +5,7 @@ export default function bindStyleMethod(
 ): string {
   const { isStore, isRouter } = opts;
   if (
-    isRouter || isStore || (!node.flags || !node.flags.style)
+    isRouter || isStore
   ) {
     return `bindStyle() {}`;
   }
@@ -13,18 +13,11 @@ export default function bindStyleMethod(
     bindStyle(value) {
       const o = this.ogone;
       const oc = o.component;
+      if (!o.flags || !o.flags.style) return;
       function r(n) {
         const vl = o.getContext({
           position: o.position,
-          getText: '(${
-    node.flags.style
-      // preserve regular expressions
-      .replace(/\\/gi, "\\\\")
-      // erase new line
-      .replace(/\n/gi, " ")
-      // preserve quotes
-      .replace(/\'/gi, "\\'").trim()
-    })',
+          getText: o.flags.style,
         });
         if (typeof vl === 'string') {
           n.style = vl;
@@ -35,7 +28,7 @@ export default function bindStyleMethod(
       }
       for (let n of o.nodes) {
         oc.react.push(() => r(n));
-        r();
+        r(n);
       }
     }
   `;

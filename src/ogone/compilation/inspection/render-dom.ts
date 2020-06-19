@@ -87,10 +87,20 @@ export default function oRenderDOM(
         legacy.ctx[index] = true;
         legacy.ctx[item] = oForFlag;
         node.hasFlag = true;
-        const getLengthScript = `
-                if (GET_LENGTH) {
-                  return (_____a_).length;
-                }`;
+        const getLengthScript = (opts: any) => {
+          if (!opts.filter) {
+            return `
+            if (GET_LENGTH) {
+              return (_____a_).length;
+            }`;
+          }
+          return `
+          let _____a_2 = _____a_.filter((${item}, ${index}) => ${opts.filter})
+          ${item} = (_____a_2)[${index}];
+          if (GET_LENGTH) {
+            return (_____a_2).length;
+          }`
+        };
         legacy.arrayName = array;
         legacy.getLength = getLengthScript;
         if (contextLegacy) {
@@ -102,7 +112,6 @@ export default function oRenderDOM(
             contextLegacy.declarationScript = contextLegacy.declarationScript
               .concat(declarationScript);
           }
-          delete node.attributes['--for'];
         }
       }
     }

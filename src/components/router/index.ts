@@ -111,12 +111,12 @@ export default function routerMethods(component: any, node: any, opts: any) {
       if (!o.actualTemplate) {
         o.actualTemplate = o.replacer;
       }
-      if (this.isConnected) {
+      if (this.parentNode) {
         this.replaceWith(...o.actualTemplate);
         o.replacer = o.actualTemplate;
       } else if (o.routeChanged) {
         const replacer = o.replacer && o.replacer[0].ogone ?
-          [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes].find(n => n[0].isConnected)
+          [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes].find(n => n[0] && n[0].isConnected)
           : o.replacer;
         if (!replacer) return;
         replacer.slice(1, replacer.length).forEach(n => n.remove());
@@ -125,16 +125,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
         }
         o.replacer[0] && o.replacer[0].isComponent ? o.replacer[0].destroy() : 0;
       }
-      if (o.actualTemplate && o.actualTemplate[0].ogone && o.actualTemplate[0].isConnected) {
-        // router stopped cause the template is still connected to the document
-        // it means that they were an error in the component provided in router
-
-        Ogone.error(\` router stopped: the template is still connected to the document. It seems like there is an error in the component provided in the router\`,
-          'RouterError during rendering',
-          { message: \`path: $\{o.actualRoute}\nname: $\{o.actualRouteName}\` });
-      } else {
-        o.replacer = o.actualTemplate;
-      }
+      o.replacer = o.actualTemplate;
       oc.runtime(o.actualRouteName || o.locationPath, history.state);
     }
   `;

@@ -5,7 +5,7 @@ export default function bindClassMethod(
 ): string {
   const { isStore, isRouter } = opts;
   if (
-    isRouter || isStore || (!node.flags || !node.flags.class)
+    isRouter || isStore
   ) {
     return `bindClass() {}`;
   }
@@ -13,18 +13,11 @@ export default function bindClassMethod(
     bindClass() {
       const o = this.ogone;
       const oc = o.component;
+      if (!o.flags || !o.flags.class) return;
       function r(n) {
         const vl = o.getContext({
           position: o.position,
-          getText: '(${
-    node.flags.class
-      // preserve regular expressions
-      .replace(/\\/gi, "\\\\")
-      // erase new line
-      .replace(/\n/gi, " ")
-      // preserve quotes
-      .replace(/\'/gi, "\\'").trim()
-    })',
+          getText: (o.flags.class),
         });
         if (typeof vl === 'string') {
           n.classList.value = vl;

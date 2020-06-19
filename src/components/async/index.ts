@@ -196,6 +196,7 @@ export default function asyncMethods(
   forceAsyncRender() {
     this.setPosition();
     this.setContext();
+    this.setHMRContext();
     this.setProps();
     this.setNodes();
     this.setDeps();

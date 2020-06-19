@@ -201,9 +201,10 @@ function _OGONE_BROWSER_CONTEXT() {
       typeof dataLength === "object" ? dataLength = 1 : [];
       const context = Onode.context;
       // no need to render if it's the same
-      if (context.length === dataLength) return;
+      if (context.list.length === dataLength) return;
+      let previousTemplate;
       // first we add missing nodes, we use cloneNode to generate the web-component
-      for (let i = context.length, a = dataLength; i < a; i++) {
+      for (let i = context.list.length, a = dataLength; i < a; i++) {
         let node;
         // @ts-ignore
         node = document.createElement(context.name, { is: Onode.extends });
@@ -227,31 +228,32 @@ function _OGONE_BROWSER_CONTEXT() {
         if (i === 0) {
           context.placeholder.replaceWith(node);
         } else {
-          let lastEl = context[i - 1].lastNode;
+          let lastEl = context.list[i - 1];
           if (lastEl && lastEl.isConnected) {
-            lastEl.insertAdjacentElement("afterend", node);
-          } else if (Onode && Onode.isConnected) {
-            Onode.insertAdjacentElement("afterend", node);
+            lastEl.insertElement("afterend", node);
+          } else if (Onode && Onode.parentNode) {
+            Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
           }
         }
-        context.push(node);
+        context.list.push(node);
+        previousTemplate = node;
       }
       // no need to remove if it's the same
-      if (context.length === dataLength) return;
+      if (context.list.length === dataLength) return;
       // now we remove the extra elements
-      for (let i = context.length, a = dataLength; i > a; i--) {
-        if (context.length === 1) {
+      for (let i = context.list.length, a = dataLength; i > a; i--) {
+
+        if (context.list.length === 1) {
           // get the first element of the webcomponent
-          let firstEl = context[0];
-          if (firstEl && firstEl.firstNode && firstEl.firstNode.isConnected) {
-            const { parentNode } = firstEl.firstNode;
-            parentNode.insertBefore(context.placeholder, firstEl.firstNode);
+          let firstEl = context.list[0];
+          if (firstEl && firstEl.firstNode && firstEl.isConnected) {
+            firstEl.insertElement('beforebegin', context.placeholder);
           } else if (Onode.parentNode) {
-            const { parentNode } = Onode;
+            const { parentNode } = context;
             parentNode.insertBefore(context.placeholder, Onode);
           }
         }
-        const rm = context.pop();
+        const rm = context.list.pop();
         // deactivate all the reactions of the component
         rm.removeNodes().remove();
       }
