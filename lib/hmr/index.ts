@@ -9,7 +9,7 @@ import { Bundle, Component, XMLNodeDescription } from './../../.d.ts';
 
 let ws: WebSocket | null = null;
 // open the websocket
-const wss: WebSocketServer = new WebSocketServer(7021);
+const wss: WebSocketServer = new WebSocketServer(7000);
 //
 let newApplicationCompilation: boolean = false;
 // when client open the connection
