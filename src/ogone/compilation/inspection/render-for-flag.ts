@@ -6,7 +6,9 @@ interface ForCtxDescription<T> {
   array: string;
   content: T;
 }
-export default function oRenderForFlag(flagValue: string): ForCtxDescription<string> {
+export default function oRenderForFlag(
+  flagValue: string,
+): ForCtxDescription<string> {
   if (flagValue.indexOf("as") === -1) {
     const OgoneForFlagSyntaxException = new Error(
       `[Ogone] Syntax Error: ${flagValue}, no (as) found \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,

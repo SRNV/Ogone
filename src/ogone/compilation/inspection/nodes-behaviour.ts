@@ -1,4 +1,4 @@
-import { Bundle, XMLNodeDescription } from '../../../../.d.ts';
+import { Bundle, XMLNodeDescription } from "../../../../.d.ts";
 import getWebComponent from "../../../components/index.ts";
 
 export default async function oRenderNodesBehavior(
@@ -15,7 +15,8 @@ export default async function oRenderNodesBehavior(
       bundle.classes.push(elementExtension);
     }
     if (
-      node.attributes && node.attributes["--await"] && component.type !== "async"
+      node.attributes && node.attributes["--await"] &&
+      component.type !== "async"
     ) {
       const BadUseOfAwaitInSyncComponentException =
         `[Ogone] --await must be used in an async component. define type="async" to the proto.\n Error in component: ${component.file}\n node: ${node.tagName}`;
@@ -32,7 +33,7 @@ export default async function oRenderNodesBehavior(
     if (node.attributes && node.attributes["--defer"] && !isImported) {
       const BadUseDeferFlagException =
         `[Ogone] --defer must be called only on async components. discard <${node.tagName} --defer="${
-        node.attributes["--defer"]
+          node.attributes["--defer"]
         }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
       throw BadUseDeferFlagException;
     }
@@ -42,7 +43,7 @@ export default async function oRenderNodesBehavior(
     ) {
       const BadUseDeferFlagException =
         `[Ogone] --defer must be called only on async components. change type of <${node.tagName} --defer="${
-        node.attributes["--defer"]
+          node.attributes["--defer"]
         }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
       throw BadUseDeferFlagException;
     }
@@ -65,8 +66,8 @@ export default async function oRenderNodesBehavior(
         }
     }
     if (node.nodeType === 1 && node.childNodes && node.childNodes.length) {
-      for await(const child of node.childNodes) {
-          await oRenderNodesBehavior(bundle, keyComponent, child);
+      for await (const child of node.childNodes) {
+        await oRenderNodesBehavior(bundle, keyComponent, child);
       }
     }
   }

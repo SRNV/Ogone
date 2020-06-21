@@ -1,6 +1,9 @@
-import { OnodeComponent, OnodeComponentRenderOptions } from '../../types/component.ts';
-import { OgoneBrowser } from '../../types/ogone.ts';
-import { Template } from '../../types/template.ts';
+import {
+  OnodeComponent,
+  OnodeComponentRenderOptions,
+} from "../../types/component.ts";
+import { OgoneBrowser } from "../../types/ogone.ts";
+import { Template } from "../../types/template.ts";
 
 let Ogone: OgoneBrowser;
 let _this: OnodeComponent;
@@ -56,9 +59,11 @@ function _OGONE_BROWSER_CONTEXT() {
       _this.runtime(`update:${dependency}`);
       _this.reactTo(dependency as string);
       _this.renderTexts(dependency as string);
-      _this.childs.filter((c: OnodeComponent) => c.type !== "store").forEach((c: OnodeComponent) => {
-        c.updateProps(dependency as string);
-      });
+      _this.childs.filter((c: OnodeComponent) => c.type !== "store").forEach(
+        (c: OnodeComponent) => {
+          c.updateProps(dependency as string);
+        },
+      );
     };
     _this.renderTexts = (dependency: string) => {
       if (!_this.activated) return;
@@ -83,11 +88,13 @@ function _OGONE_BROWSER_CONTEXT() {
       // save the component's reaction into Ogone.clients with the key of the component
       // and a function
       Ogone.clients.push([_this.key as string, (namespace, key, overwrite) => {
-        if (namespace === _this.namespace
-            && _this.data
-            && _this.parent
-            && _this.parent.data
-            && key in _this.parent.data) {
+        if (
+          namespace === _this.namespace &&
+          _this.data &&
+          _this.parent &&
+          _this.parent.data &&
+          key in _this.parent.data
+        ) {
           if (!overwrite) {
             _this.data[key] = Ogone.stores[_this.namespace][key];
           } else {
@@ -121,8 +128,10 @@ function _OGONE_BROWSER_CONTEXT() {
       if (!_this.activated) return;
       if (_this.type === "store") return;
       if (!_this.requirements || !_this.props) return;
-      _this.requirements.forEach(([key, constructors] : [string, any[]]) => {
-        const prop = _this.props.find((prop: [string, ...any[]]) => prop[0] === key);
+      _this.requirements.forEach(([key, constructors]: [string, any[]]) => {
+        const prop = _this.props.find((prop: [string, ...any[]]) =>
+          prop[0] === key
+        );
         const isAny = constructors.includes(null);
         if (!prop && !isAny) {
           const UndefinedPropertyForComponentException =
@@ -190,7 +199,10 @@ function _OGONE_BROWSER_CONTEXT() {
         }
       });
     };
-    _this.render = (Onode: Template, /** original node */ opts: OnodeComponentRenderOptions) => {
+    _this.render = (
+      Onode: Template, /** original node */
+      opts: OnodeComponentRenderOptions,
+    ) => {
       if (!Onode || !opts) return;
       // Onode is a web component
       // based on the user token
@@ -242,12 +254,11 @@ function _OGONE_BROWSER_CONTEXT() {
       if (context.list.length === dataLength) return;
       // now we remove the extra elements
       for (let i = context.list.length, a = dataLength; i > a; i--) {
-
         if (context.list.length === 1) {
           // get the first element of the webcomponent
           let firstEl = context.list[0];
           if (firstEl && firstEl.firstNode && firstEl.isConnected) {
-            firstEl.insertElement('beforebegin', context.placeholder);
+            firstEl.insertElement("beforebegin", context.placeholder);
           } else if (Onode.parentNode) {
             const { parentNode } = context;
             parentNode.insertBefore(context.placeholder, Onode);
@@ -262,6 +273,6 @@ function _OGONE_BROWSER_CONTEXT() {
   }
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, 'this')
-  .replace('function _OGONE_BROWSER_CONTEXT() {', '')
-  .slice(0, -1)
+  .replace(/_this/gi, "this")
+  .replace("function _OGONE_BROWSER_CONTEXT() {", "")
+  .slice(0, -1);

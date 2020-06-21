@@ -78,7 +78,7 @@ export default function utilsMethods(
     isTemplate
       ? `return '${component.uuid}-nt';`
       : `return '${component.uuid}-${node.id}';`
-    }
+  }
     }
     get isComponent() {
       return ${isTemplate};

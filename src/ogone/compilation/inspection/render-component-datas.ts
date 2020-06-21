@@ -1,4 +1,4 @@
-import { Bundle, Component } from '../../../../.d.ts';
+import { Bundle, Component } from "../../../../.d.ts";
 
 export default async function (bundle: Bundle, component: Component) {
   if (component.data instanceof Object) {

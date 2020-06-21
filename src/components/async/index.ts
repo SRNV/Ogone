@@ -3,7 +3,7 @@ export default function asyncMethods(
   node: any,
   opts: any,
 ): string {
-  const { isAsync, isAsyncNode } = opts;
+  const { isAsync, isAsyncNode, isProduction } = opts;
   if (!isAsync && !isAsyncNode) return "";
   if (isAsyncNode) {
     return `
@@ -196,7 +196,7 @@ export default function asyncMethods(
   forceAsyncRender() {
     this.setPosition();
     this.setContext();
-    this.setHMRContext();
+    ${!isProduction ? "this.setHMRContext();" : ""}
     this.setProps();
     this.setNodes();
     this.setDeps();

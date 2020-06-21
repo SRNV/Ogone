@@ -127,7 +127,7 @@ export default function scopeCSS(cssStr: string, scopeId: string): string {
         value = value.replace(
           value,
           `${value}[${scopeId}]${
-          savedPseudoElement ? savedPseudoElement[0] : ""
+            savedPseudoElement ? savedPseudoElement[0] : ""
           }`,
         );
         arr[i].value = value;

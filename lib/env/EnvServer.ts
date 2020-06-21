@@ -10,6 +10,7 @@ import Env from "./Env.ts";
  * extends class Env
  * @method use
  * @method setBundle
+ * @method getBuild
  * @property application
  */
 export default abstract class EnvServer extends Env {

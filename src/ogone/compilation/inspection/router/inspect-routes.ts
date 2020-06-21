@@ -1,4 +1,4 @@
-import { Bundle, Component, Route } from '../../../../../.d.ts';
+import { Bundle, Component, Route } from "../../../../../.d.ts";
 const allowedKeys = [
   "path",
   "redirect",
@@ -12,7 +12,12 @@ const requiredKeys = [
   "path",
   "component",
 ];
-function startRecursiveRouterInspection(bundle: Bundle, component: Component, route: Route, opts: any) {
+function startRecursiveRouterInspection(
+  bundle: Bundle,
+  component: Component,
+  route: Route,
+  opts: any,
+) {
   if (!route) return;
   const keys = Object.keys(route);
   const unsupported = keys.find((k) => !allowedKeys.includes(k));
@@ -73,7 +78,11 @@ function startRecursiveRouterInspection(bundle: Bundle, component: Component, ro
   }
   opts.routes.push(route);
 }
-export default function inspectRoutes(bundle: Bundle, component: Component, routes: Route[]): Route[] {
+export default function inspectRoutes(
+  bundle: Bundle,
+  component: Component,
+  routes: Route[],
+): Route[] {
   if (!Array.isArray(routes)) {
     const InpectRoutesWaitingForAnArrayException = new TypeError(
       `[Ogone] inspectRoutes is waiting for an array as argument 2.

@@ -1,5 +1,5 @@
 import scopeCSS from "../../../../lib/html-this/scopeCSS.ts";
-import { Bundle } from '../../../../.d.ts';
+import { Bundle } from "../../../../.d.ts";
 
 export default function oRenderStyles(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());

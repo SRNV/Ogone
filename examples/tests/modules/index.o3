@@ -1,6 +1,6 @@
-import random from '/modules/module.js';
-import * as test, defaulto from '/modules/allAS.js';
-import { lol, instance } from '/modules/allAS.js';
+import random from '/examples/modules/module.js';
+import * as test, defaulto from '/examples/modules/allAS.js';
+import { lol, instance } from '/examples/modules/allAS.js';
 
 <proto>
   def:

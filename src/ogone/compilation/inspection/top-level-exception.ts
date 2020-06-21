@@ -1,4 +1,4 @@
-import { Bundle } from '../../../../.d.ts';
+import { Bundle } from "../../../../.d.ts";
 
 export default function oTopLevelTextNodeException(bundle: Bundle) {
   bundle.components.forEach((c) => {

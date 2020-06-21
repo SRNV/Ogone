@@ -1,4 +1,8 @@
-import { XMLNodeDescription, XMLNodeDescriberDescription, ParseFlagsOutput } from './../../.d.ts';
+import {
+  XMLNodeDescription,
+  XMLNodeDescriberDescription,
+  ParseFlagsOutput,
+} from "./../../.d.ts";
 const SyntaxEventException = (event: string) =>
   new SyntaxError(
     `[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`,
@@ -36,18 +40,21 @@ const events = [
   "--touchstart",
   "--wheel",
 ];
-export default function parseFlags(node: XMLNodeDescription, opts: XMLNodeDescriberDescription): null | string {
+export default function parseFlags(
+  node: XMLNodeDescription,
+  opts: XMLNodeDescriberDescription,
+): null | string {
   let result: ParseFlagsOutput = {
-    if: '',
-    then: '',
-    defer: '',
-    await: '',
-    style: '',
-    class: '',
-    catch: '',
+    if: "",
+    then: "",
+    defer: "",
+    await: "",
+    style: "",
+    class: "",
+    catch: "",
     events: [],
-    elseIf: '',
-    finally: '',
+    elseIf: "",
+    finally: "",
     else: false,
   };
   const { nodeIsDynamic, isImported } = opts;
@@ -65,7 +72,7 @@ export default function parseFlags(node: XMLNodeDescription, opts: XMLNodeDescri
               /(\-){2}(\w+\:)([^\s]*)+/,
             );
             if (m) {
-              const [input, t, ev, caseName] = m
+              const [input, t, ev, caseName] = m;
               const infos: any = {
                 type: event.slice(2),
                 case: `${ev}${caseName}`,
@@ -114,7 +121,7 @@ export default function parseFlags(node: XMLNodeDescription, opts: XMLNodeDescri
           node.hasFlag = true;
           break;
         case key === "--await":
-          result.await = attributes[key] === true ? '' : `${attributes[key]}`;
+          result.await = attributes[key] === true ? "" : `${attributes[key]}`;
           if (isImported) {
             node.attributes.await = true;
           }

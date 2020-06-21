@@ -33,7 +33,10 @@ export default abstract class Env {
    * @param entrypoint path to root component
    * @param shouldBundle set the bundle of the component after compilation
    */
-  public static async compile(entrypoint: string, shouldBundle?: boolean): Promise<any> {
+  public static async compile(
+    entrypoint: string,
+    shouldBundle?: boolean,
+  ): Promise<any> {
     const bundle: Bundle = await compile(entrypoint);
     if (shouldBundle) {
       Env.setBundle(bundle);
@@ -47,28 +50,24 @@ export default abstract class Env {
       .map((
         entry: any,
       ) => {
-        let result = '';
+        let result = "";
         if (entry[1].style.join("\n").trim().length) {
           result = `<style id="${entry[1].uuid}">
             ${entry[1].style.join("\n")}
-          </style>`
+          </style>`;
         }
         return result;
       }).join("\n");
-    const stylesProd = Array.from(Env.bundle.components.entries()).map((
-      entry: any,
-    ) => entry[1].style.join("\n")).join("\n");
     const esm = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].esmExpressions).join("\n");
 
-    const style = Env.env === "development"
-      ? stylesDev
-      : `<style>${(stylesProd)}</style>`;
+    const style = stylesDev;
     const rootComponent = Env.bundle.components.get(Ogone.config.entrypoint);
     if (rootComponent) {
       if (
-        rootComponent && ["router", "store", "async"].includes(rootComponent.type)
+        rootComponent &&
+        ["router", "store", "async"].includes(rootComponent.type)
       ) {
         const RootNodeTypeErrorException = new TypeError(
           `[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
@@ -102,49 +101,106 @@ export default abstract class Env {
           console.log('[Ogone] page load time', ___pageLoadTime, 'ms');
         });
         `;
-      const scriptProd = `
+      // in production DOM has to be
+      // <template is="${rootComponent.uuid}-nt"></template>
+      const DOMDev = ` `;
+      let head = `
+          ${style}
+          ${Ogone.config.head || ""}
+          <script type="module">
+            ${scriptDev.trim()}
+          </script>`;
+      let body = template
+        .replace(/%%head%%/, head)
+        .replace(/%%dom%%/, DOMDev);
+
+      // start watching components
+      HCR(Env.bundle);
+      return body;
+    } else {
+      return "no root-component found";
+    }
+  }
+
+  public static async resolveAndReadText(path: string) {
+    const isFile = path.startsWith("/") ||
+      path.startsWith("./") ||
+      path.startsWith("../") ||
+      !path.startsWith("http://") ||
+      !path.startsWith("https://");
+    const isTsFile = isFile && path.endsWith(".ts");
+    const text = Deno.readTextFileSync(path);
+    return isTsFile
+      ? (await Deno.transpileOnly({
+        [path]: text,
+      }, {
+        sourceMap: false,
+      }))[path].source
+      : text;
+  }
+  /**
+   * get the output of the application
+   */
+  public static async getBuild() {
+    const stylesProd = Array.from(Env.bundle.components.entries()).map((
+      entry: any,
+    ) => entry[1].style.join("\n")).join("\n");
+    const esmProd = Array.from(Env.bundle.components.entries()).map((
+      entry: any,
+    ) => entry[1].esmExpressionsProd).join("\n");
+
+    const style = `<style>${(stylesProd)}</style>`;
+    const rootComponent = Env.bundle.components.get(Ogone.config.entrypoint);
+    if (rootComponent) {
+      if (
+        rootComponent &&
+        ["router", "store", "async"].includes(rootComponent.type)
+      ) {
+        const RootNodeTypeErrorException = new TypeError(
+          `[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+        );
+        throw RootNodeTypeErrorException;
+      }
+      const [, scriptProd] = await Deno.compile("index.ts", {
+        "index.ts": `
+        ${esmProd}
         ${browserBuild}
-        ${esm}
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.render.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
         ${Env.bundle.classes.reverse().join("\n")}
         ${Env.bundle.customElements.join("\n")}
-        `;
+        `,
+      }, {
+        module: "esnext",
+        target: "esnext",
+        resolveJsonModule: false,
+        experimentalDecorators: true,
+        allowUnreachableCode: false,
+        jsx: "preserve",
+        jsxFactory: "Ogone.r(",
+        inlineSourceMap: false,
+        inlineSources: false,
+        alwaysStrict: false,
+        sourceMap: false,
+        strictFunctionTypes: true,
+      });
       // in production DOM has to be
       // <template is="${rootComponent.uuid}-nt"></template>
       const DOMDev = ` `;
       const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>;`;
       let head = `
           ${style}
-          ${Ogone.config.head || ''}
-          <script type="module">
-            ${(Env.env === "development" ? scriptDev : scriptProd).trim()}
+          ${Ogone.config.head || ""}
+          <script>
+            ${scriptProd["index.js"].trim()}
           </script>`;
       let body = template
         .replace(/%%head%%/, head)
-        .replace(/%%dom%%/, (Env.env === "development" ? DOMDev : DOMProd));
-
-      // start watching components
-      HCR(Env.bundle);
+        .replace(/%%dom%%/, DOMProd);
       return body;
     } else {
-      return 'no root-component found';
+      throw new Error("[Ogone] no root-component found");
     }
-  }
-
-  public static async resolveAndReadText(path: string) {
-    const isFile = path.startsWith('/')
-      || path.startsWith('./')
-      || path.startsWith('../')
-      || !path.startsWith('http://')
-      || !path.startsWith('https://');
-    const isTsFile = isFile && path.endsWith('.ts');
-    const text = Deno.readTextFileSync(path);
-    return isTsFile ? (await Deno.transpileOnly({
-      [path]: text,
-    }, {
-      sourceMap: false,
-    }))[path].source : text;
   }
 }

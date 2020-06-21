@@ -85,7 +85,7 @@ export default function setOgoneMethod(
               return { query }
             })(),  },`
       : ""
-    }
+  }
 
       // overwrite properties
       ...def,
