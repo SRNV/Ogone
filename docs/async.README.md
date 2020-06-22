@@ -138,5 +138,12 @@ use @/path/to/async-component.o3 as 'async-component';
 ```
 ________
 
+
+### case 'async:update':
+_in Async Component_
+
+triggered case when any props of the component changes.
+________
+
 # Todo
 define the shape of `ctx` object sent to --then flag.
