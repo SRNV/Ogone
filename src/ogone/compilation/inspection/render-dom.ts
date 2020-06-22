@@ -1,25 +1,6 @@
 import oRenderForFlag from "./render-for-flag.ts";
 import { Bundle, XMLNodeDescription, LegacyDescription } from '../../../../.d.ts';
 
-const flags = [
-  "--if",
-  "--else",
-  "--for",
-  "--click",
-  "--mousemove",
-  "--mousedown",
-  "--mouseup",
-  "--mouseleave",
-  "--dblclick",
-  "--drag",
-  "--dragend",
-  "--dragstart",
-  "--model",
-  "--transform",
-  "--html",
-  "--input",
-];
-
 export default function oRenderDOM(
   bundle: Bundle,
   keyComponent: string,

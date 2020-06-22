@@ -4,7 +4,7 @@ import o3 from "../../mod.ts";
 o3.run({
   entrypoint: "examples/app/index.o3",
   static: "./public",
-  port: 8047,
+  port: 8011,
   modules: "/examples/modules",
   head: `
   <link href="/public/style.css" rel="stylesheet"/>

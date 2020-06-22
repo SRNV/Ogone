@@ -95,7 +95,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
   };
   // @ts-ignore
-  const ws = new WebSocket(`ws://localhost:4535/`);
+  const ws = new WebSocket(`ws://localhost:9085/`);
 
   ws.onmessage = (msg) => {
     const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(msg.data);
