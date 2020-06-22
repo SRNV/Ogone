@@ -371,5 +371,5 @@ Ogone implements stress mode. which run the tests each saving you make.
 to run the tests:
 
 ```shell
-deno run --allow-all src/lib/stress/index.ts --stress tests
+sudo deno run --allow-all lib/stress/index.ts --stress tests
 ```

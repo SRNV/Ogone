@@ -73,3 +73,19 @@ default: wont be in yaml
     fail("def statement is not erased by yamelize");
   }
 });
+Deno.test("- yamelize shouldn't parse second def expression inside the quotes", () => {
+  const defExp = `
+    def:
+        name: R
+        case: inyaml`;
+try {
+  const def = renderDefExpression(`
+    case '': break;
+${defExp}
+default:
+  'don\'t parse that def:'
+  `);
+} catch(e) {
+  fail("def statement is parsed");
+}
+});
