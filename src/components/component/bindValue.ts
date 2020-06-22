@@ -14,7 +14,6 @@ export default function bindValueMethod(
         const o = this.ogone;
         const oc = o.component;
         if (!o.flags || !o.flags.bind) return;
-        console.warn(o.flags.bind)
         function r(n, dependency) {
           const k = o.flags.bind;
           const evl = o.getContext({
