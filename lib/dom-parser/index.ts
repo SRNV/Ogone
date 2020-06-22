@@ -583,7 +583,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
               getText: txt,
               position,
             });
-            if (${nId}.data && ${nId}.data !== v) ${nId}.data = v;
+            if (${nId}.data && ${nId}.data !== v) ${nId}.data = v.length ? v : ' ';
             return true;
           };
           ctx.texts.push(r);
