@@ -140,7 +140,7 @@ export default abstract class Env {
       }))[path].source
       : text;
   }
-  private static recursiveRead(opts: { entrypoint: string, onContent: Function }) : void{
+  private static recursiveRead(opts: { entrypoint: string, onContent: Function }): void {
     if (!existsSync(opts.entrypoint)) {
       throw new Error('[Ogone] can\'t find entrypoint for Env.recursiveRead');
     }
@@ -179,7 +179,7 @@ export default abstract class Env {
     const stylesProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].style.join("\n")).join("\n");
-    const compiledStyle = Ogone.config.minifyCSS ? (staticStyle+stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : (staticStyle+stylesProd);
+    const compiledStyle = Ogone.config.minifyCSS ? (staticStyle + stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : (staticStyle + stylesProd);
     const style = `<style>${(compiledStyle)}</style>`;
     const esmProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
@@ -196,15 +196,8 @@ export default abstract class Env {
         throw RootNodeTypeErrorException;
       }
       const [, scriptProd] = await Deno.compile("index.ts", {
-        "index.ts": `
-        ${esmProd}
-        ${browserBuild(Env.env === 'production')}
-        ${Env.bundle.datas.join("\n")}
-        ${Env.bundle.render.join("\n")}
-        ${Env.bundle.contexts.reverse().join("\n")}
-        ${Env.bundle.classes.reverse().join("\n")}
-        ${Env.bundle.customElements.join("\n")}
-        `,
+        "index.ts": `import test from '/test.js'`,
+        "test.js": 'export default 10;',
       }, {
         module: "esnext",
         target: "esnext",
@@ -218,6 +211,7 @@ export default abstract class Env {
         alwaysStrict: false,
         sourceMap: false,
         strictFunctionTypes: true,
+        lib: ["dom", "esnext"],
       });
       // in production DOM has to be
       // <template is="${rootComponent.uuid}-nt"></template>
