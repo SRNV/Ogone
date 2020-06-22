@@ -33,7 +33,7 @@ interface OgoneOptions {
   head?: string;
   /**
    * @property build
-   * @description directory for production
+   * @description output destination for production
    */
   build?: string;
   /**
