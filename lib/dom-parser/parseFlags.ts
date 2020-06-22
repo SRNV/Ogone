@@ -136,6 +136,9 @@ export default function parseFlags(node: XMLNodeDescription, opts: XMLNodeDescri
           result.finally = key.slice(2);
           node.hasFlag = true;
           break;
+        case key === '--bind':
+          result.bind = attributes[key] as string;
+          node.hasFlag = true;
       }
     }
     // flags that starts with --

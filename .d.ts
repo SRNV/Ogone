@@ -140,6 +140,7 @@ export interface ParseFlagsOutput {
   finally: string;
   await: string | boolean;
   events: ParseFlagDescription[],
+  bind?: string;
 }
 export interface ParseFlagDescription {
   name: string;

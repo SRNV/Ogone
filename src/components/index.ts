@@ -2,6 +2,7 @@ import constructorMethods from "./component/constructor.ts";
 import setEventsMethod from "./component/setEvents.ts";
 import bindStyleMethod from "./component/bindStyle.ts";
 import bindClassMethod from "./component/bindClass.ts";
+import bindValueMethod from "./component/bindValue.ts";
 import setOgoneMethod from "./component/ogone.ts";
 import slotsMethods from "./component/slots.ts";
 import routerMethods from "./router/index.ts";
@@ -65,6 +66,10 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
     // use bindClass method
     // this method allow --class flag
     ${bindClassMethod(component, node, opts)}
+
+    // use bindValue method
+    // this method allow --bind flag
+    ${bindValueMethod(component, node, opts)}
 
     // set events on the node
     // this method allow all DOM level 3 events
@@ -132,6 +137,9 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
 
       // bind style
       this.bindStyle();
+
+      // bind value
+      this.bindValue();
 
       // set history state and trigger default code for router
       ${isRouter ? "this.triggerLoad();" : ""}
