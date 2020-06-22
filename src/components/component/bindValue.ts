@@ -17,7 +17,10 @@ export default function bindValueMethod(
         console.warn(o.flags.bind)
         function r(n, dependency) {
           const k = o.flags.bind;
-          const evl = eval(\`(oc.data.$\{k})\`);
+          const evl = o.getContext({
+            position: o.position,
+            getText: k,
+          });
           if (dependency === true) {
             // force binding
             n.value = evl;
@@ -31,17 +34,54 @@ export default function bindValueMethod(
         }
         for (let n of o.nodes) {
           n.addEventListener('keydown', (ev) => {
-            const k = o.flags.bind
-            if (eval(\`oc.data.$\{k} !== n.value;\`)) {
-                eval(\`oc.data.$\{k} = n.value;\`);
-                oc.update(k, ev);
+            const k = o.flags.bind;
+            const evl = o.getContext({
+              position: o.position,
+              getText: k,
+            });
+            if (evl !== n.value) {
+              const ctx = o.getContext({
+                position: o.position,
+              });
+              const values = Object.values(ctx);
+              const keys = Object.keys(ctx);
+              const fn = new Function(...keys, 'n', \`this.$\{k} = n.value;\`)
+              fn.bind(oc.data)(...values, n);
+              oc.update(k, ev);
+            }
+          });
+          n.addEventListener('keyup', (ev) => {
+            const k = o.flags.bind;
+            const evl = o.getContext({
+              position: o.position,
+              getText: k,
+            });
+            if (evl !== n.value) {
+              const ctx = o.getContext({
+                position: o.position,
+              });
+              const values = Object.values(ctx);
+              const keys = Object.keys(ctx);
+              const fn = new Function(...keys, 'n', \`this.$\{k} = n.value;\`)
+              fn.bind(oc.data)(...values, n);
+              oc.update(k, ev);
             }
           });
           n.addEventListener('change', (ev) => {
-            const k = o.flags.bind
-            if (eval(\`oc.data.$\{k} !== n.value;\`)) {
-                eval(\`oc.data.$\{k} = n.value;\`);
-                oc.update(k, ev);
+            const k = o.flags.bind;
+            const evl = o.getContext({
+              position: o.position,
+              getText: k,
+            });
+            if (evl !== n.value) {
+              const ctx = o.getContext({
+                position: o.position,
+              });
+              const values = Object.values(ctx);
+              const keys = Object.keys(ctx);
+              const fn = new Function(...keys, 'n', \`this.$\{k} = n.value;\`)
+              fn.bind(oc.data)(...values, n);
+              oc.update(k, ev);
             }
           });
           oc.react.push((dependency) => r(n, dependency));
