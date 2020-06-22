@@ -36,6 +36,22 @@ interface OgoneOptions {
    * @description directory for production
    */
   build?: string;
+  /**
+   * @property serve
+   * @description should ogone serve after building the application
+   */
+  serve?: boolean;
+  /**
+   * @property compileCSS
+   * @description should ogone compile the css inside the static folder
+   * requires static folder to be provided
+   */
+  compileCSS?: boolean;
+  /**
+   * @property minifyCSS
+   * @description should ogone minify the CSS ? including multiple spaces, tabs erased, and new lines erased
+   */
+  minifyCSS?: boolean;
 }
 type OgoneAPIType = {
   /**
@@ -82,18 +98,28 @@ async function run(opts: OgoneOptions): Promise<void> {
         `[Ogone] build: can\'t find given path.\n\tinput: ${opts.build}`,
       );
     }
+    const stats = Deno.statSync(opts.build);
+    if (stats.isFile) {
+      throw new Error(`[Ogone] build: build destination should be a directory. \n\tinput: ${opts.build}`);
+    }
     //start compilation of o3 files
     EnvServer.setEnv("production");
     EnvServer.compile(Ogone.config.entrypoint, true)
       .then(async () => {
         //start compilation of o3 files
         const b = await EnvServer.getBuild();
-        Deno.writeTextFileSync(opts.build as string, b);
+        const application = `${opts.build}/index.html`;
+        Deno.writeTextFileSync(application, b);
         console.warn(
           "[Ogone] your application successfully rendered.",
-          opts.build,
+          application,
         );
-        Deno.exit();
+        if (opts.serve) {
+          EnvServer.serve(application, server, opts.port);
+        } else {
+          server.close();
+          Deno.exit();
+        }
       });
   } else {
     //start compilation of o3 files

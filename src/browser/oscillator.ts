@@ -2,8 +2,7 @@ import { OgoneBrowser } from "../../types/ogone.ts";
 let Ogone: OgoneBrowser;
 function _OGONE_BROWSER_CONTEXT() {
   // @ts-ignore
-  const contexteAudio =
-    new (window.AudioContext || window.webkitAudioContext)();
+  const contexteAudio = new (window.AudioContext || window.webkitAudioContext)();
   // create Oscillator node
   Ogone.sound = (opts: any) => {
     if (Ogone.oscillator) return;

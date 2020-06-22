@@ -10,6 +10,7 @@ import asyncMethods from "./async/index.ts";
 import utilsMethods from "./utils/index.ts";
 import Env from "../../lib/env/Env.ts";
 import { Bundle, Component, XMLNodeDescription } from "./../../.d.ts";
+import contextMethods from "./utils/context.ts";
 
 export default function getWebComponent(
   bundle: Bundle,
@@ -97,6 +98,9 @@ export default function getWebComponent(
     // mainly getters and setters
     ${utilsMethods(component, node, opts)}
 
+    // setContext and setHMRContext
+    ${contextMethods(component, node, opts)}
+
     connectedCallback(rendered) {
       // set position of the template/component
       this.setPosition();
@@ -163,61 +167,6 @@ export default function getWebComponent(
         o.levelInParentComponent] = o.index;
       o.component.updateProps();
     }
-    setContext() {
-      const o = this.ogone;
-      const oc = o.component;
-      if (${isTemplate}) {
-        oc.key = o.key;
-        oc.dependencies = o.dependencies;
-        if (o.parentComponent) {
-          oc.parent = o.parentComponent;
-          oc.parent.childs.push(oc);
-        }
-        if (Ogone.contexts[o.parentCTXId]) {
-          const gct = Ogone.contexts[o.parentCTXId].bind(o.parentComponent.data);
-          oc.parentContext = gct;
-          o.getContext = gct;
-        }
-      } else {
-        o.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(o.component.data);
-      }
-      ${
-    isStore
-      ? `
-        oc.namespace = this.getAttribute('namespace') || null;
-        oc.parent.store[oc.namespace] = oc;
-      `
-      : ""
-  }
-    }
-    setHMRContext() {
-      const o = this.ogone;
-      const oc = o.component;
-      // register to hmr
-        ${isTemplate ? "Ogone.run['${component.uuid}'].push(oc);" : ""}
-        Ogone.mod[this.extends].push((pragma) => {
-          Ogone.render[this.extends] = eval(pragma);
-          ${
-    !isTemplate ? "return true;" : `
-            o.render = Ogone.render[this.extends];
-            const invalidatedNodes = o.nodes.slice();
-            this.renderingProcess();
-            invalidatedNodes.forEach((n, i) => {
-              if (n.ogone) {
-                if (i === 0) n.firstNode.replaceWith(...o.nodes);
-                n.destroy();
-              } else {
-                if (i === 0) n.replaceWith(...o.nodes);
-                n.remove();
-              }
-            });
-            oc.renderTexts(true);
-            return true;
-
-            `
-  }
-        });
-    }
     setNodes() {
       const o = this.ogone;
       ${
@@ -238,8 +187,7 @@ export default function getWebComponent(
       }
     }
     renderContext() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       const key = o.key;
       const length = o.getContext({ getLength: true, position: o.position });
       o.component${isTemplate ? ".parent" : ""}.render(this, {
@@ -285,8 +233,7 @@ export default function getWebComponent(
       this.remove();
     }
     render() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       if (${isTemplate}) {
         // update Props before replace the element
         oc.updateProps();
@@ -324,7 +271,7 @@ export default function getWebComponent(
     definition =
       `customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
   }
-  if (Env.env === "development") {
+  if (!isProduction) {
     // for HMR
     // asking if the customElement is already defined
     definition = `

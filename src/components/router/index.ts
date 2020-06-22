@@ -9,8 +9,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
   }
   return `
     triggerLoad() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       const rr = Ogone.router.react;
 
       oc.runtime(0, o.historyState);
@@ -46,8 +45,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
       return true;
     }
     setActualRouterTemplate() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
 
       oc.routes = o.routes;
       oc.locationPath = o.locationPath;
@@ -101,8 +99,7 @@ export default function routerMethods(component: any, node: any, opts: any) {
       }
     }
     renderRouter() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
 
       // update Props before replacement of the element
       oc.updateProps();

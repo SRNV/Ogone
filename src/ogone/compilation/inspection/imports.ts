@@ -40,8 +40,7 @@ export default function oRenderImports(bundle: Bundle) {
         }
         if (tokens.body && tokens.body.use) {
           // @ts-ignore
-          Object.values(tokens.body.use).forEach(
-            (item: { as: string; path: string }) => {
+          Object.values(tokens.body.use).forEach((item: any) => {
               const pathComponent = item.path;
               const tagName = item.as.replace(/['"`]/gi, "");
               switch (true) {

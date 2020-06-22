@@ -3,6 +3,8 @@ import { HCR } from "../hmr/index.ts";
 import Ogone from "./../../src/ogone/index.ts";
 import compile from "./../../src/ogone/compilation/index.ts";
 import { Bundle, Environment } from "./../../.d.ts";
+import { existsSync } from "../../utils/exists.ts";
+import { join } from 'https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts';
 export default abstract class Env {
   private static bundle: Bundle;
   public static env: Environment = "development";
@@ -77,7 +79,7 @@ export default abstract class Env {
       const scriptDev = `
         const ___perfData = window.performance.timing;
 
-        ${browserBuild}
+        ${browserBuild(Env.env === 'production')}
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.render.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
@@ -138,18 +140,50 @@ export default abstract class Env {
       }))[path].source
       : text;
   }
+  private static recursiveRead(opts: { entrypoint: string, onContent: Function }) : void{
+    if (!existsSync(opts.entrypoint)) {
+      throw new Error('[Ogone] can\'t find entrypoint for Env.recursiveRead');
+    }
+    const stats = Deno.statSync(opts.entrypoint);
+    if (stats.isFile) {
+      const content = Deno.readTextFileSync(opts.entrypoint);
+      opts.onContent(opts.entrypoint, content);
+    } else if (stats.isDirectory) {
+      const dir = Deno.readDirSync(opts.entrypoint);
+      for (let p of dir) {
+        const path = join(opts.entrypoint, p.name);
+        Env.recursiveRead({
+          entrypoint: path,
+          onContent: opts.onContent,
+        });
+      }
+    }
+  }
   /**
    * get the output of the application
+   * including HTML CSS and JS
    */
   public static async getBuild() {
+    let staticStyle = '';
+    if (Ogone.config.static && Ogone.config.compileCSS) {
+      Env.recursiveRead({
+        entrypoint: Ogone.config.static,
+        onContent: (file: string, content: string) => {
+          if (file.endsWith('.css')) {
+            console.warn('[Ogone] loading css: ', file);
+            staticStyle += content;
+          }
+        }
+      });
+    }
     const stylesProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].style.join("\n")).join("\n");
+    const compiledStyle = Ogone.config.minifyCSS ? (staticStyle+stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : (staticStyle+stylesProd);
+    const style = `<style>${(compiledStyle)}</style>`;
     const esmProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].esmExpressionsProd).join("\n");
-
-    const style = `<style>${(stylesProd)}</style>`;
     const rootComponent = Env.bundle.components.get(Ogone.config.entrypoint);
     if (rootComponent) {
       if (
@@ -164,7 +198,7 @@ export default abstract class Env {
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `
         ${esmProd}
-        ${browserBuild}
+        ${browserBuild(Env.env === 'production')}
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.render.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
@@ -187,8 +221,7 @@ export default abstract class Env {
       });
       // in production DOM has to be
       // <template is="${rootComponent.uuid}-nt"></template>
-      const DOMDev = ` `;
-      const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>;`;
+      const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>`;
       let head = `
           ${style}
           ${Ogone.config.head || ""}

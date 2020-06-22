@@ -6,8 +6,7 @@ export default function setEventsMethod(
   return `
     setEvents(){
       if (!this.ogone.flags) return;
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       const position = this.isComponent ? oc.positionInParentComponent : o.position;
       const c = this.isComponent ? oc.parent : oc;
       for (let node of o.nodes) {
