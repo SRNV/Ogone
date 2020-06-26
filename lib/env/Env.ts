@@ -174,7 +174,10 @@ export default abstract class Env {
    * including HTML CSS and JS
    */
   public static async getBuild() {
+    throw new Error('[Ogone: 0.16.0-rc.5] build is not ready yet, until Deno\'s compiler isn\'t fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423');
+    /*
     let staticStyle = '';
+    // TODO WAIT FOR A FIX OF COMPILER API
     if (Ogone.config.static && Ogone.config.compileCSS) {
       Env.recursiveRead({
         entrypoint: Ogone.config.static,
@@ -239,5 +242,6 @@ export default abstract class Env {
     } else {
       throw new Error("[Ogone] no root-component found");
     }
+    */
   }
 }
