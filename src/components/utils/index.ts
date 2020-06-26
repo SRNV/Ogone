@@ -16,8 +16,7 @@ export default function utilsMethods(
     : "component: this.ogone.component,";
   return `
     get context() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       if (!oc.contexts.for[o.key]) {
         oc.contexts.for[o.key] = {
           list: [this],
@@ -78,7 +77,7 @@ export default function utilsMethods(
     isTemplate
       ? `return '${component.uuid}-nt';`
       : `return '${component.uuid}-${node.id}';`
-    }
+  }
     }
     get isComponent() {
       return ${isTemplate};

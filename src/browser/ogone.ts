@@ -1,4 +1,4 @@
-import { OgoneBrowser } from '../../types/ogone.ts';
+import { OgoneBrowser } from "../../types/ogone.ts";
 let _this: OgoneBrowser;
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {
@@ -68,13 +68,14 @@ function _OGONE_BROWSER_CONTEXT() {
       const h = document.createElement("h4");
       const errorPin = document.createElement("div");
       // set the text
-      h.innerText = `[Ogone] Error ${errorId}: ${errorType || "Undefined Type"}`;
+      h.innerText = `[Ogone] Error ${errorId}: ${errorType ||
+        "Undefined Type"}`;
       code.innerText = `${message.trim()}`;
       stack.innerText = `${
         // @ts-ignore
         errorObject && errorObject.stack
-        // @ts-ignore
-          ? errorObject.stack.replace(message, "")
+          ? // @ts-ignore
+            errorObject.stack.replace(message, "")
           : ""
       }`;
       // check if stack is empty or not
@@ -145,11 +146,13 @@ function _OGONE_BROWSER_CONTEXT() {
       _this.errorPanel.append(errorPin);
       _this.errorPanel.style.pointerEvents = "scroll";
       //  append only if it's not in the document
-      !_this.errorPanel.isConnected ? document.body.append(_this.errorPanel) : [];
+      !_this.errorPanel.isConnected
+        ? document.body.append(_this.errorPanel)
+        : [];
     },
   };
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, 'this')
-  .replace('function _OGONE_BROWSER_CONTEXT() {', '')
-  .slice(0, -1)
+  .replace(/_this/gi, "this")
+  .replace("function _OGONE_BROWSER_CONTEXT() {", "")
+  .slice(0, -1);

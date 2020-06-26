@@ -25,6 +25,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
   <div class="logo">
     <async-logo-el --router-go="'/'"></async-logo-el>
   </div>
+  <div --router-dev-tool class="open-dev-tool"> Dev </div>
   <menu-content />
 </div>
 <router-component name="new" />
@@ -34,6 +35,18 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
 <style>
   h1, h2, h3, h4 {
     color: #193b48;
+  }
+  .open-dev-tool {
+    display: inline-flex;
+    background: var(--o-header);
+    height: 100%;
+    vertical-align: middle;
+    align-items: center;
+    padding: 23px;
+    text-transform: capitalize;
+    color: #afafaf;
+    cursor: pointer;
+    user-select: none;
   }
   .logo {
     flex: 2;

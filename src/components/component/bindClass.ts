@@ -11,8 +11,7 @@ export default function bindClassMethod(
   }
   return `
     bindClass() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       if (!o.flags || !o.flags.class) return;
       function r(n) {
         const vl = o.getContext({

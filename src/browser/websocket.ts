@@ -1,20 +1,20 @@
 //@ts-nocheck
-import { OgoneBrowser } from '../../types/ogone.ts';
+import { OgoneBrowser } from "../../types/ogone.ts";
 
-let Ogone:OgoneBrowser;
+let Ogone: OgoneBrowser;
 function _OGONE_BROWSER_CONTEXT() {
   function hmrSound() {
     Ogone.sound({
       duration: 15,
       volume: 0.05,
       hz: 40,
-      type: 'square',
+      type: "square",
       time: 0,
       onended: () => {
         Ogone.sound({
           duration: 30,
           volume: 0.05,
-          type: 'sine',
+          type: "sine",
           hz: Math.round(40 * 1.5),
           time: 2,
         });
@@ -95,10 +95,12 @@ function _OGONE_BROWSER_CONTEXT() {
     }
   };
   // @ts-ignore
-  const ws = new WebSocket(`ws://localhost:9085/`);
+  const ws = new WebSocket(`ws://localhost:3487/`);
 
   ws.onmessage = (msg) => {
-    const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(msg.data);
+    const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(
+      msg.data,
+    );
     if (type === "javascript") {
       Ogone.hmr(url).then(() => {
         console.warn("[Ogone] hmr:", url);
@@ -136,7 +138,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     if (type === "runtime") {
       const r = eval(runtime);
-      Ogone.hmrRuntime(uuid, (r || function() {})).then(() => {
+      Ogone.hmrRuntime(uuid, (r || function () {})).then(() => {
         hmrSound();
         Ogone.infos({
           message: `[HMR] component updated: ${uuid}`,
@@ -152,7 +154,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }, 1000);
   };
   Ogone.showPanel = (panelName, time) => {
-    const panel = Ogone[panelName+'Panel'];
+    const panel = Ogone[panelName + "Panel"];
     if (panel) {
       document.body.append(panel);
       if (time) {
@@ -165,31 +167,31 @@ function _OGONE_BROWSER_CONTEXT() {
   };
   Ogone.infos = (opts) => {
     if (!Ogone.infosPanel) {
-      const container = document.createElement('div');
-      container.style.position = 'fixed';
-      container.style.opacity = '0.85';
-      container.style.bottom = '0px';
-      container.style.left = '0px';
-      container.style.background = 'var(--o-header, #333333)';
-      container.style.padding = '5px';
-      container.style.paddingRight = '15px';
-      container.style.width = 'max-content';
-      container.style.color = 'var(--o-grey, #cecece)';
-      container.style.fontSize = '10pt';
-      container.style.fontFamily = 'sans-serif';
-      container.style.borderLeft = '3px solid var(--o-secondary, #61c3aa)';
-      container.style.zIndex = '400000';
-      const p = document.createElement('p');
+      const container = document.createElement("div");
+      container.style.position = "fixed";
+      container.style.opacity = "0.85";
+      container.style.bottom = "0px";
+      container.style.left = "0px";
+      container.style.background = "var(--o-header, #333333)";
+      container.style.padding = "5px";
+      container.style.paddingRight = "15px";
+      container.style.width = "max-content";
+      container.style.color = "var(--o-grey, #cecece)";
+      container.style.fontSize = "10pt";
+      container.style.fontFamily = "sans-serif";
+      container.style.borderLeft = "3px solid var(--o-secondary, #61c3aa)";
+      container.style.zIndex = "400000";
+      const p = document.createElement("p");
       Ogone.infosPanel = container;
       Ogone.infosPanel.p = p;
     }
     const { p } = Ogone.infosPanel;
     p.innerHTML = opts.message;
     Ogone.infosPanel.innerHTML = p.outerHTML;
-    Ogone.showPanel('infos', 2000);
+    Ogone.showPanel("infos", 2000);
   };
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, 'this')
-  .replace('function _OGONE_BROWSER_CONTEXT() {', '')
-  .slice(0, -1)
+  .replace(/_this/gi, "this")
+  .replace("function _OGONE_BROWSER_CONTEXT() {", "")
+  .slice(0, -1);

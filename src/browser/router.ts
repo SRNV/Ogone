@@ -1,6 +1,6 @@
-import { OgoneBrowser } from '../../types/ogone.ts';
+import { OgoneBrowser } from "../../types/ogone.ts";
 
-let Ogone:OgoneBrowser;
+let Ogone: OgoneBrowser;
 function _OGONE_BROWSER_CONTEXT() {
   Ogone.router = {
     react: [],
@@ -24,6 +24,6 @@ function _OGONE_BROWSER_CONTEXT() {
   };
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, 'this')
-  .replace('function _OGONE_BROWSER_CONTEXT() {', '')
-  .slice(0, -1)
+  .replace(/_this/gi, "this")
+  .replace("function _OGONE_BROWSER_CONTEXT() {", "")
+  .slice(0, -1);

@@ -69,7 +69,9 @@ Deno.test("- domparser can parse autoclosing elements", () => {
 });
 Deno.test("- domparser can parse nextElementSibling/ previousElementSibling", () => {
   const root = domparse(`<div></div><img/><span></span>`);
-  if (!root  || !root.childNodes || !root.childNodes[0]) fail("no element parsed");
+  if (!root || !root.childNodes || !root.childNodes[0]) {
+    fail("no element parsed");
+  }
   if (root) {
     const [div, img, span] = root.childNodes;
     assertEquals(div.tagName, "div");
@@ -94,13 +96,13 @@ Deno.test("- domparser can parse Textnodes", () => {
     const [a, span, node] = root.childNodes;
     const [text] = span.childNodes;
     assertEquals(a.rawText, "a");
-    assertEquals(span.rawText, '');
+    assertEquals(span.rawText, "");
     assertEquals(node.rawText, "node");
     assertEquals(span.nodeType, 1);
     assertEquals(text.nodeType, 3);
     assertEquals(text.rawText, "< text >");
   }
- });
+});
 
 Deno.test("- domparser ignore comments", () => {
   const root = domparse(`<!-- comment -->`);

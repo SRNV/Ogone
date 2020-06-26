@@ -1,13 +1,13 @@
 import SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
 import { existsSync } from "../../../../utils/exists.ts";
 import domparse from "../../../../lib/dom-parser/index.ts";
-import { Bundle, XMLNodeDescription } from '../../../../.d.ts';
+import { Bundle, XMLNodeDescription } from "../../../../.d.ts";
 
 const uuid: SUI = new SUI({
   length: 5,
   shuffle: false,
   debug: false,
-  dictionary: ['a', 'b', 'x', 'y', 'z', 'o', 'r', 's', 'n', 'v', '3', '5'],
+  dictionary: ["a", "b", "x", "y", "z", "o", "r", "s", "n", "v", "3", "5"],
 });
 export default function oRender(bundle: Bundle) {
   bundle.files.forEach((file, i) => {
@@ -25,7 +25,7 @@ export default function oRender(bundle: Bundle) {
           data: {},
           style: [],
           scripts: {
-            runtime: 'function(){};',
+            runtime: "function(){};",
           },
           imports: {},
           flags: [],

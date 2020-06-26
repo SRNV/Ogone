@@ -1,6 +1,9 @@
-import { OnodeComponent } from './component.ts';
+import { OnodeComponent } from "./component.ts";
 export interface NestedOgoneParameters {
   key: string;
+  parentNodeKey: string;
+  name?: string;
+  tree?: string | string[];
   index: number;
   originalNode: boolean;
   level: number;
@@ -26,6 +29,12 @@ export interface Template {
   context: any;
   replaceWith: any;
   nextElementSibling: any;
-  insertAdjacentElement(position: 'afterend' | 'beforeend' | 'afterbegin' | 'beforebegin', node: any): void;
-  insertElement(position: 'afterend' | 'beforeend' | 'afterbegin' | 'beforebegin', node: any): void;
+  insertAdjacentElement(
+    position: "afterend" | "beforeend" | "afterbegin" | "beforebegin",
+    node: any,
+  ): void;
+  insertElement(
+    position: "afterend" | "beforeend" | "afterbegin" | "beforebegin",
+    node: any,
+  ): void;
 }

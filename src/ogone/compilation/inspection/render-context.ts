@@ -1,5 +1,5 @@
-import { Bundle } from '../../../../.d.ts';
-import { XMLNodeDescription } from '../../../../.d.ts';
+import { Bundle } from "../../../../.d.ts";
+import { XMLNodeDescription } from "../../../../.d.ts";
 
 export default function oRenderContext(bundle: Bundle, keyComponent: string) {
   const component = bundle.components.get(keyComponent);
@@ -44,7 +44,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           }
         }
       }
-      if (node.ifelseBlock && node.attributes && !node.attributes['--for']) {
+      if (node.ifelseBlock && node.attributes && !node.attributes["--for"]) {
         node.hasFlag = true;
         const { ifFlag, elseFlag, elseIf, main } = node.ifelseBlock;
         const isElse = elseFlag[node.id];
@@ -93,10 +93,10 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           } else if (!!isElseIf) {
             return `!(${main}) && (${isElseIf})`;
           } else if (!!isElse) {
-            return `!(${main}) && !(${allElseIf.join(' && ')})`
+            return `!(${main}) && !(${allElseIf.join(" && ")})`;
           }
         }
-        return '';
+        return "";
       }
       const contextScript = node.hasFlag || !node.tagName && node.nodeType === 1
         ? `
@@ -116,9 +116,13 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
 
           ${script.value || ""}
           ${contextIf ? contextIf : ""}
-          ${getLength ? getLength({
-            filter: renderConditions(node),
-          }) : ""}
+          ${
+          getLength
+            ? getLength({
+              filter: renderConditions(node),
+            })
+            : ""
+        }
           if (GET_TEXT) {
             try {
               return eval('('+GET_TEXT+')');
@@ -131,7 +135,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
         };
       `
         : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
-        bundle.contexts.push(contextScript);
+      bundle.contexts.push(contextScript);
     });
   }
 }

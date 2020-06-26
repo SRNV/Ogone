@@ -1,5 +1,9 @@
 import oRenderForFlag from "./render-for-flag.ts";
-import { Bundle, XMLNodeDescription, LegacyDescription } from '../../../../.d.ts';
+import {
+  Bundle,
+  XMLNodeDescription,
+  LegacyDescription,
+} from "../../../../.d.ts";
 
 export default function oRenderDOM(
   bundle: Bundle,
@@ -47,8 +51,8 @@ export default function oRenderDOM(
     if (legacy) {
       contextLegacy = Object.assign(legacy, {});
     }
-    if (node.attributes['--for']) {
-      const v = node.attributes['--for']
+    if (node.attributes["--for"]) {
+      const v = node.attributes["--for"];
       // get the flags
       const oForFlag = oRenderForFlag(v as string);
       const { item, index, array } = oForFlag;
@@ -80,7 +84,7 @@ export default function oRenderDOM(
           ${item} = (_____a_2)[${index}];
           if (GET_LENGTH) {
             return (_____a_2).length;
-          }`
+          }`;
         };
         legacy.arrayName = array;
         legacy.getLength = getLengthScript;
@@ -116,7 +120,11 @@ export default function oRenderDOM(
             oRenderDOM(bundle, keyComponent, el, {
               ...contextLegacy,
               ctx: { ...contextLegacy.ctx },
-              declarationScript: [...(contextLegacy && contextLegacy.declarationScript ? contextLegacy.declarationScript : [])],
+              declarationScript: [
+                ...(contextLegacy && contextLegacy.declarationScript
+                  ? contextLegacy.declarationScript
+                  : []),
+              ],
               callbackDeclaration: "",
               // @ts-ignore
               limit: contextLegacy.limit + 1,
@@ -125,7 +133,11 @@ export default function oRenderDOM(
         });
     }
     if (contextLegacy) {
-      const value = `${contextLegacy.declarationScript ? contextLegacy.declarationScript.join("") : ''} `;
+      const value = `${
+        contextLegacy.declarationScript
+          ? contextLegacy.declarationScript.join("")
+          : ""
+      } `;
       contextLegacy.script = {
         value,
         node,

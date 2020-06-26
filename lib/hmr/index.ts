@@ -5,11 +5,11 @@ import {
 import compile from "./../../src/ogone/compilation/index.ts";
 import Env from "../env/Env.ts";
 import Ogone from "./../../src/ogone/index.ts";
-import { Bundle, Component, XMLNodeDescription } from './../../.d.ts';
+import { Bundle, Component, XMLNodeDescription } from "./../../.d.ts";
 
 let ws: WebSocket | null = null;
 // open the websocket
-const wss: WebSocketServer = new WebSocketServer(9085);
+const wss: WebSocketServer = new WebSocketServer(3487);
 //
 let newApplicationCompilation: boolean = false;
 // when client open the connection
@@ -46,7 +46,11 @@ const componentRegistry: any = {
   components: {},
   lengthOfNodes: {},
 };
-function getPragma(bundle: Bundle, component: Component, node: XMLNodeDescription): string {
+function getPragma(
+  bundle: Bundle,
+  component: Component,
+  node: XMLNodeDescription,
+): string {
   if (node.pragma) {
     return node.pragma(
       component.uuid,
@@ -64,7 +68,7 @@ function getPragma(bundle: Bundle, component: Component, node: XMLNodeDescriptio
       },
     );
   }
-  return 'undefined';
+  return "undefined";
 }
 function startSavingNodesDNA(component: any, registry: any, node: any) {
   const isTemplate = node.tagName === null && node.nodeType === 1;
@@ -101,15 +105,9 @@ async function startNodeCompareDNA(opts: any) {
   );
   if (!registry.nodes[uuid] && pragma) {
     const newPragma = mergeComponentsUUIDs(pragma, opts);
-    ctx = ctx
-      ? mergeComponentsUUIDs(ctx, opts)
-      : "";
-    render = render
-      ? mergeComponentsUUIDs(render, opts)
-      : "";
-    klass = klass
-      ? mergeComponentsUUIDs(klass, opts)
-      : "";
+    ctx = ctx ? mergeComponentsUUIDs(ctx, opts) : "";
+    render = render ? mergeComponentsUUIDs(render, opts) : "";
+    klass = klass ? mergeComponentsUUIDs(klass, opts) : "";
     customElements = customElements
       ? mergeComponentsUUIDs(customElements, opts)
       : "";
@@ -142,15 +140,9 @@ async function startNodeCompareDNA(opts: any) {
   }
   if (registry.nodes[uuid] !== node.dna && pragma) {
     const newPragma = mergeComponentsUUIDs(pragma, opts);
-    ctx = ctx
-      ? mergeComponentsUUIDs(ctx, opts)
-      : "";
-    render = render
-      ? mergeComponentsUUIDs(render, opts)
-      : "";
-    klass = klass
-      ? mergeComponentsUUIDs(klass, opts)
-      : "";
+    ctx = ctx ? mergeComponentsUUIDs(ctx, opts) : "";
+    render = render ? mergeComponentsUUIDs(render, opts) : "";
+    klass = klass ? mergeComponentsUUIDs(klass, opts) : "";
     customElements = customElements
       ? mergeComponentsUUIDs(customElements, opts)
       : "";
@@ -262,7 +254,8 @@ function protoHasChanged(
 ): boolean {
   if (!newComponent.scripts.runtime) return false;
   const { runtime } = newComponent.scripts;
-  const runtimeHasChanged = componentRegistry.runtimes[component.uuid] !== runtime;
+  const runtimeHasChanged =
+    componentRegistry.runtimes[component.uuid] !== runtime;
   if (runtimeHasChanged && ws) {
     ws.send(JSON.stringify({
       uuid: component.uuid,
@@ -281,10 +274,14 @@ function mergeComponentsUUIDs(txt: string, opts: any) {
   while (result.indexOf(newComponent.uuid) > -1) {
     result = result.replace(newComponent.uuid, component.uuid);
   }
-  let comp: any = comps.find((entry: any) => result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0]))
-  let oldComp: any = bundle.components.get((comp || [''])[0]);
+  let comp: any = comps.find((entry: any) =>
+    result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0])
+  );
+  let oldComp: any = bundle.components.get((comp || [""])[0]);
   while (comp) {
-    comp = comps.find((entry: any) => result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0]))
+    comp = comps.find((entry: any) =>
+      result.indexOf(entry[1].uuid) > -1 && bundle.components.get(entry[0])
+    );
     if (comp && oldComp) {
       oldComp = bundle.components.get(comp[0]);
       result = result.replace(comp[1].uuid, oldComp.uuid);

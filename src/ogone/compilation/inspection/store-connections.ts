@@ -1,4 +1,4 @@
-import { Bundle } from '../../../../.d.ts';
+import { Bundle } from "../../../../.d.ts";
 
 import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
 export default function getStoreConnections(bundle: Bundle) {

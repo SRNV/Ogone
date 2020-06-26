@@ -11,16 +11,23 @@ import asyncMethods from "./async/index.ts";
 import utilsMethods from "./utils/index.ts";
 import Env from "../../lib/env/Env.ts";
 import { Bundle, Component, XMLNodeDescription } from "./../../.d.ts";
+import contextMethods from "./utils/context.ts";
 
-export default function getWebComponent(bundle: Bundle, component: Component, node: XMLNodeDescription) {
+export default function getWebComponent(
+  bundle: Bundle,
+  component: Component,
+  node: XMLNodeDescription,
+) {
   if (!component) return "";
   const isTemplate = node.tagName === null;
   const isImported = node.tagName ? component.imports[node.tagName] : false;
   const isRouter = isTemplate && component.type === "router";
   const isStore = isTemplate && component.type === "store";
   const isAsync = isTemplate && component.type === "async";
+  const isProduction = Env.env === "production";
   const isAsyncNode = !isTemplate && !isImported && node.flags &&
     node.flags.await;
+  const hasDevtool = Env.devtool === true;
   const opts = {
     isTemplate,
     isAsync,
@@ -28,20 +35,26 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
     isStore,
     isAsyncNode,
     isImported,
+    isProduction,
+    hasDevtool,
   };
-  const componentPragma = node.pragma ? node.pragma(
-    component.uuid,
-    true,
-    Object.keys(component.imports),
-    (tagName: string): string | null => {
-      if (component.imports[tagName]) {
-        const newcomponent = bundle.components.get(component.imports[tagName]);
-        if (!newcomponent) return null;
-        return newcomponent.uuid;
-      }
-      return null;
-    },
-  ) : '';
+  const componentPragma = node.pragma
+    ? node.pragma(
+      component.uuid,
+      true,
+      Object.keys(component.imports),
+      (tagName: string): string | null => {
+        if (component.imports[tagName]) {
+          const newcomponent = bundle.components.get(
+            component.imports[tagName],
+          );
+          if (!newcomponent) return null;
+          return newcomponent.uuid;
+        }
+        return null;
+      },
+    )
+    : "";
   // no definition for imported component
   if (isImported) {
     return "";
@@ -92,7 +105,10 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
     // mainly getters and setters
     ${utilsMethods(component, node, opts)}
 
-    connectedCallback(rendered) {
+    // setContext and setHMRContext
+    ${contextMethods(component, node, opts)}
+
+    connectedCallback() {
       // set position of the template/component
       this.setPosition();
 
@@ -100,7 +116,7 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
       // set the context of the node
       this.setContext();
 
-      this.setHMRContext();
+      ${!isProduction ? "this.setHMRContext();" : ""}
 
       // parse the route that match with location.pathname
       ${isRouter ? "this.setActualRouterTemplate()" : ""}
@@ -108,21 +124,25 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
       // set the props required by the node
       ${
     isTemplate ? "this.setProps(); this.ogone.component.updateProps();" : ""
-    }
+  }
       this.renderingProcess();
 
       // now ... just render ftw!
-      switch(true) {
-        case ${isRouter}: this.renderRouter(); break;
-        case ${isStore}: this.renderStore(); break;
-        case ${isAsync}: this.renderAsync(); break;
-        default: this.render(); break;
-      }
+      ${
+    isRouter
+      ? "this.renderRouter();"
+      : isStore
+      ? "this.renderStore();"
+      : isAsync
+      ? "this.renderAsync();"
+      : "this.render();"
+  }
     }
     renderingProcess() {
       // use the jsx renderer only for templates
       this.setNodes();
-
+      // render DevTools
+      ${hasDevtool ? 'this.setDevToolContext();': ''}
       // set Async context for Async nodes
       ${isAsyncNode ? "this.setNodeAsyncContext();" : ""}
       // use the previous jsx and push the result into ogone.nodes
@@ -158,77 +178,44 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
         o.levelInParentComponent] = o.index;
       o.component.updateProps();
     }
-    setContext() {
-      const o = this.ogone;
-      const oc = o.component;
-      if (${isTemplate}) {
-        oc.key = o.key;
-        oc.dependencies = o.dependencies;
-        if (o.parentComponent) {
-          oc.parent = o.parentComponent;
-          oc.parent.childs.push(oc);
-        }
-        if (Ogone.contexts[o.parentCTXId]) {
-          const gct = Ogone.contexts[o.parentCTXId].bind(o.parentComponent.data);
-          oc.parentContext = gct;
-          o.getContext = gct;
-        }
-      } else {
-        o.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(o.component.data);
-      }
-      if (${isStore}) {
-        oc.namespace = this.getAttribute('namespace') || null;
-        oc.parent.store[oc.namespace] = oc;
-      }
-    }
-    setHMRContext() {
-      const o = this.ogone;
-      const oc = o.component;
-      // register to hmr
-        if (${isTemplate}) Ogone.run['${component.uuid}'].push(oc);
-        Ogone.mod[this.extends].push((pragma) => {
-          Ogone.render[this.extends] = eval(pragma);
-          if (${!isTemplate}) {
-            return true;
-          }
-          o.render = Ogone.render[this.extends];
-          const invalidatedNodes = o.nodes.slice();
-          this.renderingProcess();
-          invalidatedNodes.forEach((n, i) => {
-            if (n.ogone) {
-              if (i === 0) n.firstNode.replaceWith(...o.nodes);
-              n.destroy();
-            } else {
-              if (i === 0) n.replaceWith(...o.nodes);
-              n.remove();
-            }
-          });
-          oc.renderTexts(true);
-          return true;
-        });
-    }
     setNodes() {
       const o = this.ogone;
-      if (${isTemplate}) {
-        // using array.from to copy NodeList that will get empty.
-        // so we need to keep the childnodes
-        o.nodes = Array.from(o.render(o.component).childNodes);
-      } else {
-        o.nodes = [o.render(o.component, o.position, o.index, o.level)];
-      }
+      ${
+    isTemplate
+      ? // using array.from to copy NodeList that will get empty.
+      // so we need to keep the childnodes
+        "o.nodes = Array.from(o.render(o.component).childNodes);"
+      : "o.nodes = [o.render(o.component, o.position, o.index, o.level)];"
+  }
+    // set parentKey to template
+    ${hasDevtool ? `
+    // TODO PERFORMANCE OPTIMISATION
+    function recursiveAssignement(nodes) {
+      nodes.filter((n) => n.ogone)
+        .forEach((n) => {
+          n.ogone.parentNodeKey = o.key;
+        });
+      nodes.forEach((n) => {
+        if (n.childNodes.length) {
+          recursiveAssignement(Array.from(n.childNodes))
+        }
+      })
     }
+      recursiveAssignement(o.nodes)
+
+    `: ''}
+  }
     setDeps() {
       const o = this.ogone;
       if (o.originalNode && o.getContext) {
           o.component${
     isTemplate ? ".parent" : ""
-    }.react.push(() => this.renderContext());
+  }.react.push(() => this.renderContext());
           this.renderContext();
       }
     }
     renderContext() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       const key = o.key;
       const length = o.getContext({ getLength: true, position: o.position });
       o.component${isTemplate ? ".parent" : ""}.render(this, {
@@ -263,15 +250,21 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
         n.removeNodes().remove();
       });
       this.removeNodes();
-      if (${isTemplate}) {
+      ${
+    isTemplate
+      ? `
         this.ogone.component.runtime('destroy');
         this.ogone.component.activated = false;
-      }
+        `
+      : ""
+  }
+    ${hasDevtool ? `
+      Ogone.ComponentCollectionManager.destroy(this.ogone.key);
+    `:''}
       this.remove();
     }
     render() {
-      const o = this.ogone;
-      const oc = o.component;
+      const o = this.ogone, oc = o.component;
       if (${isTemplate}) {
         // update Props before replace the element
         oc.updateProps();
@@ -280,20 +273,18 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
           this.renderSlots();
         }
         // replace the element
-        if (${isAsync}) {
-          this.context.placeholder.replaceWith(...o.nodes);
-        } else {
-          this.replaceWith(...o.nodes);
-        }
+        ${
+    isAsync
+      ? "this.context.placeholder.replaceWith(...o.nodes);"
+      : "this.replaceWith(...o.nodes);"
+  }
         // template/node is already connected
         // ask the component to evaluate the value of the textnodes
         oc.renderTexts(true);
 
         // trigger the init case of the component
         // we can pass the parameters of the router into the ctx
-        if (${!isAsync}) {
-          oc.startLifecycle(o.params, o.historyState);
-        }
+        ${!isAsync ? "oc.startLifecycle(o.params, o.historyState);" : ""}
       } else {
         if (this.childNodes.length) {
           this.renderSlots();
@@ -311,7 +302,7 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
     definition =
       `customElements.define('${component.uuid}-${node.id}', Ogone.classes['${component.uuid}-${node.id}']);`;
   }
-  if (Env.env === "development") {
+  if (!isProduction) {
     // for HMR
     // asking if the customElement is already defined
     definition = `
@@ -324,7 +315,7 @@ export default function getWebComponent(bundle: Bundle, component: Component, no
     componentPragma
       .replace(/\n/gi, "")
       .replace(/\s+/gi, " ")
-    }`;
+  }`;
   bundle.customElements.push(definition);
   bundle.render.push(render);
   return componentExtension;

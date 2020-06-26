@@ -1,4 +1,4 @@
-import { Bundle } from '../../../../.d.ts';
+import { Bundle } from "../../../../.d.ts";
 
 export default function oCleanPureRootNode(bundle: Bundle) {
   bundle.components.forEach((c) => {

@@ -1,7 +1,11 @@
 import { existsSync } from "../../../../utils/exists.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
-import { Bundle } from '../../../../.d.ts';
-function startRecursiveInspectionOfComponent(textFile: string, p: string, bundle: Bundle) {
+import { Bundle } from "../../../../.d.ts";
+function startRecursiveInspectionOfComponent(
+  textFile: string,
+  p: string,
+  bundle: Bundle,
+) {
   const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
   const tokens = jsThis(splitTextUseFirstPart, { onlyDeclarations: true });
   bundle.files.push(p);

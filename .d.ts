@@ -95,7 +95,7 @@ export interface XMLNodeDescription {
     elseFlag: {
       [k: string]: string;
     };
-    elseIf:{
+    elseIf: {
       [k: string]: string;
     };
     main: string;
@@ -112,7 +112,12 @@ export interface XMLAttrsNodeDescription {
   [key: string]: string | boolean;
 }
 
-export type DOMParserPragmaDescription = (idComponent: string, isRoot?: boolean | undefined, imports?: string[] | undefined, getId?: ((id: string) => string | null) | undefined) => string;
+export type DOMParserPragmaDescription = (
+  idComponent: string,
+  isRoot?: boolean | undefined,
+  imports?: string[] | undefined,
+  getId?: ((id: string) => string | null) | undefined,
+) => string;
 
 /**
  * can be passed as an option of a method
@@ -174,9 +179,9 @@ export interface LegacyDescription {
 }
 
 export interface TypedExpressions {
-  blocks: {[key: string] : string};
-  parentheses: {[key: string] : string};
-  setters: {[key: string] : string};
+  blocks: { [key: string]: string };
+  parentheses: { [key: string]: string };
+  setters: { [key: string]: string };
   imports: {};
   exports: {};
   require: [];

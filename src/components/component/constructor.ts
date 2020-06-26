@@ -3,7 +3,7 @@ export default function constructorMethods(
   node: any,
   opts: any,
 ): string {
-  const { isTemplate } = opts;
+  const { isTemplate, isProduction } = opts;
   let templateConstruction = "";
   if (isTemplate) {
     // save external dependencies and required props to component
@@ -16,9 +16,9 @@ export default function constructorMethods(
       component.dependencies = (${JSON.stringify(node.dependencies)});
       this.component = component;
       this.component.type = '${component.type || "component"}';
-      this.setOgone();
+      this.setOgone({ isRoot: true });
       // define runtime for hmr
-      Ogone.run['${component.uuid}'] = Ogone.run['${component.uuid}'] || [];
+      ${!isProduction ? `Ogone.run['${component.uuid}'] = Ogone.run['${component.uuid}'] || [];` : ''}
     `;
   }
   //define dependencies of the node
@@ -29,7 +29,7 @@ export default function constructorMethods(
       this.positionInParentComponent = ${isTemplate ? "[]" : null};
       ${templateConstruction}
       // define templates of hmr
-      Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];
+      ${!isProduction ? `Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];` :  ''}
     }
   `;
 }

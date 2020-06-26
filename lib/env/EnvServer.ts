@@ -10,6 +10,7 @@ import Env from "./Env.ts";
  * extends class Env
  * @method use
  * @method setBundle
+ * @method getBuild
  * @property application
  */
 export default abstract class EnvServer extends Env {
@@ -50,6 +51,44 @@ export default abstract class EnvServer extends Env {
           break;
         default:
           req.respond({ body: Env.application });
+          break;
+      }
+    }
+  }
+  public static async serve(pathToApplication: string, server: Server, port: number = 8000) {
+    if (!existsSync(pathToApplication)) {
+      throw new Error(`[Ogone] application not found. input: ${pathToApplication}`);
+    }
+    if (!pathToApplication.endsWith('.html')) {
+      throw new Error(`[Ogone] this version of Ogone only supports HTML for production. input: ${pathToApplication}`);
+    }
+    const application = Deno.readTextFileSync(pathToApplication);
+    console.warn(`[Ogone] Service running. check it here http://localhost:${port}/`);
+    for await (const req of server) {
+      const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
+      let isUrlFile: boolean = existsSync(pathToPublic);
+      switch (true) {
+        case req.url.startsWith(Ogone.config.modules):
+          const denoReqUrl = req.url.slice(1).split("?")[0];
+          req.respond({
+            body: await Env.resolveAndReadText(denoReqUrl),
+            headers: new Headers([
+              getHeaderContentTypeOf(denoReqUrl),
+              ["X-Content-Type-Options", "nosniff"],
+            ]),
+          });
+          break;
+        case isUrlFile && req.url.startsWith("/public/"):
+          req.respond({
+            body: Deno.readTextFileSync(pathToPublic),
+            headers: new Headers([
+              getHeaderContentTypeOf(req.url),
+              ["X-Content-Type-Options", "nosniff"],
+            ]),
+          });
+          break;
+        default:
+          req.respond({ body: application });
           break;
       }
     }

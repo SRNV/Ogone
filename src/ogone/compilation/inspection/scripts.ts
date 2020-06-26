@@ -3,7 +3,7 @@ import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/i
 import allowedTypes from "./rules/component-types.ts";
 import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
-import { Bundle } from '../../../../.d.ts';
+import { Bundle } from "../../../../.d.ts";
 
 export default async function oRenderScripts(bundle: Bundle): Promise<void> {
   const entries = Array.from(bundle.components.entries());
@@ -35,10 +35,14 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
           beforeCases: true,
         },
       );
-      const cases = jsThis(moduleScript.rawText as string, { parseCases: true });
+      const cases = jsThis(
+        moduleScript.rawText as string,
+        { parseCases: true },
+      );
       const { each } = ogoneScript.body.switch.before;
       // here set the cases and if the default is present in the script
-      const { cases: declaredCases, default: declaredDefault } = cases.body.switch;
+      const { cases: declaredCases, default: declaredDefault } =
+        cases.body.switch;
       let caseGate = declaredCases.length || declaredDefault
         ? `
       if (typeof _state === "string" && ![${declaredCases}].includes(_state)) {
@@ -58,27 +62,28 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       switch(_state) { ${value} }`;
       // transpile ts
       sc = (await Deno.transpileOnly({
-        'proto.ts': sc,
+        "proto.ts": sc,
       }, {
-        module: 'esnext',
-        target: 'esnext',
-        types: ['./proto.d.ts'],
+        module: "esnext",
+        target: "esnext",
+        types: ["./proto.d.ts"],
         resolveJsonModule: false,
         experimentalDecorators: true,
         allowUnreachableCode: false,
-        jsx: 'preserve',
-        jsxFactory: 'Ogone.r(',
+        jsx: "preserve",
+        jsxFactory: "Ogone.r(",
         inlineSourceMap: false,
         inlineSources: false,
         alwaysStrict: false,
         sourceMap: false,
         strictFunctionTypes: true,
-      }))['proto.ts'].source;
+      }))["proto.ts"].source;
       let script = `(${
-        proto && proto.attributes && ["async", "store"].includes(proto.attributes.type as string)
+        proto && proto.attributes &&
+        ["async", "store"].includes(proto.attributes.type as string)
           ? "async"
           : ""
-        } function (_state, ctx, event, _once = 0) {
+      } function (_state, ctx, event, _once = 0) {
           try {
             ${sc}
           } catch(err) {
@@ -94,7 +99,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       const indexofProto = component.rootNode.childNodes.indexOf(proto);
       delete component.rootNode.childNodes[indexofProto];
     }
-    if (component.requirements && component.data && component.requirements.length) {
+    if (
+      component.requirements && component.data && component.requirements.length
+    ) {
       component.requirements.forEach(([key]) => {
         if (component.data[key]) {
           const AlreadyDefinedPropAsDatainComponentException = new Error(
@@ -115,7 +122,8 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         );
         throw UnsupportedTypeException;
       }
-      component.type = (type as "component" | "async" | "store" | "router" | "controller");
+      component.type =
+        (type as "component" | "async" | "store" | "router" | "controller");
       if (type === "router") {
         component.routes = inspectRoutes(
           bundle,

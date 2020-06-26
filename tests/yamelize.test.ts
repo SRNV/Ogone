@@ -78,14 +78,14 @@ Deno.test("- yamelize shouldn't parse second def expression inside the quotes", 
     def:
         name: R
         case: inyaml`;
-try {
-  const def = renderDefExpression(`
+  try {
+    const def = renderDefExpression(`
     case '': break;
 ${defExp}
 default:
   'don\'t parse that def:'
   `);
-} catch(e) {
-  fail("def statement is parsed");
-}
+  } catch (e) {
+    fail("def statement is parsed");
+  }
 });

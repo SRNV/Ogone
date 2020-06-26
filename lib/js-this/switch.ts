@@ -211,7 +211,7 @@ function jsThis(str: string, opts: any) {
           .includes(key)
       ) {
         // dont set expressions for Ogone tools
-    // @ts-ignore
+        // @ts-ignore
 
         expressions[key2] = value2;
       }

@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@v0.42.0/http/server.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
-import EnvServer from './lib/env/EnvServer.ts';
+import EnvServer from "./lib/env/EnvServer.ts";
 interface OgoneOptions {
   /**
    * @property entrypoint
@@ -31,6 +31,32 @@ interface OgoneOptions {
    * @description insert tags in the <head> of the html
    */
   head?: string;
+  /**
+   * @property build
+   * @description output destination for production
+   */
+  build?: string;
+  /**
+   * @property serve
+   * @description should ogone serve after building the application
+   */
+  serve?: boolean;
+  /**
+   * @property compileCSS
+   * @description should ogone compile the css inside the static folder
+   * requires static folder to be provided
+   */
+  compileCSS?: boolean;
+  /**
+   * @property minifyCSS
+   * @description should ogone minify the CSS ? including multiple spaces, tabs erased, and new lines erased
+   */
+  minifyCSS?: boolean;
+  /**
+   * @property devtool
+   * @description if you want to use devtool.
+   */
+  devtool?: boolean;
 }
 type OgoneAPIType = {
   /**
@@ -71,13 +97,47 @@ async function run(opts: OgoneOptions): Promise<void> {
       "[Ogone] please provide a port for the server. it has to be a number.",
     );
   }
-  //start compilation of o3 files
-  EnvServer.compile(Ogone.config.entrypoint, true)
-    .then(() => {
-      // Ogone is now ready to serve
-      EnvServer.use(server, port);
-    });
+  if (opts.build) {
+    if (!existsSync(opts.build)) {
+      throw new Error(
+        `[Ogone] build: can\'t find given path.\n\tinput: ${opts.build}`,
+      );
+    }
+    const stats = Deno.statSync(opts.build);
+    if (stats.isFile) {
+      throw new Error(`[Ogone] build: build destination should be a directory. \n\tinput: ${opts.build}`);
+    }
+    //start compilation of o3 files
+    EnvServer.setEnv("production");
+    EnvServer.setDevTool(false);
+    EnvServer.compile(Ogone.config.entrypoint, true)
+      .then(async () => {
+        //start compilation of o3 files
+        const b = await EnvServer.getBuild();
+        const application = `${opts.build}/index.html`;
+        Deno.writeTextFileSync(application, b);
+        console.warn(
+          "[Ogone] your application successfully rendered.",
+          application,
+        );
+        if (opts.serve) {
+          EnvServer.serve(application, server, opts.port);
+        } else {
+          server.close();
+          Deno.exit();
+        }
+      });
+  } else {
+    //start compilation of o3 files
+    EnvServer.setDevTool(Ogone.config.devtool);
+    EnvServer.compile(Ogone.config.entrypoint, true)
+      .then(() => {
+        // Ogone is now ready to serve
+        EnvServer.use(server, port);
+      });
+  }
 }
+
 const OgoneAPI: OgoneAPIType = {
   run,
 };
