@@ -6,14 +6,14 @@ description: >-
   inspired by Vue and Svelte
 stable: true
 files:
-  - docs
-  - examples
-  - lib
-  - public
-  - src
-  - tests
-  - types
-  - utils
+  - ./docs/**/*
+  - ./examples/**/*
+  - ./lib/**/*
+  - ./public/**/*
+  - ./src/**/*
+  - ./tests/**/*
+  - ./types/**/*
+  - ./utils/**/*
   - .d.ts
   - mod.ts
   - README.md
