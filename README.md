@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/SRNV/Ogone/blob/master/public/ogone-svg.svg" width="350">
+  <img src="https://github.com/SRNV/Ogone/raw/master/public/ogone-svg.svg" width="350">
 </p>
 
 # Ogone
