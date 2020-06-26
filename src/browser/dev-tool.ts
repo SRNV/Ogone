@@ -274,16 +274,40 @@ import {
               stroke-dashoffset: 50%;
             }
           }
+          @keyframes reaction {
+            from {
+              fill: orange;
+            }
+            to {
+              fill: #484848;
+            }
+          }
           line {
             animation: dash-slide;
             animation-iteration-count: infinite;
             animation-duration: 10s;
             animation-direction: alternate;
           }
-          .component, .async, .store, .router {
+          .reaction {
+            animation: reaction;
+            animation-iteration-count: infinite;
+            animation-duration: 0.5s;
+            animation-direction: alternate;
+          }
+          .component {
             stroke: #61c3aa;
             stroke-width: 5px;
             fill: #484848;
+          }
+          .async {
+            stroke: #eee47f;
+            stroke-width: 5px;
+            fill: #484848;
+          }
+          .async-shadow {
+            stroke: #33291a;
+            stroke-width: 5px;
+            fill: #33291a;
           }
           .store {
             stroke: #b5e4ff;
@@ -295,7 +319,7 @@ import {
             stroke-width: 7px;
             fill: #484848;
           }
-          .component-shadow, .async-shadow, .store-shadow, .router-shadow {
+          .component-shadow, .store-shadow, .router-shadow {
             stroke: #25423a;
             stroke-width: 5px;
             fill: #25423a;
@@ -337,16 +361,33 @@ import {
             stroke-linejoin: round;
             stroke-linecap: round;
           }
-          .root:hover, .component:hover, .element:hover {
+          .root:hover,
+          .component:hover,
+          .async:hover,
+          .router:hover,
+          .store:hover,
+          .element:hover {
             fill: #686868;
           }
           line.store, line.router {
             stroke-dashoffset: 837;
             stroke-dasharray: 34;
           }
-          line.async, line.component {
+          line.component {
             stroke-width: 5;
             stroke: #61c3aa;
+          }
+          line.async {
+            stroke-width: 5;
+            stroke: #808080;
+            stroke-dashoffset: 837;
+            stroke-dasharray: 11;
+          }
+          .async.resolved {
+            stroke-width: 5;
+            stroke: #eee47f;
+            stroke-dashoffset: 837;
+            stroke-dasharray: none;
           }
           line.element {
             stroke: #999999;
@@ -442,6 +483,27 @@ import {
         if (parent) {
           parent.childs.push(item);
         }
+        this.saveReaction(item.key);
+      }
+      saveReaction(key: string): void {
+        const item: ComponentItem | undefined = this.getItem(key);
+        if (item && item.ctx && item.node) {
+          let timeout: any;
+          item.ctx.react.push(() => {
+            if (item.node) {
+              // @ts-ignore
+              clearTimeout(timeout);
+              // @ts-ignore
+              item.node.figure.classList.add('reaction');
+              timeout = setTimeout(() => {
+                // @ts-ignore
+                item.node.figure.classList.remove('reaction');
+              }, 1000);
+            }
+            return item.node && this.collection.has(item.key);
+          })
+
+        }
       }
       update(key: string): void {
         const item: ComponentItem | undefined = this.getItem(key);
@@ -476,7 +538,7 @@ import {
               // @ts-ignore
               item.node.element.addEventListener('dblclick', () => {
                 // @ts-ignore
-                this.diagnostics.classList.add('diagnostics-open');
+                this.diagnostics.classList.toggle('diagnostics-open');
               });
             }
             item.node.setPosition(item.position);

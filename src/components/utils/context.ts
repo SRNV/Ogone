@@ -58,11 +58,11 @@ export default function contextMethods(
         tree,
         key: o.key,
         parentNodeKey: o.parentNodeKey,
-        name: o.name,
+        name: o.name || tree[tree.length -1],
         ctx: oc,
         isRoot: o.isRoot,
         parentCTX: ocp,
-        type: ${isTemplate} ? o.isRoot ? 'root' : "${(component.type || 'component')}" : "element",
+        type: ${isTemplate} ? o.isRoot ? 'root' : oc.type : "element",
       });
     }
     `;
