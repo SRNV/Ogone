@@ -1,0 +1,20 @@
+name: Ogone
+repository: https://github.com/SRNV/Ogone
+version: 0.15.0
+description: >-
+  reactive framework: Web-ComponDents compiler to create modern Apps (SPA, PWA)
+  inspired by Vue and Svelte
+stable: true
+files:
+  - docs
+  - examples
+  - lib
+  - public
+  - src
+  - tests
+  - types
+  - utils
+  - .d.ts
+  - mod.ts
+  - README.md
+  - tsconfig.json
