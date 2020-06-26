@@ -374,3 +374,7 @@ to run the tests:
 ```shell
 sudo deno run --allow-all lib/stress/index.ts --stress tests
 ```
+# Extensions
+
+  - VS Code
+    - Syntax High-lighting: Otone 0.0.2^
