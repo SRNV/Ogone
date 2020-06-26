@@ -9,6 +9,7 @@
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
+[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/Ogone@0.16.0-rc.0)
 ---
 
 # Description
