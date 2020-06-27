@@ -13,13 +13,6 @@ export default function oRenderStyles(bundle: Bundle) {
         let compiledCss: string = "";
         switch (element.attributes.lang) {
           case "scss":
-            compiledCss = sassCompiler(element.childNodes[0].rawText, {
-              output_style: "compressed",
-              precision: 5,
-              indented_syntax: false,
-              include_paths: []
-            }).result;
-            break;
           case "sass":
             compiledCss = sassCompiler(element.childNodes[0].rawText, {
               output_style: "compressed",
