@@ -10,14 +10,19 @@ export default function oRenderStyles(bundle: Bundle) {
     );
     styles.forEach((element) => {
       if (element.childNodes[0].rawText) {
-        let compiledCss = element.childNodes[0].rawText;
-        if(element.attributes.lang == "scss") {
-          compiledCss = sassCompiler(element.childNodes[0].rawText, {
-            output_style: "compressed",
-            precision: 5,
-            indented_syntax: false,
-            include_paths: []
-          }).result;
+        let compiledCss: string = "";
+        switch (element.attributes.lang) {
+          case "scss" || "sass":
+            compiledCss = sassCompiler(element.childNodes[0].rawText, {
+              output_style: "compressed",
+              precision: 5,
+              indented_syntax: false,
+              include_paths: []
+            }).result;
+            break;
+          default:
+            compiledCss = element.childNodes[0].rawText;
+            break;
         }
         const css = scopeCSS(compiledCss, component.uuid);
         component.style.push(css);
