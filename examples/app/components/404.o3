@@ -6,6 +6,7 @@
 </div>
 <style lang="scss">
 $textColor: #9e9e9e;
+
 .container {
   display: flex;
   justify-content: center;
