@@ -114,7 +114,6 @@ async function run(opts: OgoneOptions): Promise<void> {
       .then(async () => {
         //start compilation of o3 files
         const b = await EnvServer.getBuild();
-	       /**
         const application = `${opts.build}/index.html`;
         Deno.writeTextFileSync(application, b);
         console.warn(
@@ -127,7 +126,6 @@ async function run(opts: OgoneOptions): Promise<void> {
           server.close();
           Deno.exit();
         }
-        **/
       });
   } else {
     //start compilation of o3 files
