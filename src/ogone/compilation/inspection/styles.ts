@@ -1,4 +1,5 @@
 import scopeCSS from "../../../../lib/html-this/scopeCSS.ts";
+import { sassCompiler } from "../../../../deps.ts";
 import { Bundle } from "../../../../.d.ts";
 
 export default function oRenderStyles(bundle: Bundle) {
@@ -9,7 +10,16 @@ export default function oRenderStyles(bundle: Bundle) {
     );
     styles.forEach((element) => {
       if (element.childNodes[0].rawText) {
-        const css = scopeCSS(element.childNodes[0].rawText, component.uuid);
+        let compiledCss = element.childNodes[0].rawText;
+        if(element.childNodes[0].attributes.lang == "scss") {
+          compiledCss = sassCompiler(element.childNodes[0].rawText, {
+            output_style: "compressed",
+            precision: 5,
+            indented_syntax: false,
+            include_paths: []
+          });
+        }
+        const css = scopeCSS(compiledCss, component.uuid);
         component.style.push(css);
       }
     });
