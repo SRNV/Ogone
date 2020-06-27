@@ -12,32 +12,33 @@ $textColor: #9e9e9e;
   justify-content: center;
   margin: auto;
   flex-direction: column;
+  .text {
+    font-weight: 400;
+    font-size: 24pt;
+    text-align: center;
+    color: $textColor;
+    margin: 40px;
+  }
+  .logo-back {
+    filter: drop-shadow(2px 4px 6px var(--o-primary));
+    background: var(--o-primary);
+    border-radius: 100%;
+    padding: 56px;
+    animation-name: popup;
+    animation-duration: 0.5s;
+    animation-timing-function: cubic-bezier(0.1, -0.6, 0.2, 0);
+    max-width: 500px;
+    margin: auto;
+    .logo {
+      width: 400px;
+      height: auto;
+      animation-name: rotate;
+      animation-duration: 5s;
+      animation-timing-function: ease;
+      animation-iteration-count: infinite;
+      animation-direction: alternate;
+    }
+  }
 }
-.logo {
-  width: 400px;
-  height: auto;
-  animation-name: rotate;
-  animation-duration: 5s;
-  animation-timing-function: ease;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-.text {
-  font-weight: 400;
-  font-size: 24pt;
-  text-align: center;
-  color: $textColor;
-  margin: 40px;
-}
-.logo-back {
-  filter: drop-shadow(2px 4px 6px var(--o-primary));
-  background: var(--o-primary);
-  border-radius: 100%;
-  padding: 56px;
-  animation-name: popup;
-  animation-duration: 0.5s;
-  animation-timing-function: cubic-bezier(0.1, -0.6, 0.2, 0);
-  max-width: 500px;
-  margin: auto;
-}
+
 </style>
