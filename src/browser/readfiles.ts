@@ -3,7 +3,7 @@ import ogone from "./ogone.ts";
 import router from "./router.ts";
 import oscillator from "./oscillator.ts";
 import websocket from "./websocket.ts";
-import devTool from "./dev-tool.ts";
+import devTool from "./dev-tool/index.ts";
 
 export const browserBuild = (isProduction: boolean, opts?: any): string => {
   if (isProduction) {
@@ -19,7 +19,7 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
     router,
     oscillator,
     websocket,
-    opts.hasDevtool ? devTool : '',
+    opts.hasDevtool ? devTool({}) : '',
   ].join("\n")
 };
 
