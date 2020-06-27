@@ -11,13 +11,13 @@ export default function oRenderStyles(bundle: Bundle) {
     styles.forEach((element) => {
       if (element.childNodes[0].rawText) {
         let compiledCss = element.childNodes[0].rawText;
-        if(element.childNodes[0].attributes.lang == "scss") {
+        if(element.attributes.lang == "scss") {
           compiledCss = sassCompiler(element.childNodes[0].rawText, {
             output_style: "compressed",
             precision: 5,
             indented_syntax: false,
             include_paths: []
-          });
+          }).result;
         }
         const css = scopeCSS(compiledCss, component.uuid);
         component.style.push(css);
