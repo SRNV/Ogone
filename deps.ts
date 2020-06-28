@@ -17,3 +17,4 @@ export {
     fail,
   } from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
 export { compile as sassCompiler } from "https://deno.land/x/sass/mod.ts";
+export { compile as denolusCompiler } from "https://raw.githubusercontent.com/divy-work/denolus/master/mod.ts"
