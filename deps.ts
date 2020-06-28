@@ -16,4 +16,4 @@ export {
     assertArrayContains,
     fail,
   } from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
-export { compile as sassCompiler } from "https://x.nest.land/sass@0.2.0/mod.ts";
+export { compile as sassCompiler } from "https://deno.land/x/sass";
