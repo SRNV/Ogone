@@ -1,5 +1,5 @@
 import scopeCSS from "../../../../lib/html-this/scopeCSS.ts";
-import { sassCompiler } from "../../../../deps.ts";
+import { sassCompiler, denolusCompiler } from "../../../../deps.ts";
 import { Bundle } from "../../../../.d.ts";
 
 export default function oRenderStyles(bundle: Bundle) {
@@ -20,6 +20,9 @@ export default function oRenderStyles(bundle: Bundle) {
               indented_syntax: false,
               include_paths: []
             }).result;
+            break;
+          case "denolus":
+            compiledCss = denolusCompiler(element.childNodes[0].rawText);
             break;
           default:
             compiledCss = element.childNodes[0].rawText;
