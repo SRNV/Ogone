@@ -1,6 +1,6 @@
 export default (opts: any) => `
 function createSVGComponent(opts) {
-    const { href, position, className, style, label = 'Undefined' } = opts;
+    const { href, position, className, style } = opts;
     const isNotNaN = !Number.isNaN(position.x) && Number.isNaN(position.y);
     const container = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     const lineToParent = document.createElementNS('http://www.w3.org/2000/svg', 'line');

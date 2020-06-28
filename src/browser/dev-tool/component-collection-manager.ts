@@ -65,6 +65,45 @@ Ogone.ComponentCollectionManager = new (class {
       }
       this.saveReaction(item.key);
     }
+    setLabels() {
+      this.collection.forEach((item) => {
+        this.setLabel(item.key);
+      })
+    }
+    setLabel(key) {
+      if (!Ogone.DevTool) return;
+      const label = Ogone.DevTool.document.createElement('div');
+      label.classList.add('devtool-label');
+      const text = new Text(' ');
+      label.append(text);
+      Ogone.DevTool.document.body.append(label);
+      Ogone.DevTool.updateView = Ogone.DevTool.updateView || [];
+      Ogone.DevTool.updateView.push((ev) => {
+        const item = this.getItem(key);
+        if (!item || !item.node || !Ogone.DevTool) return;
+        const { figure } = item.node;
+        if (!figure) return;
+        if (!figure.getBoundingClientRect) return;
+        const { sqrt, round } = Math;
+        const bcr = figure.getBoundingClientRect();
+        const lbcr = label.getBoundingClientRect();
+        label.style.left = \`$\{round(bcr.x - (lbcr.width/2) + (bcr.width / 2))}px\`;
+        label.style.top = \`$\{round(bcr.y - (bcr.height * 1.7))}px\`;
+        const a = ev.clientX - bcr.x;
+        const b = ev.clientY - bcr.y;
+        const hyp = sqrt(a**2 + b**2);
+        let name = item.type === 'root' ? '<root-component>' :\`<$\{item.name}>\`;
+        if (text.data !== name) {
+          text.data = name;
+        }
+        if (hyp < bcr.height * 5) {
+          label.style.display  = 'block';
+        } else {
+          label.style.display = '';
+        }
+        return !!figure && figure.isConnected;
+      });
+    }
     saveReaction(key) {
       const item = this.getItem(key);
       if (item && item.ctx && item.node) {
@@ -87,6 +126,12 @@ Ogone.ComponentCollectionManager = new (class {
       if (item && item.node) {
         Ogone.ComponentCollectionManager.render();
       }
+    }
+    updateDevToolView(ev) {
+      if (!this.isReady) return;
+      Ogone.DevTool.updateView.forEach((f, i, arr) => {
+        if (f && !f(ev)) delete arr[i];
+      })
     }
     render() {
       const collection = Array.from(this.collection);

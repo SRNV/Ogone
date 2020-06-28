@@ -4,7 +4,7 @@
   </div>
   <div class="text">404 route not found.</div>
 </div>
-<style lang="scss">
+<style lang="sass">
 $textColor: #9e9e9e;
 
 .container {

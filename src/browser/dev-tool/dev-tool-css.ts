@@ -51,4 +51,17 @@ body {
     transform: translateX(0%);
     transition: 0.5s ease;
   }
+  .devtool-label {
+    position: fixed;
+    z-index: 2000;
+    background: #333333d6;
+    color: #ababab;
+    padding: 10px;
+    left: 642px;
+    font-family: sans-serif;
+    top: 171px;
+    pointer-events: none;
+    display: none;
+    user-select: none;
+  }
 `;

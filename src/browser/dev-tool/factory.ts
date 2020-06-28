@@ -51,6 +51,7 @@ Ogone.DevTool.addEventListener('keydown', (ev) => {
       break;
   }
   logo.style.transform = \`scale(2.2) translateX(\${-containerx/50}px) translateY(\${-containery/50}px)\`;
+  Ogone.ComponentCollectionManager.updateDevToolView(ev);
 });
 // wheel control
 Ogone.DevTool.addEventListener('wheel', (ev) => {
@@ -71,7 +72,11 @@ Ogone.DevTool.addEventListener('wheel', (ev) => {
   }
   informations.data = \`zoom: \${actualScale}, x: \${containerx}, y: \${containery}\`;
   logo.style.transform = \`scale(2.2) translateX(\${-containerx/50}px) translateY(\${-containery/50}px)\`;
+  Ogone.ComponentCollectionManager.updateDevToolView(ev);
 })
+Ogone.DevTool.addEventListener('mousemove', (ev) => {
+  Ogone.ComponentCollectionManager.updateDevToolView(ev);
+});
 const componentDef = Ogone.DevTool.document.createElementNS('http://www.w3.org/2000/svg', 'g');
 componentDef.classList.add('dev-tool-component');
 componentDef.setAttribute('id', 'component');
