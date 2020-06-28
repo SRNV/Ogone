@@ -17,4 +17,9 @@ export {
     fail,
   } from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
 export { compile as sassCompiler } from "https://deno.land/x/sass/mod.ts";
-export { compile as denolusCompiler } from "https://raw.githubusercontent.com/divy-work/denolus/master/mod.ts"
+import { parse } from "https://raw.githubusercontent.com/divy-work/denolus/master/src/parser/index.ts"
+import { compile } from "https://raw.githubusercontent.com/divy-work/denolus/master/src/compiler/index.ts"
+
+export function denolusCompiler(code: string) {
+  return compile(parse(code));
+}
