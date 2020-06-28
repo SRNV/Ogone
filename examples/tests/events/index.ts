@@ -4,4 +4,5 @@ o3.run({
   entrypoint: "examples/tests/events/events.o3",
   port: 8083,
   modules: "/examples/modules",
+  devtool: true,
 });

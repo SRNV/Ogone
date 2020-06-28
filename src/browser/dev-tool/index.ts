@@ -19,6 +19,7 @@ ${setChildNodeAroundParent(opts)}
 ${openDevTool(opts)}
 ${ComponentCollectionManager(opts)}
 window.addEventListener('DOMContentLoaded',() => Ogone.ComponentCollectionManager.render());
+window.addEventListener('unload',() => Ogone.DevTool.close());
 if (Ogone.router) {
   Ogone.router.openDevTool = () => {
     openOgoneDevTool();

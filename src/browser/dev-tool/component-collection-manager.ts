@@ -109,6 +109,7 @@ Ogone.ComponentCollectionManager = new (class {
       if (item && item.ctx && item.node) {
         let timeout;
         item.ctx.react.push(() => {
+          console.warn(item);
           if (item.node) {
             clearTimeout(timeout);
             item.node.figure.classList.add('reaction');

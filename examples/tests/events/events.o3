@@ -74,7 +74,7 @@ use @/examples/tests/events/target-comp.o3 as 'target-component';
     this.wheelRightCount++;
   break;
 </proto>
-
+<h1 --router-dev-tool>Dev Tool</h1>
 <div --click:increase> click ${countClick} </div>
 <div --dblclick:increase> dblclick ${countDblClick} </div>
 <div --mouseenter:increase> mouseEnter ${countmouseEnter} </div>
