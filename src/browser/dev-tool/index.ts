@@ -1,4 +1,5 @@
 import ComponentCollectionManager from './component-collection-manager.ts';
+import DiagnosticsPanelManager from './diagnostics-panel-manager.ts';
 import openDevTool from './open-dev-tool.ts';
 import createSVGComponent from './function-create-svg-component.ts';
 import setChildNodeAroundParent from './function-set-child-node-around-parent.ts';
@@ -17,6 +18,7 @@ ${getPointAroundElementFromOrigin(opts)}
 ${setChildNodeAroundParent(opts)}
 
 ${openDevTool(opts)}
+${DiagnosticsPanelManager(opts)}
 ${ComponentCollectionManager(opts)}
 window.addEventListener('DOMContentLoaded',() => Ogone.ComponentCollectionManager.render());
 window.addEventListener('unload',() => Ogone.DevTool.close());

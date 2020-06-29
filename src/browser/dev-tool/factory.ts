@@ -110,6 +110,6 @@ Ogone.DevTool.document.body.append(informationsContainer);
 Ogone.DevTool.document.body.append(diagnostics);
 Ogone.DevTool.document.body.append(viewer);
 Ogone.ComponentCollectionManager.container = container;
-Ogone.ComponentCollectionManager.diagnostics = diagnostics;
+Ogone.DiagnosticsPanelManager.diagnostics = diagnostics;
 Ogone.ComponentCollectionManager.informations = informations;
 `;

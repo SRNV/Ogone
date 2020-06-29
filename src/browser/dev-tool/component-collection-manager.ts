@@ -5,6 +5,7 @@ Ogone.ComponentCollectionManager = new (class {
       this.container = null;
       this.informations = null;
       this.isReady = false;
+      this.renderedDiagnosticsPanel = false;
     }
     getItem(key) {
         return this.collection.get(key);
@@ -96,7 +97,7 @@ Ogone.ComponentCollectionManager = new (class {
         if (text.data !== name) {
           text.data = name;
         }
-        if (hyp < bcr.height * 5) {
+        if (hyp < bcr.height * 2) {
           label.style.display  = 'block';
         } else {
           label.style.display = '';
@@ -106,10 +107,9 @@ Ogone.ComponentCollectionManager = new (class {
     }
     saveReaction(key) {
       const item = this.getItem(key);
-      if (item && item.ctx && item.node) {
+      if (item && item.ctx && item.node && item.type !== 'element') {
         let timeout;
         item.ctx.react.push(() => {
-          console.warn(item);
           if (item.node) {
             clearTimeout(timeout);
             item.node.figure.classList.add('reaction');
@@ -158,7 +158,21 @@ Ogone.ComponentCollectionManager = new (class {
               this.informations.data = \`$\{item.type}: $\{item.name} - id: $\{item.key} parent: $\{item.parentNodeKey}\`;
             });
             item.node.element.addEventListener('dblclick', () => {
-              this.diagnostics.classList.toggle('diagnostics-open');
+              Ogone.DiagnosticsPanelManager.diagnostics.classList.toggle('diagnostics-open');
+              if (Ogone.DiagnosticsPanelManager.diagnostics.classList.contains('diagnostics-open')) {
+                Ogone.DiagnosticsPanelManager.renderDiagnostics(item);
+              }
+            });
+            item.node.element.addEventListener('click', () => {
+              if (Ogone.DiagnosticsPanelManager.diagnostics.classList.contains('diagnostics-open')) {
+                Ogone.DiagnosticsPanelManager.renderDiagnostics(item);
+              }
+            });
+            item.node.element.addEventListener('mousemove', () => {
+              Ogone.ComponentCollectionManager.treeRendering(item.key, true);
+            });
+            item.node.element.addEventListener('mouseleave', () => {
+              Ogone.ComponentCollectionManager.treeRendering(item.key, false);
             });
           }
           item.node.setPosition(item.position);
@@ -225,9 +239,27 @@ Ogone.ComponentCollectionManager = new (class {
       })
       this.isReady = true;
     }
+    treeRendering(key, styling) {
+      const item = this.getItem(key);
+      if (!item) return;
+      let target = item;
+      while(target) {
+        if (styling) {
+          target.node.figure.style.stroke = '#ceff50';
+          target.node.lineToParent.style.stroke = '#ceff50';
+          target.node.lineToParent.style.strokeWidth = '10px';
+          target.node.figure.style.strokeWidth = '10px';
+        } else {
+          target.node.figure.style.stroke = '';
+          target.node.lineToParent.style.stroke = '';
+          target.node.lineToParent.style.strokeWidth = '';
+          target.node.figure.style.strokeWidth = '';
+        }
+        target = target.parent;
+      }
+    }
     destroy(key) {
       const item = this.getItem(key);
-
       if (item && item.node && item.node.element) {
         item.node.element.remove();
         item.node.figure.remove();
@@ -248,7 +280,6 @@ Ogone.ComponentCollectionManager = new (class {
           );
         }
       }
-
       this.collection.delete(key);
     }
 })()
