@@ -77,13 +77,13 @@ async function run(opts: OgoneOptions): Promise<void> {
   if (!Ogone.config.entrypoint || !existsSync(Ogone.config.entrypoint)) {
     server.close();
     throw new Error(
-      "[Ogone] can't find entrypoint, please specify a correct path",
+      `[Ogone] can't find entrypoint, please specify a correct path. input: ${Ogone.config.entrypoint}`,
     );
   }
   if (!modulesPath || !existsSync(modulesPath.slice(1))) {
     server.close();
     throw new Error(
-      "[Ogone] can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' })",
+      "[Ogone] can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' }). \nnote: the path should be absolute",
     );
   }
   if (!Ogone.config.modules.startsWith("/")) {
