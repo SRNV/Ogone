@@ -158,7 +158,12 @@ Ogone.ComponentCollectionManager = new (class {
               this.informations.data = \`$\{item.type}: $\{item.name} - id: $\{item.key} parent: $\{item.parentNodeKey}\`;
             });
             item.node.element.addEventListener('dblclick', () => {
-              Ogone.DiagnosticsPanelManager.diagnostics.classList.toggle('diagnostics-open');
+              if (Ogone.DiagnosticsPanelManager.actualItem === item) {
+                Ogone.DiagnosticsPanelManager.diagnostics.classList.toggle('diagnostics-open');
+              } else {
+                Ogone.DiagnosticsPanelManager.actualItem = item;
+                Ogone.DiagnosticsPanelManager.diagnostics.classList.add('diagnostics-open');
+              }
               if (Ogone.DiagnosticsPanelManager.diagnostics.classList.contains('diagnostics-open')) {
                 Ogone.DiagnosticsPanelManager.renderDiagnostics(item);
               }
@@ -166,6 +171,7 @@ Ogone.ComponentCollectionManager = new (class {
             item.node.element.addEventListener('click', () => {
               if (Ogone.DiagnosticsPanelManager.diagnostics.classList.contains('diagnostics-open')) {
                 Ogone.DiagnosticsPanelManager.renderDiagnostics(item);
+                Ogone.DiagnosticsPanelManager.actualItem = item;
               }
             });
             item.node.element.addEventListener('mousemove', () => {

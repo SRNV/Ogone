@@ -165,4 +165,46 @@ body {
   .diagnostics-element {
     background: #777777;
   }
+  .diagnostics-tree-type-figure {
+    width: auto;
+    height: 0px;
+    padding: 3px;
+    border-radius: 0;
+    margin-right: 10px;
+    border: 1px solid;
+  }
+  details.diagnostics-data-details {
+    background: #00000023;
+  }
+  div.diagnostics-data-container,
+  details.diagnostics-data-details {
+    padding-left: 15px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+  span.boolean, span.null, span.number {
+    color: #f680f7;
+  }
+  span.function {
+    color: #80e0f7;
+  }
+  span.string {
+    color: #61c3aa;
+  }
+  span.constructor {
+    color: #e576e6;
+  }
+  span.string, span.number, span.boolean, span.function {
+    margin-left: 10px;
+  }
+  details.diagnostics-data-details.array > summary {
+    color: #585858;
+  }
+  details:not([open]) > summary.object::after {
+    content: " {...}";
+  }
+  details:not([open]) > summary.array::after {
+    content: " [...]";
+  }
 `;

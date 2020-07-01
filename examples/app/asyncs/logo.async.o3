@@ -6,8 +6,20 @@
 </div>
 
 <proto type="async">
+  def:
+    devTool: null
   default:
    Async.resolve();
+   abstract class Component {
+     constructor() {
+       this.name = 'test';
+       this.fullname = 'test of Dev Tool';
+     }
+     func() {}
+     func2() {}
+     func3() {}
+   }
+   this.devTool = new Component();
   break;
 </proto>
 
