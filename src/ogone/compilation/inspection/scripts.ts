@@ -4,6 +4,7 @@ import allowedTypes from "./rules/component-types.ts";
 import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
 import { Bundle } from "../../../../.d.ts";
+import Ogone from "../../index.ts";
 
 export default async function oRenderScripts(bundle: Bundle): Promise<void> {
   const entries = Array.from(bundle.components.entries());
@@ -80,10 +81,10 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       }))["proto.ts"].source;
       let script = `(${
         proto && proto.attributes &&
-        ["async", "store"].includes(proto.attributes.type as string)
+          ["async", "store", "controller"].includes(proto.attributes.type as string)
           ? "async"
           : ""
-      } function (_state, ctx, event, _once = 0) {
+        } function (_state, ctx, event, _once = 0) {
           try {
             ${sc}
           } catch(err) {
@@ -124,6 +125,21 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       }
       component.type =
         (type as "component" | "async" | "store" | "router" | "controller");
+      if (type === "controller") {
+        const run = eval(component.scripts.runtime);
+        if (proto.attributes.namespace) {
+          // set the component type, default is null
+          component.namespace = (proto.attributes.namespace as string);
+        }
+        const comp = {
+          ns: component.namespace,
+          data: component.data,
+          runtime: (_state: any, ctx: any) => { },
+        };
+        comp.runtime = run.bind(comp.data);
+        // save the controller
+        Ogone.controllers.set(comp.ns, comp);
+      }
       if (type === "router") {
         component.routes = inspectRoutes(
           bundle,

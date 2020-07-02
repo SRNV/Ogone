@@ -88,8 +88,8 @@ export default abstract class Env {
         const ___perfData = window.performance.timing;
 
         ${browserBuild(Env.env === 'production', {
-          hasDevtool: Env.devtool,
-        })}
+        hasDevtool: Env.devtool,
+      })}
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
         ${Env.bundle.render.join("\n")}

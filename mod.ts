@@ -57,6 +57,11 @@ interface OgoneOptions {
    * @description if you want to use devtool.
    */
   devtool?: boolean;
+  /**
+   * @property controllers
+   * @description paths to the controllers
+   */
+  controllers?: string[];
 }
 type OgoneAPIType = {
   /**

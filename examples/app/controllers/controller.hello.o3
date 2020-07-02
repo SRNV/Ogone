@@ -1,0 +1,6 @@
+<proto type="controller">
+  def:
+    name: SRNV
+  case 'GET:/':
+    return `hello ${this.name}`;
+</proto>
