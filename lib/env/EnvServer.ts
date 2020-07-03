@@ -15,16 +15,16 @@ import Env from "./Env.ts";
  */
 export default abstract class EnvServer extends Env {
   private static async control(req: any): Promise<boolean> {
-    const ns = req.url.slice(1).split('/')[0];
-    if (req.url.indexOf('/') > -1 && req.url.startsWith(`/${ns}/`)) {
+    const ns = req.url.slice(1).split("/")[0];
+    if (req.url.indexOf("/") > -1 && req.url.startsWith(`/${ns}/`)) {
       const controller = Ogone.controllers.get(ns);
       if (controller) {
-        const route = req.url.replace(`/${ns}`, '');
+        const route = req.url.replace(`/${ns}`, "");
         const t = req.method;
         let response = await controller.runtime(`${t}:${route}`, req);
         if (response) {
           switch (true) {
-            case typeof response === 'object':
+            case typeof response === "object":
               response = JSON.stringify(response);
               break;
           }
@@ -82,15 +82,25 @@ export default abstract class EnvServer extends Env {
       }
     }
   }
-  public static async serve(pathToApplication: string, server: Server, port: number = 8000) {
+  public static async serve(
+    pathToApplication: string,
+    server: Server,
+    port: number = 8000,
+  ) {
     if (!existsSync(pathToApplication)) {
-      throw new Error(`[Ogone] application not found. input: ${pathToApplication}`);
+      throw new Error(
+        `[Ogone] application not found. input: ${pathToApplication}`,
+      );
     }
-    if (!pathToApplication.endsWith('.html')) {
-      throw new Error(`[Ogone] this version of Ogone only supports HTML for production. input: ${pathToApplication}`);
+    if (!pathToApplication.endsWith(".html")) {
+      throw new Error(
+        `[Ogone] this version of Ogone only supports HTML for production. input: ${pathToApplication}`,
+      );
     }
     const application = Deno.readTextFileSync(pathToApplication);
-    console.warn(`[Ogone] Service running. check it here http://localhost:${port}/`);
+    console.warn(
+      `[Ogone] Service running. check it here http://localhost:${port}/`,
+    );
     for await (const req of server) {
       const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
       const controllerRendered = await this.control(req);

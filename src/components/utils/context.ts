@@ -17,7 +17,8 @@ export default function contextMethods(
       o.getContext = gct;
     }
     `;
-  const nodeContext = `o.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(o.component.data);`;
+  const nodeContext =
+    `o.getContext = Ogone.contexts['${component.uuid}-${node.id}'].bind(o.component.data);`;
   const hmrContext = `
     setHMRContext() {
         const o = this.ogone;
@@ -44,11 +45,11 @@ export default function contextMethods(
               return true;
 
               `
-    }
+  }
           });
       }
     `;
-    const devToolContext = `
+  const devToolContext = `
     setDevToolContext() {
       const o = this.ogone, oc = o.component, ocp = o.component.parent;
       const tree = o.tree ? o.tree
@@ -78,9 +79,9 @@ export default function contextMethods(
           oc.parent.store[oc.namespace] = oc;
         `
       : ""
-    }
+  }
       }
-      ${isProduction ? '' : hmrContext}
-      ${hasDevtool ? devToolContext : ''}
+      ${isProduction ? "" : hmrContext}
+      ${hasDevtool ? devToolContext : ""}
     `;
 }

@@ -1,11 +1,12 @@
-import ComponentCollectionManager from './component-collection-manager.ts';
-import DiagnosticsPanelManager from './diagnostics-panel-manager.ts';
-import openDevTool from './open-dev-tool.ts';
-import createSVGComponent from './function-create-svg-component.ts';
-import setChildNodeAroundParent from './function-set-child-node-around-parent.ts';
-import getPointAroundElementFromOrigin from './function-get-point-around-element-from-origin.ts';
+import ComponentCollectionManager from "./component-collection-manager.ts";
+import DiagnosticsPanelManager from "./diagnostics-panel-manager.ts";
+import openDevTool from "./open-dev-tool.ts";
+import createSVGComponent from "./function-create-svg-component.ts";
+import setChildNodeAroundParent from "./function-set-child-node-around-parent.ts";
+import getPointAroundElementFromOrigin from "./function-get-point-around-element-from-origin.ts";
 
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 let devTool_window_parameters = "menubar=no,scrollbars=no,status=no,dependent=yes";
 
 // get the figure and the container node for the representation of the component/node

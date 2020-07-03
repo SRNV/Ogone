@@ -1,5 +1,5 @@
 import { Template } from "./template.ts";
-import { XMLNodeDescription } from '../.d.ts';
+import { XMLNodeDescription } from "../.d.ts";
 export type OnodeComponentRenderOptions = {
   callingNewComponent?: boolean;
   length: number;
@@ -50,12 +50,12 @@ export interface ComponentItem {
   parent?: ComponentItem;
   ctx: OnodeComponent;
   parentCTX: OnodeComponent | null;
-  type: 'root' | 'component' | 'element' | 'async' | 'router' | 'store';
+  type: "root" | "component" | "element" | "async" | "router" | "store";
   node?: {
-    figure: XMLNodeDescription,
-    element: XMLNodeDescription,
-    setPosition(coord?: ComponentItem['position']): void;
-    lineToParent?: any,
+    figure: XMLNodeDescription;
+    element: XMLNodeDescription;
+    setPosition(coord?: ComponentItem["position"]): void;
+    lineToParent?: any;
   };
   position: { x: number; y: number; delta?: number };
   childs: ComponentItem[];
@@ -65,6 +65,6 @@ export interface ComponentDescription {
   style?: string;
   className?: string;
   href: string;
-  position: { x: number, y:number; delta?: number };
+  position: { x: number; y: number; delta?: number };
   label?: string;
 }

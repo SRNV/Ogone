@@ -4,7 +4,7 @@ import Ogone from "./../../src/ogone/index.ts";
 import compile from "./../../src/ogone/compilation/index.ts";
 import { Bundle, Environment } from "./../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
-import { join } from 'https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts';
+import { join } from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
 export default abstract class Env {
   private static bundle: Bundle;
   public static env: Environment = "development";
@@ -25,7 +25,7 @@ export default abstract class Env {
    * @param {boolean} hasdevtool
    */
   public static setDevTool(hasdevtool: boolean): void {
-    Env.devtool = hasdevtool && Env.env !== 'production';
+    Env.devtool = hasdevtool && Env.env !== "production";
   }
   /**
  * set the current environment
@@ -87,9 +87,11 @@ export default abstract class Env {
       const scriptDev = `
         const ___perfData = window.performance.timing;
 
-        ${browserBuild(Env.env === 'production', {
-        hasDevtool: Env.devtool,
-      })}
+        ${
+        browserBuild(Env.env === "production", {
+          hasDevtool: Env.devtool,
+        })
+      }
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
         ${Env.bundle.render.join("\n")}
@@ -150,9 +152,11 @@ export default abstract class Env {
       }))[path].source
       : text;
   }
-  private static recursiveRead(opts: { entrypoint: string, onContent: Function }): void {
+  private static recursiveRead(
+    opts: { entrypoint: string; onContent: Function },
+  ): void {
     if (!existsSync(opts.entrypoint)) {
-      throw new Error('[Ogone] can\'t find entrypoint for Env.recursiveRead');
+      throw new Error("[Ogone] can't find entrypoint for Env.recursiveRead");
     }
     const stats = Deno.statSync(opts.entrypoint);
     if (stats.isFile) {
@@ -174,7 +178,9 @@ export default abstract class Env {
    * including HTML CSS and JS
    */
   public static async getBuild() {
-    throw new Error('[Ogone: 0.16.0-rc.5] build is not ready yet, until Deno\'s compiler isn\'t fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423');
+    throw new Error(
+      "[Ogone: 0.16.0-rc.5] build is not ready yet, until Deno's compiler isn't fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423",
+    );
     /*
     let staticStyle = '';
     // TODO WAIT FOR A FIX OF COMPILER API

@@ -1,4 +1,5 @@
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 function getPointAroundElementFromOrigin(opts) {
     const { destination, origin, radius, decay = 0 } = opts;
     const { cos, sin, atan2 } = Math;

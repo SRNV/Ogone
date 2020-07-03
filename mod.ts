@@ -110,7 +110,9 @@ async function run(opts: OgoneOptions): Promise<void> {
     }
     const stats = Deno.statSync(opts.build);
     if (stats.isFile) {
-      throw new Error(`[Ogone] build: build destination should be a directory. \n\tinput: ${opts.build}`);
+      throw new Error(
+        `[Ogone] build: build destination should be a directory. \n\tinput: ${opts.build}`,
+      );
     }
     //start compilation of o3 files
     EnvServer.setEnv("production");

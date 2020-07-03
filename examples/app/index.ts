@@ -16,6 +16,6 @@ o3.run({
   <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
   `,
   controllers: [
-    '/examples/app/controllers/controller.user.o3',
+    "/examples/app/controllers/controller.user.o3",
   ],
 });

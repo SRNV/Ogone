@@ -1,4 +1,5 @@
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 function createSVGComponent(opts) {
     const { href, position, className, style } = opts;
     const isNotNaN = !Number.isNaN(position.x) && Number.isNaN(position.y);

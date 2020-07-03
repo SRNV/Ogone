@@ -1,7 +1,8 @@
 import styleTheme from "./style-theme.ts";
 import devToolCss from "./dev-tool-css.ts";
 
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 Ogone.DevTool.document.title = '[Ogone] Dev Tool';
 const diagnostics = document.createElement('div');
 diagnostics.classList.add('diagnostics');

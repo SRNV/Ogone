@@ -3,7 +3,7 @@ export default function setEventsMethod(
   node: any,
   opts: any,
 ): string {
-  const {hasDevtool} = opts;
+  const { hasDevtool } = opts;
   return `
     setEvents(){
       if (!this.ogone.flags) return;
@@ -77,12 +77,16 @@ export default function setEventsMethod(
                   position,
                 }), history.state);
             });
-          ${hasDevtool ? `
+          ${
+    hasDevtool
+      ? `
           } else if (flag.name === 'router-dev-tool' && flag.eval) /* special for router-dev-tool flag */{
             node.addEventListener("click", (ev) => {
               Ogone.router.openDevTool();
             });
-          `: ''}
+          `
+      : ""
+  }
           } else /* DOM L3 */ {
             node.addEventListener(flag.type, (ev) => {
               const ctx = o.getContext({

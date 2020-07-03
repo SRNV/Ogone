@@ -86,12 +86,16 @@ export default function routerMethods(component: any, node: any, opts: any) {
           level: o.level,
           position: o.position,
           flags: o.flags,
-          ${hasDevtool ? `
+          ${
+    hasDevtool
+      ? `
             isRoot: false,
             name: rendered.name || rendered.component,
             tree: o.tree,
             parentNodeKey: o.key,
-          `: ''}
+          `
+      : ""
+  }
         });
 
         // if the route provide any title

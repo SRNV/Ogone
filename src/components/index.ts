@@ -142,7 +142,7 @@ export default function getWebComponent(
       // use the jsx renderer only for templates
       this.setNodes();
       // render DevTools
-      ${hasDevtool ? 'this.setDevToolContext();': ''}
+      ${hasDevtool ? "this.setDevToolContext();" : ""}
       // set Async context for Async nodes
       ${isAsyncNode ? "this.setNodeAsyncContext();" : ""}
       // use the previous jsx and push the result into ogone.nodes
@@ -188,7 +188,9 @@ export default function getWebComponent(
       : "o.nodes = [o.render(o.component, o.position, o.index, o.level)];"
   }
     // set parentKey to template
-    ${hasDevtool ? `
+    ${
+    hasDevtool
+      ? `
     // TODO PERFORMANCE OPTIMISATION
     function recursiveAssignement(nodes) {
       nodes.filter((n) => n.ogone)
@@ -203,7 +205,9 @@ export default function getWebComponent(
     }
       recursiveAssignement(o.nodes)
 
-    `: ''}
+    `
+      : ""
+  }
   }
     setDeps() {
       const o = this.ogone;
@@ -258,9 +262,13 @@ export default function getWebComponent(
         `
       : ""
   }
-    ${hasDevtool ? `
+    ${
+    hasDevtool
+      ? `
       Ogone.ComponentCollectionManager.destroy(this.ogone.key);
-    `:''}
+    `
+      : ""
+  }
       this.remove();
     }
     render() {

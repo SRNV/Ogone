@@ -100,6 +100,8 @@ export interface XMLNodeDescription {
     };
     main: string;
   };
+  getInnerHTML?: () => string;
+  getOuterHTML?: () => string;
 }
 
 /**
@@ -144,7 +146,7 @@ export interface ParseFlagsOutput {
   elseIf: string;
   finally: string;
   await: string | boolean;
-  events: ParseFlagDescription[],
+  events: ParseFlagDescription[];
   bind?: string;
 }
 export interface ParseFlagDescription {

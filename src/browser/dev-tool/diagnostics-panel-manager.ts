@@ -1,4 +1,5 @@
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 Ogone.DiagnosticsPanelManager = new (class {
     constructor() {
         this.renderedDiagnosticsPanel = false;

@@ -12,7 +12,8 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     const proto = component.rootNode.childNodes.find((node) =>
       node.tagName === "proto"
     );
-    const moduleScript = proto?.childNodes[0];
+    // @ts-ignore
+    const moduleScript = proto?.getInnerHTML();
     let defData;
     if (proto && "def" in proto.attributes) {
       if (existsSync(proto.attributes.def as string)) {
@@ -28,7 +29,7 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     }
     if (moduleScript) {
       const ogoneScript = jsThis(
-        moduleScript.rawText as string,
+        moduleScript as string,
         {
           data: true,
           reactivity: true,
@@ -37,7 +38,7 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         },
       );
       const cases = jsThis(
-        moduleScript.rawText as string,
+        moduleScript as string,
         { parseCases: true },
       );
       const { each } = ogoneScript.body.switch.before;
@@ -81,10 +82,12 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       }))["proto.ts"].source;
       let script = `(${
         proto && proto.attributes &&
-          ["async", "store", "controller"].includes(proto.attributes.type as string)
+        ["async", "store", "controller"].includes(
+          proto.attributes.type as string,
+        )
           ? "async"
           : ""
-        } function (_state, ctx, event, _once = 0) {
+      } function (_state, ctx, event, _once = 0) {
           try {
             ${sc}
           } catch(err) {
@@ -134,7 +137,7 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         const comp = {
           ns: component.namespace,
           data: component.data,
-          runtime: (_state: any, ctx: any) => { },
+          runtime: (_state: any, ctx: any) => {},
         };
         comp.runtime = run.bind(comp.data);
         // save the controller

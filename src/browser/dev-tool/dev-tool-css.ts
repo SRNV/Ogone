@@ -1,4 +1,5 @@
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 body {
     background: #424242;
     color: rgb(60%, 60%, 60%);

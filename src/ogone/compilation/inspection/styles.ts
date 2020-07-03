@@ -18,7 +18,7 @@ export default function oRenderStyles(bundle: Bundle) {
               output_style: "compressed",
               precision: 5,
               indented_syntax: false,
-              include_paths: []
+              include_paths: [],
             }).result;
             break;
           case "denolus":

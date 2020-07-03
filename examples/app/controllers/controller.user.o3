@@ -4,5 +4,5 @@
   case 'GET:/':
     return { id: 0, name: this.name};
   case 'GET:/2':
-    return '< h1> test < /h1>'.replace(/\s/gi, '');
+    return '<h1> test </h1>';
 </proto>

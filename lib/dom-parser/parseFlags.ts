@@ -150,7 +150,7 @@ export default function parseFlags(
           result.finally = key.slice(2);
           node.hasFlag = true;
           break;
-        case key === '--bind':
+        case key === "--bind":
           result.bind = attributes[key] as string;
           node.hasFlag = true;
       }

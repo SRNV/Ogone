@@ -53,16 +53,54 @@ function getTextUniquekey(id = "", iterator: DOMParserIterator) {
   // critical all regexp are based on this line
   return `§§${iterator.text}${id}§§`;
 }
+function getInnerOuterHTML(
+  rootnode: XMLNodeDescription,
+  expressions: DOMParserExpressions,
+) {
+  const { nodeList } = rootnode;
+  nodeList.forEach((node: XMLNodeDescription) => {
+    node.getOuterHTML = () => {
+      if (node.nodeType === 1) {
+        let result = `<${node.tagName} ${node.rawAttrs}>${
+          node.childNodes.map((c) => {
+            if (c.getOuterHTML) {
+              return c.getOuterHTML();
+            } else {
+              return "";
+            }
+          }).join("")
+        }</${node.tagName}>`;
+        return result;
+      }
+      return node.rawText || "";
+    };
+    node.getInnerHTML = () => {
+      if (node.nodeType === 1) {
+        let result = `${
+          node.childNodes.map((c) => {
+            if (c.getOuterHTML) {
+              return c.getOuterHTML();
+            } else {
+              return "";
+            }
+          }).join("")
+        }`;
+        return result;
+      }
+      return node.rawText || "";
+    };
+  });
+}
 function getDNA(
   rootnode: XMLNodeDescription,
   node: XMLNodeDescription,
   expressions: DOMParserExpressions,
 ) {
-  if (node.tagName === "style") return;
-  if (node.tagName === "proto") return;
-  if (rootnode !== node && node.nodeType === 1) {
+  if (rootnode !== node) {
     rootnode.nodeList.push(node);
   }
+  if (node.tagName === "style") return;
+  // if (node.tagName === "proto") return;
   if (!node.dna) {
     node.dna = "";
   }
@@ -344,12 +382,13 @@ function preserveTemplates(
     });
   return result;
 }
-function preserveLitterals(
+function preserveStrings(
   html: string,
   expression: DOMParserExpressions,
   iterator: DOMParserIterator,
 ) {
   let result = html;
+  // LIT
   result.split(/((?<!\\)`)/)
     .filter((content) => content !== "`")
     .forEach((content) => {
@@ -564,11 +603,11 @@ function setNodesPragma(expressions: DOMParserExpressions) {
         let query = node.tagName;
         if (nodeIsDynamic || isImported) {
           let parentN: any = node.parentNode;
-          while(parentN) {
+          while (parentN) {
             query += `<${parentN.tagName}`;
             parentN = parentN.parentNode;
           }
-          query = query?.split('<').reverse().join('>');
+          query = query?.split("<").reverse().join(">");
         }
         /**
            * all we set in this function
@@ -588,8 +627,8 @@ function setNodesPragma(expressions: DOMParserExpressions) {
           isImported || nodeIsDynamic && !isImported && !isRoot
             ? `${nId}.setOgone({
               isRoot: false,
-              ${isImported ? `name: "${node.tagName}",`: ''}
-              ${isImported || nodeIsDynamic ? `tree: "${query}",` : '' }
+              ${isImported ? `name: "${node.tagName}",` : ""}
+              ${isImported || nodeIsDynamic ? `tree: "${query}",` : ""}
               ${!isImported ? "position, level, index," : ""}
               ${isImported ? `positionInParentComponent: position,` : ""}
               ${isImported ? `levelInParentComponent: level,` : ""}
@@ -676,9 +715,9 @@ export default function parse(html: string): XMLNodeDescription | null {
   let str = `<template>${html}</template>`;
   // preserve comments
   str = preserveComments(str, expressions, iterator);
-  // preserve strings of attrs
+  // preserve strings of attrs and strings
   str = preserveStringsAttrs(str, expressions, iterator);
-  str = preserveLitterals(str, expressions, iterator);
+  str = preserveStrings(str, expressions, iterator);
   // preserve templates ${}
   str = preserveTemplates(str, expressions, iterator);
   // preserve nodes
@@ -708,7 +747,8 @@ export default function parse(html: string): XMLNodeDescription | null {
       (expressions as unknown) as { [key: string]: string },
       (key) => expressions[key].expression,
     );
-    // critical this will say to o3 that is the rootNode
+    getInnerOuterHTML(result, expressions);
+    // critical this will say to o3 that's the rootNode
     result.tagName = null;
     return result;
   } else {

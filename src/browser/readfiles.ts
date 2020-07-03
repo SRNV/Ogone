@@ -11,7 +11,7 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
       components,
       ogone,
       router,
-    ].join("\n")
+    ].join("\n");
   }
   return [
     components,
@@ -19,8 +19,8 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
     router,
     oscillator,
     websocket,
-    opts.hasDevtool ? devTool({}) : '',
-  ].join("\n")
+    opts.hasDevtool ? devTool({}) : "",
+  ].join("\n");
 };
 
 export const template: string = `

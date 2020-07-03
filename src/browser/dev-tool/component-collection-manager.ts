@@ -1,4 +1,5 @@
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 Ogone.ComponentCollectionManager = new (class {
     constructor() {
       this.collection = new Map();

@@ -18,7 +18,11 @@ export default function constructorMethods(
       this.component.type = '${component.type || "component"}';
       this.setOgone({ isRoot: true });
       // define runtime for hmr
-      ${!isProduction ? `Ogone.run['${component.uuid}'] = Ogone.run['${component.uuid}'] || [];` : ''}
+      ${
+      !isProduction
+        ? `Ogone.run['${component.uuid}'] = Ogone.run['${component.uuid}'] || [];`
+        : ""
+    }
     `;
   }
   //define dependencies of the node
@@ -29,7 +33,11 @@ export default function constructorMethods(
       this.positionInParentComponent = ${isTemplate ? "[]" : null};
       ${templateConstruction}
       // define templates of hmr
-      ${!isProduction ? `Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];` :  ''}
+      ${
+    !isProduction
+      ? `Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];`
+      : ""
+  }
     }
   `;
 }

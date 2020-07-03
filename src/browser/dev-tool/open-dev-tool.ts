@@ -1,6 +1,7 @@
 import factory from "./factory.ts";
 
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 function openOgoneDevTool() {
     Ogone.DevTool = window.open('', 'Ogone Dev Tool', devTool_window_parameters);
     if (!Ogone.DevTool) {

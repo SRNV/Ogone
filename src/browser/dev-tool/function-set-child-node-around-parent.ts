@@ -1,4 +1,5 @@
-export default (opts: any) => `
+export default (opts: any) =>
+  `
 function setChildNodeAroundParent(opts) {
     const { PI, round, cos, sin } = Math;
     const { parent, minRadius = 0, maxRadius = 0, child, minRadian = 0, maxRadian = PI } = opts;

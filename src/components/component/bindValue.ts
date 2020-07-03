@@ -1,15 +1,15 @@
 export default function bindValueMethod(
-    component: any,
-    node: any,
-    opts: any,
-  ): string {
-    const { isStore, isRouter } = opts;
-    if (
-      isRouter || isStore
-    ) {
-      return `bindValue() {}`;
-    }
-    return `
+  component: any,
+  node: any,
+  opts: any,
+): string {
+  const { isStore, isRouter } = opts;
+  if (
+    isRouter || isStore
+  ) {
+    return `bindValue() {}`;
+  }
+  return `
       bindValue() {
         const o = this.ogone;
         const oc = o.component;
@@ -88,4 +88,4 @@ export default function bindValueMethod(
         }
       }
     `;
-  }
+}
