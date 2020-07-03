@@ -5,6 +5,10 @@ use @/examples/app/stores/menu.store.o3 as 'store-menu'
     isOpen: false
   case 'click:openMenu':
     Store.dispatch('menu/toggle')
+    Store.dispatch('menu/checkController')
+      .then((res) => {
+        console.warn(res);
+      });
   break;
 </proto>
 

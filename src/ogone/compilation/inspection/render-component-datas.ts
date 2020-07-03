@@ -14,14 +14,15 @@ export default async function (bundle: Bundle, component: Component) {
     const controllers = hasController(bundle, component);
     const controllerDef = controllers.length > 0 ? `
       const Controllers = {};
-      ${controllers.map(([tagName]) => {
-      let result = `Controllers["${tagName}"] = {
-          get(route) { return route },
-          post() {},
-          put() {},
-          delete() {},
-          patch() {},
-        }`;
+      ${controllers.map(([tagName, path]) => {
+      const subcomp = bundle.components.get(path)
+      let result = subcomp ? `Controllers["${tagName}"] = {
+          async get(route) { return await (await (await fetch(\`${subcomp.namespace}$\{route}\`)).blob()).text(); },
+          async post() {},
+          async put() {},
+          async delete() {},
+          async patch() {},
+        }` : '';
       return result;
     })}
       Object.seal(Controllers);
