@@ -75,7 +75,7 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
             } else if (GET_LENGTH && ${key}) {
               return 0;`;
             }).join("\n")
-          }
+            }
             }
           `;
         }
@@ -105,11 +105,11 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           const GET_LENGTH = opts.getLength;
           const POSITION = opts.position;
           ${
-          component.data instanceof Object
-            ? Object.keys(component.data).map((prop) =>
-              `const ${prop} = this.${prop};`
-            ).join("\n")
-            : ""
+        component.data instanceof Object
+          ? Object.keys(component.data).map((prop) =>
+            `const ${prop} = this.${prop};`
+          ).join("\n")
+          : ""
         }
           ${modules ? modules.map((md) => md[0]).join(";\n") : ""}
           ${array ? `const _____a_ = ${array} || [];` : ""}
@@ -117,11 +117,11 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
           ${script.value || ""}
           ${contextIf ? contextIf : ""}
           ${
-          getLength
-            ? getLength({
-              filter: renderConditions(node),
-            })
-            : ""
+        getLength
+          ? getLength({
+            filter: renderConditions(node),
+          })
+          : ""
         }
           if (GET_TEXT) {
             try {
@@ -135,7 +135,10 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
         };
       `
         : `Ogone.contexts['${component.uuid}-${nId}'] = Ogone.contexts['${component.uuid}-${node.parentNode.id}'];`;
-      bundle.contexts.push(contextScript);
+      bundle.contexts.push(contextScript
+        .replace(/\n/gi, '')
+        .replace(/\s+/gi, ' ')
+      );
     });
   }
 }

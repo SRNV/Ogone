@@ -1,9 +1,31 @@
-import { Bundle, Component } from "../../../../.d.ts";
-
+import { Bundle, Component, XMLNodeDescription } from "../../../../.d.ts";
+function hasController(bundle: Bundle, component: Component): string[][] {
+  const controllers = Object.entries(component.imports)
+    .filter(([, path]) => {
+      const comp = bundle.components.get(path);
+      return comp && comp.type === "controller";
+    });
+  return controllers;
+}
 export default async function (bundle: Bundle, component: Component) {
   if (component.data instanceof Object) {
     const { runtime } = component.scripts;
     const { modules } = component;
+    const controllers = hasController(bundle, component);
+    const controllerDef = controllers.length > 0 ? `
+      const Controllers = {};
+      ${controllers.map(([tagName]) => {
+      let result = `Controllers["${tagName}"] = {
+          get(route) { return route },
+          post() {},
+          put() {},
+          delete() {},
+          patch() {},
+        }`;
+      return result;
+    })}
+      Object.seal(Controllers);
+    ` : '';
     const asyncResolve = `
     const Async = {
       resolve: (...args) => {
@@ -31,6 +53,7 @@ export default async function (bundle: Bundle, component: Component) {
     let result = `
     Ogone.components['${component.uuid}'] = function () {
       OComponent.call(this);
+      ${component.type === 'store' ? controllerDef : ''}
       ${
       component.hasStore
         ? `
@@ -84,7 +107,7 @@ export default async function (bundle: Bundle, component: Component) {
         },
       };`
         : ""
-    }
+      }
       const ____ = (prop, inst) => {
         this.update(prop);
       };
@@ -99,7 +122,7 @@ export default async function (bundle: Bundle, component: Component) {
           `'${key}': '${value}',`
         )
         : ""
-    }
+      }
       }
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}

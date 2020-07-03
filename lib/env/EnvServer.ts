@@ -17,7 +17,7 @@ export default abstract class EnvServer extends Env {
   private static async control(req: any): Promise<boolean> {
     const ns = req.url.slice(1).split("/")[0];
     if (req.url.indexOf("/") > -1 && req.url.startsWith(`/${ns}/`)) {
-      const controller = Ogone.controllers.get(ns);
+      const controller = Ogone.controllers[ns] || Ogone.controllers[`/${ns}`];
       if (controller) {
         const route = req.url.replace(`/${ns}`, "");
         const t = req.method;

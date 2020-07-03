@@ -27,12 +27,13 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         throw DefinitionOfProtoNotFoundException;
       }
     }
-    if (moduleScript) {
+    if (moduleScript && proto) {
+      const { type } = proto?.attributes;
       const ogoneScript = jsThis(
         moduleScript as string,
         {
           data: true,
-          reactivity: true,
+          reactivity: !["controller"].includes(type as string),
           casesAreLinkables: true,
           beforeCases: true,
         },
@@ -63,6 +64,7 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       ${caseGate ? caseGate : ""}
       switch(_state) { ${value} }`;
       // transpile ts
+      // @ts-ignore
       sc = (await Deno.transpileOnly({
         "proto.ts": sc,
       }, {
@@ -82,12 +84,12 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       }))["proto.ts"].source;
       let script = `(${
         proto && proto.attributes &&
-        ["async", "store", "controller"].includes(
-          proto.attributes.type as string,
-        )
+          ["async", "store", "controller"].includes(
+            proto.attributes.type as string,
+          )
           ? "async"
           : ""
-      } function (_state, ctx, event, _once = 0) {
+        } function (_state, ctx, event, _once = 0) {
           try {
             ${sc}
           } catch(err) {
@@ -137,11 +139,11 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         const comp = {
           ns: component.namespace,
           data: component.data,
-          runtime: (_state: any, ctx: any) => {},
+          runtime: (_state: any, ctx: any) => { },
         };
         comp.runtime = run.bind(comp.data);
         // save the controller
-        Ogone.controllers.set(comp.ns, comp);
+        Ogone.controllers[comp.ns as string] = comp;
       }
       if (type === "router") {
         component.routes = inspectRoutes(

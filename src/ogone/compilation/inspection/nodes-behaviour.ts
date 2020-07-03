@@ -7,7 +7,7 @@ export default async function oRenderNodesBehavior(
   node: XMLNodeDescription,
 ) {
   const component = bundle.components.get(keyComponent);
-  if (component && !["controller"].includes(component.type)) {
+  if (component) {
     const isImported: string = component.imports[node.tagName as string];
     const subcomp = bundle.components.get(isImported);
     if (node.tagName === null || (node.hasFlag && node.tagName)) {
@@ -33,7 +33,7 @@ export default async function oRenderNodesBehavior(
     if (node.attributes && node.attributes["--defer"] && !isImported) {
       const BadUseDeferFlagException =
         `[Ogone] --defer must be called only on async components. discard <${node.tagName} --defer="${
-          node.attributes["--defer"]
+        node.attributes["--defer"]
         }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
       throw BadUseDeferFlagException;
     }
@@ -43,7 +43,7 @@ export default async function oRenderNodesBehavior(
     ) {
       const BadUseDeferFlagException =
         `[Ogone] --defer must be called only on async components. change type of <${node.tagName} --defer="${
-          node.attributes["--defer"]
+        node.attributes["--defer"]
         }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
       throw BadUseDeferFlagException;
     }

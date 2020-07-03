@@ -2,7 +2,7 @@
   def:
     name: SRNV
   case 'GET:/':
-    return { id: 0, name: this.name};
+    return 'Hello Deno!';
   case 'GET:/2':
     return '<h1> test </h1>';
 </proto>

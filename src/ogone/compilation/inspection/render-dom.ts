@@ -80,7 +80,7 @@ export default function oRenderDOM(
             }`;
           }
           return `
-          let _____a_2 = _____a_.filter((${item}, ${index}) => ${opts.filter})
+          let _____a_2 = _____a_.filter((${item}, ${index}) => ${opts.filter});
           ${item} = (_____a_2)[${index}];
           if (GET_LENGTH) {
             return (_____a_2).length;
@@ -137,7 +137,7 @@ export default function oRenderDOM(
         contextLegacy.declarationScript
           ? contextLegacy.declarationScript.join("")
           : ""
-      } `;
+        } `;
       contextLegacy.script = {
         value,
         node,

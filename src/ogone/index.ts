@@ -9,7 +9,7 @@ export default {
   config,
   files: [],
   directories: [],
-  controllers: new Map(),
+  controllers: {} as { [key: string]: any },
   main: `${Deno.cwd()}${config.entrypoint}`,
   pragma: "self.h",
 };
