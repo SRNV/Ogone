@@ -9,12 +9,13 @@ export default function oRenderStyles(bundle: Bundle) {
       node.tagName === "style"
     );
     styles.forEach((element) => {
-      if (element.childNodes[0].rawText) {
+      const styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
+      if (styleContent) {
         let compiledCss: string = "";
         switch (element.attributes.lang) {
           case "scss":
           case "sass":
-            compiledCss = sassCompiler(element.childNodes[0].rawText, {
+            compiledCss = sassCompiler(styleContent, {
               output_style: "compressed",
               precision: 5,
               indented_syntax: false,
@@ -22,10 +23,10 @@ export default function oRenderStyles(bundle: Bundle) {
             }).result;
             break;
           case "denolus":
-            compiledCss = denolusCompiler(element.childNodes[0].rawText);
+            compiledCss = denolusCompiler(styleContent);
             break;
           default:
-            compiledCss = element.childNodes[0].rawText;
+            compiledCss = styleContent;
             break;
         }
         const css = scopeCSS(compiledCss, component.uuid);
