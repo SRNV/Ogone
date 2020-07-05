@@ -1,13 +1,22 @@
 import jsThis from "../../../../lib/js-this/switch.ts";
-import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
+import { YAML } from "../../../../deps.ts";
 import allowedTypes from "./rules/component-types.ts";
 import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
-import { Bundle } from "../../../../.d.ts";
+import { Bundle, XMLNodeDescription } from "../../../../.d.ts";
 import Ogone from "../../index.ts";
 
 export default async function oRenderScripts(bundle: Bundle): Promise<void> {
   const entries = Array.from(bundle.components.entries());
+  for await (let [, component] of entries) {
+    const protos = component.rootNode.childNodes.filter((node) =>
+      node.tagName === "proto"
+    );
+    if (protos.length > 1) {
+      const MultipleProtoProvidedException = new Error(`[Ogone] multiple proto found in ${component.file}. not supported in this version.`);
+      throw MultipleProtoProvidedException;
+    }
+  }
   for await (let [, component] of entries) {
     const proto = component.rootNode.childNodes.find((node) =>
       node.tagName === "proto"
@@ -132,9 +141,18 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         (type as "component" | "async" | "store" | "router" | "controller");
       if (type === "controller") {
         const run = eval(component.scripts.runtime);
-        if (proto.attributes.namespace) {
+        const namespace = proto.attributes.namespace;
+        if (namespace && /[^\w]/gi.test(namespace as string)) {
+          const char = (namespace as string).match(/[^\w]/);
+          const ForbiddenCharactersInNamespaceException = new Error(`[Ogone] forbidden character in namespace found. please remove it.\ncomponent: ${component.file}\ncharacter: ${char}`);
+          throw ForbiddenCharactersInNamespaceException;
+        }
+        if (namespace && (namespace as string).length) {
           // set the component type, default is null
-          component.namespace = (proto.attributes.namespace as string);
+          component.namespace = (namespace as string);
+        } else {
+          const RequiredNamespaceAttributeException = new Error(`[Ogone] proto's namespace is missing in ${type} component.\ncomponent: ${component.file}\nplease set the attribute namespace, this one can't be empty.`)
+          throw RequiredNamespaceAttributeException;
         }
         const comp = {
           ns: component.namespace,
@@ -158,6 +176,17 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
           // set the component type, default is null
           component.namespace = (proto.attributes.namespace as string);
         }
+      }
+      if (["store", "controller"].includes(type as string)) {
+        // check if there is any forbidden element
+        component.rootNode.childNodes
+          .filter((child: XMLNodeDescription) => {
+            return child.tagName && child.tagName !== "proto";
+          })
+          .map((child: XMLNodeDescription) => {
+            const ForbiddenElementInComponentException = new Error(`[Ogone] a forbidden element found in ${type} component.\ncomponent: ${component.file}\nelement: ${child.tagName}`);
+            throw ForbiddenElementInComponentException;
+          })
       }
     }
   }

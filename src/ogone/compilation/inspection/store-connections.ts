@@ -1,6 +1,6 @@
 import { Bundle } from "../../../../.d.ts";
 
-import { YAML } from "https://raw.githubusercontent.com/eemeli/yaml/master/src/index.js";
+import { YAML } from "../../../../deps.ts";
 export default function getStoreConnections(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {

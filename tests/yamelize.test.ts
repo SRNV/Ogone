@@ -4,10 +4,10 @@ import yamelize from "../lib/js-this/src/render/yamelize.js";
 import {
   assertEquals,
   assertThrows,
-  assertStrContains,
+  assertStringContains,
   assertArrayContains,
   fail,
-} from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
+} from "../deps.ts";
 
 function renderDefExpression(str: string, opts?: any): string {
   let typedExpressions = getTypedExpression();

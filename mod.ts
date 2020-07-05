@@ -1,4 +1,4 @@
-import { serve } from "https://deno.land/std@v0.42.0/http/server.ts";
+import { serve } from "./deps.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import EnvServer from "./lib/env/EnvServer.ts";

@@ -4,7 +4,7 @@ import Ogone from "./../../src/ogone/index.ts";
 import compile from "./../../src/ogone/compilation/index.ts";
 import { Bundle, Environment } from "./../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
-import { join } from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
+import { join } from "../../deps.ts";
 export default abstract class Env {
   private static bundle: Bundle;
   public static env: Environment = "development";
@@ -91,7 +91,7 @@ export default abstract class Env {
         browserBuild(Env.env === "production", {
           hasDevtool: Env.devtool,
         })
-      }
+        }
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
         ${Env.bundle.render.join("\n")}

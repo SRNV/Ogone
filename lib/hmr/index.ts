@@ -1,7 +1,7 @@
 import {
   WebSocket,
   WebSocketServer,
-} from "https://deno.land/x/websocket/mod.ts";
+} from "../../deps.ts";
 import compile from "./../../src/ogone/compilation/index.ts";
 import Env from "../env/Env.ts";
 import Ogone from "./../../src/ogone/index.ts";

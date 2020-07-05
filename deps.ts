@@ -12,10 +12,10 @@ export * as SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/m
 export {
   assertEquals,
   assertThrows,
-  assertStrContains,
+  assertStringContains,
   assertArrayContains,
   fail,
-} from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
+} from "https://deno.land/std@0.58.0/testing/asserts.ts";
 export { compile as sassCompiler } from "https://deno.land/x/sass/mod.ts";
 import { parse } from "https://raw.githubusercontent.com/divy-work/denolus/master/src/parser/index.ts";
 import { compile } from "https://raw.githubusercontent.com/divy-work/denolus/master/src/compiler/index.ts";

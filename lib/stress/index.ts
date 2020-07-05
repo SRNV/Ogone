@@ -1,5 +1,5 @@
 import { existsSync } from "./../../utils/exists.ts";
-import { join } from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
+import { join } from "../../deps.ts";
 const stressMap: string[] = [];
 
 interface StressOptions {
@@ -44,7 +44,7 @@ function runTests() {
   console.warn("[Ogone] Stress mode: running.");
   stressMap.forEach((path) => {
     Deno.run({
-      cmd: ["deno", "test", "--failfast", path],
+      cmd: ["deno", "test", "--failfast", "--unstable", "-A", path],
     });
   });
 }

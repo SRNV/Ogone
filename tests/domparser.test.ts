@@ -2,10 +2,10 @@ import domparse from "../lib/dom-parser/index.ts";
 import {
   assertEquals,
   assertThrows,
-  assertStrContains,
+  assertStringContains,
   assertArrayContains,
   fail,
-} from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
+} from "../deps.ts";
 
 Deno.test("- domparser first node is a template", () => {
   const root = domparse("");

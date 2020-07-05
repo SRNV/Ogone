@@ -4,10 +4,10 @@ import renderNullifiedValues from "../lib/js-this/src/render/renderNullifiedValu
 import {
   assertEquals,
   assertThrows,
-  assertStrContains,
+  assertStringContains,
   assertArrayContains,
   fail,
-} from "https://raw.githubusercontent.com/denoland/deno/master/std/testing/asserts.ts";
+} from "../deps.ts";
 
 function renderOgoneTokens(declarations: any) {
   return jsThis(declarations, {

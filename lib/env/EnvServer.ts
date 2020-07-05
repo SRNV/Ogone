@@ -1,4 +1,4 @@
-import { Server } from "https://deno.land/std@v0.42.0/http/server.ts";
+import { Server } from "../../deps.ts";
 import { getHeaderContentTypeOf } from "./../../utils/extensions-resolution.ts";
 import Ogone from "./../../src/ogone/index.ts";
 import { existsSync } from "./../../utils/exists.ts";

@@ -5,6 +5,10 @@ function hasController(bundle: Bundle, component: Component): string[][] {
       const comp = bundle.components.get(path);
       return comp && comp.type === "controller";
     });
+  if (controllers.length && component.type !== "store") {
+    const ForbiddenUseException = new Error(`[Ogone] forbidden use of a controller inside a non-store component. \ncomponent: ${component.file}`)
+    throw ForbiddenUseException;
+  }
   return controllers;
 }
 export default async function (bundle: Bundle, component: Component) {
@@ -16,12 +20,13 @@ export default async function (bundle: Bundle, component: Component) {
       const Controllers = {};
       ${controllers.map(([tagName, path]) => {
       const subcomp = bundle.components.get(path)
-      let result = subcomp ? `Controllers["${tagName}"] = {
-          async get(route) { return await (await (await fetch(\`${subcomp.namespace}$\{route}\`)).blob()).text(); },
-          async post() {},
-          async put() {},
-          async delete() {},
-          async patch() {},
+      let result = subcomp ? `
+      Controllers["${tagName}"] = {
+          async get(rte) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`)).blob()).text(); },
+          async post(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op, body: JSON.stringify(data || {}), method: 'POST'})).blob()).text(); },
+          async put(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'PUT'})).blob()).text(); },
+          async delete(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'DELETE'})).blob()).text(); },
+          async patch(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'PATCH'})).blob()).text(); },
         }` : '';
       return result;
     })}
