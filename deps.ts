@@ -1,7 +1,7 @@
 // TODO link deps.ts to project
 export { existsSync } from "https://deno.land/std@v0.58.0/fs/exists.ts";
 export { serve } from "https://deno.land/std@v0.58.0/http/server.ts";
-export { join } from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
+export { join, relative } from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
 export { Server } from "https://deno.land/std@v0.58.0/http/server.ts";
 export {
   WebSocket,
