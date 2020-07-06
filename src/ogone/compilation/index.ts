@@ -21,7 +21,8 @@ export default async function (path: string) {
     render: [],
   };
   await oInspect(path, bundle);
-  oRender(bundle);
+  await oRender(bundle);
+  console.warn(bundle.files)
   await oRenderImports(bundle);
   await oRenderScripts(bundle);
   getStoreConnections(bundle);

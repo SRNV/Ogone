@@ -14,19 +14,6 @@ import beforeCase from "./src/render/before-case.js";
 import parseCases from "./src/case-parser.ts";
 import templateReplacer from "../../utils/template-recursive.ts";
 
-function recursiveTranslate(expressions: any, prog: string): string {
-  let str = prog;
-  if (str.indexOf("§§") > -1) {
-    Object.entries(expressions)
-      .filter(([key]) => str.indexOf(key) > -1)
-      .reverse()
-      .forEach(([key, value]) => {
-        // @ts-ignore
-        str = str.replace(key, value);
-      });
-  }
-  return str.indexOf("§§") > -1 ? recursiveTranslate(expressions, str) : str;
-}
 function jsThis(str: string, opts: any) {
   let typedExpressions = getTypedExpression();
   let expressions = {

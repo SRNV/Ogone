@@ -1,0 +1,5 @@
+use https://raw.githubusercontent.com/SRNV/Ogone/master/examples/app/index.o3 as 'remote-comp';
+use ../../reflections/index.o3 as 'relative-comp';
+<h1> Test importing remote components</h1>
+<relative-comp />
+<remote-comp />
