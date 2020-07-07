@@ -25,6 +25,7 @@ export default function getWebComponent(
   const isStore = isTemplate && component.type === "store";
   const isAsync = isTemplate && component.type === "async";
   const isProduction = Env.env === "production";
+  const isRemote = !!component.remote;
   const isAsyncNode = !isTemplate && !isImported && node.flags &&
     node.flags.await;
   const hasDevtool = Env.devtool === true;
@@ -36,6 +37,7 @@ export default function getWebComponent(
     isAsyncNode,
     isImported,
     isProduction,
+    isRemote,
     hasDevtool,
   };
   const componentPragma = node.pragma

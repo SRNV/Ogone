@@ -12,8 +12,10 @@ export type Environment = "development" | "production" | "staging";
   components: Map<string, Component>;
   ```
  */
+interface Remote { base: string; path: string; file: string; }
 export interface Bundle {
   files: string[];
+  remotes: Remote[];
   datas: string[];
   render: string[];
   context: string[];
@@ -45,6 +47,7 @@ export interface Bundle {
  * ```
  */
 export interface Component {
+  remote: Remote | null;
   for: any;
   refs: {};
   flags: [];

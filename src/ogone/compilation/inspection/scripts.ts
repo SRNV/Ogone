@@ -1,5 +1,5 @@
 import jsThis from "../../../../lib/js-this/switch.ts";
-import { YAML } from "../../../../deps.ts";
+import { YAML, join, absolute, fetchRemoteRessource } from "../../../../deps.ts";
 import allowedTypes from "./rules/component-types.ts";
 import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
@@ -25,9 +25,22 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     const moduleScript = proto?.getInnerHTML();
     let defData;
     if (proto && "def" in proto.attributes) {
-      if (existsSync(proto.attributes.def as string)) {
+      const relativePath = join(component.file, proto.attributes.def as string);
+      const remoteRelativePath = absolute(component.file, proto.attributes.def as string);
+      if (!!component.remote) {
+        console.warn(`[Ogone] remote definition of proto: ${proto.attributes.def}`);
+        const def = await fetchRemoteRessource(remoteRelativePath);
+        if (!def) {
+          throw new Error(`[Ogone] definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${proto.attributes.def}`);
+        } else {
+          defData = YAML.parse(def, {});
+        }
+      } else if (existsSync(proto.attributes.def as string)) {
         console.warn(`[Ogone] definition of proto: ${proto.attributes.def}`);
-        const def = Deno.readTextFileSync(proto.attributes.def as string);
+        const def = Deno.readTextFileSync(proto.attributes.def  as string);
+        defData = YAML.parse(def, {});
+      } else if (!component.remote && existsSync(relativePath)) {
+        const def = Deno.readTextFileSync(relativePath);
         defData = YAML.parse(def, {});
       } else {
         const DefinitionOfProtoNotFoundException = new Error(

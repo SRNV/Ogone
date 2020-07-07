@@ -1,34 +1,8 @@
 import { existsSync } from "../../../../utils/exists.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
 import { Bundle } from "../../../../.d.ts";
-import { join, relative } from "../../../../deps.ts";
+import { join, relative, absolute, fetchRemoteRessource } from "../../../../deps.ts";
 
-function absolute(base: string, relative: string) {
-  const stack = base.split("/"),
-      parts = relative.split("/");
-  stack.pop();
-  for (let i = 0; i < parts.length; i++) {
-      if (parts[i] == ".")
-          continue;
-      if (parts[i] == "..")
-          stack.pop();
-      else
-          stack.push(parts[i]);
-  }
-  return stack.join("/");
-}
-
-async function fetchComponent(p: string) {
-  console.warn('[Ogone] Downloading',p);
-  const a = await fetch(p);
-  if (a.status < 400) {
-    const b = await a.blob();
-    const c = await b.text();
-    return c;
-  } else {
-    return null;
-  }
-}
 async function startRecursiveInspectionOfComponent(
   textFile: string,
   p: string,
@@ -41,14 +15,24 @@ async function startRecursiveInspectionOfComponent(
 ) {
   const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
   const tokens = jsThis(splitTextUseFirstPart, { onlyDeclarations: true });
-  bundle.files.push(p);
+  if (opts && opts.remote) {
+    bundle.remotes.push({
+      file: textFile,
+      base: opts.base,
+      path: opts.current,
+    });
+  } else {
+    // only push if it's a local component
+    bundle.files.push(p);
+  }
   if (tokens.body && tokens.body.use) {
     for await (let c of Object.values(tokens.body.use)) {
       const { path, type }: any = c;
       if (path === p) return;
 
       if (type === "remote") {
-        const file = await fetchComponent(path);
+        console.warn('[Ogone] Downloading', path);
+        const file = await fetchRemoteRessource(path);
         if (file) {
           await startRecursiveInspectionOfComponent(file, path, bundle, {
             remote: true,
@@ -65,7 +49,8 @@ async function startRecursiveInspectionOfComponent(
       } else if (opts.remote && type === "relative" && opts.base) {
         // relative and remote
         const newPath = `${opts.current.split('://')[0]}://${absolute(opts.current.split('://')[1], path)}`;
-        const file = await fetchComponent(newPath);
+        console.warn('[Ogone] Downloading', newPath);
+        const file = await fetchRemoteRessource(newPath);
         if (file) {
           await startRecursiveInspectionOfComponent(file, newPath, bundle, {
             ...opts,

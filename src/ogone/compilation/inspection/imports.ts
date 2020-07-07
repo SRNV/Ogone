@@ -20,6 +20,7 @@ export default function oRenderImports(bundle: Bundle) {
         const tokens = jsThis(declarations, {
           onlyDeclarations: true,
         });
+        // performance here
         const importBody = jsThis(declarations, {
           esm: true,
         });

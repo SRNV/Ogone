@@ -9,38 +9,60 @@ const uuid: SUI = new SUI({
   debug: false,
   dictionary: ["a", "b", "x", "y", "z", "o", "r", "s", "n", "v", "3", "5"],
 });
+function getNewComponent(opts:any) {
+  return {
+    uuid: `data-${uuid.randomUUID()}`,
+    esmExpressions: "",
+    exportsExpressions: "",
+    data: {},
+    style: [],
+    scripts: {
+      runtime: "function(){};",
+    },
+    imports: {},
+    flags: [],
+    for: {},
+    refs: {},
+    reactive: {},
+    // if the component type is set as router
+    routes: null,
+    // if the component type is store
+    namespace: null,
+    modules: [],
+    type: "component",
+    requirements: null,
+    hasStore: false,
+    ...opts,
+  }
+}
 export default function oRender(bundle: Bundle) {
+  // start by local components
   bundle.files.forEach((file, i) => {
     const index = file;
     if (existsSync(index)) {
       const html = Deno.readTextFileSync(index);
       const rootNode: XMLNodeDescription | null = domparse(html);
       if (rootNode) {
-        bundle.components.set(index, {
+        bundle.components.set(index, getNewComponent({
           rootNode,
-          uuid: `data-${uuid.randomUUID()}`,
           file: index,
-          esmExpressions: "",
-          exportsExpressions: "",
-          data: {},
-          style: [],
-          scripts: {
-            runtime: "function(){};",
-          },
-          imports: {},
-          flags: [],
-          for: {},
-          refs: {},
-          reactive: {},
-          // if the component type is set as router
-          routes: null,
-          // if the component type is store
-          namespace: null,
-          modules: [],
-          type: "component",
-          requirements: null,
-          hasStore: false,
-        });
+        }));
+      }
+    }
+  });
+  // then render remote components
+  bundle.remotes.forEach((remote, i) => {
+    const { path, file  } = remote;
+    const index = path;
+    if (existsSync(index)) {
+      const rootNode: XMLNodeDescription | null = domparse(file);
+      if (rootNode) {
+        bundle.components.set(index, getNewComponent({
+          remote,
+          rootNode,
+          file: index,
+        }));
+        console.warn(bundle.components.get(index))
       }
     }
   });

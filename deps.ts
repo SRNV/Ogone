@@ -23,3 +23,27 @@ import { compile } from "https://raw.githubusercontent.com/divy-work/denolus/mas
 export function denolusCompiler(code: string) {
   return compile(parse(code));
 }
+export function absolute(base: string, relative: string) {
+  const stack = base.split("/"),
+      parts = relative.split("/");
+  stack.pop();
+  for (let i = 0; i < parts.length; i++) {
+      if (parts[i] == ".")
+          continue;
+      if (parts[i] == "..")
+          stack.pop();
+      else
+          stack.push(parts[i]);
+  }
+  return stack.join("/");
+}
+export async function fetchRemoteRessource(p: string): Promise<string | null> {
+  const a = await fetch(p);
+  if (a.status < 400) {
+    const b = await a.blob();
+    const c = await b.text();
+    return c;
+  } else {
+    return null;
+  }
+}

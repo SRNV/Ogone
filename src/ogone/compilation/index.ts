@@ -19,10 +19,10 @@ export default async function (path: string) {
     customElements: [],
     components: new Map(),
     render: [],
+    remotes: [],
   };
   await oInspect(path, bundle);
   await oRender(bundle);
-  console.warn(bundle.files)
   await oRenderImports(bundle);
   await oRenderScripts(bundle);
   getStoreConnections(bundle);
