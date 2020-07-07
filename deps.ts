@@ -1,7 +1,10 @@
 // TODO link deps.ts to project
 export { existsSync } from "https://deno.land/std@v0.58.0/fs/exists.ts";
 export { serve } from "https://deno.land/std@v0.58.0/http/server.ts";
-export { join, relative } from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
+export {
+  join,
+  relative,
+} from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
 export { Server } from "https://deno.land/std@v0.58.0/http/server.ts";
 export {
   WebSocket,
@@ -25,15 +28,17 @@ export function denolusCompiler(code: string) {
 }
 export function absolute(base: string, relative: string) {
   const stack = base.split("/"),
-      parts = relative.split("/");
+    parts = relative.split("/");
   stack.pop();
   for (let i = 0; i < parts.length; i++) {
-      if (parts[i] == ".")
-          continue;
-      if (parts[i] == "..")
-          stack.pop();
-      else
-          stack.push(parts[i]);
+    if (parts[i] == ".") {
+      continue;
+    }
+    if (parts[i] == "..") {
+      stack.pop();
+    } else {
+      stack.push(parts[i]);
+    }
   }
   return stack.join("/");
 }

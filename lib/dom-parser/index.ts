@@ -69,7 +69,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-          }</${node.tagName}>`;
+        }</${node.tagName}>`;
         return result;
       }
       return node.rawText || "";
@@ -84,7 +84,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-          }`;
+        }`;
         return result;
       }
       return node.rawText || "";
@@ -620,7 +620,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
           node.attributes && node.attributes.await
             ? `${nId}.setAttribute('await', '');`
             : ""
-          }
+        }
           ${
           isImported || nodeIsDynamic && !isImported && !isRoot
             ? `${nId}.setOgone({
@@ -633,27 +633,27 @@ function setNodesPragma(expressions: DOMParserExpressions) {
               ${isImported ? `parentComponent: ctx,` : ""}
               ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
               ${
-            isImported
-              ? `dependencies: ${
-              JSON.stringify(
-                Object.values(node.attributes).filter((v) =>
-                  typeof v !== "boolean"
-                ),
-              )
-              },`
-              : ""
+              isImported
+                ? `dependencies: ${
+                  JSON.stringify(
+                    Object.values(node.attributes).filter((v) =>
+                      typeof v !== "boolean"
+                    ),
+                  )
+                },`
+                : ""
             }
               ${
-            nodeIsDynamic && !isImported || node.tagName === null
-              ? "component: ctx,"
-              : ""
+              nodeIsDynamic && !isImported || node.tagName === null
+                ? "component: ctx,"
+                : ""
             }
               ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
               ${node.tagName === null ? `renderChildNodes: true,` : ""}
               flags: ${flags},
             });`
             : ""
-          }
+        }
           ${nId}.setAttribute('${idComponent}', '');
           ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
           ${nodesPragma.length ? appending : ""}
@@ -670,11 +670,11 @@ function setNodesPragma(expressions: DOMParserExpressions) {
           ? `
           const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
           const txt = '\`${
-          node.rawText.replace(/\n/gi, " ")
-            // preserve regular expressions
-            .replace(/\\/gi, "\\\\")
-            // preserve quotes
-            .replace(/\'/gi, "\\'").trim()
+            node.rawText.replace(/\n/gi, " ")
+              // preserve regular expressions
+              .replace(/\\/gi, "\\\\")
+              // preserve quotes
+              .replace(/\'/gi, "\\'").trim()
           }\`';
           function r(key) {
             if (key instanceof String && txt.indexOf(key) < 0) return true;

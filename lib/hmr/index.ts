@@ -191,7 +191,7 @@ export async function HCR(bundle: Bundle): Promise<void> {
     startSavingNodesDNA(component, componentRegistry, component.rootNode);
   });
   // watch
-  for await (const path of bundle.files) {
+  for await (const { path } of bundle.files) {
     if (watchedFiles.includes(path)) {
       return;
     }

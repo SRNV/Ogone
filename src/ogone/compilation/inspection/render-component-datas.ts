@@ -6,7 +6,9 @@ function hasController(bundle: Bundle, component: Component): string[][] {
       return comp && comp.type === "controller";
     });
   if (controllers.length && component.type !== "store") {
-    const ForbiddenUseException = new Error(`[Ogone] forbidden use of a controller inside a non-store component. \ncomponent: ${component.file}`)
+    const ForbiddenUseException = new Error(
+      `[Ogone] forbidden use of a controller inside a non-store component. \ncomponent: ${component.file}`,
+    );
     throw ForbiddenUseException;
   }
   return controllers;
@@ -16,22 +18,28 @@ export default async function (bundle: Bundle, component: Component) {
     const { runtime } = component.scripts;
     const { modules } = component;
     const controllers = hasController(bundle, component);
-    const controllerDef = controllers.length > 0 ? `
+    const controllerDef = controllers.length > 0
+      ? `
       const Controllers = {};
-      ${controllers.map(([tagName, path]) => {
-      const subcomp = bundle.components.get(path)
-      let result = subcomp ? `
+      ${
+        controllers.map(([tagName, path]) => {
+          const subcomp = bundle.components.get(path);
+          let result = subcomp
+            ? `
       Controllers["${tagName}"] = {
           async get(rte) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`)).blob()).text(); },
           async post(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op, body: JSON.stringify(data || {}), method: 'POST'})).blob()).text(); },
           async put(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'PUT'})).blob()).text(); },
           async delete(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'DELETE'})).blob()).text(); },
           async patch(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'PATCH'})).blob()).text(); },
-        }` : '';
-      return result;
-    })}
+        }`
+            : "";
+          return result;
+        })
+      }
       Object.seal(Controllers);
-    ` : '';
+    `
+      : "";
     const asyncResolve = `
     const Async = {
       resolve: (...args) => {
@@ -59,7 +67,7 @@ export default async function (bundle: Bundle, component: Component) {
     let result = `
     Ogone.components['${component.uuid}'] = function () {
       OComponent.call(this);
-      ${component.type === 'store' ? controllerDef : ''}
+      ${component.type === "store" ? controllerDef : ""}
       ${
       component.hasStore
         ? `
@@ -113,7 +121,7 @@ export default async function (bundle: Bundle, component: Component) {
         },
       };`
         : ""
-      }
+    }
       const ____ = (prop, inst) => {
         this.update(prop);
       };
@@ -128,7 +136,7 @@ export default async function (bundle: Bundle, component: Component) {
           `'${key}': '${value}',`
         )
         : ""
-      }
+    }
       }
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}

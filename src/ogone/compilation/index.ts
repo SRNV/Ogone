@@ -26,7 +26,7 @@ export default async function (path: string) {
   await oRenderImports(bundle);
   await oRenderScripts(bundle);
   getStoreConnections(bundle);
-  oRenderStyles(bundle);
+  await oRenderStyles(bundle);
   oTopLevelTextNodeException(bundle);
   oCleanPureRootNode(bundle);
   await oStartRenderingDom(bundle);

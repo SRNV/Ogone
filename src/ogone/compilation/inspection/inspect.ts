@@ -1,7 +1,12 @@
 import { existsSync } from "../../../../utils/exists.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
 import { Bundle } from "../../../../.d.ts";
-import { join, relative, absolute, fetchRemoteRessource } from "../../../../deps.ts";
+import {
+  join,
+  relative,
+  absolute,
+  fetchRemoteRessource,
+} from "../../../../deps.ts";
 
 async function startRecursiveInspectionOfComponent(
   textFile: string,
@@ -9,9 +14,9 @@ async function startRecursiveInspectionOfComponent(
   bundle: Bundle,
   opts: any = {
     remote: false,
-    baseUrl: '',
-    current: '',
-  }
+    baseUrl: "",
+    current: "",
+  },
 ) {
   const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
   const tokens = jsThis(splitTextUseFirstPart, { onlyDeclarations: true });
@@ -23,7 +28,10 @@ async function startRecursiveInspectionOfComponent(
     });
   } else {
     // only push if it's a local component
-    bundle.files.push(p);
+    bundle.files.push({
+      path: p,
+      file: textFile,
+    });
   }
   if (tokens.body && tokens.body.use) {
     for await (let c of Object.values(tokens.body.use)) {
@@ -31,25 +39,31 @@ async function startRecursiveInspectionOfComponent(
       if (path === p) return;
 
       if (type === "remote") {
-        console.warn('[Ogone] Downloading', path);
+        console.warn("[Ogone] Downloading", path);
         const file = await fetchRemoteRessource(path);
         if (file) {
           await startRecursiveInspectionOfComponent(file, path, bundle, {
             remote: true,
-            base: path.match(/(http|https|ws|wss|ftp|tcp|fttp)(\:\/{2}[^\/]+)/gi)[0],
+            base: path.match(
+              /(http|https|ws|wss|ftp|tcp|fttp)(\:\/{2}[^\/]+)/gi,
+            )[0],
             current: path,
           });
         } else {
-          throw new Error(`[Ogone] unreachable remote component.\t\t\ninput: ${path}`);
+          throw new Error(
+            `[Ogone] unreachable remote component.\t\t\ninput: ${path}`,
+          );
         }
-      } else if ( type === "absolute" && existsSync(path)) {
+      } else if (type === "absolute" && existsSync(path)) {
         // absolute  and local
         const file = Deno.readTextFileSync(path);
         startRecursiveInspectionOfComponent(file, path, bundle);
       } else if (opts.remote && type === "relative" && opts.base) {
         // relative and remote
-        const newPath = `${opts.current.split('://')[0]}://${absolute(opts.current.split('://')[1], path)}`;
-        console.warn('[Ogone] Downloading', newPath);
+        const newPath = `${opts.current.split("://")[0]}://${
+          absolute(opts.current.split("://")[1], path)
+        }`;
+        console.warn("[Ogone] Downloading", newPath);
         const file = await fetchRemoteRessource(newPath);
         if (file) {
           await startRecursiveInspectionOfComponent(file, newPath, bundle, {
@@ -57,7 +71,9 @@ async function startRecursiveInspectionOfComponent(
             current: newPath,
           });
         } else {
-          throw new Error(`[Ogone] unreachable remote component.\t\t\ninput: ${newPath}`);
+          throw new Error(
+            `[Ogone] unreachable remote component.\t\t\ninput: ${newPath}`,
+          );
         }
       } else if (!opts.remote && type === "relative") {
         const newPath = join(p, path);

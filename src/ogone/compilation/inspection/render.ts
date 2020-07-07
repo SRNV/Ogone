@@ -9,7 +9,7 @@ const uuid: SUI = new SUI({
   debug: false,
   dictionary: ["a", "b", "x", "y", "z", "o", "r", "s", "n", "v", "3", "5"],
 });
-function getNewComponent(opts:any) {
+function getNewComponent(opts: any) {
   return {
     uuid: `data-${uuid.randomUUID()}`,
     esmExpressions: "",
@@ -33,37 +33,38 @@ function getNewComponent(opts:any) {
     requirements: null,
     hasStore: false,
     ...opts,
-  }
+  };
 }
 export default function oRender(bundle: Bundle) {
   // start by local components
-  bundle.files.forEach((file, i) => {
-    const index = file;
-    if (existsSync(index)) {
-      const html = Deno.readTextFileSync(index);
-      const rootNode: XMLNodeDescription | null = domparse(html);
-      if (rootNode) {
-        bundle.components.set(index, getNewComponent({
+  bundle.files.forEach((local, i) => {
+    const { path, file } = local;
+    const index = path;
+    const rootNode: XMLNodeDescription | null = domparse(file);
+    if (rootNode) {
+      bundle.components.set(
+        index,
+        getNewComponent({
           rootNode,
           file: index,
-        }));
-      }
+        }),
+      );
     }
   });
   // then render remote components
   bundle.remotes.forEach((remote, i) => {
-    const { path, file  } = remote;
+    const { path, file } = remote;
     const index = path;
-    if (existsSync(index)) {
-      const rootNode: XMLNodeDescription | null = domparse(file);
-      if (rootNode) {
-        bundle.components.set(index, getNewComponent({
+    const rootNode: XMLNodeDescription | null = domparse(file);
+    if (rootNode) {
+      bundle.components.set(
+        index,
+        getNewComponent({
           remote,
           rootNode,
           file: index,
-        }));
-        console.warn(bundle.components.get(index))
-      }
+        }),
+      );
     }
   });
 }

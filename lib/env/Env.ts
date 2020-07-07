@@ -91,7 +91,7 @@ export default abstract class Env {
         browserBuild(Env.env === "production", {
           hasDevtool: Env.devtool,
         })
-        }
+      }
         ${Env.bundle.datas.join("\n")}
         ${Env.bundle.contexts.reverse().join("\n")}
         ${Env.bundle.render.join("\n")}

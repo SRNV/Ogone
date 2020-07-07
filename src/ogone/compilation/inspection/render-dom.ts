@@ -137,7 +137,7 @@ export default function oRenderDOM(
         contextLegacy.declarationScript
           ? contextLegacy.declarationScript.join("")
           : ""
-        } `;
+      } `;
       contextLegacy.script = {
         value,
         node,

@@ -1,5 +1,10 @@
 import jsThis from "../../../../lib/js-this/switch.ts";
-import { YAML, join, absolute, fetchRemoteRessource } from "../../../../deps.ts";
+import {
+  YAML,
+  join,
+  absolute,
+  fetchRemoteRessource,
+} from "../../../../deps.ts";
 import allowedTypes from "./rules/component-types.ts";
 import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
@@ -13,7 +18,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       node.tagName === "proto"
     );
     if (protos.length > 1) {
-      const MultipleProtoProvidedException = new Error(`[Ogone] multiple proto found in ${component.file}. not supported in this version.`);
+      const MultipleProtoProvidedException = new Error(
+        `[Ogone] multiple proto found in ${component.file}. not supported in this version.`,
+      );
       throw MultipleProtoProvidedException;
     }
   }
@@ -25,26 +32,52 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     const moduleScript = proto?.getInnerHTML();
     let defData;
     if (proto && "def" in proto.attributes) {
-      const relativePath = join(component.file, proto.attributes.def as string);
-      const remoteRelativePath = absolute(component.file, proto.attributes.def as string);
-      if (!!component.remote) {
-        console.warn(`[Ogone] remote definition of proto: ${proto.attributes.def}`);
-        const def = await fetchRemoteRessource(remoteRelativePath);
+      // allowing <proto def="..."
+      // absolute <proto def="http://..."
+      // absolute <proto def="path/to/folder"
+      // relative <proto def="../"
+      // relative <proto def="./"
+      const defPath = (proto.attributes.def as string).trim();
+      const relativePath = join(component.file, defPath);
+      const remoteRelativePath = absolute(component.file, defPath);
+      const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
+        defPath.split("://")[0],
+      );
+      if (!defPath.endsWith(".yml") && !defPath.endsWith(".yaml")) {
+        throw new Error(
+          `[Ogone] definition files require YAML extensions.\ncomponent: ${component.file}\ninput: ${defPath}`,
+        );
+      }
+      if (isAbsoluteRemote) {
+        console.warn(`[Ogone] Def: ${defPath}`);
+        const def = await fetchRemoteRessource(defPath);
         if (!def) {
-          throw new Error(`[Ogone] definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${proto.attributes.def}`);
+          throw new Error(
+            `[Ogone] definition file ${defPath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
+          );
         } else {
           defData = YAML.parse(def, {});
         }
-      } else if (existsSync(proto.attributes.def as string)) {
-        console.warn(`[Ogone] definition of proto: ${proto.attributes.def}`);
-        const def = Deno.readTextFileSync(proto.attributes.def  as string);
+      } else if (!!component.remote) {
+        console.warn(`[Ogone] Def: ${remoteRelativePath}`);
+        const def = await fetchRemoteRessource(remoteRelativePath);
+        if (!def) {
+          throw new Error(
+            `[Ogone] definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
+          );
+        } else {
+          defData = YAML.parse(def, {});
+        }
+      } else if (existsSync(defPath)) {
+        console.warn(`[Ogone] Def: ${defPath}`);
+        const def = Deno.readTextFileSync(defPath);
         defData = YAML.parse(def, {});
       } else if (!component.remote && existsSync(relativePath)) {
         const def = Deno.readTextFileSync(relativePath);
         defData = YAML.parse(def, {});
       } else {
         const DefinitionOfProtoNotFoundException = new Error(
-          `[Ogone] can't find the definition file of proto: ${proto.attributes.def}`,
+          `[Ogone] can't find the definition file of proto: ${defPath}`,
         );
         throw DefinitionOfProtoNotFoundException;
       }
@@ -106,12 +139,12 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       }))["proto.ts"].source;
       let script = `(${
         proto && proto.attributes &&
-          ["async", "store", "controller"].includes(
-            proto.attributes.type as string,
-          )
+        ["async", "store", "controller"].includes(
+          proto.attributes.type as string,
+        )
           ? "async"
           : ""
-        } function (_state, ctx, event, _once = 0) {
+      } function (_state, ctx, event, _once = 0) {
           try {
             ${sc}
           } catch(err) {
@@ -157,20 +190,24 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         const namespace = proto.attributes.namespace;
         if (namespace && /[^\w]/gi.test(namespace as string)) {
           const char = (namespace as string).match(/[^\w]/);
-          const ForbiddenCharactersInNamespaceException = new Error(`[Ogone] forbidden character in namespace found. please remove it.\ncomponent: ${component.file}\ncharacter: ${char}`);
+          const ForbiddenCharactersInNamespaceException = new Error(
+            `[Ogone] forbidden character in namespace found. please remove it.\ncomponent: ${component.file}\ncharacter: ${char}`,
+          );
           throw ForbiddenCharactersInNamespaceException;
         }
         if (namespace && (namespace as string).length) {
           // set the component type, default is null
           component.namespace = (namespace as string);
         } else {
-          const RequiredNamespaceAttributeException = new Error(`[Ogone] proto's namespace is missing in ${type} component.\ncomponent: ${component.file}\nplease set the attribute namespace, this one can't be empty.`)
+          const RequiredNamespaceAttributeException = new Error(
+            `[Ogone] proto's namespace is missing in ${type} component.\ncomponent: ${component.file}\nplease set the attribute namespace, this one can't be empty.`,
+          );
           throw RequiredNamespaceAttributeException;
         }
         const comp = {
           ns: component.namespace,
           data: component.data,
-          runtime: (_state: any, ctx: any) => { },
+          runtime: (_state: any, ctx: any) => {},
         };
         comp.runtime = run.bind(comp.data);
         // save the controller
@@ -197,9 +234,11 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
             return child.tagName && child.tagName !== "proto";
           })
           .map((child: XMLNodeDescription) => {
-            const ForbiddenElementInComponentException = new Error(`[Ogone] a forbidden element found in ${type} component.\ncomponent: ${component.file}\nelement: ${child.tagName}`);
+            const ForbiddenElementInComponentException = new Error(
+              `[Ogone] a forbidden element found in ${type} component.\ncomponent: ${component.file}\nelement: ${child.tagName}`,
+            );
             throw ForbiddenElementInComponentException;
-          })
+          });
       }
     }
   }

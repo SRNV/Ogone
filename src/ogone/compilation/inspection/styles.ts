@@ -1,17 +1,84 @@
 import scopeCSS from "../../../../lib/html-this/scopeCSS.ts";
-import { sassCompiler, denolusCompiler } from "../../../../deps.ts";
+import {
+  sassCompiler,
+  denolusCompiler,
+  absolute,
+  join,
+  fetchRemoteRessource,
+} from "../../../../deps.ts";
 import { Bundle } from "../../../../.d.ts";
+import { existsSync } from "../../../../utils/exists.ts";
 
-export default function oRenderStyles(bundle: Bundle) {
+export default async function oRenderStyles(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
-  entries.forEach(([, component]) => {
+  for await (const [, component] of entries) {
     const styles = component.rootNode.childNodes.filter((node) =>
       node.tagName === "style"
     );
-    styles.forEach((element) => {
+    for await (const element of styles) {
       const styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
       if (styleContent) {
         let compiledCss: string = "";
+        const src = element.attributes.src
+          ? (element.attributes.src as string).trim()
+          : "";
+        const relativePath = join(component.file, src);
+        const remoteRelativePath = absolute(component.file, src);
+        const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
+          src.split("://")[0],
+        );
+        const lang = (element.attributes.lang || "css") as string;
+        // allows <syle src="path/to/style.css"
+        if (src.length && !component.remote) {
+          const p = existsSync(src)
+            ? src
+            : existsSync(relativePath)
+            ? isAbsoluteRemote ? await fetchRemoteRessource(src) : relativePath
+            : null;
+          switch (true && !!p) {
+            case p &&
+              ((["scss", "sass"].includes(lang) || !lang) &&
+                  (p.endsWith(".sass") || p.endsWith(".scss")) ||
+                ((["denolus"].includes(lang) || !lang) &&
+                  (p.endsWith(".lus") || p.endsWith(".yml") ||
+                    p.endsWith(".yaml"))) ||
+                (["css"].includes(lang) && p.endsWith(".css"))):
+              compiledCss += Deno.readTextFileSync(p as string);
+              break;
+            case !p:
+              throw new Error(
+                `[Ogone] style's src attribute is not found. \ncomponent${component.file}\ninput: ${src}`,
+              );
+            default:
+              throw new Error(
+                `[Ogone] style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
+              );
+          }
+        } else if (src.length && component.remote) {
+          console.warn(`[Ogone] Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath}`);
+          const p = isAbsoluteRemote
+            ? await fetchRemoteRessource(src)
+            : await fetchRemoteRessource(remoteRelativePath);
+          switch (true) {
+            case p &&
+              ((["scss", "sass"].includes(lang) || !lang) &&
+                  (p.endsWith(".sass") || p.endsWith(".scss")) ||
+                ((["denolus"].includes(lang) || !lang) &&
+                  (p.endsWith(".lus") || p.endsWith(".yml") ||
+                    p.endsWith(".yaml"))) ||
+                (["css"].includes(lang) && p.endsWith(".css"))):
+              compiledCss += p;
+              break;
+            case !p:
+              throw new Error(
+                `[Ogone] style's src attribute is not reachable. \ncomponent${component.file}\ninput: ${src}`,
+              );
+            default:
+              throw new Error(
+                `[Ogone] style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
+              );
+          }
+        }
         switch (element.attributes.lang) {
           case "scss":
           case "sass":
@@ -32,6 +99,6 @@ export default function oRenderStyles(bundle: Bundle) {
         const css = scopeCSS(compiledCss, component.uuid);
         component.style.push(css);
       }
-    });
-  });
+    }
+  }
 }

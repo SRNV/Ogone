@@ -138,7 +138,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     if (type === "runtime") {
       const r = eval(runtime);
-      Ogone.hmrRuntime(uuid, (r || function () { })).then(() => {
+      Ogone.hmrRuntime(uuid, (r || function () {})).then(() => {
         hmrSound();
         Ogone.infos({
           message: `[HMR] component updated: ${uuid}`,

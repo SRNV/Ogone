@@ -126,7 +126,7 @@ export default function getWebComponent(
       // set the props required by the node
       ${
     isTemplate ? "this.setProps(); this.ogone.component.updateProps();" : ""
-    }
+  }
       this.renderingProcess();
 
       // now ... just render ftw!
@@ -134,11 +134,11 @@ export default function getWebComponent(
     isRouter
       ? "this.renderRouter();"
       : isStore
-        ? "this.renderStore();"
-        : isAsync
-          ? "this.renderAsync();"
-          : "this.render();"
-    }
+      ? "this.renderStore();"
+      : isAsync
+      ? "this.renderAsync();"
+      : "this.render();"
+  }
     }
     renderingProcess() {
       // use the jsx renderer only for templates
@@ -186,9 +186,9 @@ export default function getWebComponent(
     isTemplate
       ? // using array.from to copy NodeList that will get empty.
       // so we need to keep the childnodes
-      "o.nodes = Array.from(o.render(o.component).childNodes);"
+        "o.nodes = Array.from(o.render(o.component).childNodes);"
       : "o.nodes = [o.render(o.component, o.position, o.index, o.level)];"
-    }
+  }
     // set parentKey to template
     ${
     hasDevtool
@@ -209,14 +209,14 @@ export default function getWebComponent(
 
     `
       : ""
-    }
+  }
   }
     setDeps() {
       const o = this.ogone;
       if (o.originalNode && o.getContext) {
           o.component${
     isTemplate ? ".parent" : ""
-    }.react.push(() => this.renderContext());
+  }.react.push(() => this.renderContext());
           this.renderContext();
       }
     }
@@ -263,14 +263,14 @@ export default function getWebComponent(
         this.ogone.component.activated = false;
         `
       : ""
-    }
+  }
     ${
     hasDevtool
       ? `
       Ogone.ComponentCollectionManager.destroy(this.ogone.key);
     `
       : ""
-    }
+  }
       this.remove();
     }
     render() {
@@ -287,7 +287,7 @@ export default function getWebComponent(
     isAsync
       ? "this.context.placeholder.replaceWith(...o.nodes);"
       : "this.replaceWith(...o.nodes);"
-    }
+  }
         // template/node is already connected
         // ask the component to evaluate the value of the textnodes
         oc.renderTexts(true);
@@ -325,14 +325,14 @@ export default function getWebComponent(
     componentPragma
       .replace(/\n/gi, "")
       .replace(/\s+/gi, " ")
-    }`;
+  }`;
   bundle.customElements.push(definition);
   bundle.render.push(render);
   if (["controller"].includes(component.type)) {
     return `Ogone.classes['${component.uuid}-nt'] = class extends HTMLTemplateElement {
       constructor(){super();}
       setOgone() {}
-      connectedCallBack(){this.remove()} };`
+      connectedCallBack(){this.remove()} };`;
   }
   return componentExtension;
 }
