@@ -20,6 +20,7 @@ export default async function (path: string) {
     components: new Map(),
     render: [],
     remotes: [],
+    repository: {},
   };
   await oInspect(path, bundle);
   await oRender(bundle);

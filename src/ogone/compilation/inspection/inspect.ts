@@ -16,6 +16,7 @@ async function startRecursiveInspectionOfComponent(
     remote: false,
     baseUrl: "",
     current: "",
+    item: null,
   },
 ) {
   const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
@@ -25,17 +26,21 @@ async function startRecursiveInspectionOfComponent(
       file: textFile,
       base: opts.base,
       path: opts.current,
+      item: opts.item,
+      parent: opts.parent,
     });
   } else {
     // only push if it's a local component
     bundle.files.push({
       path: p,
       file: textFile,
+      item: opts.item,
+      parent: opts.parent,
     });
   }
   if (tokens.body && tokens.body.use) {
-    for await (let c of Object.values(tokens.body.use)) {
-      const { path, type }: any = c;
+    for await (let item of Object.values(tokens.body.use)) {
+      const { path, type }: any = item;
       if (path === p) return;
 
       if (type === "remote") {
@@ -48,6 +53,8 @@ async function startRecursiveInspectionOfComponent(
               /(http|https|ws|wss|ftp|tcp|fttp)(\:\/{2}[^\/]+)/gi,
             )[0],
             current: path,
+            item,
+            parent: p,
           });
         } else {
           throw new Error(
@@ -57,8 +64,12 @@ async function startRecursiveInspectionOfComponent(
       } else if (type === "absolute" && existsSync(path)) {
         // absolute  and local
         const file = Deno.readTextFileSync(path);
-        startRecursiveInspectionOfComponent(file, path, bundle);
+        await startRecursiveInspectionOfComponent(file, path, bundle, {
+          item,
+          parent: p,
+        });
       } else if (opts.remote && type === "relative" && opts.base) {
+
         // relative and remote
         const newPath = `${opts.current.split("://")[0]}://${
           absolute(opts.current.split("://")[1], path)
@@ -68,7 +79,9 @@ async function startRecursiveInspectionOfComponent(
         if (file) {
           await startRecursiveInspectionOfComponent(file, newPath, bundle, {
             ...opts,
+            item,
             current: newPath,
+            parent: p,
           });
         } else {
           throw new Error(
@@ -79,7 +92,10 @@ async function startRecursiveInspectionOfComponent(
         const newPath = join(p, path);
         if (existsSync(newPath)) {
           const file = Deno.readTextFileSync(newPath);
-          startRecursiveInspectionOfComponent(file, newPath, bundle);
+          await startRecursiveInspectionOfComponent(file, newPath, bundle, {
+            item,
+            parent: p,
+          });
         }
       } else {
         const ComponentNotFoundException = new Error(
@@ -97,6 +113,9 @@ export default async function oInspect(entrypoint: string, bundle: Bundle) {
       rootComponentFile,
       entrypoint,
       bundle,
+      {
+        parent: entrypoint,
+      }
     );
   } else {
     const OgoneSrcFileNotFoundException = new Error(

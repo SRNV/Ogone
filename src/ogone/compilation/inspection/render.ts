@@ -42,13 +42,15 @@ export default function oRender(bundle: Bundle) {
     const index = path;
     const rootNode: XMLNodeDescription | null = domparse(file);
     if (rootNode) {
+      const component = getNewComponent({
+        rootNode,
+        file: index,
+      });
       bundle.components.set(
         index,
-        getNewComponent({
-          rootNode,
-          file: index,
-        }),
+        component,
       );
+      bundle.repository[component.uuid] = {};
     }
   });
   // then render remote components
@@ -57,14 +59,26 @@ export default function oRender(bundle: Bundle) {
     const index = path;
     const rootNode: XMLNodeDescription | null = domparse(file);
     if (rootNode) {
+      const component = getNewComponent({
+        remote,
+        rootNode,
+        file: index,
+      });
       bundle.components.set(
         index,
-        getNewComponent({
-          remote,
-          rootNode,
-          file: index,
-        }),
+        component,
       );
+      bundle.repository[component.uuid] = {};
     }
   });
+  // finally save it into repository
+  bundle.files.concat(bundle.remotes).forEach((localOrRemote) => {
+    if (localOrRemote.item) {
+      const parent = bundle.components.get(localOrRemote.parent);
+      if (parent) {
+        bundle.repository[parent.uuid] = bundle.repository[parent.uuid] || {};
+        bundle.repository[parent.uuid][localOrRemote.item.path] = localOrRemote.path;
+      }
+    }
+  })
 }

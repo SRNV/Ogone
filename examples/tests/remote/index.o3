@@ -1,16 +1,7 @@
-allow remote def; // if children components are using def
-allow remote absolute def;
-allow remote controllers;
-allow remote stores;
-allow remote ressources;
-allow remote all;
-allow remote env; // if children want env vars
 use ../../reflections/index.o3 as 'relative-comp';
 use https://raw.githubusercontent.com/SRNV/Ogone/master/examples/app/index.o3 as 'remote-comp';
 use https://raw.githubusercontent.com/SRNV/Ogone/feat/remote-components-loading/examples/tests/remote/git-relative.o3 as 'git-relative';
 
-<h1> Test importing remote components</h1>
 <relative-comp />
 <remote-comp />
-<p>from git</p>
 <git-relative />

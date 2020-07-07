@@ -16,10 +16,14 @@ interface Remote {
   base: string;
   path: string;
   file: string;
+  item: any | null;
+  parent: string;
 }
 interface Local {
   path: string;
   file: string;
+  item: any | null;
+  parent: string;
 }
 export interface Bundle {
   files: Local[];
@@ -31,6 +35,7 @@ export interface Bundle {
   contexts: string[];
   customElements: string[];
   components: Map<string, Component>;
+  repository: { [k: string]: {[s: string]: string } };
 }
 
 /**
