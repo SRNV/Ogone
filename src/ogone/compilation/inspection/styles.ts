@@ -16,7 +16,7 @@ export default async function oRenderStyles(bundle: Bundle) {
       node.tagName === "style"
     );
     for await (const element of styles) {
-      const styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
+      let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
       if (styleContent) {
         let compiledCss: string = "";
         const src = element.attributes.src
@@ -43,7 +43,7 @@ export default async function oRenderStyles(bundle: Bundle) {
                   (p.endsWith(".lus") || p.endsWith(".yml") ||
                     p.endsWith(".yaml"))) ||
                 (["css"].includes(lang) && p.endsWith(".css"))):
-              compiledCss += Deno.readTextFileSync(p as string);
+              styleContent = Deno.readTextFileSync(p as string) + styleContent;
               break;
             case !p:
               throw new Error(
@@ -67,7 +67,7 @@ export default async function oRenderStyles(bundle: Bundle) {
                   (p.endsWith(".lus") || p.endsWith(".yml") ||
                     p.endsWith(".yaml"))) ||
                 (["css"].includes(lang) && p.endsWith(".css"))):
-              compiledCss += p;
+              styleContent = p + styleContent;
               break;
             case !p:
               throw new Error(
@@ -82,7 +82,7 @@ export default async function oRenderStyles(bundle: Bundle) {
         switch (element.attributes.lang) {
           case "scss":
           case "sass":
-            compiledCss = sassCompiler(styleContent, {
+            compiledCss = sassCompiler(styleContent as string, {
               output_style: "compressed",
               precision: 5,
               indented_syntax: false,
@@ -90,10 +90,10 @@ export default async function oRenderStyles(bundle: Bundle) {
             }).result;
             break;
           case "denolus":
-            compiledCss = denolusCompiler(styleContent);
+            compiledCss = denolusCompiler(styleContent as string);
             break;
           default:
-            compiledCss = styleContent;
+            compiledCss = styleContent as string;
             break;
         }
         const css = scopeCSS(compiledCss, component.uuid);
