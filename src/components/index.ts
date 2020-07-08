@@ -321,6 +321,7 @@ export default function getWebComponent(
       }
     `;
   }
+  console.warn(componentPragma)
   const render = `Ogone.render['${component.uuid}-${node.id}'] = ${
     componentPragma
       .replace(/\n/gi, "")

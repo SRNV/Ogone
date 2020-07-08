@@ -135,7 +135,7 @@ export type DOMParserPragmaDescription = (
   isRoot?: boolean | undefined,
   imports?: string[] | undefined,
   getId?: ((id: string) => string | null) | undefined,
-) => string;
+) => string | any;
 
 /**
  * can be passed as an option of a method

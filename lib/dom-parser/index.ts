@@ -69,7 +69,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-        }</${node.tagName}>`;
+          }</${node.tagName}>`;
         return result;
       }
       return node.rawText || "";
@@ -84,7 +84,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-        }`;
+          }`;
         return result;
       }
       return node.rawText || "";
@@ -526,7 +526,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
   const nodes = Object.values(expressions).reverse();
   let pragma: null | DOMParserPragmaDescription = null;
   for (let node of nodes) {
-    const params = "ctx, position = [], index = 0, level = 0";
+    const params = "ctx, pos = [], index = 0, level = 0";
     if (node.nodeType === 1 && node.tagName !== "style") {
       const nodeIsDynamic = !!Object.keys(node.attributes).find((
         attr: string,
@@ -571,10 +571,15 @@ function setNodesPragma(expressions: DOMParserExpressions) {
         ) => {
           // return the pragma
           return child.pragma
-            ? child.pragma(idComponent, false, imports, getId)
+            ? child.pragma(idComponent, false, imports, getId).value
             : "";
-        }).join(",");
-        let appending = `${nId}.append(${nodesPragma});`;
+        }).join("");
+        let appending = `${nId}.append(${
+          node.childNodes.filter((child) => child.pragma && child.pragma(idComponent, false, imports, getId).id).map((child) => child.pragma
+            ? child.pragma(idComponent, false, imports, getId).id
+            : "").join(',')
+          });`;
+        console.warn(appending)
         let extensionId: string | null = "";
         if (isImported && getId && node.tagName) {
           extensionId = getId(node.tagName);
@@ -607,58 +612,130 @@ function setNodesPragma(expressions: DOMParserExpressions) {
           }
           query = query?.split("<").reverse().join(">");
         }
+        const isOgone = isImported || nodeIsDynamic && !isImported && !isRoot;
         /**
            * all we set in this function
            * will be usefull after the node is connected
            * we will use the method connectedCalback and use the properties
            */
-        return `
-        (function(${params}) {
-          ${nodeCreation}
-          if (position) position[level] = index;
-          ${
-          node.attributes && node.attributes.await
-            ? `${nId}.setAttribute('await', '');`
-            : ""
-        }
-          ${
-          isImported || nodeIsDynamic && !isImported && !isRoot
-            ? `${nId}.setOgone({
-              isRoot: false,
-              ${isImported ? `name: "${node.tagName}",` : ""}
-              ${isImported || nodeIsDynamic ? `tree: "${query}",` : ""}
-              ${!isImported ? "position, level, index," : ""}
-              ${isImported ? `positionInParentComponent: position,` : ""}
-              ${isImported ? `levelInParentComponent: level,` : ""}
-              ${isImported ? `parentComponent: ctx,` : ""}
-              ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
-              ${
+        if (isRoot) {
+          return `
+          (function(${params}) {
+            ${nodeCreation}
+            let position = pos;
+            ${isOgone ?
+              `
+              if (position) {
+                position = pos.slice();
+                position[level] = index;
+              }
+              `
+            : ''}
+            ${
+            node.attributes && node.attributes.await
+              ? `${nId}.setAttribute('await', '');`
+              : ""
+            }
+            ${
+            isOgone
+              ? `${nId}.setOgone({
+                isRoot: false,
+                ${isImported ? `name: "${node.tagName}",` : ""}
+                ${isImported || nodeIsDynamic ? `tree: "${query}",` : ""}
+                ${!isImported ? "position, level, index," : ""}
+                ${isImported ? `positionInParentComponent: position,` : ""}
+                ${isImported ? `levelInParentComponent: level,` : ""}
+                ${isImported ? `parentComponent: ctx,` : ""}
+                ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
+                ${
               isImported
                 ? `dependencies: ${
-                  JSON.stringify(
-                    Object.values(node.attributes).filter((v) =>
-                      typeof v !== "boolean"
-                    ),
-                  )
+                JSON.stringify(
+                  Object.values(node.attributes).filter((v) =>
+                    typeof v !== "boolean"
+                  ),
+                )
                 },`
                 : ""
-            }
-              ${
+              }
+                ${
               nodeIsDynamic && !isImported || node.tagName === null
                 ? "component: ctx,"
                 : ""
+              }
+                ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
+                ${node.tagName === null ? `renderChildNodes: true,` : ""}
+                flags: ${flags},
+              });`
+              : ""
             }
-              ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
-              ${node.tagName === null ? `renderChildNodes: true,` : ""}
-              flags: ${flags},
-            });`
-            : ""
+            ${nId}.setAttribute('${idComponent}', '');
+            ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
+            ${nodesPragma.length ? 'level++;' : ""}
+            ${nodesPragma.length ? nodesPragma : ""}
+            ${nodesPragma.length ? 'level--;' : ""}
+            ${nodesPragma.length ? appending : ""}
+            return ${nId};
+          })${callComponent}`;
         }
-          ${nId}.setAttribute('${idComponent}', '');
-          ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
-          ${nodesPragma.length ? appending : ""}
-          return ${nId};
-        })${callComponent}`;
+        return {
+          id: nId,
+          value: `
+            ${nodeCreation}
+            ${isOgone ?
+              `
+              if (position) {
+                position = pos.slice();
+                position[level] = index;
+              }
+              `
+            : ''}
+            ${
+            node.attributes && node.attributes.await
+              ? `${nId}.setAttribute('await', '');`
+              : ""
+            }
+            ${
+            isOgone
+              ? `${nId}.setOgone({
+                isRoot: false,
+                ${isImported ? `name: "${node.tagName}",` : ""}
+                ${isImported || nodeIsDynamic ? `tree: "${query}",` : ""}
+                ${!isImported ? "position, level, index," : ""}
+                ${isImported ? `positionInParentComponent: position,` : ""}
+                ${isImported ? `levelInParentComponent: level,` : ""}
+                ${isImported ? `parentComponent: ctx,` : ""}
+                ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
+                ${
+              isImported
+                ? `dependencies: ${
+                JSON.stringify(
+                  Object.values(node.attributes).filter((v) =>
+                    typeof v !== "boolean"
+                  ),
+                )
+                },`
+                : ""
+              }
+                ${
+              nodeIsDynamic && !isImported || node.tagName === null
+                ? "component: ctx,"
+                : ""
+              }
+                ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
+                ${node.tagName === null ? `renderChildNodes: true,` : ""}
+                flags: ${flags},
+              });`
+              : ""
+            }
+            ${nId}.setAttribute('${idComponent}', '');
+            ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
+            ${nodesPragma.length ? 'level++;' : ""}
+            ${nodesPragma.length ? nodesPragma : ""}
+            ${nodesPragma.length ? 'level--;' : ""}
+            ${nodesPragma.length ? appending : ""}
+            `,
+        };
       };
     }
     if (node.nodeType === 3) {
@@ -668,35 +745,39 @@ function setNodesPragma(expressions: DOMParserExpressions) {
         const isEvaluated = node.rawText.indexOf("${") > -1;
         const registerText = isEvaluated
           ? `
-          const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
-          const txt = '\`${
-            node.rawText.replace(/\n/gi, " ")
-              // preserve regular expressions
-              .replace(/\\/gi, "\\\\")
-              // preserve quotes
-              .replace(/\'/gi, "\\'").trim()
+          const g${nId} = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
+          const txt${nId} = '\`${
+          node.rawText.replace(/\n/gi, " ")
+            // preserve regular expressions
+            .replace(/\\/gi, "\\\\")
+            // preserve quotes
+            .replace(/\'/gi, "\\'").trim()
           }\`';
-          function r(key) {
-            if (key instanceof String && txt.indexOf(key) < 0) return true;
-            const v = g({
-              getText: txt,
+          function r${nId}(key) {
+            if (key instanceof String && txt${nId}.indexOf(key) < 0) return true;
+            const v = g${nId}({
+              getText: txt${nId},
               position,
             });
             if (${nId}.data && ${nId}.data !== v) ${nId}.data = v.length ? v : ' ';
             return true;
           };
-          ctx.texts.push(r);
+          ctx.texts.push(r${nId});
         `
           : "";
         if (!isEvaluated) {
           return `\`${node.rawText.replace(/\n/gi, " ").trim()}\``;
         }
-        return `
-      (function(${params}) {
-        const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
-        ${registerText}
-        return ${nId};
-      })(ctx, position.slice())`;
+        return {
+          id: nId,
+          value: `
+          const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
+          if (position) {
+            position = pos.slice();
+            position[level] = index;
+          }
+          ${registerText}`
+        };
       };
     }
     node.pragma = pragma;
