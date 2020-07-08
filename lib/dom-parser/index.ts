@@ -1,40 +1,11 @@
-import parseFlags from "./parseFlags.ts";
+import setNodesPragma from './set-node-pragma.ts';
 import templateReplacer from "../../utils/template-recursive.ts";
 import {
   XMLNodeDescription,
-  XMLAttrsNodeDescription,
-  DOMParserPragmaDescription,
-  ParseFlagsOutput,
+  DOMParserIterator,
+  DOMParserExp,
+  DOMParserExpressions,
 } from "../../.d.ts";
-
-interface DOMParserIterator {
-  value: number;
-  node: number;
-  text: number;
-}
-interface DOMParserExp {
-  id: number | null | string;
-  type: string;
-  key?: string;
-  nodeType: number;
-  value?: string;
-  rawText: string;
-  rawAttrs: string;
-  closing?: boolean;
-  expression: string;
-  autoclosing?: boolean;
-  dependencies: string[];
-  childNodes: DOMParserExp[];
-  closingTag?: null | string;
-  flags: ParseFlagsOutput | null;
-  tagName: string | null | undefined;
-  attributes: XMLAttrsNodeDescription;
-  parentNode: null | DOMParserExpressions;
-  pragma: DOMParserPragmaDescription | null;
-}
-interface DOMParserExpressions {
-  [key: string]: DOMParserExp;
-}
 
 const openComment = "<!--";
 const closeComment = "-->";
@@ -69,7 +40,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-        }</${node.tagName}>`;
+          }</${node.tagName}>`;
         return result;
       }
       return node.rawText || "";
@@ -84,7 +55,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-        }`;
+          }`;
         return result;
       }
       return node.rawText || "";
@@ -520,186 +491,6 @@ function cleanNodes(expressions: DOMParserExpressions) {
       );
       node.rawText = rawText;
     }
-  }
-}
-function setNodesPragma(expressions: DOMParserExpressions) {
-  const nodes = Object.values(expressions).reverse();
-  let pragma: null | DOMParserPragmaDescription = null;
-  for (let node of nodes) {
-    const params = "ctx, position = [], index = 0, level = 0";
-    if (node.nodeType === 1 && node.tagName !== "style") {
-      const nodeIsDynamic = !!Object.keys(node.attributes).find((
-        attr: string,
-      ) =>
-        attr.startsWith(":") ||
-        attr.startsWith("--") ||
-        attr.startsWith("@") ||
-        attr.startsWith("&") ||
-        attr.startsWith("_")
-      );
-      const nId = `n${nodeIsDynamic ? "d" : ""}${node.id}`;
-      node.id = nId;
-      let setAttributes = Object.entries(node.attributes)
-        .filter(([key, value]) =>
-          !(key.startsWith(":") ||
-            key.startsWith("--") ||
-            key.startsWith("@") ||
-            key.startsWith("&") ||
-            key.startsWith("o-") ||
-            key.startsWith("_"))
-        )
-        .map(([key, value]) =>
-          key !== "ref"
-            ? `${nId}.setAttribute('${key}', '${value}');`
-            : `ctx.refs['${value}'] = ${nId};`
-        )
-        .join("");
-      pragma = (
-        idComponent: string,
-        isRoot = true,
-        imports = [],
-        getId: ((id: string) => string | null) | undefined,
-      ) => {
-        const isImported = imports.includes(node.tagName || "");
-        const callComponent = isRoot
-          ? ";"
-          : "(ctx, position.slice(), index, level + 1)";
-        let nodesPragma = node.childNodes.filter((child) => child.pragma).map((
-          child,
-          i,
-          arr,
-        ) => {
-          // return the pragma
-          return child.pragma
-            ? child.pragma(idComponent, false, imports, getId)
-            : "";
-        }).join(",");
-        let appending = `${nId}.append(${nodesPragma});`;
-        let extensionId: string | null = "";
-        if (isImported && getId && node.tagName) {
-          extensionId = getId(node.tagName);
-        }
-        const props = Object.entries(node.attributes).filter(([key]) =>
-          key.startsWith(":")
-        ).map(([key, value]) => {
-          return [key.replace(/^\:/, ""), value];
-        });
-        let nodeCreation =
-          `const ${nId} = document.createElement('${node.tagName}');`;
-        if (nodeIsDynamic && !isImported && !isRoot) {
-          // create a custom element if the element as a flag or prop or event;
-          nodeCreation =
-            `const ${nId} = document.createElement("${idComponent}-${node.id}");`;
-        } else if (isImported) {
-          nodeCreation =
-            `const ${nId} = document.createElement('template', { is: '${extensionId}-nt'});`;
-        }
-        const flags = parseFlags(
-          (node as unknown) as XMLNodeDescription,
-          { nodeIsDynamic, isImported },
-        );
-        let query = node.tagName;
-        if (nodeIsDynamic || isImported) {
-          let parentN: any = node.parentNode;
-          while (parentN) {
-            query += `<${parentN.tagName}`;
-            parentN = parentN.parentNode;
-          }
-          query = query?.split("<").reverse().join(">");
-        }
-        /**
-           * all we set in this function
-           * will be usefull after the node is connected
-           * we will use the method connectedCalback and use the properties
-           */
-        return `
-        (function(${params}) {
-          ${nodeCreation}
-          if (position) position[level] = index;
-          ${
-          node.attributes && node.attributes.await
-            ? `${nId}.setAttribute('await', '');`
-            : ""
-        }
-          ${
-          isImported || nodeIsDynamic && !isImported && !isRoot
-            ? `${nId}.setOgone({
-              isRoot: false,
-              ${isImported ? `name: "${node.tagName}",` : ""}
-              ${isImported || nodeIsDynamic ? `tree: "${query}",` : ""}
-              ${!isImported ? "position, level, index," : ""}
-              ${isImported ? `positionInParentComponent: position,` : ""}
-              ${isImported ? `levelInParentComponent: level,` : ""}
-              ${isImported ? `parentComponent: ctx,` : ""}
-              ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
-              ${
-              isImported
-                ? `dependencies: ${
-                  JSON.stringify(
-                    Object.values(node.attributes).filter((v) =>
-                      typeof v !== "boolean"
-                    ),
-                  )
-                },`
-                : ""
-            }
-              ${
-              nodeIsDynamic && !isImported || node.tagName === null
-                ? "component: ctx,"
-                : ""
-            }
-              ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
-              ${node.tagName === null ? `renderChildNodes: true,` : ""}
-              flags: ${flags},
-            });`
-            : ""
-        }
-          ${nId}.setAttribute('${idComponent}', '');
-          ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
-          ${nodesPragma.length ? appending : ""}
-          return ${nId};
-        })${callComponent}`;
-      };
-    }
-    if (node.nodeType === 3) {
-      const nId = `t${node.id}`;
-      node.id = nId;
-      pragma = (idComponent) => {
-        const isEvaluated = node.rawText.indexOf("${") > -1;
-        const registerText = isEvaluated
-          ? `
-          const g = Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data); /* getContext function */
-          const txt = '\`${
-            node.rawText.replace(/\n/gi, " ")
-              // preserve regular expressions
-              .replace(/\\/gi, "\\\\")
-              // preserve quotes
-              .replace(/\'/gi, "\\'").trim()
-          }\`';
-          function r(key) {
-            if (key instanceof String && txt.indexOf(key) < 0) return true;
-            const v = g({
-              getText: txt,
-              position,
-            });
-            if (${nId}.data && ${nId}.data !== v) ${nId}.data = v.length ? v : ' ';
-            return true;
-          };
-          ctx.texts.push(r);
-        `
-          : "";
-        if (!isEvaluated) {
-          return `\`${node.rawText.replace(/\n/gi, " ").trim()}\``;
-        }
-        return `
-      (function(${params}) {
-        const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
-        ${registerText}
-        return ${nId};
-      })(ctx, position.slice())`;
-      };
-    }
-    node.pragma = pragma;
   }
 }
 

@@ -135,7 +135,7 @@ export type DOMParserPragmaDescription = (
   isRoot?: boolean | undefined,
   imports?: string[] | undefined,
   getId?: ((id: string) => string | null) | undefined,
-) => string;
+) => string | any;
 
 /**
  * can be passed as an option of a method
@@ -215,4 +215,33 @@ export interface TypedExpressions {
     default: false;
   };
   reflections: [];
+}
+
+interface DOMParserIterator {
+  value: number;
+  node: number;
+  text: number;
+}
+interface DOMParserExp {
+  id: number | null | string;
+  type: string;
+  key?: string;
+  nodeType: number;
+  value?: string;
+  rawText: string;
+  rawAttrs: string;
+  closing?: boolean;
+  expression: string;
+  autoclosing?: boolean;
+  dependencies: string[];
+  childNodes: DOMParserExp[];
+  closingTag?: null | string;
+  flags: ParseFlagsOutput | null;
+  tagName: string | null | undefined;
+  attributes: XMLAttrsNodeDescription;
+  parentNode: null | DOMParserExpressions;
+  pragma: DOMParserPragmaDescription | null;
+}
+interface DOMParserExpressions {
+  [key: string]: DOMParserExp;
 }

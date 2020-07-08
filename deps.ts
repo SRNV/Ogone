@@ -20,8 +20,8 @@ export {
   fail,
 } from "https://deno.land/std@0.58.0/testing/asserts.ts";
 export { compile as sassCompiler } from "https://deno.land/x/sass/mod.ts";
-import { parse } from "https://raw.githubusercontent.com/divy-work/denolus/master/src/parser/index.ts";
-import { compile } from "https://raw.githubusercontent.com/divy-work/denolus/master/src/compiler/index.ts";
+import { parse } from "https://x.nest.land/denolus@0.0.4/src/parser/index.ts";
+import { compile } from "https://x.nest.land/denolus@0.0.4/src/compiler/index.ts";
 
 export function denolusCompiler(code: string) {
   return compile(parse(code));

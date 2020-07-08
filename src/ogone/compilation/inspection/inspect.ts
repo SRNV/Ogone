@@ -41,7 +41,17 @@ async function startRecursiveInspectionOfComponent(
   if (tokens.body && tokens.body.use) {
     for await (let item of Object.values(tokens.body.use)) {
       const { path, type }: any = item;
-      if (path === p) return;
+      if (path === p) {
+        if (opts.recursive) {
+          continue;
+        }
+        await startRecursiveInspectionOfComponent(textFile, path, bundle, {
+          item,
+          parent: path,
+          recursive: true,
+        });
+        continue;
+      }
 
       if (type === "remote") {
         console.warn("[Ogone] Downloading", path);
