@@ -43,6 +43,9 @@ export default function oRenderImports(bundle: Bundle) {
           // @ts-ignore
           Object.values(tokens.body.use).forEach((item: any) => {
             const pathComponent = bundle.repository[component.uuid][item.path];
+            if (!pathComponent) {
+              console.warn(bundle.repository[component.uuid], item.path);
+            }
             const tagName = item.as.replace(/['"`]/gi, "");
             switch (true) {
               case tagName === "proto":

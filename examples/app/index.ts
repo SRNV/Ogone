@@ -3,7 +3,7 @@ import o3 from "../../mod.ts";
 // ogone use the root component
 o3.run({
   entrypoint: "examples/app/index.o3",
-  devtool: true,
+  devtool: false,
   static: "./public",
   port: 8073,
   modules: "/examples/modules",

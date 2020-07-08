@@ -526,7 +526,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
   const nodes = Object.values(expressions).reverse();
   let pragma: null | DOMParserPragmaDescription = null;
   for (let node of nodes) {
-    const params = "ctx, pos = [], index = 0, level = 0";
+    const params = "ctx, pos = [], index = 0, level = 0, ap = function(p,n){p.append(n);}";
     if (node.nodeType === 1 && node.tagName !== "style") {
       const nodeIsDynamic = !!Object.keys(node.attributes).find((
         attr: string,
@@ -561,9 +561,6 @@ function setNodesPragma(expressions: DOMParserExpressions) {
         getId: ((id: string) => string | null) | undefined,
       ) => {
         const isImported = imports.includes(node.tagName || "");
-        const callComponent = isRoot
-          ? ";"
-          : "(ctx, position.slice(), index, level + 1)";
         let nodesPragma = node.childNodes.filter((child) => child.pragma).map((
           child,
           i,
@@ -574,12 +571,9 @@ function setNodesPragma(expressions: DOMParserExpressions) {
             ? child.pragma(idComponent, false, imports, getId).value
             : "";
         }).join("");
-        let appending = `${nId}.append(${
-          node.childNodes.filter((child) => child.pragma && child.pragma(idComponent, false, imports, getId).id).map((child) => child.pragma
-            ? child.pragma(idComponent, false, imports, getId).id
-            : "").join(',')
-          });`;
-        console.warn(appending)
+        let appending = node.childNodes.filter((child) => child.pragma && child.pragma(idComponent, false, imports, getId).id).map((child) => child.pragma
+          ? `ap(${nId},${child.pragma(idComponent, false, imports, getId).id});`
+          : "").join('\n');
         let extensionId: string | null = "";
         if (isImported && getId && node.tagName) {
           extensionId = getId(node.tagName);
@@ -630,7 +624,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
                 position[level] = index;
               }
               `
-            : ''}
+              : ''}
             ${
             node.attributes && node.attributes.await
               ? `${nId}.setAttribute('await', '');`
@@ -676,7 +670,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
             ${nodesPragma.length ? 'level--;' : ""}
             ${nodesPragma.length ? appending : ""}
             return ${nId};
-          })${callComponent}`;
+          });`;
         }
         return {
           id: nId,
@@ -689,7 +683,7 @@ function setNodesPragma(expressions: DOMParserExpressions) {
                 position[level] = index;
               }
               `
-            : ''}
+              : ''}
             ${
             node.attributes && node.attributes.await
               ? `${nId}.setAttribute('await', '');`
@@ -753,20 +747,22 @@ function setNodesPragma(expressions: DOMParserExpressions) {
             // preserve quotes
             .replace(/\'/gi, "\\'").trim()
           }\`';
-          function r${nId}(key) {
+          ctx.texts.push((key) => {
             if (key instanceof String && txt${nId}.indexOf(key) < 0) return true;
             const v = g${nId}({
               getText: txt${nId},
               position,
             });
             if (${nId}.data && ${nId}.data !== v) ${nId}.data = v.length ? v : ' ';
-            return true;
-          };
-          ctx.texts.push(r${nId});
+            return true
+          });
         `
           : "";
         if (!isEvaluated) {
-          return `\`${node.rawText.replace(/\n/gi, " ").trim()}\``;
+          return {
+            id: nId,
+            value: `const ${nId} = \`${node.rawText.replace(/\n/gi, " ").trim()}\`;`,
+          };
         }
         return {
           id: nId,
