@@ -216,3 +216,32 @@ export interface TypedExpressions {
   };
   reflections: [];
 }
+
+interface DOMParserIterator {
+  value: number;
+  node: number;
+  text: number;
+}
+interface DOMParserExp {
+  id: number | null | string;
+  type: string;
+  key?: string;
+  nodeType: number;
+  value?: string;
+  rawText: string;
+  rawAttrs: string;
+  closing?: boolean;
+  expression: string;
+  autoclosing?: boolean;
+  dependencies: string[];
+  childNodes: DOMParserExp[];
+  closingTag?: null | string;
+  flags: ParseFlagsOutput | null;
+  tagName: string | null | undefined;
+  attributes: XMLAttrsNodeDescription;
+  parentNode: null | DOMParserExpressions;
+  pragma: DOMParserPragmaDescription | null;
+}
+interface DOMParserExpressions {
+  [key: string]: DOMParserExp;
+}

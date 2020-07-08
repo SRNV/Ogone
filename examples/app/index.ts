@@ -13,7 +13,6 @@ o3.run({
   <link rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.2/styles/night-owl.min.css">
   <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.1/showdown.min.js"></script>
   `,
   controllers: [
     "/examples/app/controllers/controller.user.o3",
