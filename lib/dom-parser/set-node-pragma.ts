@@ -15,6 +15,7 @@ function renderPragma({
   node,
   props,
   nId,
+  getNodeCreations,
   isImported,
   idComponent,
   nodeIsDynamic,
@@ -35,10 +36,16 @@ function renderPragma({
     return ${nId};
     });
     ` : '';
+    let nodeSuperCreation = '';
+    if (isRoot) {
+      const idList: [string, string][] = [];
+      getNodeCreations(idList);
+      const constants = idList.map(([k, v]: [string, string]) => `${k} = ${v}`);
+      nodeSuperCreation = `const ${constants};`;
+    }
   return `
         ${start}
-
-        ${nodeCreation}
+        ${nodeSuperCreation}
         ${isOgone ?
       `
           if (p) {
@@ -99,7 +106,7 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
   const nodes = Object.values(expressions).reverse();
   let pragma: null | DOMParserPragmaDescription = null;
   for (let node of nodes) {
-    const params = "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {p.append(n);}, dc = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
+    const params = "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
     if (node.nodeType === 1 && node.tagName !== "style") {
       const nodeIsDynamic = !!Object.keys(node.attributes).find((
         attr: string,
@@ -133,6 +140,7 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
         imports = [],
         getId: ((id: string) => string | null) | undefined,
       ) => {
+        let identifier: string[] = [];
         const isImported = imports.includes(node.tagName || "");
         let nodesPragma = node.childNodes.filter((child) => child.pragma).map((
           child,
@@ -157,15 +165,17 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
           return [key.replace(/^\:/, ""), value];
         });
         let nodeCreation =
-          `const ${nId} = dc('${node.tagName}');`;
+          `const ${nId} = h('${node.tagName}');`;
+        identifier[0] = `${nId}`;
+        identifier[1] = `h('${node.tagName}')`;
         if (nodeIsDynamic && !isImported && !isRoot) {
           // create a custom element if the element as a flag or prop or event;
-          nodeCreation =
-            `const ${nId} = dc("${idComponent}-${node.id}");`;
+          identifier[1] = `h("${idComponent}-${node.id}")`;
         } else if (isImported) {
-          nodeCreation =
-            `const ${nId} = dc('template', { is: '${extensionId}-nt'});`;
+          identifier[1] = `h('template', { is: '${extensionId}-nt'})`;
         }
+        nodeCreation =
+          `const ${nId} = ${identifier[1]};`;
         const flags = parseFlags(
           (node as unknown) as XMLNodeDescription,
           { nodeIsDynamic, isImported },
@@ -180,49 +190,59 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
           query = query?.split("<").reverse().join(">");
         }
         const isOgone = isImported || nodeIsDynamic && !isImported && !isRoot;
+        const opts = {
+          query,
+          props,
+          flags,
+          params,
+          nodeCreation,
+          isOgone,
+          node,
+          nId,
+          getNodeCreations(idList: string[][]) {
+            idList.push(identifier);
+            node.childNodes.filter((child) => child.pragma)
+              .map((child) => {
+                if (child.pragma) {
+                  const id = child.pragma(idComponent, false, imports, getId);
+                  if (id.getNodeCreations) {
+                    id.getNodeCreations(idList);
+                  }
+                }
+              });
+          },
+          isImported,
+          idComponent,
+          nodeIsDynamic,
+          isRoot,
+          setAttributes,
+          nodesPragma,
+          appending
+        };
         /**
            * all we set in this function
            * will be usefull after the node is connected
            * we will use the method connectedCalback and use the properties
            */
         if (isRoot) {
-          return renderPragma({
-            query,
-            props,
-            flags,
-            params,
-            nodeCreation,
-            isOgone,
-            node,
-            nId,
-            isImported,
-            idComponent,
-            nodeIsDynamic,
-            isRoot,
-            setAttributes,
-            nodesPragma,
-            appending
-          });
+          return renderPragma(opts);
         }
         return {
           id: nId,
-          value: renderPragma({
-            query,
-            props,
-            flags,
-            params,
-            nodeCreation,
-            isOgone,
-            node,
-            nId,
-            isImported,
-            idComponent,
-            nodeIsDynamic,
-            isRoot,
-            setAttributes,
-            nodesPragma,
-            appending
-          }),
+          identifier,
+          getNodeCreations(idList: string[][]) {
+            idList.push(identifier);
+            node.childNodes.filter((child) => child.pragma)
+              .map((child) => {
+                if (child.pragma) {
+                  const id = child.pragma(idComponent, false, imports, getId);
+                  if (id.getNodeCreations) {
+                    id.getNodeCreations(idList);
+                  }
+                }
+              });
+          },
+          value: renderPragma(opts),
         };
       };
     }
@@ -256,13 +276,16 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
         if (!isEvaluated) {
           return {
             id: nId,
-            value: `const ${nId} = \`${node.rawText.replace(/\n/gi, " ").trim()}\`;`,
+            getNodeCreations: (idList: string[][]) => idList.push([nId, `\`${node.rawText.replace(/\n/gi, " ").trim()}\``]),
+            // `const ${nId} = \`${node.rawText.replace(/\n/gi, " ").trim()}\`;`
+            value: ' /**/',
           };
         }
         return {
           id: nId,
+          // const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
+          getNodeCreations: (idList: string[][]) => idList.push([nId, `new Text('${isEvaluated ? " " : node.rawText}')`]),
           value: `
-            const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
             if (p) {
               p = pos.slice();
               p[l] = i;
