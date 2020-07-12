@@ -3,7 +3,7 @@
     types: !construct >
       public env: string = "test";
       private static number: number = 0;
-      static ["message:child-component"] = "casename";
+      private static ["message:child-component"] = "casename";
   case 'lol': {
     this.env = "";
   }
