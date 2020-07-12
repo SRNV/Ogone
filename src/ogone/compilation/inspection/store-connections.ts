@@ -1,6 +1,8 @@
 import { Bundle } from "../../../../.d.ts";
 
 import { YAML } from "../../../../deps.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
+
 export default function getStoreConnections(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
   entries.forEach(([pathToComponent, component]) => {
@@ -20,10 +22,9 @@ export default function getStoreConnections(bundle: Bundle) {
       // throw exceptions if there is anything else than textnode
       const forbiddenElement = store.childNodes.find((c) => c.nodeType !== 3);
       if (forbiddenElement) {
-        const StoreChildElementsFoundException = new DOMException(
-          `[Ogone] elements are note allowed inside store elements ${forbiddenElement.tagName} \n\t Error in component: ${component.file}`,
+        Utils.error(
+          `elements are note allowed inside store elements ${forbiddenElement.tagName} \n\t Error in component: ${component.file}`,
         );
-        throw StoreChildElementsFoundException;
       }
       // we need to get the textnode inside the store element
       const textnode = store.childNodes[0];

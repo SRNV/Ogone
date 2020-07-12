@@ -1,5 +1,6 @@
 import { Bundle } from "../../../../.d.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
 
 export default function oRenderImports(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
@@ -46,16 +47,15 @@ export default function oRenderImports(bundle: Bundle) {
             const tagName = item.as.replace(/['"`]/gi, "");
             switch (true) {
               case tagName === "proto":
-                const ReservedTagNameException = new Error(
-                  `[Ogone] proto is a reserved tagname, don\'t use it as selector of your component.
+                Utils.error(
+                  `proto is a reserved tagname, don\'t use it as selector of your component.
                 input: use @/${item.path} as ${item.as}
                 component: ${component.file}
               `,
                 );
-                throw ReservedTagNameException;
               case !tagName.match(/^([a-z])(([\w]*)+(\-[\w]+)+)$/):
-                const InvalidTagNameForComponentException = new Error(
-                  `[Ogone] '${tagName}' is not a valid selector of component. Must be kebab-case. please use the following syntax:
+                Utils.error(
+                  `'${tagName}' is not a valid selector of component. Must be kebab-case. please use the following syntax:
 
                 use @/${item.path} as 'your-component-name'
 
@@ -69,10 +69,9 @@ export default function oRenderImports(bundle: Bundle) {
                 note: if the component is typed you must provide the name into the tagName
               `,
                 );
-                throw InvalidTagNameForComponentException;
               case !tagName.length:
-                const EmptyTagNameForComponentException = new Error(
-                  `[Ogone] empty component name. please use the following syntax:
+                Utils.error(
+                  `empty component name. please use the following syntax:
 
                 use @/${item.path} as 'your-component-name'
 
@@ -80,10 +79,9 @@ export default function oRenderImports(bundle: Bundle) {
                 component: ${component.file}
               `,
                 );
-                throw EmptyTagNameForComponentException;
               case !!component.imports[tagName]:
-                const ComponentNameAlreadyInUseException = new Error(
-                  `[Ogone] component name already in use. please use the following syntax:
+                Utils.error(
+                  `component name already in use. please use the following syntax:
 
                 use @/${item.path} as '${tagName}-c2'
 
@@ -91,7 +89,6 @@ export default function oRenderImports(bundle: Bundle) {
                 component: ${component.file}
               `,
                 );
-                throw ComponentNameAlreadyInUseException;
               default:
                 component.imports[tagName] = pathComponent;
                 break;

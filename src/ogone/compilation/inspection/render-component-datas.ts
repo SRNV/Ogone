@@ -1,4 +1,6 @@
 import { Bundle, Component, XMLNodeDescription } from "../../../../.d.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
+
 function hasController(bundle: Bundle, component: Component): string[][] {
   const controllers = Object.entries(component.imports)
     .filter(([, path]) => {
@@ -6,10 +8,9 @@ function hasController(bundle: Bundle, component: Component): string[][] {
       return comp && comp.type === "controller";
     });
   if (controllers.length && component.type !== "store") {
-    const ForbiddenUseException = new Error(
-      `[Ogone] forbidden use of a controller inside a non-store component. \ncomponent: ${component.file}`,
+    Utils.error(
+      `forbidden use of a controller inside a non-store component. \ncomponent: ${component.file}`,
     );
-    throw ForbiddenUseException;
   }
   return controllers;
 }

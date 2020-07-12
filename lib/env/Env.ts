@@ -5,10 +5,12 @@ import compile from "./../../src/ogone/compilation/index.ts";
 import { Bundle, Environment } from "./../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps.ts";
+import { Configuration } from "../../classes/config/index.ts";
+import { Utils } from "../../classes/utils/index.ts";
 export default abstract class Env {
   private static bundle: Bundle;
   public static env: Environment = "development";
-  public static devtool: boolean = Ogone.config.devtool;
+  public static devtool: boolean = Configuration.devtool as boolean;
   constructor(opts: any) {
     Env.bundle = opts.bundle;
   }
@@ -73,16 +75,15 @@ export default abstract class Env {
     ) => entry[1].esmExpressions).join("\n");
 
     const style = stylesDev;
-    const rootComponent = Env.bundle.components.get(Ogone.config.entrypoint);
+    const rootComponent = Env.bundle.components.get(Configuration.entrypoint);
     if (rootComponent) {
       if (
         rootComponent &&
         ["router", "store", "async"].includes(rootComponent.type)
       ) {
-        const RootNodeTypeErrorException = new TypeError(
-          `[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+        Utils.error(
+          `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
         );
-        throw RootNodeTypeErrorException;
       }
       const scriptDev = `
         const ___perfData = window.performance.timing;
@@ -120,7 +121,7 @@ export default abstract class Env {
       const DOMDev = ` `;
       let head = `
           ${style}
-          ${Ogone.config.head || ""}
+          ${Configuration.head || ""}
           <script type="module">
             ${scriptDev.trim()}
           </script>`;
@@ -157,7 +158,7 @@ export default abstract class Env {
     opts: { entrypoint: string; onContent: Function },
   ): void {
     if (!existsSync(opts.entrypoint)) {
-      throw new Error("[Ogone] can't find entrypoint for Env.recursiveRead");
+      Utils.error("can't find entrypoint for Env.recursiveRead");
     }
     const stats = Deno.statSync(opts.entrypoint);
     if (stats.isFile) {
@@ -179,18 +180,18 @@ export default abstract class Env {
    * including HTML CSS and JS
    */
   public static async getBuild() {
-    throw new Error(
-      "[Ogone: 0.16.0-rc.5] build is not ready yet, until Deno's compiler isn't fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423",
+    Utils.error(
+      "build is not ready yet, until Deno's compiler isn't fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423",
     );
     /*
     let staticStyle = '';
     // TODO WAIT FOR A FIX OF COMPILER API
-    if (Ogone.config.static && Ogone.config.compileCSS) {
+    if (Configuration.static && Configuration.compileCSS) {
       Env.recursiveRead({
-        entrypoint: Ogone.config.static,
+        entrypoint: Configuration.static,
         onContent: (file: string, content: string) => {
           if (file.endsWith('.css')) {
-            console.warn('[Ogone] loading css: ', file);
+            Utils.warn(`loading css: ${file}`);
             staticStyle += content;
           }
         }
@@ -199,24 +200,25 @@ export default abstract class Env {
     const stylesProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].style.join("\n")).join("\n");
-    const compiledStyle = Ogone.config.minifyCSS ? (staticStyle + stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : (staticStyle + stylesProd);
+    const compiledStyle = Configuration.minifyCSS ? (staticStyle + stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : (staticStyle + stylesProd);
     const style = `<style>${(compiledStyle)}</style>`;
     const esmProd = Array.from(Env.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].esmExpressionsProd).join("\n");
-    const rootComponent = Env.bundle.components.get(Ogone.config.entrypoint);
+    const rootComponent = Env.bundle.components.get(Configuration.entrypoint);
     if (rootComponent) {
       if (
         rootComponent &&
         ["router", "store", "async"].includes(rootComponent.type)
       ) {
-        const RootNodeTypeErrorException = new TypeError(
-          `[Ogone] the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+        Utils.error(
+          `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
         );
-        throw RootNodeTypeErrorException;
       }
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `import test from '/test.js'`,
+import { Configuration } from '../../classes/config/index';
+import { Utils } from '../../classes/utils/index';
         "test.js": 'export default 10;',
       }, {
         module: "esnext",
@@ -238,7 +240,7 @@ export default abstract class Env {
       const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>`;
       let head = `
           ${style}
-          ${Ogone.config.head || ""}
+          ${Configuration.head || ""}
           <script>
             ${scriptProd["index.js"].trim()}
           </script>`;
@@ -247,7 +249,7 @@ export default abstract class Env {
         .replace(/%%dom%%/, DOMProd);
       return body;
     } else {
-      throw new Error("[Ogone] no root-component found");
+      Utils.error("no root-component found");
     }
     */
   }

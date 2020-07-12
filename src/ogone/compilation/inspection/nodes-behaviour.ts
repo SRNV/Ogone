@@ -1,5 +1,6 @@
 import { Bundle, XMLNodeDescription } from "../../../../.d.ts";
 import getWebComponent from "../../../components/index.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
 
 export default async function oRenderNodesBehavior(
   bundle: Bundle,
@@ -19,33 +20,33 @@ export default async function oRenderNodesBehavior(
       component.type !== "async"
     ) {
       const BadUseOfAwaitInSyncComponentException =
-        `[Ogone] --await must be used in an async component. define type="async" to the proto.\n Error in component: ${component.file}\n node: ${node.tagName}`;
-      throw BadUseOfAwaitInSyncComponentException;
+        `--await must be used in an async component. define type="async" to the proto.\n Error in component: ${component.file}\n node: ${node.tagName}`;
+      Utils.error(BadUseOfAwaitInSyncComponentException);
     }
     if (
       node.attributes && node.attributes["--await"] && isImported &&
       subcomp && subcomp.type !== "async"
     ) {
       const BadUseOfAwaitInSyncComponentException =
-        `[Ogone] --await must be called only on async components. change type of <${node.tagName} --await /> or erase --await.\n Error in component: ${component.file}\n node: ${node.tagName}`;
-      throw BadUseOfAwaitInSyncComponentException;
+        `--await must be called only on async components. change type of <${node.tagName} --await /> or erase --await.\n Error in component: ${component.file}\n node: ${node.tagName}`;
+      Utils.error(BadUseOfAwaitInSyncComponentException);
     }
     if (node.attributes && node.attributes["--defer"] && !isImported) {
       const BadUseDeferFlagException =
-        `[Ogone] --defer must be called only on async components. discard <${node.tagName} --defer="${
+        `--defer must be called only on async components. discard <${node.tagName} --defer="${
           node.attributes["--defer"]
         }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
-      throw BadUseDeferFlagException;
+      Utils.error(BadUseDeferFlagException);
     }
     if (
       node.attributes && node.attributes["--defer"] && isImported &&
       subcomp && subcomp.type !== "async"
     ) {
       const BadUseDeferFlagException =
-        `[Ogone] --defer must be called only on async components. change type of <${node.tagName} --defer="${
+        `--defer must be called only on async components. change type of <${node.tagName} --defer="${
           node.attributes["--defer"]
         }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
-      throw BadUseDeferFlagException;
+      Utils.error(BadUseDeferFlagException);
     }
     switch (true) {
       case subcomp &&
@@ -53,8 +54,8 @@ export default async function oRenderNodesBehavior(
         node.tagName &&
         !node.tagName.startsWith(`${subcomp.type}-`):
         if (subcomp) {
-          const InvalidTagNameForTypedComponentException = new Error(
-            `[Ogone] '${node.tagName}' is not a valid selector of ${subcomp.type} component. please use the following syntax:
+          Utils.error(
+            `'${node.tagName}' is not a valid selector of ${subcomp.type} component. please use the following syntax:
 
                     use @/${isImported} as '${subcomp.type}-${node.tagName}'
 
@@ -62,7 +63,6 @@ export default async function oRenderNodesBehavior(
                     component: ${component.file}
                   `,
           );
-          throw InvalidTagNameForTypedComponentException;
         }
     }
     if (node.nodeType === 1 && node.childNodes && node.childNodes.length) {

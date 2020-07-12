@@ -1,5 +1,6 @@
 import { existsSync } from "./../../utils/exists.ts";
 import { join } from "../../deps.ts";
+import { Utils } from '../../classes/utils/index.ts';
 const stressMap: string[] = [];
 
 interface StressOptions {
@@ -12,8 +13,8 @@ if (cmd === "--stress") {
       root: option,
     });
   } else {
-    throw new Error(
-      "[Ogone] Stress Mode: no root specified. usage: ... --stress <path-to-tests>",
+    Utils.error(
+      "Stress Mode: no root specified. usage: ... --stress <path-to-tests>",
     );
   }
 }
@@ -21,7 +22,7 @@ function read(path: string): void {
   if (!existsSync(path)) return;
   const stats = Deno.statSync(path);
   if (stats.isFile) {
-    console.warn(`[Ogone] Stress mode: ${path}`);
+    Utils.warn(`Stress mode: ${path}`);
     stressMap.push(path);
   }
   if (stats.isDirectory) {
@@ -41,7 +42,7 @@ function read(path: string): void {
   }
 }
 function runTests() {
-  console.warn("[Ogone] Stress mode: running.");
+  Utils.warn("[Ogone] Stress mode: running.");
   stressMap.forEach((path) => {
     Deno.run({
       cmd: ["deno", "test", "--failfast", "--unstable", "-A", path],
@@ -52,7 +53,7 @@ export default async function stressMode(opts: StressOptions) {
   /*
   const status = await Deno.permissions.query({ name: "read" });
   if (status.state !== "granted") {
-    throw new Error("[Ogone] need read permission");
+    Utils.error("[Ogone] need read permission");
   }
   */
   if (existsSync(opts.root)) {
@@ -68,7 +69,7 @@ export default async function stressMode(opts: StressOptions) {
       }
     }
   } else {
-    throw new Error(
+    Utils.error(
       `[Ogone] ${opts.root} is not a file or directory. please specify in options a existing file or directory.`,
     );
   }

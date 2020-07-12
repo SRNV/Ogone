@@ -1,19 +1,20 @@
+// @ts-nocheck
 import { YAML } from "../../../../deps.ts";
 import templateReplacer from "../../../../utils/template-recursive.ts";
+import { Utils } from "../../../../classes/utils/index.ts";
 
 export default function (typedExpressions, expressions, prog) {
   let result = prog;
   const matches = prog
     .replace(/([\'\"\`])([^\1]*)+(\1)/gi, "")
     .match(/([^\n\r]+){0,1}(def\s*:)/gi);
-  const DoubleDeclarationOfDefException = new Error(
-    '[Ogone] double declaration of "def:" in component',
-  );
   let previousDeclaration = [];
   if (matches) {
     matches.forEach((dec) => {
       if (previousDeclaration.includes(dec.replace(/\s/gi, "").trim())) {
-        throw DoubleDeclarationOfDefException;
+        Utils.error(
+          'double declaration of "def:" in component',
+        );
       }
       previousDeclaration.push(dec.replace(/\s/gi, "").trim());
       return;

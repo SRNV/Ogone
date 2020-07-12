@@ -1,4 +1,5 @@
 import oRenderForFlag from "./render-for-flag.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
 import {
   Bundle,
   XMLNodeDescription,
@@ -58,16 +59,14 @@ export default function oRenderDOM(
       const { item, index, array } = oForFlag;
       if (legacy.ctx) {
         if (legacy.ctx[item]) {
-          const ItemNameAlreadyInUseException = new Error(
-            `[Ogone] '${item}' is already defined in the template, as item`,
+          Utils.error(
+            `'${item}' is already defined in the template, as item`,
           );
-          throw ItemNameAlreadyInUseException;
         }
         if (legacy.ctx[index]) {
-          const IndexAlreadyInUseException = new Error(
-            `[Ogone] '${index}' is already defined in the template, as index`,
+          Utils.error(
+            `'${index}' is already defined in the template, as index`,
           );
-          throw IndexAlreadyInUseException;
         }
         legacy.ctx[index] = true;
         legacy.ctx[item] = oForFlag;

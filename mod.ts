@@ -2,72 +2,9 @@ import { serve } from "./deps.ts";
 import Ogone from "./src/ogone/index.ts";
 import { existsSync } from "./utils/exists.ts";
 import EnvServer from "./lib/env/EnvServer.ts";
-interface OgoneOptions {
-  /**
-   * @property entrypoint
-   * @description path to the root component, this one has to be an untyped component
-   */
-  entrypoint: string;
-
-  /**
-   * @property port
-   * @description which port to use for development
-   */
-  port: number;
-
-  /**
-   * @property static
-   * @description allow user to serve files to client
-   */
-  static?: string;
-
-  /**
-   * @property modules
-   * @description path to all modules, this is usefull for the hmr
-   */
-  modules: string;
-  /**
-   * @property head
-   * @description insert tags in the <head> of the html
-   */
-  head?: string;
-  /**
-   * @property build
-   * @description output destination for production
-   */
-  build?: string;
-  /**
-   * @property serve
-   * @description should ogone serve after building the application
-   */
-  serve?: boolean;
-  /**
-   * @property compileCSS
-   * @description should ogone compile the css inside the static folder
-   * requires static folder to be provided
-   */
-  compileCSS?: boolean;
-  /**
-   * @property minifyCSS
-   * @description should ogone minify the CSS ? including multiple spaces, tabs erased, and new lines erased
-   */
-  minifyCSS?: boolean;
-  /**
-   * @property devtool
-   * @description if you want to use devtool.
-   */
-  devtool?: boolean;
-  /**
-   * @property controllers
-   * @description paths to the controllers
-   */
-  controllers?: string[];
-    /**
-   * @property types
-   * @description paths to the types for the typescript compiler
-   */
-  types?: string[];
-}
+import { Configuration } from './classes/config/index.ts';
+import { Utils } from './classes/utils/index.ts';
+type OgoneOptions = Omit<typeof Configuration, 'setConfig' | 'prototype'>;
 type OgoneAPIType = {
   /**
    * @function run
@@ -77,52 +14,52 @@ type OgoneAPIType = {
 };
 
 async function run(opts: OgoneOptions): Promise<void> {
-  Ogone.config = opts || Ogone.config;
-  const port: number = Ogone.config.port;
-  const modulesPath: string = Ogone.config.modules;
+  Configuration.setConfig(opts || Ogone.config);
+  const port: number = Configuration.port;
+  const modulesPath: string = Configuration.modules;
   // open the server
   const server = serve({ port });
 
   // start rendering Ogone system
-  if (!Ogone.config.entrypoint || !existsSync(Ogone.config.entrypoint)) {
+  if (!Configuration.entrypoint || !existsSync(Configuration.entrypoint)) {
     server.close();
-    throw new Error(
-      `[Ogone] can't find entrypoint, please specify a correct path. input: ${Ogone.config.entrypoint}`,
+    Utils.error(
+      `can't find entrypoint, please specify a correct path. input: ${Configuration.entrypoint}`,
     );
   }
   if (!modulesPath || !existsSync(modulesPath.slice(1))) {
     server.close();
-    throw new Error(
-      "[Ogone] can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' }). \nnote: the path should be absolute",
+    Utils.error(
+      "can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' }). \nnote: the path should be absolute",
     );
   }
-  if (!Ogone.config.modules.startsWith("/")) {
+  if (!Configuration.modules.startsWith("/")) {
     server.close();
-    throw new Error(
-      "[Ogone] modules path has to start with: /",
+    Utils.error(
+      "modules path has to start with: /",
     );
   }
-  if (!("port" in Ogone.config) || typeof Ogone.config.port !== "number") {
-    throw new Error(
-      "[Ogone] please provide a port for the server. it has to be a number.",
+  if (!("port" in Configuration) || typeof Configuration.port !== "number") {
+    Utils.error(
+      "please provide a port for the server. it has to be a number.",
     );
   }
   if (opts.build) {
     if (!existsSync(opts.build)) {
-      throw new Error(
-        `[Ogone] build: can\'t find given path.\n\tinput: ${opts.build}`,
+      Utils.error(
+        `build: can\'t find given path.\n\tinput: ${opts.build}`,
       );
     }
     const stats = Deno.statSync(opts.build);
     if (stats.isFile) {
-      throw new Error(
-        `[Ogone] build: build destination should be a directory. \n\tinput: ${opts.build}`,
+      Utils.error(
+        `build: build destination should be a directory. \n\tinput: ${opts.build}`,
       );
     }
     //start compilation of o3 files
     EnvServer.setEnv("production");
     EnvServer.setDevTool(false);
-    EnvServer.compile(Ogone.config.entrypoint, true)
+    EnvServer.compile(Configuration.entrypoint, true)
       .then(async () => {
         //start compilation of o3 files
         const b = await EnvServer.getBuild();
@@ -131,7 +68,7 @@ async function run(opts: OgoneOptions): Promise<void> {
         const application = `${opts.build}/index.html`;
         Deno.writeTextFileSync(application, b);
         console.warn(
-          "[Ogone] your application successfully rendered.",
+          "your application successfully rendered.",
           application,
         );
         if (opts.serve) {
@@ -144,8 +81,8 @@ async function run(opts: OgoneOptions): Promise<void> {
       });
   } else {
     //start compilation of o3 files
-    EnvServer.setDevTool(Ogone.config.devtool);
-    EnvServer.compile(Ogone.config.entrypoint, true)
+    EnvServer.setDevTool(Configuration.devtool as boolean);
+    EnvServer.compile(Configuration.entrypoint, true)
       .then(() => {
         // Ogone is now ready to serve
         EnvServer.use(server, port);

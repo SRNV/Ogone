@@ -1,4 +1,5 @@
-import esmElements from "../esm.js";
+// @ts-nocheck
+import esmElements from "../esm.ts";
 export default function renderEsm(typedExpressions, expressions, str, name) {
   let result = str;
   esmElements.forEach((item) => {

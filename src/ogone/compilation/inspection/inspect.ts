@@ -1,6 +1,7 @@
 import { existsSync } from "../../../../utils/exists.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
 import { Bundle } from "../../../../.d.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
 import {
   join,
   relative,
@@ -54,7 +55,7 @@ async function startRecursiveInspectionOfComponent(
       }
 
       if (type === "remote") {
-        console.warn("[Ogone] Downloading", path);
+        Utils.warn("Downloading", path);
         const file = await fetchRemoteRessource(path);
         if (file) {
           await startRecursiveInspectionOfComponent(file, path, bundle, {
@@ -67,8 +68,8 @@ async function startRecursiveInspectionOfComponent(
             parent: p,
           });
         } else {
-          throw new Error(
-            `[Ogone] unreachable remote component.\t\t\ninput: ${path}`,
+          Utils.error(
+            `unreachable remote component.\t\t\ninput: ${path}`,
           );
         }
       } else if (type === "absolute" && existsSync(path)) {
@@ -84,7 +85,7 @@ async function startRecursiveInspectionOfComponent(
         const newPath = `${opts.current.split("://")[0]}://${
           absolute(opts.current.split("://")[1], path)
         }`;
-        console.warn("[Ogone] Downloading", newPath);
+        Utils.warn(`Downloading ${newPath}`);
         const file = await fetchRemoteRessource(newPath);
         if (file) {
           await startRecursiveInspectionOfComponent(file, newPath, bundle, {
@@ -94,8 +95,8 @@ async function startRecursiveInspectionOfComponent(
             parent: p,
           });
         } else {
-          throw new Error(
-            `[Ogone] unreachable remote component.\t\t\ninput: ${newPath}`,
+          Utils.error(
+            `unreachable remote component.\t\t\ninput: ${newPath}`,
           );
         }
       } else if (!opts.remote && type === "relative") {
@@ -108,10 +109,9 @@ async function startRecursiveInspectionOfComponent(
           });
         }
       } else {
-        const ComponentNotFoundException = new Error(
-          `[Ogone] component not found. input: ${path}`,
+        Utils.error(
+          `component not found. input: ${path}`,
         );
-        throw ComponentNotFoundException;
       }
     }
   }
@@ -128,9 +128,8 @@ export default async function oInspect(entrypoint: string, bundle: Bundle) {
       }
     );
   } else {
-    const OgoneSrcFileNotFoundException = new Error(
-      `[Ogone] entrypoint file doesn't exist \n\t${entrypoint}`,
+    Utils.error(
+      `entrypoint file doesn't exist \n\t${entrypoint}`,
     );
-    throw OgoneSrcFileNotFoundException;
   }
 }

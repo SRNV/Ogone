@@ -3,10 +3,8 @@ import {
   XMLNodeDescriberDescription,
   ParseFlagsOutput,
 } from "./../../.d.ts";
-const SyntaxEventException = (event: string) =>
-  new SyntaxError(
-    `[Ogone]  wrong syntax of ${event} event. it should be: ${event}:case`,
-  );
+import { Utils } from "../../classes/utils/index.ts";
+const SyntaxEventException = (event: string) => Utils.error(`wrong syntax of ${event} event. it should be: ${event}:case`, { returns: true});
 const events = [
   "--click",
   "--mouseenter",

@@ -1,5 +1,6 @@
 import { Bundle } from "../../../../.d.ts";
 import { XMLNodeDescription } from "../../../../.d.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
 
 export default function oRenderContext(bundle: Bundle, keyComponent: string) {
   const component = bundle.components.get(keyComponent);
@@ -38,8 +39,8 @@ export default function oRenderContext(bundle: Bundle, keyComponent: string) {
             elseDir && nxt && nxt.attributes &&
             (!!nxt.attributes["--else"] || !!nxt.attributes["--else-if"])
           ) {
-            throw new Error(
-              "[Ogone] else flag has to be the last in if-else-if blocks, no duplicate of --else are allowed.",
+            Utils.error(
+              "else flag has to be the last in if-else-if blocks, no duplicate of --else are allowed.",
             );
           }
         }

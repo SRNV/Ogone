@@ -1,6 +1,6 @@
-// TODO link deps.ts to project
 export { existsSync } from "https://deno.land/std@v0.58.0/fs/exists.ts";
 export { serve } from "https://deno.land/std@v0.58.0/http/server.ts";
+export * as colors from "https://deno.land/std@0.60.0/fmt/colors.ts";
 export {
   join,
   relative,

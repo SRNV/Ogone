@@ -4,6 +4,7 @@ import Ogone from "./../../src/ogone/index.ts";
 import { existsSync } from "./../../utils/exists.ts";
 import HMR from "../hmr/index.ts";
 import Env from "./Env.ts";
+import { Utils } from '../../classes/utils/index.ts';
 
 /**
  * Abstract class to manage the environments of your application
@@ -47,7 +48,7 @@ export default abstract class EnvServer extends Env {
    *
    */
   public static async use(server: Server, port: number = 8000): Promise<void> {
-    console.warn(`[Ogone] Success http://localhost:${port}/`);
+    Utils.success(`http://localhost:${port}/`);
     for await (const req of server) {
       const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
       const controllerRendered = await this.control(req);
@@ -88,18 +89,18 @@ export default abstract class EnvServer extends Env {
     port: number = 8000,
   ) {
     if (!existsSync(pathToApplication)) {
-      throw new Error(
-        `[Ogone] application not found. input: ${pathToApplication}`,
+      Utils.error(
+        `application not found. input: ${pathToApplication}`,
       );
     }
     if (!pathToApplication.endsWith(".html")) {
-      throw new Error(
-        `[Ogone] this version of Ogone only supports HTML for production. input: ${pathToApplication}`,
+      Utils.error(
+        `this version of Ogone only supports HTML for production. input: ${pathToApplication}`,
       );
     }
     const application = Deno.readTextFileSync(pathToApplication);
-    console.warn(
-      `[Ogone] Service running. check it here http://localhost:${port}/`,
+    Utils.warn(
+      `Service running. check it here http://localhost:${port}/`,
     );
     for await (const req of server) {
       const pathToPublic: string = `${Deno.cwd()}/${req.url}`;

@@ -8,6 +8,7 @@ import {
 } from "../../../../deps.ts";
 import { Bundle } from "../../../../.d.ts";
 import { existsSync } from "../../../../utils/exists.ts";
+import { Utils } from '../../../../classes/utils/index.ts';
 
 export default async function oRenderStyles(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
@@ -46,16 +47,16 @@ export default async function oRenderStyles(bundle: Bundle) {
               styleContent = Deno.readTextFileSync(p as string) + styleContent;
               break;
             case !p:
-              throw new Error(
-                `[Ogone] style's src attribute is not found. \ncomponent${component.file}\ninput: ${src}`,
+              Utils.error(
+                `style's src attribute is not found. \ncomponent${component.file}\ninput: ${src}`,
               );
             default:
-              throw new Error(
-                `[Ogone] style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
+              Utils.error(
+                `style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
               );
           }
         } else if (src.length && component.remote) {
-          console.warn(`[Ogone] Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath}`);
+          Utils.warn(`Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath}`);
           const p = isAbsoluteRemote
             ? await fetchRemoteRessource(src)
             : await fetchRemoteRessource(remoteRelativePath);
@@ -70,12 +71,12 @@ export default async function oRenderStyles(bundle: Bundle) {
               styleContent = p + styleContent;
               break;
             case !p:
-              throw new Error(
-                `[Ogone] style's src attribute is not reachable. \ncomponent${component.file}\ninput: ${src}`,
+              Utils.error(
+                `style's src attribute is not reachable. \ncomponent${component.file}\ninput: ${src}`,
               );
             default:
-              throw new Error(
-                `[Ogone] style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
+              Utils.error(
+                `style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
               );
           }
         }

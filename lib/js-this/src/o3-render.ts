@@ -1,6 +1,7 @@
 // @ts-nocheck
 import gen from "./generator.js";
 import templateReplacer from "../../../utils/template-recursive.ts";
+import { Utils } from "../../../classes/utils/index.ts";
 let rid = 0;
 export function translateReflection({ body, identifier }) {
   const cases = [];
@@ -138,10 +139,9 @@ not supported in this version of Ogone
     reg:
       /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!(§§string))/,
     id: (value, matches, typedExpressions, expressions) => {
-      const MissingStringInUseExpressionException = new Error(
-        "[Ogone] please follow this pattern for use expression: use @/absolute/path.o3 as <string>\n\n",
+      Utils.error(
+        "please follow this pattern for use expression: use @/absolute/path.o3 as <string>\n\n",
       );
-      throw MissingStringInUseExpressionException;
     },
     close: false,
   },
@@ -206,11 +206,10 @@ not supported in this version of Ogone
     open: false,
     reg: /(§{2}keywordUse\d+§{2})(.*)(\s*§{2}endLine\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
-      const UnsupportedSyntaxOfUseException = new SyntaxError(`
-      [Ogone] this syntax of use is not supported, on this version.
+      Utils.error(`
+      this syntax of use is not supported, on this version.
       input: ${templateReplacer(value, expressions)}
       `);
-      throw UnsupportedSyntaxOfUseException;
     },
     close: false,
   },
@@ -229,10 +228,9 @@ not supported in this version of Ogone
         ([key]) => key === matches[2],
       );
       if (isAlreadyRequired) {
-        const AlreadyRequiredPropertyException = new Error(
-          `[Ogone] property ${matches[2]} is already required in component`,
+        Utils.error(
+          `property ${matches[2]} is already required in component`,
         );
-        throw AlreadyRequiredPropertyException;
       }
       const array = matches[2].split(",");
       if (array.length === 1) {
@@ -260,10 +258,9 @@ not supported in this version of Ogone
           ([key2]) => key2 === key,
         );
         if (isAlreadyRequired) {
-          const AlreadyRequiredPropertyException = new Error(
-            `[Ogone] property ${key} is already required in component`,
+          Utils.error(
+            `property ${key} is already required in component`,
           );
-          throw AlreadyRequiredPropertyException;
         }
         return [
           key,
@@ -297,8 +294,8 @@ not supported in this version of Ogone
     open: false,
     reg: /\s*(\*){0,1}execute\s+(§{2}(keywordDefault|keywordCase)\d+§{2})\s*/,
     id: (value, match, typedExpressions, expressions) => {
-      const UnsupportedSyntaxOfCaseExecutionException = new SyntaxError(`
-      [Ogone] the following syntax is not supported\n
+      Utils.error(`
+      the following syntax is not supported\n
         please one of those syntaxes:
           execute case 'casename' use [ctx, event];
           execute case 'casename';
@@ -306,7 +303,6 @@ not supported in this version of Ogone
         It assumes that cases are strings in proto.
         It can change in the future, do not hesitate to make a pull request on it.
       `);
-      throw UnsupportedSyntaxOfCaseExecutionException;
     },
     close: false,
   },

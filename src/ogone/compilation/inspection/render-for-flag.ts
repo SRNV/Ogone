@@ -1,5 +1,5 @@
 import iterator from "../../../../lib/iterator.ts";
-
+import { Utils } from '../../../../classes/utils/index.ts';
 interface ForCtxDescription<T> {
   index: string;
   item: string;
@@ -10,10 +10,9 @@ export default function oRenderForFlag(
   flagValue: string,
 ): ForCtxDescription<string> {
   if (flagValue.indexOf("as") === -1) {
-    const OgoneForFlagSyntaxException = new Error(
+    throw Utils.error(
       `[Ogone] Syntax Error: ${flagValue}, no (as) found \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,
     );
-    throw OgoneForFlagSyntaxException;
   }
   const oForRegExp =
     /([\s\S]*)+\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi
@@ -21,10 +20,9 @@ export default function oRenderForFlag(
         flagValue,
       );
   if (!oForRegExp) {
-    const OgoneForFlagSyntaxException = new Error(
+    throw Utils.error(
       `[Ogone] Syntax Error: ${flagValue} \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,
     );
-    throw OgoneForFlagSyntaxException;
   }
   let [, arrayName, item, index] = oForRegExp;
   arrayName = flagValue.split("as")[0].trim();

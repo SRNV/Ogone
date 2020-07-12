@@ -12,6 +12,7 @@ import inspectRoutes from "./router/inspect-routes.ts";
 import { Bundle, XMLNodeDescription, Component } from "../../../../.d.ts";
 import Ogone from "../../index.ts";
 import { tags as customTags } from '../../../../yaml-config.ts';
+import { Utils } from '../../../../classes/utils/index.ts';
 
 // @ts-ignore
 YAML.defaultOptions.customTags = customTags;
@@ -76,11 +77,11 @@ async function renderTS(component: Component, script: string, opts: any = {}): P
         });
         const linePosition = lines.indexOf(sourceLine || '');
         const columnPosition = sourceLine?.indexOf(source.trim());
-        console.error(`[Ogone] ${component.file}:${linePosition+1}:${columnPosition ? columnPosition + 1 : 0}\n\t${m}\n\t${sourceLine}\n\t`);
+        console.error(`${component.file}:${linePosition+1}:${columnPosition ? columnPosition + 1 : 0}\n\t${m}\n\t${sourceLine}\n\t`);
       }
       Deno.exit(1);
     }
-    console.warn(`[Ogone] TSC: ${component.file} - ${Math.round(performance.now() - startPerf)} ms`);
+    Utils.warn(`TSC: ${component.file} - ${Math.round(performance.now() - startPerf)} ms`);
     return (Object.values(emit)[0] as string).split('// ogone-sep')[1];
 }
 export default async function oRenderScripts(bundle: Bundle): Promise<void> {
@@ -90,10 +91,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       node.tagName === "proto"
     );
     if (protos.length > 1) {
-      const MultipleProtoProvidedException = new Error(
-        `[Ogone] multiple proto found in ${component.file}. not supported in this version.`,
+      Utils.error(
+        `multiple proto found in ${component.file}. not supported in this version.`,
       );
-      throw MultipleProtoProvidedException;
     }
   }
   for await (let [, component] of entries) {
@@ -116,42 +116,41 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         defPath.split("://")[0],
       );
       if (!defPath.endsWith(".yml") && !defPath.endsWith(".yaml")) {
-        throw new Error(
-          `[Ogone] definition files require YAML extensions.\ncomponent: ${component.file}\ninput: ${defPath}`,
+        Utils.error(
+          `definition files require YAML extensions.\ncomponent: ${component.file}\ninput: ${defPath}`,
         );
       }
       if (isAbsoluteRemote) {
-        console.warn(`[Ogone] Def: ${defPath}`);
+        Utils.warn(`Def: ${defPath}`);
         const def = await fetchRemoteRessource(defPath);
         if (!def) {
-          throw new Error(
-            `[Ogone] definition file ${defPath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
+          Utils.error(
+            `definition file ${defPath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
           );
         } else {
           defData = YAML.parse(def, {});
         }
       } else if (!!component.remote) {
-        console.warn(`[Ogone] Def: ${remoteRelativePath}`);
+        Utils.warn(`Def: ${remoteRelativePath}`);
         const def = await fetchRemoteRessource(remoteRelativePath);
         if (!def) {
-          throw new Error(
-            `[Ogone] definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
+          Utils.error(
+            `definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
           );
         } else {
           defData = YAML.parse(def, {});
         }
       } else if (existsSync(defPath)) {
-        console.warn(`[Ogone] Def: ${defPath}`);
+        Utils.warn(`Def: ${defPath}`);
         const def = Deno.readTextFileSync(defPath);
         defData = YAML.parse(def, {});
       } else if (!component.remote && existsSync(relativePath)) {
         const def = Deno.readTextFileSync(relativePath);
         defData = YAML.parse(def, {});
       } else {
-        const DefinitionOfProtoNotFoundException = new Error(
-          `[Ogone] can't find the definition file of proto: ${defPath}`,
+        Utils.error(
+          `can't find the definition file of proto: ${defPath}`,
         );
-        throw DefinitionOfProtoNotFoundException;
       }
     }
     if (moduleScript && proto) {
@@ -191,8 +190,8 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         Object.keys({ ...ogoneScript.body.data, ...defData })
           .filter((k) => k !== "types")
           .forEach((k) => {
-            const m = `[Ogone] mixing constructor tag with data is forbidden.\n\t\tPlease remove '${k}' in ${component.file}`;
-            throw new Error(m);
+            const m = `mixing constructor tag with data is forbidden.\n\t\tPlease remove '${k}' in ${component.file}`;
+            Utils.error(m);
           });
       }
       component.data = {
@@ -255,10 +254,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     ) {
       component.requirements.forEach(([key]) => {
         if (component.data[key]) {
-          const AlreadyDefinedPropAsDatainComponentException = new Error(
+          Utils.error(
             `${key} is already defined in datas for component ${component.file}`,
           );
-          throw AlreadyDefinedPropAsDatainComponentException;
         }
         component.data[key] = null;
       });
@@ -266,12 +264,11 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
     if (proto && "type" in proto.attributes) {
       const { type } = proto.attributes;
       if (!allowedTypes.includes(type as string)) {
-        const UnsupportedTypeException = new TypeError(
-          `[Ogone] ${type} is not supported, in this version.
+        Utils.error(
+          `${type} is not supported, in this version.
           supported types of component: ${allowedTypes.join(" ")}
           error in: ${component.file}`,
         );
-        throw UnsupportedTypeException;
       }
       component.type =
         (type as "component" | "async" | "store" | "router" | "controller");
@@ -280,19 +277,17 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         const namespace = proto.attributes.namespace;
         if (namespace && /[^\w]/gi.test(namespace as string)) {
           const char = (namespace as string).match(/[^\w]/);
-          const ForbiddenCharactersInNamespaceException = new Error(
-            `[Ogone] forbidden character in namespace found. please remove it.\ncomponent: ${component.file}\ncharacter: ${char}`,
+          Utils.error(
+            `forbidden character in namespace found. please remove it.\ncomponent: ${component.file}\ncharacter: ${char}`,
           );
-          throw ForbiddenCharactersInNamespaceException;
         }
         if (namespace && (namespace as string).length) {
           // set the component type, default is null
           component.namespace = (namespace as string);
         } else {
-          const RequiredNamespaceAttributeException = new Error(
-            `[Ogone] proto's namespace is missing in ${type} component.\ncomponent: ${component.file}\nplease set the attribute namespace, this one can't be empty.`,
+          Utils.error(
+            `proto's namespace is missing in ${type} component.\ncomponent: ${component.file}\nplease set the attribute namespace, this one can't be empty.`,
           );
-          throw RequiredNamespaceAttributeException;
         }
         const comp = {
           ns: component.namespace,
@@ -324,10 +319,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
             return child.tagName && child.tagName !== "proto";
           })
           .map((child: XMLNodeDescription) => {
-            const ForbiddenElementInComponentException = new Error(
-              `[Ogone] a forbidden element found in ${type} component.\ncomponent: ${component.file}\nelement: ${child.tagName}`,
+            Utils.error(
+              `a forbidden element found in ${type} component.\ncomponent: ${component.file}\nelement: ${child.tagName}`,
             );
-            throw ForbiddenElementInComponentException;
           });
       }
     }
