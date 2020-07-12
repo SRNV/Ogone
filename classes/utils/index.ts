@@ -1,7 +1,7 @@
 import { Configuration } from '../config/index.ts';
 import { colors } from '../../deps.ts';
 
-export abstract class Utils extends Configuration {
+export abstract class Utils {
   static warn(message: string, opts?: { [k: string]: any }): void {
     const { bgYellow, bold, black, yellow } = colors;
     Utils.message(`${bgYellow(bold(black('   WARN  ')))} ${yellow(message)}`);
