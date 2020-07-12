@@ -145,6 +145,7 @@ export default abstract class Env {
     const isTsFile = isFile && path.endsWith(".ts");
     const text = Deno.readTextFileSync(path);
     return isTsFile
+    // @ts-ignore
       ? (await Deno.transpileOnly({
         [path]: text,
       }, {

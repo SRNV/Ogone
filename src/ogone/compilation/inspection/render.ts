@@ -1,7 +1,6 @@
 import SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
-import { existsSync } from "../../../../utils/exists.ts";
 import domparse from "../../../../lib/dom-parser/index.ts";
-import { Bundle, XMLNodeDescription } from "../../../../.d.ts";
+import { Bundle, XMLNodeDescription, Component } from "../../../../.d.ts";
 
 const uuid: SUI = new SUI({
   length: 5,
@@ -9,7 +8,7 @@ const uuid: SUI = new SUI({
   debug: false,
   dictionary: ["a", "b", "x", "y", "z", "o", "r", "s", "n", "v", "3", "5"],
 });
-function getNewComponent(opts: any) {
+function getNewComponent(opts: any): Component {
   return {
     uuid: `data-${uuid.randomUUID()}`,
     esmExpressions: "",
@@ -24,6 +23,7 @@ function getNewComponent(opts: any) {
     for: {},
     refs: {},
     reactive: {},
+    protocol: null,
     // if the component type is set as router
     routes: null,
     // if the component type is store

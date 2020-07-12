@@ -6,7 +6,7 @@ use @/examples/app/stores/menu.store.o3 as 'store-menu'
   case 'click:openMenu':
     Store.dispatch('menu/toggle')
     Store.dispatch('menu/checkController')
-      .then((res) => {
+      .then((res: any) => {
         console.warn(res);
       });
   break;

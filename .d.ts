@@ -80,6 +80,7 @@ export interface Component {
   imports: { [key: string]: string };
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
+  protocol: null | string;
 }
 
 interface ComponentScript {

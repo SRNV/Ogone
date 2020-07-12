@@ -11,10 +11,12 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
   default:
     const header = document.getElementById('header');
     window.addEventListener('scroll', (ev) => {
-      if (window.scrollY > this.scrollY) {
-        header.style.top = '-100px';
-      } else {
-        header.style.top = '0px';
+      if (header) {
+        if (window.scrollY > this.scrollY) {
+          header.style.top = '-100px';
+        } else {
+          header.style.top = '0px';
+        }
       }
       this.scrollY = window.scrollY
     });

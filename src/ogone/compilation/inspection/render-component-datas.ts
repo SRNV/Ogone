@@ -141,8 +141,9 @@ export default async function (bundle: Bundle, component: Component) {
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}
       ${modules ? modules.flat().join("\n") : ""}
+      ${component.protocol ? component.protocol : ''}
       const __run = ${runtime}
-      this.runtime = (__run || function(){}).bind(this.data);
+      this.runtime = __run.bind(this.data);
     };
     `;
     bundle.datas.push(result);

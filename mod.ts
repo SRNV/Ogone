@@ -62,6 +62,11 @@ interface OgoneOptions {
    * @description paths to the controllers
    */
   controllers?: string[];
+    /**
+   * @property types
+   * @description paths to the types for the typescript compiler
+   */
+  types?: string[];
 }
 type OgoneAPIType = {
   /**
