@@ -9,11 +9,11 @@ interface Analysis {
   value?: string;
   start?: string;
   end?: string;
-};
+}
 export const members: Analysis[] = [
   {
     reg: /\bOgone\b/,
-    start: 'declare namespace Ogone {',
+    start: "declare namespace Ogone {",
     children: [
       {
         reg: /\bOgone.error\b/,
@@ -21,11 +21,11 @@ export const members: Analysis[] = [
           title: string,
           description: string,
           error: Error | TypeError | SyntaxError | { message: string },
-        ): void;`
+        ): void;`,
       },
       {
         reg: /\bOgone.stores\b/,
-        value: 'export const stores: { [k: string]: { [k: string]: any } };',
+        value: "export const stores: { [k: string]: { [k: string]: any } };",
       },
       {
         reg: /\bOgone.clients\b/,
@@ -99,60 +99,60 @@ export const members: Analysis[] = [
         value: `export const ComponentCollectionManager: any | undefined;`,
       },
     ],
-    end: '}',
+    end: "}",
   },
   {
     reg: /\bOComponent\b/,
-    value: 'declare function OComponent(): any;',
+    value: "declare function OComponent(): any;",
   },
   {
     reg: /\bRouterBrowser\b/,
-    start: 'declare interface RouterBrowser {',
+    start: "declare interface RouterBrowser {",
     children: [
       {
         reg: /\b(Ogone.router.react)\b/,
-        value: 'react: Function[];'
+        value: "react: Function[];",
       },
       {
         reg: /\b(Ogone.router.actualRoute)\b/,
-        value: 'actualRoute: null | string;'
+        value: "actualRoute: null | string;",
       },
       {
         reg: /\b(Ogone.router.go)\b/,
-        value: 'go: (url: string, state: any) => void;'
+        value: "go: (url: string, state: any) => void;",
       },
       {
         reg: /\b(Ogone.router.openDevTool)\b/,
-        value: 'openDevTool: (opts: any) => void;'
+        value: "openDevTool: (opts: any) => void;",
       },
     ],
-    end: '}',
+    end: "}",
   },
   {
     reg: /\bAsync\b/,
-    start: 'declare namespace Async {',
+    start: "declare namespace Async {",
     children: [
       {
         reg: /\bAsync.resolve\b/,
-        value: 'export function resolve(): void;',
+        value: "export function resolve(): void;",
       },
     ],
-    end: '}',
+    end: "}",
   },
   {
     reg: /\bStore\b/,
-    start: 'declare namespace Store {',
+    start: "declare namespace Store {",
     children: [
       {
         reg: /\bdispatch\b/,
-        value: 'export function dispatch(ns: string, ctx?: any): any;',
+        value: "export function dispatch(ns: string, ctx?: any): any;",
       },
       {
         reg: /\bcommit\b/,
-        value: 'export function commit(ns: string, ctx?: any): any;',
+        value: "export function commit(ns: string, ctx?: any): any;",
       },
     ],
-    end: '}',
+    end: "}",
   },
   {
     reg: /\bControllers\b/,
@@ -192,11 +192,12 @@ export const members: Analysis[] = [
   },
   {
     reg: /\b____\b/,
-    value: 'declare function ____(key: string, ctx: { [k: string]: any }): void;',
-  }
+    value:
+      "declare function ____(key: string, ctx: { [k: string]: any }): void;",
+  },
 ];
 export default (text: string): string => {
-  let result: string = '';
+  let result: string = "";
   function recursive(items: Analysis[]) {
     items.forEach((rule: Analysis) => {
       if (!rule.reg.test(text)) return;
@@ -204,7 +205,6 @@ export default (text: string): string => {
       if (rule.start) result += rule.start;
       if (rule.children) recursive(rule.children);
       if (rule.end) result += rule.end;
-
     });
   }
   recursive(members);

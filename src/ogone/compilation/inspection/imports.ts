@@ -1,6 +1,6 @@
 import { Bundle } from "../../../../.d.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 
 export default function oRenderImports(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());

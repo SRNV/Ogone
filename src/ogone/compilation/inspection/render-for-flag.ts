@@ -1,5 +1,5 @@
 import iterator from "../../../../lib/iterator.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 interface ForCtxDescription<T> {
   index: string;
   item: string;

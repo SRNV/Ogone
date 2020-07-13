@@ -1,43 +1,41 @@
 import { browserBuild, template } from "./../../src/browser/readfiles.ts";
 import { HCR } from "../../lib/hmr/index.ts";
-import Ogone from "./../../src/ogone/index.ts";
-import compile from "./../../src/ogone/compilation/index.ts";
 import { Bundle, Environment } from "./../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps.ts";
-import { Configuration } from "../../classes/config/index.ts";
-import { Utils } from "../../classes/utils/index.ts";
-export default abstract class Env {
-  private static bundle: Bundle;
-  public static env: Environment = "development";
-  public static devtool: boolean = Configuration.devtool as boolean;
-  constructor(opts: any) {
-    Env.bundle = opts.bundle;
-  }
+import Constructor from "../main/constructor.ts";
+export default class Env extends Constructor {
+  private bundle: Bundle | null = null;
+  public env: Environment = "development";
+  public devtool: boolean;
 
+  constructor(opts: any) {
+    super(opts);
+    this.devtool = opts.config.devtool;
+  }
   /**
    * set the current bundle for the environment
    * @param {Bundle} bundle
    */
-  public static setBundle(bundle: Bundle): void {
-    Env.bundle = bundle;
+  public setBundle(bundle: Bundle): void {
+    this.bundle = bundle;
   }
   /**
    * if the dev would like to use devtool or not
    * @param {boolean} hasdevtool
    */
-  public static setDevTool(hasdevtool: boolean): void {
-    Env.devtool = hasdevtool && Env.env !== "production";
+  public setDevTool(hasdevtool: boolean): void {
+    this.devtool = hasdevtool && this.env !== "production";
   }
   /**
  * set the current environment
  * ```ts
- *  Env.setEnv("development" | "staging" | "production");
+ *  this.setEnv("development" | "staging" | "production");
  * ```
  * @param env
  */
-  public static setEnv(env: Environment): void {
-    Env.env = env;
+  public setEnv(env: Environment): void {
+    this.env = env;
   }
 
   /**
@@ -45,20 +43,25 @@ export default abstract class Env {
    * @param entrypoint path to root component
    * @param shouldBundle set the bundle of the component after compilation
    */
-  public static async compile(
+  public async compile(
     entrypoint: string,
     shouldBundle?: boolean,
   ): Promise<any> {
-    const bundle: Bundle = await compile(entrypoint);
+    const bundle: Bundle = await this.getBundle();
     if (shouldBundle) {
-      Env.setBundle(bundle);
+      this.setBundle(bundle);
       return bundle;
     } else {
       return bundle;
     }
   }
-  public static get application(): string {
-    const stylesDev = Array.from(Env.bundle.components.entries())
+  public get application(): string {
+    if (!this.bundle) {
+      throw this.error(
+        "undefined bundle, please use setBundle method before accessing to the application",
+      );
+    }
+    const stylesDev = Array.from(this.bundle.components.entries())
       .map((
         entry: any,
       ) => {
@@ -70,18 +73,18 @@ export default abstract class Env {
         }
         return result;
       }).join("\n");
-    const esm = Array.from(Env.bundle.components.entries()).map((
+    const esm = Array.from(this.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].esmExpressions).join("\n");
 
     const style = stylesDev;
-    const rootComponent = Env.bundle.components.get(Configuration.entrypoint);
+    const rootComponent = this.bundle.components.get(this.entrypoint);
     if (rootComponent) {
       if (
         rootComponent &&
         ["router", "store", "async"].includes(rootComponent.type)
       ) {
-        Utils.error(
+        this.error(
           `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
         );
       }
@@ -89,15 +92,15 @@ export default abstract class Env {
         const ___perfData = window.performance.timing;
 
         ${
-        browserBuild(Env.env === "production", {
-          hasDevtool: Env.devtool,
+        browserBuild(this.env === "production", {
+          hasDevtool: this.devtool,
         })
       }
-        ${Env.bundle.datas.join("\n")}
-        ${Env.bundle.contexts.reverse().join("\n")}
-        ${Env.bundle.render.join("\n")}
-        ${Env.bundle.classes.reverse().join("\n")}
-        ${Env.bundle.customElements.join("\n")}
+        ${this.bundle.datas.join("\n")}
+        ${this.bundle.contexts.reverse().join("\n")}
+        ${this.bundle.render.join("\n")}
+        ${this.bundle.classes.reverse().join("\n")}
+        ${this.bundle.customElements.join("\n")}
         Promise.all([
           ${esm}
         ]).then(() => {
@@ -121,7 +124,7 @@ export default abstract class Env {
       const DOMDev = ` `;
       let head = `
           ${style}
-          ${Configuration.head || ""}
+          ${this.head || ""}
           <script type="module">
             ${scriptDev.trim()}
           </script>`;
@@ -130,14 +133,14 @@ export default abstract class Env {
         .replace(/%%dom%%/, DOMDev);
 
       // start watching components
-      HCR(Env.bundle);
+      HCR(this.bundle);
       return body;
     } else {
       return "no root-component found";
     }
   }
 
-  public static async resolveAndReadText(path: string) {
+  public async resolveAndReadText(path: string) {
     const isFile = path.startsWith("/") ||
       path.startsWith("./") ||
       path.startsWith("../") ||
@@ -146,19 +149,19 @@ export default abstract class Env {
     const isTsFile = isFile && path.endsWith(".ts");
     const text = Deno.readTextFileSync(path);
     return isTsFile
-    // @ts-ignore
-      ? (await Deno.transpileOnly({
-        [path]: text,
-      }, {
-        sourceMap: false,
-      }))[path].source
+      ? // @ts-ignore
+        (await Deno.transpileOnly({
+          [path]: text,
+        }, {
+          sourceMap: false,
+        }))[path].source
       : text;
   }
-  private static recursiveRead(
+  private recursiveRead(
     opts: { entrypoint: string; onContent: Function },
   ): void {
     if (!existsSync(opts.entrypoint)) {
-      Utils.error("can't find entrypoint for Env.recursiveRead");
+      this.error("can't find entrypoint for this.recursiveRead");
     }
     const stats = Deno.statSync(opts.entrypoint);
     if (stats.isFile) {
@@ -168,7 +171,7 @@ export default abstract class Env {
       const dir = Deno.readDirSync(opts.entrypoint);
       for (let p of dir) {
         const path = join(opts.entrypoint, p.name);
-        Env.recursiveRead({
+        this.recursiveRead({
           entrypoint: path,
           onContent: opts.onContent,
         });
@@ -179,46 +182,44 @@ export default abstract class Env {
    * get the output of the application
    * including HTML CSS and JS
    */
-  public static async getBuild() {
-    Utils.error(
+  public async getBuild() {
+    this.error(
       "build is not ready yet, until Deno's compiler isn't fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423",
     );
     /*
-    let staticStyle = '';
+    letStyle = '';
     // TODO WAIT FOR A FIX OF COMPILER API
-    if (Configuration.static && Configuration.compileCSS) {
-      Env.recursiveRead({
-        entrypoint: Configuration.static,
+    if (Configuration && Configuration.compileCSS) {
+      this.recursiveRead({
+        entrypoint: Configuration,
         onContent: (file: string, content: string) => {
           if (file.endsWith('.css')) {
-            Utils.warn(`loading css: ${file}`);
-            staticStyle += content;
+            this.warn(`loading css: ${file}`);
+          Style += content;
           }
         }
       });
     }
-    const stylesProd = Array.from(Env.bundle.components.entries()).map((
+    const stylesProd = Array.from(this.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].style.join("\n")).join("\n");
-    const compiledStyle = Configuration.minifyCSS ? (staticStyle + stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : (staticStyle + stylesProd);
+    const compiledStyle = Configuration.minifyCSS ? Style + stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : Style + stylesProd);
     const style = `<style>${(compiledStyle)}</style>`;
-    const esmProd = Array.from(Env.bundle.components.entries()).map((
+    const esmProd = Array.from(this.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].esmExpressionsProd).join("\n");
-    const rootComponent = Env.bundle.components.get(Configuration.entrypoint);
+    const rootComponent = this.bundle.components.get(Configuration.entrypoint);
     if (rootComponent) {
       if (
         rootComponent &&
         ["router", "store", "async"].includes(rootComponent.type)
       ) {
-        Utils.error(
+        this.error(
           `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
         );
       }
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `import test from '/test.js'`,
-import { Configuration } from '../../classes/config/index';
-import { Utils } from '../../classes/utils/index';
         "test.js": 'export default 10;',
       }, {
         module: "esnext",
@@ -249,7 +250,7 @@ import { Utils } from '../../classes/utils/index';
         .replace(/%%dom%%/, DOMProd);
       return body;
     } else {
-      Utils.error("no root-component found");
+      this.error("no root-component found");
     }
     */
   }

@@ -9,8 +9,8 @@ import oStartRenderingDom from "./start-render.ts";
 import getStoreConnections from "./inspection/store-connections.ts";
 import { Bundle } from "../../../.d.ts";
 
-export default async function (path: string) {
-  const bundle: Bundle = {
+function getBundle(): Bundle {
+  return {
     files: [],
     datas: [],
     context: [],
@@ -22,6 +22,9 @@ export default async function (path: string) {
     remotes: [],
     repository: {},
   };
+}
+export default async function (path: string) {
+  const bundle: Bundle = getBundle();
   await oInspect(path, bundle);
   await oRender(bundle);
   await oRenderImports(bundle);

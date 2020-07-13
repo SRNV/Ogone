@@ -25,40 +25,44 @@ function renderPragma({
   params,
   flags,
   query,
-  appending
+  appending,
 }: any) {
-  const start = isRoot ? `
+  const start = isRoot
+    ? `
     (function(${params}) {
 
         let p = pos;
-    `: '';
-  const end = isRoot ? `
+    `
+    : "";
+  const end = isRoot
+    ? `
     return ${nId};
     });
-    ` : '';
-    let nodeSuperCreation = '';
-    if (isRoot) {
-      const idList: [string, string][] = [];
-      getNodeCreations(idList);
-      const constants = idList.map(([k, v]: [string, string]) => `${k} = ${v}`);
-      nodeSuperCreation = `const ${constants};`;
-    }
+    `
+    : "";
+  let nodeSuperCreation = "";
+  if (isRoot) {
+    const idList: [string, string][] = [];
+    getNodeCreations(idList);
+    const constants = idList.map(([k, v]: [string, string]) => `${k} = ${v}`);
+    nodeSuperCreation = `const ${constants};`;
+  }
   return `
         ${start}
         ${nodeSuperCreation}
-        ${isOgone ?
-      `
+        ${
+    isOgone
+      ? `
           if (p) {
             p = pos.slice();
             p[l] = i;
           }
           `
-      : ''}
-        ${
-    node.attributes && node.attributes.await
-      ? `at(${nId},'await', '');`
       : ""
-    }
+  }
+        ${
+    node.attributes && node.attributes.await ? `at(${nId},'await', '');` : ""
+  }
         ${
     isOgone
       ? `${nId}.setOgone({
@@ -71,32 +75,32 @@ function renderPragma({
             ${isImported ? `parentComponent: ctx,` : ""}
             ${isImported ? `parentCTXId: '${idComponent}-${node.id}',` : ""}
             ${
-      isImported
-        ? `dependencies: ${
-        JSON.stringify(
-          Object.values(node.attributes).filter((v) =>
-            typeof v !== "boolean"
-          ),
-        )
-        },`
-        : ""
+        isImported
+          ? `dependencies: ${
+            JSON.stringify(
+              Object.values(node.attributes).filter((v) =>
+                typeof v !== "boolean"
+              ),
+            )
+          },`
+          : ""
       }
             ${
-      nodeIsDynamic && !isImported || node.tagName === null
-        ? "component: ctx,"
-        : ""
+        nodeIsDynamic && !isImported || node.tagName === null
+          ? "component: ctx,"
+          : ""
       }
             ${isImported ? `props: (${JSON.stringify(props)}),` : ""}
             ${node.tagName === null ? `renderChildNodes: true,` : ""}
             flags: ${flags},
           });`
       : ""
-    }
+  }
         at(${nId},'${idComponent}', '');
         ${!(nodeIsDynamic && !isRoot && !isImported) ? setAttributes : ""}
-        ${nodesPragma.length ? 'l++;' : ""}
+        ${nodesPragma.length ? "l++;" : ""}
         ${nodesPragma.length ? nodesPragma : ""}
-        ${nodesPragma.length ? 'l--;' : ""}
+        ${nodesPragma.length ? "l--;" : ""}
         ${nodesPragma.length ? appending : ""}
         ${end}
 
@@ -106,7 +110,8 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
   const nodes = Object.values(expressions).reverse();
   let pragma: null | DOMParserPragmaDescription = null;
   for (let node of nodes) {
-    const params = "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
+    const params =
+      "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
     if (node.nodeType === 1 && node.tagName !== "style") {
       const nodeIsDynamic = !!Object.keys(node.attributes).find((
         attr: string,
@@ -152,9 +157,15 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
             ? child.pragma(idComponent, false, imports, getId).value
             : "";
         }).join("");
-        let appending = node.childNodes.filter((child) => child.pragma && child.pragma(idComponent, false, imports, getId).id).map((child) => child.pragma
-          ? `ap(${nId},${child.pragma(idComponent, false, imports, getId).id});`
-          : "").join('\n');
+        let appending = node.childNodes.filter((child) =>
+          child.pragma && child.pragma(idComponent, false, imports, getId).id
+        ).map((child) =>
+          child.pragma
+            ? `ap(${nId},${
+              child.pragma(idComponent, false, imports, getId).id
+            });`
+            : ""
+        ).join("\n");
         let extensionId: string | null = "";
         if (isImported && getId && node.tagName) {
           extensionId = getId(node.tagName);
@@ -164,8 +175,7 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
         ).map(([key, value]) => {
           return [key.replace(/^\:/, ""), value];
         });
-        let nodeCreation =
-          `const ${nId} = h('${node.tagName}');`;
+        let nodeCreation = `const ${nId} = h('${node.tagName}');`;
         identifier[0] = `${nId}`;
         identifier[1] = `h('${node.tagName}')`;
         if (nodeIsDynamic && !isImported && !isRoot) {
@@ -174,8 +184,7 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
         } else if (isImported) {
           identifier[1] = `h('template', { is: '${extensionId}-nt'})`;
         }
-        nodeCreation =
-          `const ${nId} = ${identifier[1]};`;
+        nodeCreation = `const ${nId} = ${identifier[1]};`;
         const flags = parseFlags(
           (node as unknown) as XMLNodeDescription,
           { nodeIsDynamic, isImported },
@@ -217,7 +226,7 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
           isRoot,
           setAttributes,
           nodesPragma,
-          appending
+          appending,
         };
         /**
            * all we set in this function
@@ -255,11 +264,11 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
           ? `
             const g${nId} = Ogone.contexts['${idComponent}-${node.id}'] ? Ogone.contexts['${idComponent}-${node.id}'].bind(ctx.data) : null; /* getContext function */
             const t${nId} = '\`${
-          node.rawText.replace(/\n/gi, " ")
-            // preserve regular expressions
-            .replace(/\\/gi, "\\\\")
-            // preserve quotes
-            .replace(/\'/gi, "\\'").trim()
+            node.rawText.replace(/\n/gi, " ")
+              // preserve regular expressions
+              .replace(/\\/gi, "\\\\")
+              // preserve quotes
+              .replace(/\'/gi, "\\'").trim()
           }\`';
             ctx.texts.push((k) => {
               if (typeof k == 'string' && t${nId}.indexOf(k) < 0) return true;
@@ -276,24 +285,30 @@ export default function setNodesPragma(expressions: DOMParserExpressions) {
         if (!isEvaluated) {
           return {
             id: nId,
-            getNodeCreations: (idList: string[][]) => idList.push([nId, `\`${node.rawText.replace(/\n/gi, " ").trim()}\``]),
+            getNodeCreations: (idList: string[][]) =>
+              idList.push(
+                [nId, `\`${node.rawText.replace(/\n/gi, " ").trim()}\``],
+              ),
             // `const ${nId} = \`${node.rawText.replace(/\n/gi, " ").trim()}\`;`
-            value: ' /**/',
+            value: " /**/",
           };
         }
         return {
           id: nId,
           // const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
-          getNodeCreations: (idList: string[][]) => idList.push([nId, `new Text('${isEvaluated ? " " : node.rawText}')`]),
+          getNodeCreations: (idList: string[][]) =>
+            idList.push(
+              [nId, `new Text('${isEvaluated ? " " : node.rawText}')`],
+            ),
           value: `
             if (p) {
               p = pos.slice();
               p[l] = i;
             }
-            ${registerText}`
+            ${registerText}`,
         };
       };
     }
     node.pragma = pragma;
   }
-};
+}

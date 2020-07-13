@@ -1,5 +1,5 @@
 import { Bundle, Component, XMLNodeDescription } from "../../../../.d.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 
 function hasController(bundle: Bundle, component: Component): string[][] {
   const controllers = Object.entries(component.imports)
@@ -142,7 +142,7 @@ export default async function (bundle: Bundle, component: Component) {
       const Refs = this.refs;
       ${component.type === "async" ? asyncResolve : ""}
       ${modules ? modules.flat().join("\n") : ""}
-      ${component.protocol ? component.protocol : ''}
+      ${component.protocol ? component.protocol : ""}
       const __run = ${runtime}
       this.runtime = __run.bind(this.data);
     };

@@ -77,8 +77,9 @@ export default function oRender(bundle: Bundle) {
       const parent = bundle.components.get(localOrRemote.parent);
       if (parent) {
         bundle.repository[parent.uuid] = bundle.repository[parent.uuid] || {};
-        bundle.repository[parent.uuid][localOrRemote.item.path] = localOrRemote.path;
+        bundle.repository[parent.uuid][localOrRemote.item.path] =
+          localOrRemote.path;
       }
     }
-  })
+  });
 }

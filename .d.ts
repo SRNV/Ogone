@@ -1,17 +1,5 @@
 export type Environment = "development" | "production" | "staging";
-/**
- * Definition of a bundle
-  ```ts
-  files: string[];
-  datas: string[];
-  render: string[];
-  context: string[];
-  classes: string[];
-  contexts: string[];
-  customElements: string[];
-  components: Map<string, Component>;
-  ```
- */
+export type MapIndexable = { [key: string]: string };
 interface Remote {
   base: string;
   path: string;
@@ -35,7 +23,7 @@ export interface Bundle {
   contexts: string[];
   customElements: string[];
   components: Map<string, Component>;
-  repository: { [k: string]: {[s: string]: string } };
+  repository: { [k: string]: { [s: string]: string } };
 }
 
 /**
@@ -77,7 +65,7 @@ export interface Component {
   exportsExpressions: string;
   data: { [key: string]: any };
   rootNode: XMLNodeDescription;
-  imports: { [key: string]: string };
+  imports: MapIndexable;
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
@@ -106,15 +94,9 @@ export interface XMLNodeDescription {
   nextElementSibling: null | XMLNodeDescription;
   previousElementSibling: null | XMLNodeDescription;
   ifelseBlock?: {
-    ifFlag: {
-      [k: string]: string;
-    };
-    elseFlag: {
-      [k: string]: string;
-    };
-    elseIf: {
-      [k: string]: string;
-    };
+    ifFlag: MapIndexable;
+    elseFlag: MapIndexable;
+    elseIf: MapIndexable;
     main: string;
   };
   getInnerHTML?: () => string;
@@ -198,25 +180,41 @@ export interface LegacyDescription {
 }
 
 export interface TypedExpressions {
-  blocks: { [key: string]: string };
-  parentheses: { [key: string]: string };
-  setters: { [key: string]: string };
-  imports: {};
-  exports: {};
+  blocks: MapIndexable;
+  parentheses: MapIndexable;
+  setters: MapIndexable;
+  imports: { [k: string]: { [s: string]: null | string | string[] } };
+  exports: { [k: string]: { [s: string]: null | string | string[] } };
   require: [];
-  use: {};
-  properties: [];
+  use: { [k: string]: { [s: string]: null | string | string[] } };
+  properties: ([string, string[]])[];
   data: {};
   switch: {
     before: {
-      each: null;
-      cases: {};
+      each: null | string;
+      cases: MapIndexable;
     };
-    cases: [];
-    default: false;
+    cases: string[];
+    default: boolean;
   };
-  reflections: [];
+  reflections: string[];
 }
+export type Expressions = MapIndexable;
+export interface CustomScriptRegExpItem {
+  name?: string;
+  close?: string | boolean;
+  open?: string | boolean;
+  reg?: RegExp;
+  split?: [string, string];
+  splittedId?: (value: any, expressions: any) => string;
+  id?: (
+    value: any,
+    matches?: RegExpMatchArray,
+    typedExpressions?: TypedExpressions,
+    expressions?: Expressions,
+  ) => string;
+}
+export type CustomScriptRegExpProtocol = CustomScriptRegExpItem[];
 
 interface DOMParserIterator {
   value: number;

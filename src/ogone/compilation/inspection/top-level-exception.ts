@@ -1,5 +1,5 @@
 import { Bundle } from "../../../../.d.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 
 export default function oTopLevelTextNodeException(bundle: Bundle) {
   bundle.components.forEach((c) => {

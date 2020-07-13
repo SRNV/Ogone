@@ -4,7 +4,11 @@ import {
   ParseFlagsOutput,
 } from "./../../.d.ts";
 import { Utils } from "../../classes/utils/index.ts";
-const SyntaxEventException = (event: string) => Utils.error(`wrong syntax of ${event} event. it should be: ${event}:case`, { returns: true});
+const SyntaxEventException = (event: string) =>
+  Utils.error(
+    `wrong syntax of ${event} event. it should be: ${event}:case`,
+    { returns: true },
+  );
 const events = [
   "--click",
   "--mouseenter",

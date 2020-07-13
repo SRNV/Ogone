@@ -1,4 +1,4 @@
-import setNodesPragma from './set-node-pragma.ts';
+import setNodesPragma from "./set-node-pragma.ts";
 import templateReplacer from "../../utils/template-recursive.ts";
 import {
   XMLNodeDescription,
@@ -40,7 +40,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-          }</${node.tagName}>`;
+        }</${node.tagName}>`;
         return result;
       }
       return node.rawText || "";
@@ -55,7 +55,7 @@ function getInnerOuterHTML(
               return "";
             }
           }).join("")
-          }`;
+        }`;
         return result;
       }
       return node.rawText || "";

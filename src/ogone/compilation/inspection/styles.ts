@@ -8,7 +8,7 @@ import {
 } from "../../../../deps.ts";
 import { Bundle } from "../../../../.d.ts";
 import { existsSync } from "../../../../utils/exists.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 
 export default async function oRenderStyles(bundle: Bundle) {
   const entries = Array.from(bundle.components.entries());
@@ -56,7 +56,9 @@ export default async function oRenderStyles(bundle: Bundle) {
               );
           }
         } else if (src.length && component.remote) {
-          Utils.warn(`Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath}`);
+          Utils.warn(
+            `Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath}`,
+          );
           const p = isAbsoluteRemote
             ? await fetchRemoteRessource(src)
             : await fetchRemoteRessource(remoteRelativePath);

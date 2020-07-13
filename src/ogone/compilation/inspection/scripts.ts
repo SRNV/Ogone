@@ -11,18 +11,20 @@ import { existsSync } from "../../../../utils/exists.ts";
 import inspectRoutes from "./router/inspect-routes.ts";
 import { Bundle, XMLNodeDescription, Component } from "../../../../.d.ts";
 import Ogone from "../../index.ts";
-import { tags as customTags } from '../../../../yaml-config.ts';
-import { Utils } from '../../../../classes/utils/index.ts';
+import { tags as customTags } from "../../../../yaml-config.ts";
+import { Utils } from "../../../../classes/utils/index.ts";
 
 // @ts-ignore
 YAML.defaultOptions.customTags = customTags;
-async function getProtocol(opts: { declarations: { value: string } }): Promise<{ Protocol: any ; instance: typeof Function; source: string }> {
+async function getProtocol(
+  opts: { declarations: { value: string } },
+): Promise<{ Protocol: any; instance: typeof Function; source: string }> {
   // @ts-ignore
   const result = await Deno.transpileOnly({
     "proto.ts": `class Protocol {
-      ${opts.declarations ? opts.declarations.value : ''}
+      ${opts.declarations ? opts.declarations.value : ""}
     }`,
-  }, { sourceMap: false});
+  }, { sourceMap: false });
   const getter = new Function(`${result["proto.ts"].source}\nreturn Protocol;`);
   const Protocol = getter();
   return {
@@ -31,58 +33,66 @@ async function getProtocol(opts: { declarations: { value: string } }): Promise<{
     source: result["proto.ts"].source,
   };
 }
-async function renderTS(component: Component, script: string, opts: any = {}): Promise<string> {
+async function renderTS(
+  component: Component,
+  script: string,
+  opts: any = {},
+): Promise<string> {
   let file = Deno.readTextFileSync(component.file);
   const startPerf = performance.now();
   let protocol = `class Protocol {
-    ${opts.declarations ? opts.declarations.value : ''}
+    ${opts.declarations ? opts.declarations.value : ""}
   }`;
   // @ts-ignore
-  let [diag, emit] = (await Deno.compile("proto.ts",
-    {
-      "proto.ts": `
+  let [diag, emit] = (await Deno.compile("proto.ts", {
+    "proto.ts": `
       ${OgoneNS(script)}
-      ${opts.declarations ? protocol : ''}
+      ${opts.declarations ? protocol : ""}
       // do not remove this comment bellow
       // ogone-sep
       ${script}`,
-    },
-      {
-      module: "esnext",
-      target: "esnext",
-      noImplicitThis: false,
-      noFallthroughCasesInSwitch: false,
-      allowJs: false,
-      resolveJsonModule: false,
-      experimentalDecorators: true,
-      noImplicitAny: true,
-      allowUnreachableCode: false,
-      jsx: "preserve",
-      lib: ['dom', 'esnext'],
-      inlineSourceMap: false,
-      inlineSources: false,
-      alwaysStrict: false,
-      sourceMap: false,
-      strictFunctionTypes: true,
-      types: Ogone.config.types || [],
-    }));
-    if (diag) {
-      for (const d of diag) {
-        const m = d.message ? d.message: '';
-        const source = d.sourceLine ? d.sourceLine.split('____(\'')[0].trim() : '';
-        const lines = file.split('\n');
-        const sourceLine = lines.find((t, i, arr) => {
-          return t.indexOf(source) > -1
-          && (file.indexOf(arr[i-1]) < file.indexOf(source))
-        });
-        const linePosition = lines.indexOf(sourceLine || '');
-        const columnPosition = sourceLine?.indexOf(source.trim());
-        console.error(`${component.file}:${linePosition+1}:${columnPosition ? columnPosition + 1 : 0}\n\t${m}\n\t${sourceLine}\n\t`);
-      }
-      Deno.exit(1);
+  }, {
+    module: "esnext",
+    target: "esnext",
+    noImplicitThis: false,
+    noFallthroughCasesInSwitch: false,
+    allowJs: false,
+    resolveJsonModule: false,
+    experimentalDecorators: true,
+    noImplicitAny: true,
+    allowUnreachableCode: false,
+    jsx: "preserve",
+    lib: ["dom", "esnext"],
+    inlineSourceMap: false,
+    inlineSources: false,
+    alwaysStrict: false,
+    sourceMap: false,
+    strictFunctionTypes: true,
+    types: Ogone.config.types || [],
+  }));
+  if (diag) {
+    for (const d of diag) {
+      const m = d.message ? d.message : "";
+      const source = d.sourceLine ? d.sourceLine.split("____('")[0].trim() : "";
+      const lines = file.split("\n");
+      const sourceLine = lines.find((t, i, arr) => {
+        return t.indexOf(source) > -1 &&
+          (file.indexOf(arr[i - 1]) < file.indexOf(source));
+      });
+      const linePosition = lines.indexOf(sourceLine || "");
+      const columnPosition = sourceLine?.indexOf(source.trim());
+      console.error(
+        `${component.file}:${linePosition + 1}:${
+          columnPosition ? columnPosition + 1 : 0
+        }\n\t${m}\n\t${sourceLine}\n\t`,
+      );
     }
-    Utils.warn(`TSC: ${component.file} - ${Math.round(performance.now() - startPerf)} ms`);
-    return (Object.values(emit)[0] as string).split('// ogone-sep')[1];
+    Deno.exit(1);
+  }
+  Utils.warn(
+    `TSC: ${component.file} - ${Math.round(performance.now() - startPerf)} ms`,
+  );
+  return (Object.values(emit)[0] as string).split("// ogone-sep")[1];
 }
 export default async function oRenderScripts(bundle: Bundle): Promise<void> {
   const entries = Array.from(bundle.components.entries());
@@ -181,16 +191,21 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
       `
         : null;
       // @ts-ignore
-      const isTyped: boolean = !!ogoneScript.body.data && !!ogoneScript.body.data.types && ogoneScript.body.data.types.constructor.name === "Declarations";
+      const isTyped: boolean = !!ogoneScript.body.data &&
+        !!ogoneScript.body.data.types &&
+        ogoneScript.body.data.types.constructor.name === "Declarations";
       // @ts-ignore
-      const resultProto = getProtocol({ declarations: ogoneScript.body.data.types });
+      const resultProto = getProtocol(
+        { declarations: ogoneScript.body.data.types },
+      );
       const prototype = isTyped ? (await resultProto).instance : {};
       const protocol = isTyped ? (await resultProto).source : "";
       if (isTyped) {
         Object.keys({ ...ogoneScript.body.data, ...defData })
           .filter((k) => k !== "types")
           .forEach((k) => {
-            const m = `mixing constructor tag with data is forbidden.\n\t\tPlease remove '${k}' in ${component.file}`;
+            const m =
+              `mixing constructor tag with data is forbidden.\n\t\tPlease remove '${k}' in ${component.file}`;
             Utils.error(m);
           });
       }
@@ -200,7 +215,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         // allows dev to define the values
         ...prototype,
       };
-      component.protocol = protocol.toString().startsWith('let ') ? protocol : null;
+      component.protocol = protocol.toString().startsWith("let ")
+        ? protocol
+        : null;
       const declarations = isTyped ? component.data.types : null;
       if (isTyped) {
         delete component.data.types;
@@ -223,7 +240,9 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
         )
           ? "async"
           : ""
-      } function (${isTyped ? "this: Protocol," : ""} _state: _state, ctx: ctx, event: event, _once: number = 0) {
+      } function (${
+        isTyped ? "this: Protocol," : ""
+      } _state: _state, ctx: ctx, event: event, _once: number = 0) {
           try {
             ${sc}
           } catch(err) {
@@ -232,16 +251,16 @@ export default async function oRenderScripts(bundle: Bundle): Promise<void> {
             throw err;
           }
         });`;
-      component.scripts.runtime = value.trim().length && isTyped ?
-        (await renderTS(component, script, {
-          declarations
-        })).replace(/^(\s*;)/, '')
-        // @ts-ignore
-        : (await Deno.transpileOnly({
-          "proto.ts": script,
-        }, {
-          sourceMap: false,
-        }))["proto.ts"].source;
+      component.scripts.runtime = value.trim().length && isTyped
+        ? (await renderTS(component, script, {
+          declarations,
+        })).replace(/^(\s*;)/, "")
+        : // @ts-ignore
+          (await Deno.transpileOnly({
+            "proto.ts": script,
+          }, {
+            sourceMap: false,
+          }))["proto.ts"].source;
     } else if (defData) {
       component.data = defData;
     }

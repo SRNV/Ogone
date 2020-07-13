@@ -1,6 +1,6 @@
 import { Bundle, XMLNodeDescription } from "../../../../.d.ts";
 import getWebComponent from "../../../components/index.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 
 export default async function oRenderNodesBehavior(
   bundle: Bundle,

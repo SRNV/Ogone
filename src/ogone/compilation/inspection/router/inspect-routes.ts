@@ -1,5 +1,5 @@
 import { Bundle, Component, Route } from "../../../../../.d.ts";
-import { Utils } from '../../../../../classes/utils/index.ts';
+import { Utils } from "../../../../../classes/utils/index.ts";
 const allowedKeys = [
   "path",
   "redirect",

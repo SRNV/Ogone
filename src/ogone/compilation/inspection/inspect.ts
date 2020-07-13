@@ -1,7 +1,7 @@
 import { existsSync } from "../../../../utils/exists.ts";
 import jsThis from "../../../../lib/js-this/switch.ts";
 import { Bundle } from "../../../../.d.ts";
-import { Utils } from '../../../../classes/utils/index.ts';
+import { Utils } from "../../../../classes/utils/index.ts";
 import {
   join,
   relative,
@@ -80,7 +80,6 @@ async function startRecursiveInspectionOfComponent(
           parent: p,
         });
       } else if (opts.remote && type === "relative" && opts.base) {
-
         // relative and remote
         const newPath = `${opts.current.split("://")[0]}://${
           absolute(opts.current.split("://")[1], path)
@@ -125,7 +124,7 @@ export default async function oInspect(entrypoint: string, bundle: Bundle) {
       bundle,
       {
         parent: entrypoint,
-      }
+      },
     );
   } else {
     Utils.error(

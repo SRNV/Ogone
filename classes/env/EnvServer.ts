@@ -4,18 +4,18 @@ import Ogone from "./../../src/ogone/index.ts";
 import { existsSync } from "./../../utils/exists.ts";
 import HMR from "../../lib/hmr/index.ts";
 import Env from "./Env.ts";
-import { Utils } from '../../classes/utils/index.ts';
+import { Utils } from "../../classes/utils/index.ts";
 
 /**
- * Abstract class to manage the environments of your application
- * extends class Env
+ * class to manage the environments of your application
+ * @extends Env
  * @method use
  * @method setBundle
  * @method getBuild
  * @property application
  */
-export default abstract class EnvServer extends Env {
-  private static async control(req: any): Promise<boolean> {
+export default class EnvServer extends Env {
+  private async control(req: any): Promise<boolean> {
     const ns = req.url.slice(1).split("/")[0];
     if (req.url.indexOf("/") > -1 && req.url.startsWith(`/${ns}/`)) {
       const controller = Ogone.controllers[ns] || Ogone.controllers[`/${ns}`];
@@ -47,8 +47,8 @@ export default abstract class EnvServer extends Env {
    * @param port a number for the port
    *
    */
-  public static async use(server: Server, port: number = 8000): Promise<void> {
-    Utils.success(`http://localhost:${port}/`);
+  public async use(server: Server, port: number = 8000): Promise<void> {
+    this.success(`http://localhost:${port}/`);
     for await (const req of server) {
       const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
       const controllerRendered = await this.control(req);
@@ -61,7 +61,7 @@ export default abstract class EnvServer extends Env {
           const denoReqUrl = req.url.slice(1).split("?")[0];
           HMR(denoReqUrl);
           req.respond({
-            body: await Env.resolveAndReadText(denoReqUrl),
+            body: await this.resolveAndReadText(denoReqUrl),
             headers: new Headers([
               getHeaderContentTypeOf(denoReqUrl),
               ["X-Content-Type-Options", "nosniff"],
@@ -78,28 +78,28 @@ export default abstract class EnvServer extends Env {
           });
           break;
         default:
-          req.respond({ body: Env.application });
+          req.respond({ body: this.application });
           break;
       }
     }
   }
-  public static async serve(
+  public async runService(
     pathToApplication: string,
     server: Server,
     port: number = 8000,
   ) {
     if (!existsSync(pathToApplication)) {
-      Utils.error(
+      this.error(
         `application not found. input: ${pathToApplication}`,
       );
     }
     if (!pathToApplication.endsWith(".html")) {
-      Utils.error(
+      this.error(
         `this version of Ogone only supports HTML for production. input: ${pathToApplication}`,
       );
     }
     const application = Deno.readTextFileSync(pathToApplication);
-    Utils.warn(
+    this.warn(
       `Service running. check it here http://localhost:${port}/`,
     );
     for await (const req of server) {
@@ -113,7 +113,7 @@ export default abstract class EnvServer extends Env {
         case req.url.startsWith(Ogone.config.modules):
           const denoReqUrl = req.url.slice(1).split("?")[0];
           req.respond({
-            body: await Env.resolveAndReadText(denoReqUrl),
+            body: await this.resolveAndReadText(denoReqUrl),
             headers: new Headers([
               getHeaderContentTypeOf(denoReqUrl),
               ["X-Content-Type-Options", "nosniff"],
