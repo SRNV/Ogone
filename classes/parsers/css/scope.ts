@@ -6,7 +6,11 @@ function getId(type: string): string {
   return `§§${type}${i}§§`;
 }
 export default class CSSScoper {
-  private preserveRegexp(str: string, expressions: any, regexp: RegExp): string {
+  private preserveRegexp(
+    str: string,
+    expressions: any,
+    regexp: RegExp,
+  ): string {
     const reg = /\{([^\{\}])*\}/;
     const kReg = regexp;
     let result = str;
@@ -30,11 +34,13 @@ export default class CSSScoper {
     }
     // replace only blocks
     while (
-      Object.keys(expressions).filter((k) => k.startsWith("§§block")).find((k) =>
-        result.indexOf(k) > -1
-      )
+      Object.keys(expressions).filter((k) => k.startsWith("§§block")).find((
+        k,
+      ) => result.indexOf(k) > -1)
     ) {
-      const key = Object.keys(expressions).filter((k) => k.startsWith("§§block"))
+      const key = Object.keys(expressions).filter((k) =>
+        k.startsWith("§§block")
+      )
         .find((k) => result.indexOf(k) > -1);
       if (key) {
         const expression = expressions[key];
@@ -101,7 +107,9 @@ export default class CSSScoper {
     );
 
     const match = result.match(/([^\{\}])+(?=\{)/gi);
-    const matches = match ? match.filter((s) => !s.trim().startsWith("@")) : null;
+    const matches = match
+      ? match.filter((s) => !s.trim().startsWith("@"))
+      : null;
     if (matches) {
       matches.forEach((selector) => {
         let s = selector;
@@ -128,7 +136,7 @@ export default class CSSScoper {
           value = value.replace(
             value,
             `${value}[${scopeId}]${
-            savedPseudoElement ? savedPseudoElement[0] : ""
+              savedPseudoElement ? savedPseudoElement[0] : ""
             }`,
           );
           arr[i].value = value;
@@ -146,5 +154,4 @@ export default class CSSScoper {
     result = templateReplacer(result, expressions);
     return result;
   }
-
 }

@@ -8,7 +8,7 @@ import {
 } from "../../deps.ts";
 import { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
-import { Configuration } from '../config/index.ts';
+import { Configuration } from "../config/index.ts";
 
 export default class StyleInspector extends Configuration {
   private CSSScoper: CSSScoper = new CSSScoper();
@@ -37,17 +37,20 @@ export default class StyleInspector extends Configuration {
             const p = existsSync(src)
               ? src
               : existsSync(relativePath)
-                ? isAbsoluteRemote ? await fetchRemoteRessource(src) : relativePath
-                : null;
+              ? isAbsoluteRemote
+                ? await fetchRemoteRessource(src)
+                : relativePath
+              : null;
             switch (true && !!p) {
               case p &&
                 ((["scss", "sass"].includes(lang) || !lang) &&
-                  (p.endsWith(".sass") || p.endsWith(".scss")) ||
+                    (p.endsWith(".sass") || p.endsWith(".scss")) ||
                   ((["denolus"].includes(lang) || !lang) &&
                     (p.endsWith(".lus") || p.endsWith(".yml") ||
                       p.endsWith(".yaml"))) ||
                   (["css"].includes(lang) && p.endsWith(".css"))):
-                styleContent = Deno.readTextFileSync(p as string) + styleContent;
+                styleContent = Deno.readTextFileSync(p as string) +
+                  styleContent;
                 break;
               case !p:
                 this.error(
@@ -60,7 +63,9 @@ export default class StyleInspector extends Configuration {
             }
           } else if (src.length && component.remote) {
             this.warn(
-              `Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath}`,
+              `Downloading style: ${
+                isAbsoluteRemote ? src : remoteRelativePath
+              }`,
             );
             const p = isAbsoluteRemote
               ? await fetchRemoteRessource(src)
@@ -68,7 +73,7 @@ export default class StyleInspector extends Configuration {
             switch (true) {
               case p &&
                 ((["scss", "sass"].includes(lang) || !lang) &&
-                  (p.endsWith(".sass") || p.endsWith(".scss")) ||
+                    (p.endsWith(".sass") || p.endsWith(".scss")) ||
                   ((["denolus"].includes(lang) || !lang) &&
                     (p.endsWith(".lus") || p.endsWith(".yml") ||
                       p.endsWith(".yaml"))) ||
@@ -108,5 +113,4 @@ export default class StyleInspector extends Configuration {
       }
     }
   }
-
 }

@@ -259,3 +259,9 @@ export interface CustomScriptParserOptions {
   casesAreLinkables?: boolean;
   beforeCases?: boolean;
 }
+export interface ForCtxDescription<T> {
+  index: string;
+  item: string;
+  array: string;
+  content: T;
+}
