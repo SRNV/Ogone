@@ -244,3 +244,18 @@ interface DOMParserExp {
 interface DOMParserExpressions {
   [key: string]: DOMParserExp;
 }
+export interface CustomScriptParserReturnType {
+  value: any;
+  body: any;
+}
+export interface CustomScriptParserOptions {
+  data?: boolean;
+  parseCases?: boolean;
+  befores?: boolean;
+  cjs?: boolean;
+  esm?: boolean;
+  reactivity?: boolean;
+  onlyDeclarations?: boolean;
+  casesAreLinkables?: boolean;
+  beforeCases?: boolean;
+}

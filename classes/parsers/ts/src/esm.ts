@@ -4,6 +4,7 @@ import {
   CustomScriptRegExpItem,
   CustomScriptRegExpProtocol,
 } from "../../../../.d.ts";
+import templateReplacer from "../../../../utils/template-recursive.ts";
 
 const exportASKey: CustomScriptRegExpItem = {
   name: "exportAsKey",
@@ -525,8 +526,10 @@ const esm: CustomScriptRegExpProtocol = [
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      throw Utils.error(
-        `this syntax of import is not supported\n`,
+      throw new Error(
+        `this syntax of import is not supported\ninput:${
+          templateReplacer(value, expressions)
+        }`,
       );
     },
     close: false,

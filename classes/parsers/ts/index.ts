@@ -7,31 +7,78 @@ import esmElements from "./src/esm.ts";
 import cjsElements from "./src/cjsElements.ts";
 import notParsedElements from "./src/not-parsed.ts";
 import O3Elements from "./src/o3-elements.ts";
-import before from "./src/render/before-case.ts";
 import templateReplacer from "../../../utils/template-recursive.ts";
 import { Utils } from "../../utils/index.ts";
-import { TypedExpressions, CustomScriptRegExpProtocol } from "../../../.d.ts";
+import {
+  TypedExpressions,
+  CustomScriptRegExpProtocol,
+  CustomScriptParserOptions,
+  CustomScriptParserReturnType,
+} from "../../../.d.ts";
 
-interface CustomScriptParserReturnType {
-  value: any;
-  body: any;
-}
-interface CustomScriptParserOptions {
-  data?: boolean;
-  parseCases?: boolean;
-  befores?: boolean;
-  cjs?: boolean;
-  esm?: boolean;
-  reactivity?: boolean;
-  onlyDeclarations?: boolean;
-  casesAreLinkables?: boolean;
-} /**
- * class to parse custom script for Ogone
- * this class will parse the setters statements
- * and add some features like: reflections, execute default, before-each statement, def's Area
- */
+/**
+* class to parse custom script for Ogone
+* this class will parse the setters statements
+* and add some features like: reflections, execute default, before-each statement, def's Area
+*/
 
 export default class CustomScriptParser extends Utils {
+  private parseBeforeCases(opts: {
+    typedExpressions: TypedExpressions;
+    expressions: any;
+    value: string;
+  }): string {
+    const { value, typedExpressions, expressions } = opts;
+    let result = value;
+    const matches = value.match(
+      /([^\n\r]+){0,1}(before-(each|case\s[^\:]+))/gi,
+    );
+    if (!matches) return result;
+    const p = value.split(/(def|case[^:]+|default|before\s*[^:]+)\s*\:/gi);
+    matches.forEach((m) => {
+      let data = p.find((el, i, arr) => arr[i - 1] && arr[i - 1] === m.trim());
+      let before = p.find((el, i, arr) => arr[i + 1] && arr[i + 1] === data);
+      const content = `${m}:${data}`;
+      result = result.replace(content, "");
+      // reflection
+      data = this.read(
+        {
+          typedExpressions,
+          expressions,
+          value: data as string,
+          array: notParsedElements,
+        },
+      );
+      data = this.read(
+        {
+          typedExpressions,
+          expressions,
+          array: elements,
+          value: data,
+        },
+      );
+
+      data = this.read(
+        { typedExpressions, expressions, array: computedExp, value: data },
+      );
+      // data = renderSetterExpression(typedExpressions, expressions, data);
+      data = data.replace(
+        /((chainedLine|parenthese|array|functionCall)\d*§{2})\s*(§{2}keyword)/gi,
+        "$1§§endExpression0§§$3",
+      );
+      data = this.read(
+        { typedExpressions, expressions, value: data, array: O3Elements },
+      );
+      data = templateReplacer(data, expressions);
+      if (m.trim() === "before-each") {
+        typedExpressions.switch.before.each = data;
+      } else if (before) {
+        typedExpressions.switch.before.cases[before] = data;
+      }
+    });
+    return result;
+  }
+
   private parseCases(opts: {
     typedExpressions: TypedExpressions;
     expressions: any;
@@ -67,7 +114,7 @@ export default class CustomScriptParser extends Utils {
     typedExpressions.switch.default = !!str2.match(/default([\s\n])*\:/);
     return str2;
   }
-  private getDefinitionsArea(opts: {
+  private parseDefinitionsArea(opts: {
     typedExpressions: TypedExpressions;
     expressions: any;
     value: string;
@@ -169,7 +216,7 @@ export default class CustomScriptParser extends Utils {
         const name = key && key.startsWith("§§array")
           ? key
           : `'${expressions[key].replace(/(§{2}ponctuation\d*§{2})/, "")}'` ||
-          "";
+            "";
         result = result.replace(
           exp,
           `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`,
@@ -239,7 +286,7 @@ export default class CustomScriptParser extends Utils {
           const exp: string = result.split(item.split[0])[1];
           const all = `${item.split[0]}${exp.split(item.split[1])[0]}${
             item.split[1]
-            }`;
+          }`;
           result = result.replace(
             all,
             item.splittedId(result, expressions),
@@ -265,7 +312,9 @@ export default class CustomScriptParser extends Utils {
       typedExpressions,
     });
     if (prog.indexOf("def:") > -1 && opts && opts.data === true) {
-      prog = this.getDefinitionsArea({ typedExpressions, expressions, value: prog });
+      prog = this.parseDefinitionsArea(
+        { typedExpressions, expressions, value: prog },
+      );
     }
     if (opts && opts.parseCases) {
       prog = this.read({
@@ -293,8 +342,10 @@ export default class CustomScriptParser extends Utils {
         body: typedExpressions,
       };
     }
-    if (opts && opts.befores) {
-      prog = before(typedExpressions, expressions, prog);
+    if (opts && opts.beforeCases) {
+      prog = this.parseBeforeCases(
+        { typedExpressions, expressions, value: prog },
+      );
     }
     prog = this.read({
       array: elements,

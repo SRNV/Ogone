@@ -1,5 +1,5 @@
 import { Utils } from "../utils/index.ts";
-export default abstract class Configuration extends Utils {
+export abstract class Configuration extends Utils {
   /**
    * @property entrypoint
    * @description path to the root component, this one has to be an untyped component

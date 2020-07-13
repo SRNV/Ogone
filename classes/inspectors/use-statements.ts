@@ -4,7 +4,6 @@ import { Bundle } from "../../.d.ts";
 import { Utils } from "../../classes/utils/index.ts";
 import {
   join,
-  relative,
   absolute,
   fetchRemoteRessource,
 } from "../../deps.ts";

@@ -1,7 +1,7 @@
 import gen from "./generator.ts";
-import { CustomScriptRegExpItem, TypedExpressions } from "../../../../";
+import { CustomScriptRegExpProtocol, TypedExpressions } from "../../../../.d.ts";
 
-const cjs: CustomScriptRegExpItem = [
+const cjs: CustomScriptRegExpProtocol = [
   {
     open: false,
     reg: /(§{2}keywordRequire\d+§{2})\s*(§{2}parenthese\d+§{2})/,

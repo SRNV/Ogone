@@ -1,8 +1,8 @@
-import gen from "../generator.ts";
+import gen from "./generator.ts";
 import {
   CustomScriptRegExpProtocol,
   TypedExpressions,
-} from "../../../../../.d.ts";
+} from "../../../../.d.ts";
 
 const nullish: CustomScriptRegExpProtocol = [
   // strings

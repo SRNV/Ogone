@@ -4,11 +4,27 @@ import { existsSync } from "../../utils/exists.ts";
 import EnvServer from "../env/EnvServer.ts";
 
 export default class Ogone extends EnvServer {
+  static files: string[] = [];
+  static directories: string[] = [];
+  static controllers: { [key: string]: any } = {};
+  static main: string = "";
+  static readonly allowedTypes = [
+    // controls the location of the web page
+    "router",
+    // controls data of the application
+    "store",
+    // controls the request to the gateway
+    "controller",
+    // to use promise to rule the component
+    "async",
+    "component",
+  ];
   constructor(opts: Configuration) {
     super(opts);
     if (!opts) {
       this.error("run method is expecting for 1 argument, got 0.");
     }
+    Ogone.main = `${Deno.cwd()}${opts.entrypoint}`;
     const port: number = this.port;
     const modulesPath: string = this.modules;
     // open the server
