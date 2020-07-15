@@ -4,16 +4,18 @@ import ComponentReader from "../readers/components.ts";
 import ImportedComponentsInpector from "../inspectors/imported-components-inspector.ts";
 import ScriptInspector from "../inspectors/script-inspector.ts";
 import NodeManager from "../inspectors/textnodes-top-level-exception.ts";
-import oStartRenderingDom from "../../src/ogone/compilation/start-render.ts";
 import StoreConnectionsInspector from "../inspectors/store-connections-inspector.ts";
-import { Bundle } from "../../.d.ts";
-import { Configuration } from "../config/index.ts";
+import { Bundle, OgoneConfiguration } from "../../.d.ts";
+import RuntimeCompiler from '../compiler/index.ts';
+import { Utils } from '../utils/index.ts';
+import { Configuration } from '../config/index.ts';
 
-export default class Constructor extends Configuration {
-  private StoreConnectionsInspector: StoreConnectionsInspector;
-  private NodeManager: NodeManager;
-  private StyleInspector: StyleInspector;
-  private ScriptInspector: ScriptInspector;
+export default class Constructor extends Utils {
+  private StoreConnectionsInspector: StoreConnectionsInspector = new StoreConnectionsInspector();
+  private RuntimeCompiler: RuntimeCompiler = new RuntimeCompiler();
+  private NodeManager: NodeManager = new NodeManager();
+  private StyleInspector: StyleInspector = new StyleInspector();
+  private ScriptInspector: ScriptInspector = new ScriptInspector();
   /**
    * saves modules and imported components inside component.imports[index]: string;
    */
@@ -29,13 +31,6 @@ export default class Constructor extends Configuration {
    * this instance will assign the rootnode Element to the component
    */
   private ComponentReader: ComponentReader = new ComponentReader();
-  constructor(opts: Configuration) {
-    super(opts);
-    this.ScriptInspector = new ScriptInspector(opts);
-    this.StoreConnectionsInspector = new StoreConnectionsInspector(opts);
-    this.StyleInspector = new StyleInspector(opts);
-    this.NodeManager = new NodeManager(opts);
-  }
   async getBundle(): Promise<Bundle> {
     const bundle: Bundle = {
       files: [],
@@ -49,19 +44,21 @@ export default class Constructor extends Configuration {
       remotes: [],
       repository: {},
     };
-    await this.UseStatementsInspector.inspect(this.entrypoint, bundle);
+    await this.UseStatementsInspector.inspect(Configuration.entrypoint, bundle);
     await this.ComponentReader.read(bundle);
     await this.ImportedComponentsInpector.inspect(bundle);
-    if (this.ScriptInspector) this.ScriptInspector.read(bundle);
+    if (this.ScriptInspector) await this.ScriptInspector.read(bundle);
+
     if (this.StoreConnectionsInspector) {
       this.StoreConnectionsInspector.read(bundle);
     }
     if (this.StyleInspector) await this.StyleInspector.read(bundle);
+
     if (this.NodeManager) {
       await this.NodeManager.read(bundle);
       await this.NodeManager.cleanRoot(bundle);
     }
-    await oStartRenderingDom(bundle);
+    await this.RuntimeCompiler.read(bundle);
     return bundle;
   }
 }

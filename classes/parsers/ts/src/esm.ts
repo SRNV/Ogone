@@ -38,8 +38,8 @@ const esm: CustomScriptRegExpProtocol = [
     open: false,
     reg: /\s*(§{2}block\d+§{2})\s*/,
     id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
+      if (!expressions || !matches || !typedExpressions) {
+        throw new Error("typedExpressions, expressions or matches are missing");
       }
       const id = `§§blockImport${gen.next().value}§§`;
       let [input, block] = matches;
@@ -61,7 +61,7 @@ const esm: CustomScriptRegExpProtocol = [
       }
       */
       expressions[block] = expression;
-      if (typedExpressions) typedExpressions.blocks[block] = expression;
+      typedExpressions.blocks[block] = expression;
       expressions[id] = expression;
       return id;
     },

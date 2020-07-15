@@ -1,11 +1,11 @@
-export { existsSync } from "https://deno.land/std@v0.58.0/fs/exists.ts";
-export { serve } from "https://deno.land/std@v0.58.0/http/server.ts";
-export * as colors from "https://deno.land/std@0.60.0/fmt/colors.ts";
+export { existsSync } from "https://deno.land/std@v0.61.0/fs/exists.ts";
+export { serve } from "https://deno.land/std@v0.61.0/http/server.ts";
+export * as colors from "https://deno.land/std@0.61.0/fmt/colors.ts";
 export {
   join,
   relative,
-} from "https://raw.githubusercontent.com/denoland/deno/master/std/path/mod.ts";
-export { Server } from "https://deno.land/std@v0.58.0/http/server.ts";
+} from "https://deno.land/std@0.61.0/path/mod.ts";
+export { Server } from "https://deno.land/std@v0.61.0/http/server.ts";
 export {
   WebSocket,
   WebSocketServer,
@@ -18,7 +18,7 @@ export {
   assertStringContains,
   assertArrayContains,
   fail,
-} from "https://deno.land/std@0.58.0/testing/asserts.ts";
+} from "https://deno.land/std@0.61.0/testing/asserts.ts";
 export { compile as sassCompiler } from "https://deno.land/x/sass/mod.ts";
 import { parse } from "https://x.nest.land/denolus@0.0.4/src/parser/index.ts";
 import { compile } from "https://x.nest.land/denolus@0.0.4/src/compiler/index.ts";

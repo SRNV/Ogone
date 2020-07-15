@@ -136,7 +136,7 @@ export default class XMLPragma extends Utils {
                             {{setOgone.tagname}}
                             {{setOgone.tree}}
                             {{setOgone.positionLevelIndex}}
-                            {{setogone.positionInParentComponent}}
+                            {{setOgone.positionInParentComponent}}
                             {{setOgone.inheritedCTX}}
                             {{setOgone.flags}},
                           });`
@@ -151,7 +151,7 @@ export default class XMLPragma extends Utils {
             ? "position: p, level: l, index: i,"
             : "",
           positionInParentComponent: isImported
-            ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}, props: (${
+            ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${
               JSON.stringify(props)
             }),
                     dependencies: ${

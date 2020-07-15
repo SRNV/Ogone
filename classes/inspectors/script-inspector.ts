@@ -10,11 +10,12 @@ import { existsSync } from "../../utils/exists.ts";
 import { Bundle, XMLNodeDescription, Component, Route } from "../../.d.ts";
 import Ogone from "../main/index.ts";
 import { tags as customTags } from "../../yaml-config.ts";
-import { Configuration } from "../config/index.ts";
+import { Utils } from '../utils/index.ts';
+import { Configuration } from '../config/index.ts';
 
 // @ts-ignore
 YAML.defaultOptions.customTags = customTags;
-export default class ScriptInspector extends Configuration {
+export default class ScriptInspector extends Utils {
   private CustomScriptParser: CustomScriptParser = new CustomScriptParser();
   private allowedKeys = [
     "path",
@@ -41,12 +42,12 @@ export default class ScriptInspector extends Configuration {
     const missingKey = this.requiredKeys.find((k) => !(k in route));
     if (missingKey) {
       this.error(
-        `[Ogone] ${missingKey} is undefined in one route of component ${component.file}`,
+        `${missingKey} is undefined in one route of component ${component.file}`,
       );
     }
     if (unsupported) {
       this.error(
-        `[Ogone] ${unsupported} is not supported in this version of Ogone
+        `${unsupported} is not supported in this version of Ogone
         error found in: ${component.file}`,
       );
     }
@@ -77,7 +78,7 @@ export default class ScriptInspector extends Configuration {
     }
     if (route.children) {
       if (!Array.isArray(route.children)) {
-        this.error(`[Ogone] route.children should be an Array.
+        this.error(`route.children should be an Array.
           error found in: ${component.file}`);
       }
 
@@ -99,7 +100,7 @@ export default class ScriptInspector extends Configuration {
   ): Route[] {
     if (!Array.isArray(routes)) {
       this.error(
-        `[Ogone] inspectRoutes is waiting for an array as argument 2.
+        `inspectRoutes is waiting for an array as argument 2.
           error found in: ${component.file}`,
       );
     }
@@ -155,6 +156,7 @@ export default class ScriptInspector extends Configuration {
       noImplicitThis: false,
       noFallthroughCasesInSwitch: false,
       allowJs: false,
+      removeComments: false,
       resolveJsonModule: false,
       experimentalDecorators: true,
       noImplicitAny: true,
@@ -166,7 +168,7 @@ export default class ScriptInspector extends Configuration {
       alwaysStrict: false,
       sourceMap: false,
       strictFunctionTypes: true,
-      types: this.types || [],
+      types: Configuration.types || [],
     }));
     if (diag) {
       for (const d of diag) {
@@ -265,6 +267,7 @@ export default class ScriptInspector extends Configuration {
           );
         }
       }
+
       if (moduleScript && proto) {
         const { type } = proto?.attributes;
         const ogoneScript = this.CustomScriptParser.parse(
@@ -366,6 +369,7 @@ export default class ScriptInspector extends Configuration {
       } else if (defData) {
         component.data = defData;
       }
+
       if (proto) {
         const indexofProto = component.rootNode.childNodes.indexOf(proto);
         delete component.rootNode.childNodes[indexofProto];
@@ -383,6 +387,7 @@ export default class ScriptInspector extends Configuration {
           component.data[key] = null;
         });
       }
+
       if (proto && "type" in proto.attributes) {
         const { type } = proto.attributes;
         if (!Ogone.allowedTypes.includes(type as string)) {
@@ -426,8 +431,10 @@ export default class ScriptInspector extends Configuration {
             component,
             Object.values(component.data),
           );
+
           component.data = {};
         }
+
         if (type === "store") {
           if (proto.attributes.namespace) {
             // set the component type, default is null

@@ -8,9 +8,9 @@ import {
 } from "../../deps.ts";
 import { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
-import { Configuration } from "../config/index.ts";
+import { Utils } from '../utils/index.ts';
 
-export default class StyleInspector extends Configuration {
+export default class StyleInspector extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
 
   async read(bundle: Bundle) {
@@ -90,6 +90,7 @@ export default class StyleInspector extends Configuration {
                 );
             }
           }
+          Number.isNaN(12)
           switch (element.attributes.lang) {
             case "scss":
             case "sass":

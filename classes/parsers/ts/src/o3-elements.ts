@@ -149,7 +149,7 @@ not supported in this version of Ogone
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      throw Utils.error(
+      throw new Error(
         "please follow this pattern for use expression: use @/absolute/path.o3 as <string>\n\n",
       );
     },
@@ -184,7 +184,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(§{2}keywordUse\d+§{2})\s+(§{2}path\d+§{2})\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -234,7 +234,7 @@ not supported in this version of Ogone
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      throw Utils.error(`
+      throw new Error(`
       this syntax of use is not supported, on this version.
       input: ${templateReplacer(value, expressions)}
       `);
@@ -259,7 +259,7 @@ not supported in this version of Ogone
         ([key]) => key === matches[2],
       );
       if (isAlreadyRequired) {
-        Utils.error(
+        throw new Error(
           `property ${matches[2]} is already required in component`,
         );
       }
@@ -290,7 +290,7 @@ not supported in this version of Ogone
           ([key2]) => key2 === key,
         );
         if (isAlreadyRequired) {
-          throw Utils.error(
+          throw new Error(
             `property ${key} is already required in component`,
           );
         }
@@ -332,7 +332,7 @@ not supported in this version of Ogone
       if (!expressions || !match) {
         throw new Error("expressions or matches are missing");
       }
-      throw Utils.error(`
+      throw new Error(`
       the following syntax is not supported\n
         please one of those syntaxes:
           execute case 'casename' use [ctx, event];

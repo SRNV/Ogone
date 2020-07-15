@@ -7,6 +7,7 @@ import {
 const nullish: CustomScriptRegExpProtocol = [
   // strings
   {
+    pair: true,
     open: '"',
     reg: /\"([^"])*\"/,
     id: (value, matches, typedExpressions, expressions) => {
@@ -27,6 +28,7 @@ const nullish: CustomScriptRegExpProtocol = [
     close: '\"',
   },
   {
+    pair: true,
     open: "'",
     reg: /\'([^']*)+\'/,
     id: (value, matches, typedExpressions, expressions) => {
@@ -37,6 +39,7 @@ const nullish: CustomScriptRegExpProtocol = [
     close: "'",
   },
   {
+    pair: true,
     open: "\'",
     reg: /\\\'([^']*)+\\\'/,
     id: (value, matches, typedExpressions, expressions) => {
@@ -47,6 +50,7 @@ const nullish: CustomScriptRegExpProtocol = [
     close: "\'",
   },
   {
+    pair: true,
     open: "`",
     reg: /\`([^`]*)+\`/,
     id: (value, matches, typedExpressions, expressions) => {
@@ -57,6 +61,7 @@ const nullish: CustomScriptRegExpProtocol = [
     close: "`",
   },
   {
+    pair: true,
     open: "\`",
     reg: /\\\`([^`]*)+\\\`/,
     id: (value, matches, typedExpressions, expressions) => {

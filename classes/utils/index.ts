@@ -8,7 +8,7 @@ export abstract class Utils {
   public error(message: string, opts?: { [k: string]: any }): void {
     const { bgRed, red, bold } = colors;
     const m: string = this.message(
-      `${bgRed(" ERROR ")} ${red(message)}`,
+      `${bgRed("  ERROR  ")} ${red(message)}`,
       { returns: true },
     ) as string;
     throw new Error(m);
@@ -30,9 +30,9 @@ export abstract class Utils {
   protected template(tmpl: string, data: Object): string {
     let result = tmpl;
     const fn = new Function(
-      "value",
+      "__value",
       ...Object.keys(data),
-      `try { return eval('('+value+')'); } catch(err) { throw err; }`,
+      `try { return eval('('+ __value + ')'); } catch(err) { throw err; }`,
     );
     const values = Object.values(data);
     while (
@@ -41,7 +41,7 @@ export abstract class Utils {
     ) {
       const start = result.indexOf("{{");
       const end = result.indexOf("}}") + 2;
-      const substrContent = result.substring(start + 2, end - 2);
+      const substrContent = result.substring(start + 2, end - 2).trim();
       const partStart = result.substring(0, start);
       const partEnd = result.substring(end);
       result = partStart + fn(substrContent, ...values) + partEnd;

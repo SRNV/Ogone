@@ -1,10 +1,10 @@
+// @ts-nocheck
 import {
   WebSocket,
   WebSocketServer,
 } from "../../deps.ts";
-import compile from "./../../src/ogone/compilation/index.ts";
-import Env from "../env/Env.ts";
-import Ogone from "./../../src/ogone/index.ts";
+import Env from "../../classes/env/Env.ts";
+import Ogone from "../../classes/main/index.ts";
 import { Bundle, Component, XMLNodeDescription } from "./../../.d.ts";
 
 let ws: WebSocket | null = null;
@@ -164,8 +164,8 @@ async function startNodeCompareDNA(opts: any) {
 }
 async function setNewApplication(): Promise<void> {
   newApplicationCompilation = true;
-  const newApplication: Bundle = await compile(Ogone.config.entrypoint);
-  Env.setBundle(newApplication);
+  const newApplication: Bundle = await Ogone.compile(Ogone.config.entrypoint);
+  Ogone.setBundle(newApplication);
 }
 function forceReloading() {
   if (newApplicationCompilation === false && ws) {
@@ -200,7 +200,7 @@ export async function HCR(bundle: Bundle): Promise<void> {
     for await (let event of module) {
       const { kind } = event;
       if (kind === "access" && ws) {
-        const newBundle = await compile(path);
+        const newBundle = await Ogone.compile(path);
         const newComponent = newBundle.components.get(path);
         if (newComponent) {
           const component = bundle.components.get(path);

@@ -1,10 +1,10 @@
 import { Server } from "../../deps.ts";
 import { getHeaderContentTypeOf } from "./../../utils/extensions-resolution.ts";
-import Ogone from "./../../src/ogone/index.ts";
+import Ogone from "../main/index.ts";
 import { existsSync } from "./../../utils/exists.ts";
 import HMR from "../../lib/hmr/index.ts";
 import Env from "./Env.ts";
-import { Utils } from "../../classes/utils/index.ts";
+import { Configuration } from '../config/index.ts';
 
 /**
  * class to manage the environments of your application
@@ -57,7 +57,7 @@ export default class EnvServer extends Env {
       }
       let isUrlFile: boolean = existsSync(pathToPublic);
       switch (true) {
-        case req.url.startsWith(Ogone.config.modules):
+        case req.url.startsWith(Configuration.modules):
           const denoReqUrl = req.url.slice(1).split("?")[0];
           HMR(denoReqUrl);
           req.respond({
@@ -110,7 +110,7 @@ export default class EnvServer extends Env {
       }
       let isUrlFile: boolean = existsSync(pathToPublic);
       switch (true) {
-        case req.url.startsWith(Ogone.config.modules):
+        case req.url.startsWith(Configuration.modules):
           const denoReqUrl = req.url.slice(1).split("?")[0];
           req.respond({
             body: await this.resolveAndReadText(denoReqUrl),

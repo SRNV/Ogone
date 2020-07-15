@@ -1,7 +1,7 @@
 import { Bundle } from "../../.d.ts";
-import { Configuration } from "../config/index.ts";
+import { Utils } from '../utils/index.ts';
 
-export default class extends Configuration {
+export default class extends Utils {
   read(bundle: Bundle) {
     bundle.components.forEach((c) => {
       c.rootNode.childNodes.filter((node, id) => id !== 0).forEach(

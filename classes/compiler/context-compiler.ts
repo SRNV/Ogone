@@ -1,4 +1,4 @@
-import { Configuration } from "../config/index.ts";
+import { Utils } from '../utils/index.ts';
 import {
   Bundle,
   XMLNodeDescription,
@@ -12,7 +12,7 @@ function* gen(i: number): Generator {
   }
 }
 const iterator: Generator = gen(0);
-export default class ContextCompiler extends Configuration {
+export default class ContextCompiler extends Utils {
   public read(
     bundle: Bundle,
     keyComponent: string,
@@ -121,7 +121,8 @@ export default class ContextCompiler extends Configuration {
               Object.keys(component.data).forEach((key) => {
                 const result = data;
                 // need to be more precise here
-                if (result &&
+                if (
+                  result &&
                   result.indexOf("\${") > -1 && result.indexOf(`${key}`) > -1
                 ) {
                   if (!node.dependencies.includes(key)) {

@@ -1,11 +1,8 @@
 import { Bundle } from "../../.d.ts";
 import { XMLNodeDescription } from "../../.d.ts";
-import { Configuration } from "../config/index.ts";
+import { Utils } from '../utils/index.ts';
 
-export default class ContextBuilder extends Configuration {
-  constructor(opts: Configuration) {
-    super(opts);
-  }
+export default class ContextBuilder extends Utils {
   read(bundle: Bundle, keyComponent: string) {
     const component = bundle.components.get(keyComponent);
     if (component) {
@@ -115,7 +112,7 @@ export default class ContextBuilder extends Configuration {
             {{ context.array }}
             {{ value }}
             {{ context.if }}
-            {{ getLength }}
+            {{ context.getLength }}
             if (GET_TEXT) {
               try {
                 return eval('('+GET_TEXT+')');
@@ -124,10 +121,10 @@ export default class ContextBuilder extends Configuration {
                 throw err;
               }
             }
-            return { {{ result }} };
+            return { {{ context.result }} };
           };
         `
-            : `Ogone.contexts[{{ context.id }}] = Ogone.contexts['{{ context.parentId }}'];`;
+            : `Ogone.contexts['{{ context.id }}'] = Ogone.contexts['{{ context.parentId }}'];`;
         bundle.contexts.push(
           this.template(contextScript, {
             component,
@@ -140,7 +137,7 @@ export default class ContextBuilder extends Configuration {
             context: {
               id: `${component.uuid}-${nId}`,
               if: contextIf ? contextIf : "",
-              parentId: `${component.uuid}-${node.parentNode.id}`,
+              parentId: node.parentNode ? `${component.uuid}-${node.parentNode.id}` : '',
               result: [...Object.keys(ctx), ...Object.keys(component.data)],
               array: array ? `const _____a_ = ${array} || [];` : "",
               getLength: getLength

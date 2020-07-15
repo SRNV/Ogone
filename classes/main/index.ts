@@ -2,6 +2,7 @@ import { Configuration } from "../config/index.ts";
 import { serve } from "../../deps.ts";
 import { existsSync } from "../../utils/exists.ts";
 import EnvServer from "../env/EnvServer.ts";
+import { OgoneConfiguration } from '../../.d.ts';
 
 export default class Ogone extends EnvServer {
   static files: string[] = [];
@@ -19,22 +20,23 @@ export default class Ogone extends EnvServer {
     "async",
     "component",
   ];
-  constructor(opts: Configuration) {
-    super(opts);
+  constructor(opts: OgoneConfiguration) {
+    super();
     if (!opts) {
       this.error("run method is expecting for 1 argument, got 0.");
     }
-    Ogone.main = `${Deno.cwd()}${opts.entrypoint}`;
-    const port: number = this.port;
-    const modulesPath: string = this.modules;
+    Configuration.setConfig(opts);
+    Ogone.main = `${Deno.cwd()}${Configuration.entrypoint}`;
+    const port: number = Configuration.port;
+    const modulesPath: string = Configuration.modules;
     // open the server
     const server = serve({ port });
 
     // start rendering Ogone system
-    if (!this.entrypoint || !existsSync(this.entrypoint)) {
+    if (!Configuration.entrypoint || !existsSync(Configuration.entrypoint)) {
       server.close();
       this.error(
-        `can't find entrypoint, please specify a correct path. input: ${this.entrypoint}`,
+        `can't find entrypoint, please specify a correct path. input: ${Configuration.entrypoint}`,
       );
     }
     if (!modulesPath || !existsSync(modulesPath.slice(1))) {
@@ -43,13 +45,13 @@ export default class Ogone extends EnvServer {
         "can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' }). \nnote: the path should be absolute",
       );
     }
-    if (!this.modules.startsWith("/")) {
+    if (!Configuration.modules.startsWith("/")) {
       server.close();
       this.error(
         "modules path has to start with: /",
       );
     }
-    if (!("port" in Configuration) || typeof this.port !== "number") {
+    if (!("port" in Configuration) || typeof Configuration.port !== "number") {
       this.error(
         "please provide a port for the server. it has to be a number.",
       );
@@ -69,7 +71,7 @@ export default class Ogone extends EnvServer {
       //start compilation of o3 files
       this.setEnv("production");
       this.setDevTool(false);
-      this.compile(this.entrypoint, true)
+      this.compile(Configuration.entrypoint, true)
         .then(async () => {
           //start compilation of o3 files
           const b = await this.getBuild();
@@ -90,8 +92,8 @@ export default class Ogone extends EnvServer {
         });
     } else {
       //start compilation of o3 files
-      this.setDevTool(this.devtool as boolean);
-      this.compile(this.entrypoint, true)
+      this.setDevTool(Configuration.devtool as boolean);
+      this.compile(Configuration.entrypoint, true)
         .then(() => {
           // Ogone is now ready to serve
           this.use(server, port);

@@ -188,6 +188,7 @@ export default class CustomScriptParser extends Utils {
     value: string;
   }) {
     const { value, typedExpressions, expressions } = opts;
+
     let result = value.replace(
       /(chainedLine\d*§{2})\s*(§{2}keyword)/gi,
       "$1§§endExpression0§§$2",
@@ -216,7 +217,7 @@ export default class CustomScriptParser extends Utils {
         const name = key && key.startsWith("§§array")
           ? key
           : `'${expressions[key].replace(/(§{2}ponctuation\d*§{2})/, "")}'` ||
-            "";
+          "";
         result = result.replace(
           exp,
           `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`,
@@ -246,11 +247,28 @@ export default class CustomScriptParser extends Utils {
     array.forEach((item) => {
       if (name && !item.name) return;
       if (name && item.name && name !== item.name) return;
-      if (item.open && item.close && item.id) {
+      if (item.open && item.close && item.id && item.pair) {
         while (
           // we need to parse if the character is alone or not
           // no need to change it if it's not
           !((result.split(item.open as string).length - 1) % 2) &&
+          result.indexOf(item.open as string) > -1 &&
+          result.indexOf(item.close as string) > -1 &&
+          result.match(item.reg as RegExp)
+        ) {
+          const matches = result.match(item.reg as RegExp);
+          const value = matches ? matches[0] : null;
+          if (matches && value) {
+            result = result.replace(
+              item.reg as RegExp,
+              item.id(value, matches, typedExpressions, expressions),
+            );
+          }
+        }
+        return;
+      }
+      if (item.open && item.close && item.id && !item.pair) {
+        while (
           result.indexOf(item.open as string) > -1 &&
           result.indexOf(item.close as string) > -1 &&
           result.match(item.reg as RegExp)
@@ -286,7 +304,7 @@ export default class CustomScriptParser extends Utils {
           const exp: string = result.split(item.split[0])[1];
           const all = `${item.split[0]}${exp.split(item.split[1])[0]}${
             item.split[1]
-          }`;
+            }`;
           result = result.replace(
             all,
             item.splittedId(result, expressions),
@@ -301,6 +319,7 @@ export default class CustomScriptParser extends Utils {
     opts: CustomScriptParserOptions,
   ): CustomScriptParserReturnType {
     let typedExpressions = getTypedExpression();
+
     let expressions = {
       "§§endExpression0§§": "\n",
     };
@@ -316,6 +335,7 @@ export default class CustomScriptParser extends Utils {
         { typedExpressions, expressions, value: prog },
       );
     }
+
     if (opts && opts.parseCases) {
       prog = this.read({
         array: elements,
@@ -326,6 +346,7 @@ export default class CustomScriptParser extends Utils {
         before: (str) =>
           str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
       });
+
       prog = this.read({
         array: elements,
         name: "parentheses",
@@ -342,11 +363,13 @@ export default class CustomScriptParser extends Utils {
         body: typedExpressions,
       };
     }
+
     if (opts && opts.beforeCases) {
       prog = this.parseBeforeCases(
         { typedExpressions, expressions, value: prog },
       );
     }
+
     prog = this.read({
       array: elements,
       value: prog,
@@ -373,6 +396,7 @@ export default class CustomScriptParser extends Utils {
         expressions,
       });
     }
+
     if (opts && opts.onlyDeclarations) {
       prog = this.read(
         {
@@ -388,19 +412,13 @@ export default class CustomScriptParser extends Utils {
         body: typedExpressions,
       };
     }
+
     if (opts && opts.reactivity) {
-      prog = this.read({
-        array: esmElements,
-        value: prog,
+      prog = this.renderReactivity({
         typedExpressions,
         expressions,
+        value: prog,
       });
-      prog = this.transformSetStatements(
-        { typedExpressions, expressions, value: prog },
-      );
-      prog = this.setInvalidations(
-        { typedExpressions, expressions, value: prog },
-      );
       if (opts.casesAreLinkables) {
         // let the developper use 'run case' feature
         prog = this.read(
@@ -418,14 +436,14 @@ export default class CustomScriptParser extends Utils {
     // update blocks and parentheses
 
     Object.entries(typedExpressions.parentheses).forEach(([key, value]) => {
+
       typedExpressions.parentheses[key] = this.read({
         array: elements,
         name: "block",
         value,
         typedExpressions,
         expressions,
-        before: (str) =>
-          str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
+        before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
       });
       if (opts && opts.cjs) {
         typedExpressions.parentheses[key] = this.read({
@@ -433,8 +451,7 @@ export default class CustomScriptParser extends Utils {
           value: typedExpressions.parentheses[key],
           typedExpressions,
           expressions,
-          before: (str) =>
-            str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
+          before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
         });
       }
 
@@ -447,24 +464,11 @@ export default class CustomScriptParser extends Utils {
         });
       }
       if (opts.reactivity) {
-        typedExpressions.parentheses[key] = this.read({
-          array: computedExp,
-          value: typedExpressions.parentheses[key],
-          typedExpressions,
-          expressions,
-        });
-        typedExpressions.parentheses[key] = this.transformSetStatements({
+        typedExpressions.parentheses[key] = this.renderReactivity({
           typedExpressions,
           expressions,
           value: typedExpressions.parentheses[key],
         });
-        typedExpressions.parentheses[key] = this.setInvalidations(
-          {
-            typedExpressions,
-            expressions,
-            value: typedExpressions.parentheses[key],
-          },
-        );
         if (opts.casesAreLinkables) {
           // let the developper use 'run case' feature
           typedExpressions.parentheses[key] = this.read(
@@ -487,6 +491,7 @@ export default class CustomScriptParser extends Utils {
           array: elements,
           value,
           name: "endLine",
+          before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
         },
       );
       if (opts && opts.cjs) {
@@ -496,6 +501,7 @@ export default class CustomScriptParser extends Utils {
             expressions,
             array: cjsElements,
             value: typedExpressions.blocks[key],
+            before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
           },
         );
       }
@@ -509,24 +515,11 @@ export default class CustomScriptParser extends Utils {
         });
       }
       if (opts.reactivity) {
-        typedExpressions.blocks[key] = this.read({
-          array: computedExp,
-          value: typedExpressions.blocks[key],
-          typedExpressions,
-          expressions,
-        });
-        typedExpressions.blocks[key] = this.transformSetStatements({
+        typedExpressions.blocks[key] = this.renderReactivity({
           typedExpressions,
           expressions,
           value: typedExpressions.blocks[key],
-        });
-        typedExpressions.blocks[key] = this.setInvalidations(
-          {
-            typedExpressions,
-            expressions,
-            value: typedExpressions.blocks[key],
-          },
-        );
+        })
         if (opts.casesAreLinkables) {
           // let the developper use 'run case' feature
           typedExpressions.blocks[key] = this.read(
@@ -560,16 +553,36 @@ export default class CustomScriptParser extends Utils {
         ) {
           // dont set expressions for Ogone tools
           // @ts-ignore
-
           expressions[key2] = value2;
         }
       });
     });
     // finally replace all keys
     prog = templateReplacer(prog, expressions);
+
     return {
       value: prog,
       body: typedExpressions,
     };
+  }
+  private renderReactivity(opts: {
+    typedExpressions: TypedExpressions;
+    expressions: any;
+    value: string;
+  }): string {
+    const { typedExpressions, expressions, value } = opts;
+    let result = this.read({
+      array: computedExp,
+      value,
+      typedExpressions,
+      expressions,
+    });
+    result = this.transformSetStatements(
+      { typedExpressions, expressions, value: result },
+    );
+    result = this.setInvalidations(
+      { typedExpressions, expressions, value: result },
+    );
+    return result;
   }
 }

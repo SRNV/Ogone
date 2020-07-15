@@ -1,8 +1,8 @@
-import { Configuration } from "../config/index.ts";
 import { Bundle } from "../../.d.ts";
 import { YAML } from "../../deps.ts";
+import { Utils } from '../utils/index.ts';
 
-export default class StoreConnectionsInspector extends Configuration {
+export default class StoreConnectionsInspector extends Utils {
   read(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
     entries.forEach(([pathToComponent, component]) => {

@@ -1,7 +1,7 @@
 import { Bundle, Component } from "../../.d.ts";
-import { Configuration } from "../config/index.ts";
+import { Utils } from '../utils/index.ts';
 
-export default class ComponentCompiler extends Configuration {
+export default class ComponentCompiler extends Utils {
   private getControllers(
     bundle: Bundle,
     component: Component,

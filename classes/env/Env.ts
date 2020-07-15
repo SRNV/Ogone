@@ -1,17 +1,20 @@
 import { browserBuild, template } from "./../../src/browser/readfiles.ts";
 import { HCR } from "../../lib/hmr/index.ts";
-import { Bundle, Environment } from "./../../.d.ts";
+import { Bundle, Environment, OgoneConfiguration } from "./../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps.ts";
 import Constructor from "../main/constructor.ts";
+import { Configuration } from "../config/index.ts";
 export default class Env extends Constructor {
   private bundle: Bundle | null = null;
   public env: Environment = "development";
-  public devtool: boolean;
-
-  constructor(opts: any) {
-    super(opts);
-    this.devtool = opts.config.devtool;
+  public devtool?: boolean;
+  public static _devtool?: boolean;
+  public static _env: Environment = "development";
+  constructor() {
+    super();
+    this.devtool = Configuration.devtool;
+    Env._devtool = Configuration.devtool;
   }
   /**
    * set the current bundle for the environment
@@ -36,6 +39,7 @@ export default class Env extends Constructor {
  */
   public setEnv(env: Environment): void {
     this.env = env;
+    Env._env = env;
   }
 
   /**
@@ -78,7 +82,7 @@ export default class Env extends Constructor {
     ) => entry[1].esmExpressions).join("\n");
 
     const style = stylesDev;
-    const rootComponent = this.bundle.components.get(this.entrypoint);
+    const rootComponent = this.bundle.components.get(Configuration.entrypoint);
     if (rootComponent) {
       if (
         rootComponent &&
@@ -124,7 +128,7 @@ export default class Env extends Constructor {
       const DOMDev = ` `;
       let head = `
           ${style}
-          ${this.head || ""}
+          ${Configuration.head || ""}
           <script type="module">
             ${scriptDev.trim()}
           </script>`;

@@ -4,22 +4,22 @@
   </div>
   <div class="text">404 route not found.</div>
 </div>
-<style lang="sass">
-$textColor: #9e9e9e;
+<style>
 
 .container {
   display: flex;
   justify-content: center;
   margin: auto;
   flex-direction: column;
-  .text {
+}
+.text {
     font-weight: 400;
     font-size: 24pt;
     text-align: center;
-    color: $textColor;
+    color: #9e9e9e;
     margin: 40px;
   }
-  .logo-back {
+.logo-back {
     filter: drop-shadow(2px 4px 6px var(--o-primary));
     background: var(--o-primary);
     border-radius: 100%;
@@ -29,7 +29,9 @@ $textColor: #9e9e9e;
     animation-timing-function: cubic-bezier(0.1, -0.6, 0.2, 0);
     max-width: 500px;
     margin: auto;
-    .logo {
+  }
+
+img.logo {
       width: 400px;
       height: auto;
       animation-name: rotate;
@@ -38,7 +40,4 @@ $textColor: #9e9e9e;
       animation-iteration-count: infinite;
       animation-direction: alternate;
     }
-  }
-}
-
 </style>

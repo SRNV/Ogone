@@ -1,5 +1,6 @@
 import gen from "./generator.ts";
 import { CustomScriptRegExpProtocol } from "../../../../.d.ts";
+import templateReplacer from '../../../../utils/template-recursive.ts';
 
 const tokens: CustomScriptRegExpProtocol = [
   {

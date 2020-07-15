@@ -1,91 +1,91 @@
 import { Utils } from "../utils/index.ts";
-export abstract class Configuration extends Utils {
+import { OgoneConfiguration } from '../../.d.ts';
+export abstract class Configuration {
   /**
    * @property entrypoint
    * @description path to the root component, this one has to be an untyped component
    */
-  public entrypoint: string;
+  public static entrypoint: string = "/index.o3";
 
   /**
    * @property port
    * @description which port to use for development
    */
-  public port: number;
+  public static port: number = 0;
 
   /**
    * @property static
    * @description allow user to serve files to client
    */
-  public ["static"]?: string;
+  public static ["static"]?: string = "/public";
 
   /**
    * @property modules
    * @description path to all modules, this is usefull for the hmr
    */
-  public modules: string;
+  public static modules: string = "/modules";
   /**
    * @property head
    * @description insert tags in the <head> of the html
    */
-  public head?: string;
+  public static head?: string;
   /**
    * @property build
    * @description output destination for production
    */
-  public build?: string;
+  public static build?: string;
   /**
    * @property serve
    * @description should ogone serve after building the application
    */
-  public serve?: boolean;
+  public static serve?: boolean;
   /**
    * @property compileCSS
    * @description should ogone compile the css inside the static folder
    * requires public folder to be provided
    */
-  public compileCSS?: boolean;
+  public static compileCSS?: boolean;
   /**
    * @property minifyCSS
    * @description should ogone minify the CSS ? including multiple spaces, tabs erased, and new lines erased
    */
-  public minifyCSS?: boolean;
+  public static minifyCSS?: boolean;
   /**
    * @property devtool
    * @description if you want to use devtool.
    */
-  public devtool?: boolean;
+  public static devtool?: boolean;
   /**
    * @property controllers
    * @description paths to the controllers
    */
-  public controllers?: string[];
+  public static controllers?: string[];
   /**
    * @property types
    * @description paths to the types for the typescript compiler
    */
-  public types?: string[];
+  public static types?: string[];
   /**
    * @param {typeof Configuration} config
    * set the current global configuration of the compiler
    */
-  constructor(config: Omit<Configuration, "prototype">) {
-    super();
+  static setConfig(config: OgoneConfiguration) {
     if (!config) {
-      throw this.error(
+      throw new TypeError(
         `no configuration provided to class Configuration\n${import.meta.url}`,
       );
     }
-    this.entrypoint = config.entrypoint;
-    this.port = config.port;
-    this.static = config.static;
-    this.modules = config.modules;
-    this.head = config.head;
-    this.controllers = config.controllers;
-    this.devtool = config.devtool;
-    this.minifyCSS = config.minifyCSS;
-    this.compileCSS = config.compileCSS;
-    this.build = config.build;
-    this.serve = config.serve;
-    this.types = config.types;
+    Configuration.entrypoint = config.entrypoint;
+    Configuration.port = config.port;
+    Configuration.static = config.static;
+    Configuration.modules = config.modules;
+    Configuration.head = config.head;
+    Configuration.controllers = config.controllers;
+    Configuration.devtool = config.devtool;
+    Configuration.minifyCSS = config.minifyCSS;
+    Configuration.compileCSS = config.compileCSS;
+    Configuration.build = config.build;
+    Configuration.serve = config.serve;
+    Configuration.types = config.types;
   }
 }

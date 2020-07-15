@@ -1,5 +1,70 @@
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };
+export interface OgoneConfiguration {
+  /**
+   * @property entrypoint
+   * @description path to the root component, this one has to be an untyped component
+   */
+  entrypoint: string;
+
+  /**
+   * @property port
+   * @description which port to use for development
+   */
+  port: number;
+
+  /**
+   * @property static
+   * @description allow user to serve files to client
+   */
+  static?: string;
+
+  /**
+   * @property modules
+   * @description path to all modules, this is usefull for the hmr
+   */
+  modules: string;
+  /**
+   * @property head
+   * @description insert tags in the <head> of the html
+   */
+  head?: string;
+  /**
+   * @property build
+   * @description output destination for production
+   */
+  build?: string;
+  /**
+   * @property serve
+   * @description should ogone serve after building the application
+   */
+  serve?: boolean;
+  /**
+   * @property compileCSS
+   * @description should ogone compile the css inside the static folder
+   * requires static folder to be provided
+   */
+  compileCSS?: boolean;
+  /**
+   * @property minifyCSS
+   * @description should ogone minify the CSS ? including multiple spaces, tabs erased, and new lines erased
+   */
+  minifyCSS?: boolean;
+  /**
+   * @property devtool
+   * @description if you want to use devtool.
+   */
+  devtool?: boolean;
+  /**
+   * @property controllers
+   * @description paths to the controllers
+   */
+  controllers?: string[];
+  /**
+   * paths to the types for tsc
+   */
+  types?: string[];
+}
 interface Remote {
   base: string;
   path: string;
@@ -26,27 +91,6 @@ export interface Bundle {
   repository: { [k: string]: { [s: string]: string } };
 }
 
-/**
- * Definition of a component.
- * ```ts
-  for: {};
-  refs: {};
-  data: {};
-  scripts: {};
-  imports: {};
-  file: string;
-  uuid: string;
-  reactive: {};
-  flags: [];
-  style: string[];
-  routes: null | [];
-  modules: string[][];
-  rootNode: string;
-  esmExpressions: string;
-  namespace: null | string;
-  exportsExpressions: string;
- * ```
- */
 export interface Component {
   remote: Remote | null;
   for: any;
@@ -185,7 +229,7 @@ export interface TypedExpressions {
   setters: MapIndexable;
   imports: { [k: string]: { [s: string]: null | string | string[] } };
   exports: { [k: string]: { [s: string]: null | string | string[] } };
-  require: [];
+  require: string[];
   use: { [k: string]: { [s: string]: null | string | string[] } };
   properties: ([string, string[]])[];
   data: {};
@@ -206,6 +250,7 @@ export interface CustomScriptRegExpItem {
   open?: string | boolean;
   reg?: RegExp;
   split?: [string, string];
+  pair?: boolean;
   splittedId?: (value: any, expressions: any) => string;
   id?: (
     value: any,
