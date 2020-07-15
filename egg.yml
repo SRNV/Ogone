@@ -7,6 +7,7 @@ description: >-
 stable: false
 files:
   - ./docs/**/*
+  - ./classes/**/*
   - ./examples/**/*
   - ./lib/**/*
   - ./public/**/*
