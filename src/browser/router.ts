@@ -24,6 +24,5 @@ function _OGONE_BROWSER_CONTEXT() {
   };
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, "this")
   .replace("function _OGONE_BROWSER_CONTEXT() {", "")
   .slice(0, -1);

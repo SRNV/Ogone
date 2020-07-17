@@ -1,5 +1,4 @@
 import { OgoneBrowser } from "../../types/ogone.ts";
-let _this: OgoneBrowser;
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {
   // @ts-ignore
@@ -21,9 +20,9 @@ function _OGONE_BROWSER_CONTEXT() {
     firstErrorPerf: null,
     sound: null,
     oscillator: null,
-    error(message, errorType, errorObject) {
+    error(this: OgoneBrowser, message, errorType, errorObject) {
       // here we render the errors in development
-      if (!_this.errorPanel) {
+      if (!this.errorPanel) {
         const p = document.createElement("div");
         const h = document.createElement("div");
         Object.entries({
@@ -44,11 +43,11 @@ function _OGONE_BROWSER_CONTEXT() {
         h.style.height = "20px";
         h.style.left = "0px";
         h.style.zIndex = "50000000";
-        _this.errorPanel = p;
-        _this.errorPanel.append(h);
-        _this.historyError = h;
+        this.errorPanel = p;
+        this.errorPanel.append(h);
+        this.historyError = h;
       }
-      _this.errors++;
+      this.errors++;
       const err = document.createElement("div");
       Object.entries({
         zIndex: "5000000",
@@ -62,7 +61,7 @@ function _OGONE_BROWSER_CONTEXT() {
         display: "inline-flex",
         flexDirection: "column",
       }).forEach(([key, value]) => err.style[key] = value);
-      const errorId = _this.errors;
+      const errorId = this.errors;
       const code = document.createElement("code");
       const stack = document.createElement("code");
       const h = document.createElement("h4");
@@ -105,21 +104,21 @@ function _OGONE_BROWSER_CONTEXT() {
       errorPin.style.bottom = "30px";
       errorPin.style.zIndex = "50000000";
       const relativePinPosition =
-        Math.round((_this.firstErrorPerf / performance.now()) * 30) + 30;
-      errorPin.style.left = _this.firstErrorPerf
+        Math.round((this.firstErrorPerf / performance.now()) * 30) + 30;
+      errorPin.style.left = this.firstErrorPerf
         ? `${relativePinPosition}px`
         : "30px";
-      if (!_this.firstErrorPerf) {
-        _this.firstErrorPerf = performance.now();
+      if (!this.firstErrorPerf) {
+        this.firstErrorPerf = performance.now();
       }
-      _this.errorPanel.style.paddingTop = "30px";
+      this.errorPanel.style.paddingTop = "30px";
       // set the grid of errors
       err.style.gridArea = `e${errorId}`;
       const m = 2;
       let grid = "";
       let i = 0;
       let a = 0;
-      for (i = 0, a = _this.errorPanel.childNodes.length + 1; i < a; i++) {
+      for (i = 0, a = this.errorPanel.childNodes.length + 1; i < a; i++) {
         grid += `e${i + 1} `;
       }
       let b = i;
@@ -134,25 +133,24 @@ function _OGONE_BROWSER_CONTEXT() {
         temparray = cells.slice(o, o + chunk);
         newgrid += ` "${temparray.join(" ")}"`;
       }
-      _this.errorPanel.style.gridGap = "10px";
-      _this.errorPanel.style.gridAutoRows = "max-content";
-      _this.errorPanel.style.gridTemplateAreas = newgrid;
+      this.errorPanel.style.gridGap = "10px";
+      this.errorPanel.style.gridAutoRows = "max-content";
+      this.errorPanel.style.gridTemplateAreas = newgrid;
       err.style.animationName = "popup";
       err.style.animationIterationCoutn = "1";
       err.style.animationDuration = "0.5s";
       // append elements
       err.append(h, code, stack);
-      _this.errorPanel.append(err);
-      _this.errorPanel.append(errorPin);
-      _this.errorPanel.style.pointerEvents = "scroll";
+      this.errorPanel.append(err);
+      this.errorPanel.append(errorPin);
+      this.errorPanel.style.pointerEvents = "scroll";
       //  append only if it's not in the document
-      !_this.errorPanel.isConnected
-        ? document.body.append(_this.errorPanel)
+      !this.errorPanel.isConnected
+        ? document.body.append(this.errorPanel)
         : [];
     },
   };
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, "this")
   .replace("function _OGONE_BROWSER_CONTEXT() {", "")
   .slice(0, -1);

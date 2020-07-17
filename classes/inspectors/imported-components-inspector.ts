@@ -1,9 +1,10 @@
 import { Bundle } from "../../.d.ts";
-import CustomScriptParser from "../parsers/ts/index.ts";
+import ProtocolScriptParser from "../parsers/ts/index.ts";
 import { Utils } from "../../classes/utils/index.ts";
 
 export default class ImportedComponentsInpector extends Utils {
-  private CustomScriptParser: CustomScriptParser = new CustomScriptParser();
+  private ProtocolScriptParser: ProtocolScriptParser =
+    new ProtocolScriptParser();
   public inspect(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
     for (const [, component] of entries) {
@@ -20,11 +21,11 @@ export default class ImportedComponentsInpector extends Utils {
           declarations += node.rawText;
         });
         if (declarations.length) {
-          const tokens = this.CustomScriptParser.parse(declarations, {
+          const tokens = this.ProtocolScriptParser.parse(declarations, {
             onlyDeclarations: true,
           });
           // performance here
-          const importBody = this.CustomScriptParser.parse(declarations, {
+          const importBody = this.ProtocolScriptParser.parse(declarations, {
             esm: true,
           });
           if (importBody.body && importBody.body.imports) {

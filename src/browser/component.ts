@@ -6,130 +6,129 @@ import { OgoneBrowser } from "../../types/ogone.ts";
 import { Template } from "../../types/template.ts";
 
 let Ogone: OgoneBrowser;
-let _this: OnodeComponent;
 
 function _OGONE_BROWSER_CONTEXT() {
-  function OComponent(): OnodeComponent {
-    _this.key = null;
-    _this.data = null;
-    _this.dependencies = null;
-    _this.state = 0;
-    _this.activated = true;
-    _this.namespace = null;
-    _this.store = {};
-    _this.contexts = {
+  function OComponent(this: OnodeComponent): OnodeComponent {
+    this.key = null;
+    this.data = null;
+    this.dependencies = null;
+    this.state = 0;
+    this.activated = true;
+    this.namespace = null;
+    this.store = {};
+    this.contexts = {
       for: {},
     };
     // for async context
-    _this.promises = [];
-    _this.resolve = null;
-    _this.async = {
+    this.promises = [];
+    this.resolve = null;
+    this.async = {
       then: null,
       catch: null,
       finally: null,
     };
-    _this.dispatchAwait = null;
-    _this.promiseResolved = false;
+    this.dispatchAwait = null;
+    this.promiseResolved = false;
     // events describers
-    // _this.events = {};
+    // this.events = {};
     // all nodes that's are dynamics will save a function into this property
     // like if we have
     //  <node --for="array as (el, i)" />
     // this node will register a function() { ... } that will be triggered each time there is an update
-    //_this.rerenderAsync = null;
-    _this.react = [];
-    _this.texts = [];
-    _this.childs = [];
-    _this.startLifecycle = (params?: any, event?: Event) => {
-      if (!_this.activated) return;
-      if (_this.type === "store") {
-        _this.initStore();
+    //this.rerenderAsync = null;
+    this.react = [];
+    this.texts = [];
+    this.childs = [];
+    this.startLifecycle = (params?: any, event?: Event) => {
+      if (!this.activated) return;
+      if (this.type === "store") {
+        this.initStore();
       }
       // WIP
-      Object.seal(_this.data);
-      _this.runtime(0, params, event);
-      _this.state = 1; // component is rendered
+      Object.seal(this.data);
+      this.runtime(0, params, event);
+      this.state = 1; // component is rendered
     };
-    _this.update = (dependency?: string) => {
-      if (!_this.activated) return;
-      if (_this.type === "store") {
-        _this.updateStore(dependency);
+    this.update = (dependency?: string) => {
+      if (!this.activated) return;
+      if (this.type === "store") {
+        this.updateStore(dependency);
         return;
       }
-      _this.runtime(`update:${dependency}`);
-      _this.reactTo(dependency as string);
-      _this.renderTexts(dependency as string);
-      _this.childs.filter((c: OnodeComponent) => c.type !== "store").forEach(
+      this.runtime(`update:${dependency}`);
+      this.reactTo(dependency as string);
+      this.renderTexts(dependency as string);
+      this.childs.filter((c: OnodeComponent) => c.type !== "store").forEach(
         (c: OnodeComponent) => {
           c.updateProps(dependency as string);
         },
       );
     };
-    _this.renderTexts = (dependency: string) => {
-      if (!_this.activated) return;
-      _this.texts.forEach((t: Function, i: number, arr: Function[]) => {
+    this.renderTexts = (dependency: string) => {
+      if (!this.activated) return;
+      this.texts.forEach((t: Function, i: number, arr: Function[]) => {
         // if there is no update of the texts
         // this can be the reason why
         if (t && !t(dependency)) delete arr[i];
       });
     };
-    _this.reactTo = (dependency: string) => {
-      if (!_this.activated) return;
-      _this.react.forEach((t: Function, i: number, arr: Function[]) => {
+    this.reactTo = (dependency: string) => {
+      if (!this.activated) return;
+      this.react.forEach((t: Function, i: number, arr: Function[]) => {
         if (t && !t(dependency)) delete arr[i];
       });
     };
-    _this.initStore = () => {
-      if (!Ogone.stores[_this.namespace as string]) {
-        Ogone.stores[_this.namespace as string] = {
-          ..._this.data,
+    this.initStore = () => {
+      if (!Ogone.stores[this.namespace as string]) {
+        Ogone.stores[this.namespace as string] = {
+          ...this.data,
         };
       }
       // save the component's reaction into Ogone.clients with the key of the component
       // and a function
-      Ogone.clients.push([_this.key as string, (namespace, key, overwrite) => {
+      Ogone.clients.push([this.key as string, (namespace, key, overwrite) => {
         if (
-          namespace === _this.namespace &&
-          _this.data &&
-          _this.parent &&
-          _this.parent.data &&
-          key in _this.parent.data
+          namespace === this.namespace &&
+          this.data &&
+          this.parent &&
+          this.parent.data &&
+          key in this.parent.data
         ) {
           if (!overwrite) {
-            _this.data[key] = Ogone.stores[_this.namespace][key];
+            this.data[key] = Ogone.stores[this.namespace][key];
           } else {
-            Ogone.stores[_this.namespace][key] = _this.data[key];
+            Ogone.stores[this.namespace][key] = this.data[key];
           }
-          _this.parent.data[key] = _this.data[key];
-          _this.parent.update(key);
+          this.parent.data[key] = this.data[key];
+          this.parent.update(key);
         }
         return true;
       }]);
     };
-    _this.updateStore = (dependency: string) => {
+    this.updateStore = (dependency: string) => {
       // find the reaction of this store module with the key
       // @ts-ignore
-      const [key, client] = Ogone.clients.find(([key]) => key === _this.key);
+      const [key, client] = Ogone.clients.find(([key]) => key === this.key);
       if (client) {
         // use the namespace, the dependency or property that should change
         // @ts-ignore
-        client(_this.namespace, dependency, true);
+        client(this.namespace, dependency, true);
         // update other modules
-        Ogone.clients.filter(([key]) => key !== _this.key).forEach(
+        Ogone.clients.filter(([key]) => key !== this.key).forEach(
           ([key, f], i, arr) => {
-            if (f && !f(_this.namespace as string, dependency, false)) {
+            if (f && !f(this.namespace as string, dependency, false)) {
               delete arr[i];
             }
           },
         );
       }
     };
-    _this.updateProps = (dependency: string) => {
-      if (!_this.activated) return;
-      if (_this.type === "store") return;
-      if (!_this.requirements || !_this.props) return;
-      _this.requirements.forEach(([key, constructors]: [string, any[]]) => {
-        const prop = _this.props.find((prop: [string, ...any[]]) =>
+    this.updateProps = (dependency: string) => {
+      if (!this.activated) return;
+      if (this.type === "store") return;
+      if (!this.requirements || !this.props) return;
+      this.requirements.forEach(([key, constructors]: [string, any[]]) => {
+        const prop = this.props.find((prop: [string, ...any[]]) =>
           prop[0] === key
         );
         const isAny = constructors.includes(null);
@@ -147,9 +146,9 @@ function _OGONE_BROWSER_CONTEXT() {
           throw err;
         }
         if (!prop) return;
-        const value = _this.parentContext({
+        const value = this.parentContext({
           getText: `${prop[1]}`,
-          position: _this.positionInParentComponent,
+          position: this.positionInParentComponent,
         });
         if ((value === undefined || value === null) && !isAny) {
           const message =
@@ -181,17 +180,17 @@ function _OGONE_BROWSER_CONTEXT() {
           );
           throw PropertyDontMatchWithConstructorsException;
         }
-        if (_this.data && value !== _this.data[key]) {
-          _this.data[key] = value;
-          _this.update(key);
-          if (_this.type === "async") {
-            if (!_this.dependencies) return;
+        if (this.data && value !== this.data[key]) {
+          this.data[key] = value;
+          this.update(key);
+          if (this.type === "async") {
+            if (!this.dependencies) return;
             if (
               dependency &&
-              _this.dependencies.find((d: string) => d.indexOf(dependency) > -1)
+              this.dependencies.find((d: string) => d.indexOf(dependency) > -1)
             ) {
               // let the user rerender
-              _this.runtime("async:update", {
+              this.runtime("async:update", {
                 updatedParentProp: dependency,
               });
             }
@@ -199,7 +198,7 @@ function _OGONE_BROWSER_CONTEXT() {
         }
       });
     };
-    _this.render = (
+    this.render = (
       Onode: Template, /** original node */
       opts: OnodeComponentRenderOptions,
     ) => {
@@ -231,7 +230,7 @@ function _OGONE_BROWSER_CONTEXT() {
           name: Onode.ogone.name,
           tree: Onode.ogone.tree,
           parentNodeKey: Onode.ogone.parentNodeKey,
-          ...(!callingNewComponent ? { component: _this } : {
+          ...(!callingNewComponent ? { component: this } : {
             props: Onode.ogone.props,
             params: Onode.ogone.params,
             parentComponent: Onode.ogone.parentComponent,
@@ -273,10 +272,9 @@ function _OGONE_BROWSER_CONTEXT() {
         rm.destroy();
       }
     };
-    return _this;
+    return this;
   }
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace(/_this/gi, "this")
   .replace("function _OGONE_BROWSER_CONTEXT() {", "")
   .slice(0, -1);

@@ -1,10 +1,10 @@
 import gen from "./generator.ts";
 import {
-  CustomScriptRegExpProtocol,
+  ProtocolScriptRegExpList,
   TypedExpressions,
 } from "../../../../.d.ts";
 
-const nullish: CustomScriptRegExpProtocol = [
+const nullish: ProtocolScriptRegExpList = [
   // strings
   {
     pair: true,

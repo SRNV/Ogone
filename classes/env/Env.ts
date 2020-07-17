@@ -92,49 +92,64 @@ export default class Env extends Constructor {
           `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
         );
       }
-      const scriptDev = `
+      const scriptDev = this.template(
+        `
         const ___perfData = window.performance.timing;
 
         ${
-        browserBuild(this.env === "production", {
-          hasDevtool: this.devtool,
-        })
-      }
+          browserBuild(this.env === "production", {
+            hasDevtool: this.devtool,
+          })
+        }
         ${this.bundle.datas.join("\n")}
         ${this.bundle.contexts.reverse().join("\n")}
         ${this.bundle.render.join("\n")}
         ${this.bundle.classes.reverse().join("\n")}
         ${this.bundle.customElements.join("\n")}
-        Promise.all([
-          ${esm}
-        ]).then(() => {
-          document.body.append(
+        {{ promise }}
+        `,
+        {
+          promise: esm.trim().length
+            ? `
+            Promise.all([
+              ${esm}
+            ]).then(() => {
+              {{ start }}
+              {{ debugg }}
+            });
+          `
+            : "{{start}}",
+          start: `document.body.append(
             document.createElement("template", {
               is: "${rootComponent.uuid}-nt",
             })
-          );
-
+          );`,
+          debugg: `
           // debug tools
           const ___connectTime = ___perfData.responseEnd - ___perfData.requestStart;
-          const ___renderTime = ___perfData.domComplete - ___perfData.domLoading;
-          const ___pageLoadTime = ___perfData.loadEventEnd - ___perfData.navigationStart;
+          const ___renderTime = ___perfData.domLoading - ___perfData.domComplete;
+          const ___pageLoadTime = ___perfData.navigationStart - ___perfData.loadEventEnd;
           console.log('[Ogone] server response', ___connectTime, 'ms');
           console.log('[Ogone] app render time', ___renderTime, 'ms');
-          console.log('[Ogone] page load time', ___pageLoadTime, 'ms');
-        });
-        `;
+          console.log('[Ogone] page load time', ___pageLoadTime, 'ms');`,
+        },
+      );
       // in production DOM has to be
       // <template is="${rootComponent.uuid}-nt"></template>
       const DOMDev = ` `;
+      let script = `
+      <script type="module">
+        ${scriptDev.trim()}
+      </script>
+      `;
       let head = `
           ${style}
-          ${Configuration.head || ""}
-          <script type="module">
-            ${scriptDev.trim()}
-          </script>`;
-      let body = template
-        .replace(/%%head%%/, head)
-        .replace(/%%dom%%/, DOMDev);
+          ${Configuration.head || ""}`;
+      let body = this.template(template, {
+        head,
+        script,
+        dom: DOMDev,
+      });
 
       // start watching components
       HCR(this.bundle);

@@ -1,5 +1,5 @@
 import { Bundle } from "../../.d.ts";
-import { Utils } from '../utils/index.ts';
+import { Utils } from "../utils/index.ts";
 
 export default class extends Utils {
   read(bundle: Bundle) {

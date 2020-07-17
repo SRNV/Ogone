@@ -1,5 +1,5 @@
 import { Utils } from "../utils/index.ts";
-import { OgoneConfiguration } from '../../.d.ts';
+import { OgoneConfiguration } from "../../.d.ts";
 export abstract class Configuration {
   /**
    * @property entrypoint

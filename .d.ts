@@ -242,9 +242,10 @@ export interface TypedExpressions {
     default: boolean;
   };
   reflections: string[];
+  protocol?: string;
 }
 export type Expressions = MapIndexable;
-export interface CustomScriptRegExpItem {
+export interface ProtocolScriptRegExpItem {
   name?: string;
   close?: string | boolean;
   open?: string | boolean;
@@ -259,7 +260,7 @@ export interface CustomScriptRegExpItem {
     expressions?: Expressions,
   ) => string;
 }
-export type CustomScriptRegExpProtocol = CustomScriptRegExpItem[];
+export type ProtocolScriptRegExpList = ProtocolScriptRegExpItem[];
 
 interface DOMParserIterator {
   value: number;
@@ -289,11 +290,11 @@ interface DOMParserExp {
 interface DOMParserExpressions {
   [key: string]: DOMParserExp;
 }
-export interface CustomScriptParserReturnType {
+export interface ProtocolScriptParserReturnType {
   value: any;
   body: any;
 }
-export interface CustomScriptParserOptions {
+export interface ProtocolScriptParserOptions {
   data?: boolean;
   parseCases?: boolean;
   befores?: boolean;
@@ -303,6 +304,7 @@ export interface CustomScriptParserOptions {
   onlyDeclarations?: boolean;
   casesAreLinkables?: boolean;
   beforeCases?: boolean;
+  declare?: boolean;
 }
 export interface ForCtxDescription<T> {
   index: string;

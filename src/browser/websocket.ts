@@ -3,24 +3,6 @@ import { OgoneBrowser } from "../../types/ogone.ts";
 
 let Ogone: OgoneBrowser;
 function _OGONE_BROWSER_CONTEXT() {
-  function hmrSound() {
-    Ogone.sound({
-      duration: 15,
-      volume: 0.05,
-      hz: 40,
-      type: "square",
-      time: 0,
-      onended: () => {
-        Ogone.sound({
-          duration: 30,
-          volume: 0.05,
-          type: "sine",
-          hz: Math.round(40 * 1.5),
-          time: 2,
-        });
-      },
-    });
-  }
   Ogone.mod = {
     "*": [], // for reactions
   };
@@ -104,7 +86,6 @@ function _OGONE_BROWSER_CONTEXT() {
     if (type === "javascript") {
       Ogone.hmr(url).then(() => {
         console.warn("[Ogone] hmr:", url);
-        hmrSound();
         Ogone.infos({
           message: `[HMR] module updated: ${url}`,
         });
@@ -113,7 +94,6 @@ function _OGONE_BROWSER_CONTEXT() {
     if (type === "template" && pragma && uuid) {
       eval(ctx);
       Ogone.hmrTemplate(uuid, pragma).then(() => {
-        hmrSound();
         Ogone.infos({
           message: `[HMR] template updated: ${uuid}`,
         });
@@ -121,7 +101,6 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     if (type === "reload") {
       console.warn("[Ogone] hmr: reloading the application");
-      hmrSound();
       Ogone.infos({
         message: `[HMR] socket lost. Reloading your application`,
       });
@@ -131,7 +110,6 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     if (type === "style") {
       document.querySelector(`style[id="${uuid}"]`).innerHTML = style;
-      hmrSound();
       Ogone.infos({
         message: `[HMR] style updated: ${uuid}`,
       });
@@ -139,7 +117,6 @@ function _OGONE_BROWSER_CONTEXT() {
     if (type === "runtime") {
       const r = eval(runtime);
       Ogone.hmrRuntime(uuid, (r || function () {})).then(() => {
-        hmrSound();
         Ogone.infos({
           message: `[HMR] component updated: ${uuid}`,
         });

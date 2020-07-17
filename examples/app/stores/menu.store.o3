@@ -1,8 +1,8 @@
 use @/examples/app/controllers/controller.user.o3 as 'controller-c';
 
 <proto type="store" namespace="menu">
-  def:
-    isOpen: false
+  declare:
+    public isOpen: boolean = false;
   before-each:
     const controllerC = Controllers['controller-c'];
   case 'action:toggle':

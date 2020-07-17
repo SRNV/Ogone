@@ -1,6 +1,6 @@
 import { Bundle } from "../../.d.ts";
 import { XMLNodeDescription } from "../../.d.ts";
-import { Utils } from '../utils/index.ts';
+import { Utils } from "../utils/index.ts";
 
 export default class ContextBuilder extends Utils {
   read(bundle: Bundle, keyComponent: string) {
@@ -137,7 +137,9 @@ export default class ContextBuilder extends Utils {
             context: {
               id: `${component.uuid}-${nId}`,
               if: contextIf ? contextIf : "",
-              parentId: node.parentNode ? `${component.uuid}-${node.parentNode.id}` : '',
+              parentId: node.parentNode
+                ? `${component.uuid}-${node.parentNode.id}`
+                : "",
               result: [...Object.keys(ctx), ...Object.keys(component.data)],
               array: array ? `const _____a_ = ${array} || [];` : "",
               getLength: getLength

@@ -2,7 +2,7 @@ import { Configuration } from "../config/index.ts";
 import { serve } from "../../deps.ts";
 import { existsSync } from "../../utils/exists.ts";
 import EnvServer from "../env/EnvServer.ts";
-import { OgoneConfiguration } from '../../.d.ts';
+import { OgoneConfiguration } from "../../.d.ts";
 
 export default class Ogone extends EnvServer {
   static files: string[] = [];

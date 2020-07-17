@@ -12,7 +12,7 @@ import utilsMethods from "./utils/index.ts";
 import Env from "../env/Env.ts";
 import { Bundle, Component, XMLNodeDescription } from "./../../.d.ts";
 import contextMethods from "./utils/context.ts";
-import { Utils } from '../utils/index.ts';
+import { Utils } from "../utils/index.ts";
 
 export default class WebComponentTemplater extends Utils {
   protected render(
@@ -92,8 +92,8 @@ export default class WebComponentTemplater extends Utils {
         render: isRouter ? "this.renderRouter();" : isStore
           ? "this.renderStore();"
           : isAsync
-            ? "this.renderAsync();"
-            : "this.render();",
+          ? "this.renderAsync();"
+          : "this.render();",
       },
       render: {
         devTool: hasDevtool ? "this.setDevToolContext();" : "",
@@ -169,7 +169,7 @@ export default class WebComponentTemplater extends Utils {
       },
     };
     let componentExtension = `
-    Ogone.classes['{{ classId }}'] = class extends {{ extension }} {
+    class extends {{ extension }} {
       {{ methods.constructor }}
 
       // set the modifier object for Ogone fe atures
@@ -348,11 +348,11 @@ export default class WebComponentTemplater extends Utils {
       componentPragma
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
-      }`;
+    }`;
     bundle.customElements.push(this.template(definition, templateSlots));
     bundle.render.push(this.template(render, templateSlots));
     if (["controller"].includes(component.type)) {
-      return `Ogone.classes['${component.uuid}-nt'] = class extends HTMLTemplateElement {
+      return `class extends HTMLTemplateElement {
         constructor(){super();}
         setOgone() {}
         connectedCallBack(){this.remove()} };`;

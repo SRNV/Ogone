@@ -6,8 +6,8 @@ use @/examples/app/routers/.router.o3 as 'router-component';
 use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
 
 <proto>
-  def:
-    scrollY: 0
+  declare:
+    public scrollY: number = 0
   default:
     const header = document.getElementById('header');
     window.addEventListener('scroll', (ev) => {

@@ -1,12 +1,12 @@
 import gen from "./generator.ts";
 import { Utils } from "../../../../classes/utils/index.ts";
 import {
-  CustomScriptRegExpItem,
-  CustomScriptRegExpProtocol,
+  ProtocolScriptRegExpItem,
+  ProtocolScriptRegExpList,
 } from "../../../../.d.ts";
 import templateReplacer from "../../../../utils/template-recursive.ts";
 
-const exportASKey: CustomScriptRegExpItem = {
+const exportASKey: ProtocolScriptRegExpItem = {
   name: "exportAsKey",
   open: false,
   reg: /\s*([^§\{\,]*)+\s*(§{2}keywordAs\d+§{2})\s*([^§\}\,]*)+,?/,
@@ -20,7 +20,7 @@ const exportASKey: CustomScriptRegExpItem = {
   },
   close: false,
 };
-const esm: CustomScriptRegExpProtocol = [
+const esm: ProtocolScriptRegExpList = [
   {
     open: false,
     reg: /(\*)\s*(§{2}keywordAs\d+§{2})/,

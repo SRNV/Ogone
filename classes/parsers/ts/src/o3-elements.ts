@@ -1,7 +1,7 @@
 import gen from "./generator.ts";
 import templateReplacer from "../../../../utils/template-recursive.ts";
 import { Utils } from "../../../../classes/utils/index.ts";
-import { CustomScriptRegExpProtocol, MapIndexable } from "../../../../.d.ts";
+import { ProtocolScriptRegExpList, MapIndexable } from "../../../../.d.ts";
 let rid = 0;
 export function translateReflection(
   { body, identifier }: { body: string; identifier: string },
@@ -37,7 +37,7 @@ export function translateReflection(
       }`;
   }
 }
-const items: CustomScriptRegExpProtocol = [
+const items: ProtocolScriptRegExpList = [
   // reflection regexp this.name => {};
   // reflection is the same feature for computed datas but with the following syntax
   // this.reflected => { return Math.random() };

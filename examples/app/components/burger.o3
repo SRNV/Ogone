@@ -1,8 +1,8 @@
 use @/examples/app/stores/menu.store.o3 as 'store-menu'
 <store-menu namespace="menu" />
 <proto>
-  def:
-    isOpen: false
+  declare:
+    public isOpen: boolean = false;
   case 'click:openMenu':
     Store.dispatch('menu/toggle')
     Store.dispatch('menu/checkController')

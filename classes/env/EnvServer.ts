@@ -4,7 +4,7 @@ import Ogone from "../main/index.ts";
 import { existsSync } from "./../../utils/exists.ts";
 import HMR from "../../lib/hmr/index.ts";
 import Env from "./Env.ts";
-import { Configuration } from '../config/index.ts';
+import { Configuration } from "../config/index.ts";
 
 /**
  * class to manage the environments of your application

@@ -19,4 +19,5 @@ export default (): TypedExpressions => ({
     default: false,
   },
   reflections: [],
+  protocol: "",
 });

@@ -6,12 +6,13 @@ import ScriptInspector from "../inspectors/script-inspector.ts";
 import NodeManager from "../inspectors/textnodes-top-level-exception.ts";
 import StoreConnectionsInspector from "../inspectors/store-connections-inspector.ts";
 import { Bundle, OgoneConfiguration } from "../../.d.ts";
-import RuntimeCompiler from '../compiler/index.ts';
-import { Utils } from '../utils/index.ts';
-import { Configuration } from '../config/index.ts';
+import RuntimeCompiler from "../compiler/index.ts";
+import { Utils } from "../utils/index.ts";
+import { Configuration } from "../config/index.ts";
 
 export default class Constructor extends Utils {
-  private StoreConnectionsInspector: StoreConnectionsInspector = new StoreConnectionsInspector();
+  private StoreConnectionsInspector: StoreConnectionsInspector =
+    new StoreConnectionsInspector();
   private RuntimeCompiler: RuntimeCompiler = new RuntimeCompiler();
   private NodeManager: NodeManager = new NodeManager();
   private StyleInspector: StyleInspector = new StyleInspector();

@@ -1,13 +1,10 @@
 <proto>
-  def:
-    types: !construct >
-      public env: string = "test";
-      private static number: number = 0;
-      private static ["message:child-component"] = "casename";
-  case 'lol': {
+  declare:
+    public env: string = "test";
+    private static number: number = 0;
+    private static ["message:child-component"] = "casename";
+  case 'lol':
     this.env = "";
-  }
-  default: {
+  default:
     this.env = "test";
-  }
 </proto>

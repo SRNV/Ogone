@@ -11,9 +11,9 @@ import templateReplacer from "../../../utils/template-recursive.ts";
 import { Utils } from "../../utils/index.ts";
 import {
   TypedExpressions,
-  CustomScriptRegExpProtocol,
-  CustomScriptParserOptions,
-  CustomScriptParserReturnType,
+  ProtocolScriptRegExpList,
+  ProtocolScriptParserOptions,
+  ProtocolScriptParserReturnType,
 } from "../../../.d.ts";
 
 /**
@@ -22,7 +22,7 @@ import {
 * and add some features like: reflections, execute default, before-each statement, def's Area
 */
 
-export default class CustomScriptParser extends Utils {
+export default class ProtocolScriptParser extends Utils {
   private parseBeforeCases(opts: {
     typedExpressions: TypedExpressions;
     expressions: any;
@@ -124,15 +124,15 @@ export default class CustomScriptParser extends Utils {
     const matches = value
       .replace(/([\'\"\`])([^\1]*)+(\1)/gi, "")
       .match(/([^\n\r]+){0,1}(def\s*:)/gi);
-    let previousDeclaration: string[] = [];
+    let previousDefinition: string[] = [];
     if (matches) {
       matches.forEach((dec) => {
-        if (previousDeclaration.includes(dec.replace(/\s/gi, "").trim())) {
+        if (previousDefinition.includes(dec.replace(/\s/gi, "").trim())) {
           this.error(
             'double declaration of "def:" in component',
           );
         }
-        previousDeclaration.push(dec.replace(/\s/gi, "").trim());
+        previousDefinition.push(dec.replace(/\s/gi, "").trim());
         return;
       });
     }
@@ -140,7 +140,9 @@ export default class CustomScriptParser extends Utils {
      * TODO
      * parse when def: is inside a quote ['`"]
      */
-    const p = value.split(/(def|case[^:]+|default|before\s*[^:]+)\s*\:/gi);
+    const p = value.split(
+      /(def|declare\s*|case[^:]+|default|before-each)\s*\:/gi,
+    );
     let data = p.find((el: string, i: number, arr: string[]) =>
       arr[i - 1] && arr[i - 1] === "def"
     );
@@ -150,9 +152,10 @@ export default class CustomScriptParser extends Utils {
     );
     let previous = data;
     data = templateReplacer(data, expressions);
-    const declaration = `${def}:${previous}`;
+    const definition = `${def}:${previous}`;
     const yaml = YAML.parse(data, {});
-    result = result.replace(declaration, "");
+    result = result.replace(definition, "");
+    // #REL1
     typedExpressions.data = yaml;
     return result;
   }
@@ -217,7 +220,7 @@ export default class CustomScriptParser extends Utils {
         const name = key && key.startsWith("§§array")
           ? key
           : `'${expressions[key].replace(/(§{2}ponctuation\d*§{2})/, "")}'` ||
-          "";
+            "";
         result = result.replace(
           exp,
           `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`,
@@ -231,7 +234,7 @@ export default class CustomScriptParser extends Utils {
       expressions: any;
       value: string;
       name?: string;
-      array: CustomScriptRegExpProtocol;
+      array: ProtocolScriptRegExpList;
       before?: (str: string) => string;
     },
   ) {
@@ -304,7 +307,7 @@ export default class CustomScriptParser extends Utils {
           const exp: string = result.split(item.split[0])[1];
           const all = `${item.split[0]}${exp.split(item.split[1])[0]}${
             item.split[1]
-            }`;
+          }`;
           result = result.replace(
             all,
             item.splittedId(result, expressions),
@@ -316,21 +319,23 @@ export default class CustomScriptParser extends Utils {
   }
   public parse(
     str: string,
-    opts: CustomScriptParserOptions,
-  ): CustomScriptParserReturnType {
+    opts: ProtocolScriptParserOptions,
+  ): ProtocolScriptParserReturnType {
     let typedExpressions = getTypedExpression();
 
     let expressions = {
       "§§endExpression0§§": "\n",
     };
     let prog = `\n${str}`;
+    prog = this.readDeclare({ typedExpressions, expressions, value: prog })
+      .trim();
     prog = this.read({
       array: notParsedElements,
       expressions,
       value: prog,
       typedExpressions,
     });
-    if (prog.indexOf("def:") > -1 && opts && opts.data === true) {
+    if (prog.match(/def\s*\:/) && opts && opts.data === true) {
       prog = this.parseDefinitionsArea(
         { typedExpressions, expressions, value: prog },
       );
@@ -363,7 +368,6 @@ export default class CustomScriptParser extends Utils {
         body: typedExpressions,
       };
     }
-
     if (opts && opts.beforeCases) {
       prog = this.parseBeforeCases(
         { typedExpressions, expressions, value: prog },
@@ -436,14 +440,14 @@ export default class CustomScriptParser extends Utils {
     // update blocks and parentheses
 
     Object.entries(typedExpressions.parentheses).forEach(([key, value]) => {
-
       typedExpressions.parentheses[key] = this.read({
         array: elements,
         name: "block",
         value,
         typedExpressions,
         expressions,
-        before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
+        before: (str) =>
+          str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
       });
       if (opts && opts.cjs) {
         typedExpressions.parentheses[key] = this.read({
@@ -451,7 +455,8 @@ export default class CustomScriptParser extends Utils {
           value: typedExpressions.parentheses[key],
           typedExpressions,
           expressions,
-          before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
+          before: (str) =>
+            str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
         });
       }
 
@@ -491,7 +496,8 @@ export default class CustomScriptParser extends Utils {
           array: elements,
           value,
           name: "endLine",
-          before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
+          before: (str) =>
+            str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
         },
       );
       if (opts && opts.cjs) {
@@ -501,7 +507,8 @@ export default class CustomScriptParser extends Utils {
             expressions,
             array: cjsElements,
             value: typedExpressions.blocks[key],
-            before: (str) => str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
+            before: (str) =>
+              str.replace(/\}/gi, "\n}").replace(/(\{)(\w)/, "$1\n$2"),
           },
         );
       }
@@ -519,7 +526,7 @@ export default class CustomScriptParser extends Utils {
           typedExpressions,
           expressions,
           value: typedExpressions.blocks[key],
-        })
+        });
         if (opts.casesAreLinkables) {
           // let the developper use 'run case' feature
           typedExpressions.blocks[key] = this.read(
@@ -534,20 +541,14 @@ export default class CustomScriptParser extends Utils {
         }
       }
     });
-
     Object.entries(typedExpressions).forEach(([key, value]) => {
       // @ts-ignore
       Object.entries(typedExpressions[key]).forEach(([key2, value2]) => {
         if (
-          ![
-            "properties",
-            "use",
-            "data",
-            "imports",
-            "exports",
-            "require",
-            "switch",
-            "reflections",
+          [
+            "blocks",
+            "parentheses",
+            "setters",
           ]
             .includes(key)
         ) {
@@ -559,7 +560,6 @@ export default class CustomScriptParser extends Utils {
     });
     // finally replace all keys
     prog = templateReplacer(prog, expressions);
-
     return {
       value: prog,
       body: typedExpressions,
@@ -584,5 +584,41 @@ export default class CustomScriptParser extends Utils {
       { typedExpressions, expressions, value: result },
     );
     return result;
+  }
+  private readDeclare(opts: {
+    typedExpressions: TypedExpressions;
+    expressions: any;
+    value: string;
+  }): string {
+    const { typedExpressions, expressions, value } = opts;
+    let newValue = value;
+    let result: string = this.read({
+      array: [...notParsedElements, ...elements, ...computedExp],
+      value,
+      typedExpressions,
+      expressions,
+    });
+    const declarations: string[] = result.split(
+      /((§§Declaration\d+§§)|(§§keywordDefault\d+§§)|(§§keywordCase\d+§§)|(§§keywordBeforeEach\d+§§))/gi,
+    )
+      .filter((d) => d)
+      .filter((d, i, arr) =>
+        d && arr[i - 1] && arr[i - 1].match(/(§§Declaration\d+§§)/i)
+      );
+    if (!declarations.length) return value;
+    const values = declarations;
+    const content = declarations.filter((d) =>
+      d && !d.match(/(§§Declaration\d+§§)/i)
+    );
+    const all = templateReplacer(values.join(""), expressions);
+    typedExpressions.protocol = `class Protocol { ${
+      templateReplacer(content.join(""), expressions)
+    } }`;
+    const start = value.indexOf(all);
+    const end = start + all.length;
+    const startTokens = value.substring(0, start);
+    const endTokens = value.substring(end);
+    newValue = startTokens + endTokens;
+    return newValue;
   }
 }

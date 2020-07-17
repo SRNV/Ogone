@@ -1,7 +1,6 @@
 import components from "./component.ts";
 import ogone from "./ogone.ts";
 import router from "./router.ts";
-import oscillator from "./oscillator.ts";
 import websocket from "./websocket.ts";
 import devTool from "./dev-tool/index.ts";
 
@@ -17,7 +16,6 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
     components,
     ogone,
     router,
-    oscillator,
     websocket,
     opts.hasDevtool ? devTool({}) : "",
   ].join("\n");
@@ -26,10 +24,11 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
 export const template: string = `
 <html>
   <head>
-      %%head%%
+      {{ head }}
+      {{ script }}
   </head>
   <body>
-      %%dom%%
+      {{ dom }}
   </body>
 </html>
 `;

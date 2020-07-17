@@ -1,7 +1,7 @@
 
 <proto type="store" namespace="user">
-  def:
-    user: null
+  declare:
+    public user: null | number = null;
   case 'action:setUser':
     this.user = ctx.user;
   break;

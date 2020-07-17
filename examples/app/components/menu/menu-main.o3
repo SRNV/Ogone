@@ -5,8 +5,8 @@ use @/examples/app/components/logo.o3 as 'logo-el'
 
 <store-component namespace="menu" />
 <proto def="examples/app/defs/menu-main.yml">
-  def:
-    isOpen: false
+  declare:
+    public isOpen: boolean = false;
   case 'click:toggle-menu':
     Store.dispatch('menu/toggle');
   break;

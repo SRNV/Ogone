@@ -1,6 +1,6 @@
 <proto type="controller">
-  def:
-    name: SRNV
+  declare:
+    public name: string = "SRNV";
   case 'GET:/':
     return `hello ${this.name}`;
 </proto>

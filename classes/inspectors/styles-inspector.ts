@@ -8,7 +8,7 @@ import {
 } from "../../deps.ts";
 import { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
-import { Utils } from '../utils/index.ts';
+import { Utils } from "../utils/index.ts";
 
 export default class StyleInspector extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
@@ -90,7 +90,7 @@ export default class StyleInspector extends Utils {
                 );
             }
           }
-          Number.isNaN(12)
+          Number.isNaN(12);
           switch (element.attributes.lang) {
             case "scss":
             case "sass":

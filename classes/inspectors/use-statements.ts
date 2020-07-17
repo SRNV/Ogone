@@ -1,7 +1,7 @@
 import { existsSync } from "../../utils/exists.ts";
 import { Bundle } from "../../.d.ts";
 import { Utils } from "../../classes/utils/index.ts";
-import CustomScriptParser from '../parsers/ts/index.ts';
+import ProtocolScriptParser from "../parsers/ts/index.ts";
 import {
   join,
   absolute,
@@ -9,7 +9,8 @@ import {
 } from "../../deps.ts";
 
 export default class UseStatementsInpector extends Utils {
-  private CustomScriptParser: CustomScriptParser = new CustomScriptParser();
+  private ProtocolScriptParser: ProtocolScriptParser =
+    new ProtocolScriptParser();
   async startRecursiveInspectionOfComponent(
     textFile: string,
     p: string,
@@ -22,7 +23,10 @@ export default class UseStatementsInpector extends Utils {
     },
   ) {
     const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
-    const tokens = this.CustomScriptParser.parse(splitTextUseFirstPart, { onlyDeclarations: true });
+    const tokens = this.ProtocolScriptParser.parse(
+      splitTextUseFirstPart,
+      { onlyDeclarations: true },
+    );
     if (opts && opts.remote) {
       bundle.remotes.push({
         file: textFile,

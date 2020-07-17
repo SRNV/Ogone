@@ -1,6 +1,7 @@
 import { Bundle, Component } from "../../.d.ts";
-import { Utils } from '../utils/index.ts';
+import { Utils } from "../utils/index.ts";
 
+const t = new Map();
 export default class ComponentCompiler extends Utils {
   private getControllers(
     bundle: Bundle,
@@ -119,8 +120,7 @@ export default class ComponentCompiler extends Utils {
           // freeze Async Object;
           Object.freeze(Async);
           `;
-      let result: string = `
-          Ogone.components['{{ component.uuid }}'] = function () {
+      let result: string = `function () {
             OComponent.call(this);
             {{ controllerDef }}
             {{ hasStore }}
@@ -140,7 +140,7 @@ export default class ComponentCompiler extends Utils {
             this.runtime = __run.bind(this.data);
           };
           `;
-      bundle.datas.push(this.template(result, {
+      const d = {
         component,
         modules: modules ? modules.flat().join("\n") : "",
         asyncResolve: component.type === "async" ? asyncResolve : "",
@@ -154,7 +154,29 @@ export default class ComponentCompiler extends Utils {
           )
           : "",
         hasStore: component.hasStore ? store : "",
-      }));
+      };
+      result = this.template(result, d);
+      if (t.has(result)) {
+        const item = t.get(result);
+        result = this.template(
+          `Ogone.components['{{ component.uuid }}'] = Ogone.components['{{ item.id }}'];`,
+          {
+            component,
+            item,
+          },
+        );
+        bundle.datas.push(this.template(result, d));
+      } else {
+        t.set(result, {
+          id: component.uuid,
+        });
+        bundle.datas.push(
+          this.template(
+            `Ogone.components['{{ component.uuid }}'] = ${result.trim()}`,
+            d,
+          ),
+        );
+      }
     }
   }
 }

@@ -1,8 +1,8 @@
 import gen from "./generator.ts";
-import { CustomScriptRegExpProtocol } from "../../../../.d.ts";
-import templateReplacer from '../../../../utils/template-recursive.ts';
+import { ProtocolScriptRegExpList } from "../../../../.d.ts";
+import templateReplacer from "../../../../utils/template-recursive.ts";
 
-const tokens: CustomScriptRegExpProtocol = [
+const tokens: ProtocolScriptRegExpList = [
   {
     open: false,
     reg: /\b([0-9])*(\.){0,1}([0-9])+\b/,

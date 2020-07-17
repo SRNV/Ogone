@@ -1,6 +1,6 @@
 import { Bundle } from "../../.d.ts";
 import { YAML } from "../../deps.ts";
-import { Utils } from '../utils/index.ts';
+import { Utils } from "../utils/index.ts";
 
 export default class StoreConnectionsInspector extends Utils {
   read(bundle: Bundle) {

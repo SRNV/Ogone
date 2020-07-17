@@ -1,4 +1,4 @@
-import CustomScriptParser from "../parsers/ts/index.ts";
+import ProtocolScriptParser from "../parsers/ts/index.ts";
 import OgoneNS from "../../types/ogone/namespaces.ts";
 import {
   YAML,
@@ -10,13 +10,14 @@ import { existsSync } from "../../utils/exists.ts";
 import { Bundle, XMLNodeDescription, Component, Route } from "../../.d.ts";
 import Ogone from "../main/index.ts";
 import { tags as customTags } from "../../yaml-config.ts";
-import { Utils } from '../utils/index.ts';
-import { Configuration } from '../config/index.ts';
+import { Utils } from "../utils/index.ts";
+import { Configuration } from "../config/index.ts";
 
 // @ts-ignore
 YAML.defaultOptions.customTags = customTags;
 export default class ScriptInspector extends Utils {
-  private CustomScriptParser: CustomScriptParser = new CustomScriptParser();
+  private ProtocolScriptParser: ProtocolScriptParser =
+    new ProtocolScriptParser();
   private allowedKeys = [
     "path",
     "redirect",
@@ -114,13 +115,11 @@ export default class ScriptInspector extends Utils {
     return opts.routes;
   }
   private async getProtocol(
-    opts: { declarations: { value: string } },
+    opts: { declarations: string },
   ): Promise<{ Protocol: any; instance: typeof Function; source: string }> {
     // @ts-ignore
     const result = await Deno.transpileOnly({
-      "proto.ts": `class Protocol {
-            ${opts.declarations ? opts.declarations.value : ""}
-          }`,
+      "proto.ts": opts.declarations,
     }, { sourceMap: false });
     const getter = new Function(
       `${result["proto.ts"].source}\nreturn Protocol;`,
@@ -139,9 +138,7 @@ export default class ScriptInspector extends Utils {
   ): Promise<string> {
     let file = Deno.readTextFileSync(component.file);
     const startPerf = performance.now();
-    let protocol = `class Protocol {
-          ${opts.declarations ? opts.declarations.value : ""}
-        }`;
+    let protocol = opts.declarations;
     // @ts-ignore
     let [diag, emit] = (await Deno.compile("proto.ts", {
       "proto.ts": `
@@ -170,12 +167,13 @@ export default class ScriptInspector extends Utils {
       strictFunctionTypes: true,
       types: Configuration.types || [],
     }));
+
     if (diag) {
       for (const d of diag) {
         const m = d.message ? d.message : "";
-        const source = d.sourceLine
+        const source = d.sourceLine && d.sourceLine.indexOf("____('") > -1
           ? d.sourceLine.split("____('")[0].trim()
-          : "";
+          : d.sourceLine as string;
         const lines = file.split("\n");
         const sourceLine = lines.find((t, i, arr) => {
           return t.indexOf(source) > -1 &&
@@ -183,7 +181,7 @@ export default class ScriptInspector extends Utils {
         });
         const linePosition = lines.indexOf(sourceLine || "");
         const columnPosition = sourceLine?.indexOf(source.trim());
-        console.error(
+        this.error(
           `${component.file}:${linePosition + 1}:${
             columnPosition ? columnPosition + 1 : 0
           }\n\t${m}\n\t${sourceLine}\n\t`,
@@ -270,7 +268,7 @@ export default class ScriptInspector extends Utils {
 
       if (moduleScript && proto) {
         const { type } = proto?.attributes;
-        const ogoneScript = this.CustomScriptParser.parse(
+        const ogoneScript = this.ProtocolScriptParser.parse(
           moduleScript as string,
           {
             data: true,
@@ -279,7 +277,7 @@ export default class ScriptInspector extends Utils {
             beforeCases: true,
           },
         );
-        const cases = this.CustomScriptParser.parse(
+        const cases = this.ProtocolScriptParser.parse(
           moduleScript as string,
           { parseCases: true },
         );
@@ -296,26 +294,19 @@ export default class ScriptInspector extends Utils {
             `
           : null;
         // @ts-ignore
-        const isTyped: boolean = !!ogoneScript.body.data &&
-          !!ogoneScript.body.data.types &&
-          ogoneScript.body.data.types.constructor.name === "Declarations";
+        const isTyped: boolean = !!ogoneScript.body.protocol &&
+          ogoneScript.body.protocol.length;
+        let protocol: string = "", prototype = {};
         // @ts-ignore
-        const resultProto = this.getProtocol(
-          { declarations: ogoneScript.body.data.types },
-        );
-        const prototype = isTyped ? (await resultProto).instance : {};
-        const protocol = isTyped ? (await resultProto).source : "";
         if (isTyped) {
-          Object.keys({ ...ogoneScript.body.data, ...defData })
-            .filter((k) => k !== "types")
-            .forEach((k) => {
-              const m =
-                `mixing constructor tag with data is forbidden.\n\t\tPlease remove '${k}' in ${component.file}`;
-              this.error(m);
-            });
+          const resultProto = this.getProtocol(
+            { declarations: ogoneScript.body.protocol },
+          );
+          prototype = (await resultProto).instance;
+          protocol = (await resultProto).source;
         }
         component.data = {
-          ...ogoneScript.body.data,
+          ...ogoneScript.body.data, // #REL1
           ...defData,
           // allows dev to define the values
           ...prototype,
@@ -323,39 +314,42 @@ export default class ScriptInspector extends Utils {
         component.protocol = protocol.toString().startsWith("let ")
           ? protocol
           : null;
-        const declarations = isTyped ? component.data.types : null;
-        if (isTyped) {
-          delete component.data.types;
-        }
-
+        const declarations = isTyped ? ogoneScript.body.protocol : null;
         // get the types of the component
         const { value } = ogoneScript;
         let sc = `
-            ${each ? each : ""}
-            ${ogoneScript.body.reflections.join("\n")}
-            ${caseGate ? caseGate : ""}
-            switch(_state) { ${value} }`;
+            {{ beforeEach }}
+            {{ reflections }}
+            {{ caseGate }}
+            switch(_state) { {{ switchBody }} }`;
         // transpile ts
         // @ts-ignore
-        let script: string = `(
-              ${
-          proto && proto.attributes &&
-          ["async", "store", "controller"].includes(
-            proto.attributes.type as string,
-          )
-            ? "async"
-            : ""
-        } function (${
-          isTyped ? "this: Protocol," : ""
-        } _state: _state, ctx: ctx, event: event, _once: number = 0) {
+        let script: string = this.template(
+          `({{ async }} function ({{ protocolAmbientType }} _state: _state, ctx: ctx, event: event, _once: number = 0) {
                 try {
-                  ${sc}
+                  {{ body }}
                 } catch(err) {
                   // @ts-ignore
-                  Ogone.error('Error in the component: \\n\\t ${component.file}' ,err.message, err);
+                  Ogone.error('Error in the component: \\n\\t {{ file }}' ,err.message, err);
                   throw err;
                 }
-              });`;
+              });`,
+          {
+            body: sc,
+            switchBody: value,
+            file: component.file,
+            protocolAmbientType: isTyped ? "this: Protocol," : "",
+            caseGate: caseGate ? caseGate : "",
+            reflections: ogoneScript.body.reflections.join("\n"),
+            beforeEach: each ? each : "",
+            async: proto && proto.attributes &&
+                ["async", "store", "controller"].includes(
+                  proto.attributes.type as string,
+                )
+              ? "async"
+              : "",
+          },
+        );
         component.scripts.runtime = value.trim().length && isTyped
           ? (await this.renderTS(component, script, {
             declarations,

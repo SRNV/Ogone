@@ -1,6 +1,7 @@
 import { Bundle, XMLNodeDescription } from "../../.d.ts";
 import WebComponent from "../components/index.ts";
 
+const t = new Map();
 export default class Renderer extends WebComponent {
   async read(
     bundle: Bundle,
@@ -12,8 +13,35 @@ export default class Renderer extends WebComponent {
       const isImported: string = component.imports[node.tagName as string];
       const subcomp = bundle.components.get(isImported);
       if (node.tagName === null || (node.hasFlag && node.tagName)) {
+        const isTemplate = node.tagName === null;
+        const id = isTemplate
+          ? `${component.uuid}-nt`
+          : `${component.uuid}-${node.id}`;
         const elementExtension = this.render(bundle, component, node);
-        bundle.classes.push(elementExtension);
+        if (t.has(elementExtension)) {
+          const item = t.get(elementExtension);
+          bundle.classes.push(
+            this.template(
+              `Ogone.classes['{{ classId }}'] = Ogone.classes['{{ classIdOrigin }}'];`,
+              {
+                classId: id,
+                classIdOrigin: item.id,
+              },
+            ),
+          );
+        } else {
+          t.set(elementExtension, {
+            id,
+          });
+          bundle.classes.push(
+            this.template(
+              `Ogone.classes['{{ classId }}'] = ${elementExtension.trim()}`,
+              {
+                classId: id,
+              },
+            ),
+          );
+        }
       }
       if (
         node.attributes && node.attributes["--await"] &&

@@ -4,8 +4,8 @@ use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/scroll.o3 as 'scroll-component'
 
 <proto>
-  def:
-    openTree: false
+  declare:
+    public openTree: boolean = false;
   case 'click:toggle':
     this.openTree = !this.openTree
   break;
