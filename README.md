@@ -9,7 +9,6 @@
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
-[![](https://discordapp.com/api/guilds/710950501398610061/widget.png?style=shield)](https://discord.gg/RyDFkr)
 [![nest badge](https://nest.land/badge.svg)](https://nest.land/package/Ogone@0.16.0-rc.0)
 ---
 
@@ -21,9 +20,6 @@ Ogone has it own extension `*.o3` which allow some new features.
 No Proxies, no getters, no setters used for the reactivity, just code...
 
 ---
-
-#### Join Discord
-[![](https://discord.com/api/guilds/710950501398610061/widget.png?style=banner2)](https://discord.gg/RyDFkr)
 
 # Installation
 
