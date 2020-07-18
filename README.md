@@ -9,7 +9,6 @@
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
 [![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
-[![](https://discordapp.com/api/guilds/710950501398610061/widget.png?style=shield)](https://discord.gg/RyDFkr)
 [![nest badge](https://nest.land/badge.svg)](https://nest.land/package/Ogone@0.16.0-rc.0)
 ---
 
@@ -21,9 +20,6 @@ Ogone has it own extension `*.o3` which allow some new features.
 No Proxies, no getters, no setters used for the reactivity, just code...
 
 ---
-
-#### Join Discord
-[![](https://discord.com/api/guilds/710950501398610061/widget.png?style=banner2)](https://discord.gg/RyDFkr)
 
 # Installation
 
@@ -351,16 +347,16 @@ To support, join the [discord](https://discord.com/channels/710950501398610061/7
 - [ ] Integrated test environment \*\*
   - [ ] case 'test' is supported \*\*
   - [ ] Automated stress tests \*\*
-- [ ] Controllers Components (...)
+- [x] Controllers Components (...)
 - [ ] Sounds Components (...)
 - [ ] Write robust tests for Ogone \*\*
   - [x] Dom-parser is solid \*\*
   - [ ] Js-this is solid \*\*
   - [x] Stress mode is supported \*\*
   - [x] Scope-css is solid \*\*
-- [ ] Switch every files to Typescript (almost done, need to switch js-this) \*
-  - [ ] Write types \*\*
-  - [ ] Typescript supported in `<proto>` \*\*
+- [x] Switch every files to Typescript (almost done, need to switch js-this) \*
+  - [x] Write types \*\*
+  - [x] Typescript supported in `<proto>` \*\*
 - [ ] Write more exceptions for each flags \*\*
 - [ ] Write docs \*
 - [ ] Write more examples/ \*\*
