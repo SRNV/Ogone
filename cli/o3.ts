@@ -5,6 +5,7 @@ class OgoneCLI {
   private templateSTR: string = `
     {{ templateImports }}
     {{ templateProto }}
+    {{ templateStore }}
     {{ templateStyle }}
   `;
   private templateProto: string = `
@@ -18,6 +19,9 @@ class OgoneCLI {
     <style{{ styleLang }}>
 
     </style>`;
+  private templateStore: string = `
+    <store-component {{ storeNamespace }} />
+  `;
   private templateImports: string = `// {{ path }}/{{ componentName }}.o3`;
   public static async init() {
     parseFlags(Deno.args, {
