@@ -2,6 +2,23 @@
 import { parseFlags, OptionType, InputCLI, Confirm, Select } from './deps.ts';
 
 class OgoneCLI {
+  private templateSTR: string = `
+    {{ templateImports }}
+    {{ templateProto }}
+    {{ templateStyle }}
+  `;
+  private templateProto: string = `
+    <proto{{ componentType }}>
+      {{ def }}
+      {{ declarations }}
+      {{ beforeEach }}
+      {{ default }}
+    </proto>`;
+  private templateStyle: string = `
+    <style{{ styleLang }}>
+
+    </style>`;
+  private templateImports: string = `// {{ path }}/{{ componentName }}.o3`;
   public static async init() {
     parseFlags(Deno.args, {
       flags: [
@@ -20,9 +37,8 @@ class OgoneCLI {
         return value;
       }
     });
-
   }
-  public static async promptCreation(value: string) {
+  private static async promptCreation(value: string) {
     switch (true) {
       case value && ['comp', 'component', 'c'].includes(value):
         /*
@@ -35,12 +51,15 @@ class OgoneCLI {
         });
         */
         const pathToFolder: string = await InputCLI.prompt(`path to the component's folder`);
+        const componentName: string = await InputCLI.prompt(`component's name ?`);
         const hasProto: boolean = await Confirm.prompt(`insert a proto element ?`);
         let usingDef: boolean = false,
           usingDefault: boolean = false,
           usingDeclare: boolean = false,
+          typeofComponent: string = 'component',
           usingBeforeEach: boolean = false;
         if (hasProto) {
+          typeofComponent = await InputCLI.prompt(`type of the component (component, async, store, router, controller) ?`);
           usingDef = await Confirm.prompt(`insert definitions (def:) ?`);
           usingDefault = await Confirm.prompt(`insert default statement (default:) ?`);
           usingDeclare = await Confirm.prompt(`insert declarations (declare:) ?`);
@@ -49,6 +68,7 @@ class OgoneCLI {
         const hasStyle: boolean = await Confirm.prompt(`insert a style element ?`);
         let cssLang: boolean = false;
         if (hasStyle) {
+          /*
           cssLang = await Select.prompt({
             messsage: 'style language: please choose a CSS pre-processor ?',
             options: [
@@ -56,6 +76,7 @@ class OgoneCLI {
               { name: 'Denolus', value: 'denolus' },
             ]
           });
+          */
         }
         console.warn(pathToFolder, hasProto, hasStyle);
         break;
