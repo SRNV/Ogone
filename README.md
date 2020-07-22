@@ -1,8 +1,7 @@
 <p align="center">
   <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-2.png" width="350">
+  <h1>Ogone</h1>
 </p>
-
-# Ogone
 
 [![deno version](https://img.shields.io/badge/deno-^1.0.2-informational)](https://github.com/denoland/deno)
 [![stars](https://img.shields.io/github/stars/SRNV/Ogone)](https://github.com/SRNV/Ogone/stargazers)
