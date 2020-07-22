@@ -37,11 +37,12 @@ to see more stuffs from Ogone, clone this repository
 ```shell
 deno run --allow-all --unstable examples/app/index.ts
 ```
----
 
 - [Introduction](https://github.com/SRNV/Ogone/raw/master/introduction.md)
 - [Examples](https://github.com/SRNV/Ogone/raw/master/docs/examples.md)
 - [Contributions](https://github.com/SRNV/Ogone/raw/master/docs/contributions.md)
+
+---
 
 # Extensions
 
