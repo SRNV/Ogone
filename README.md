@@ -1,10 +1,23 @@
-[![deno version](https://img.shields.io/badge/deno-^1.0.2-informational)](https://github.com/denoland/deno)
-[![stars](https://img.shields.io/github/stars/SRNV/Ogone)](https://github.com/SRNV/Ogone/stargazers)
-[![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
-[![forks](https://img.shields.io/github/forks/SRNV/Ogone)](https://github.com/SRNV/Ogone/forks)
-[![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
-[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/Ogone@0.16.0-rc.0)
-
+<p align="center">
+   <a href="https://github.com/denoland/deno">
+     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.0.2-informational">
+   </a>
+    <a href="https://github.com/SRNV/Ogone/stargazers">
+     <img alt="stars" src="https://img.shields.io/github/stars/SRNV/Ogone">
+   </a>
+   <a href="https://github.com/SRNV/Ogone/issues">
+     <img alt="issues" src="https://img.shields.io/github/issues/SRNV/Ogone">
+   </a>
+   <a href="https://github.com/SRNV/Ogone/forks">
+     <img alt="forks" src="https://img.shields.io/github/forks/SRNV/Ogone">
+   </a>
+   <a href="https://github.com/SRNV/Ogone">
+     <img alt="license" src="https://img.shields.io/github/license/SRNV/Ogone">
+   </a>
+   <a href="https://nest.land/package/Ogone">
+     <img alt="nest badge" src="https://nest.land/badge.svg">
+   </a>
+</p>
 <p align="center">
   <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-1.png">
 </p>
