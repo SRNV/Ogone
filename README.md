@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-2.png" width="350">
+  <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-1.png">
 </p>
   <h1 align="center">Ogone</h1>
 
