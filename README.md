@@ -42,9 +42,12 @@ deno run --allow-all --unstable examples/app/index.ts
 - [Examples](https://github.com/SRNV/Ogone/tree/master/docs/examples.md)
 - [Contributions](https://github.com/SRNV/Ogone/tree/master/docs/contributions.md)
 
+
 ---
 
 # Extensions
-
+<p align="center">
+  <img src="https://github.com/SRNV/Ogone/raw/master/public/async-example.png">
+</p>
   - VS Code
     - Syntax High-lighting: Otone 0.0.8^
