@@ -11,8 +11,8 @@ const getClassStore = (klass) => (class extends (Ogone.classes.component(klass))
         const BadNamspaceException = new Error(`[Ogone] ${error}`);
         Ogone.error(error, 'Store Module: Bad Namsepace Exception', {
           message: `
-          store namespace: $\{o.namespace}
-          attribute namespace: $\{oc.namespace}
+          store namespace: ${o.namespace}
+          attribute namespace: ${oc.namespace}
           `
         })
         throw BadNamspaceException;
