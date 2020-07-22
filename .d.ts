@@ -89,6 +89,13 @@ export interface Bundle {
   customElements: string[];
   components: Map<string, Component>;
   repository: { [k: string]: { [s: string]: string } };
+  types: {
+    store: boolean;
+    router: boolean;
+    async: boolean;
+    controller: boolean;
+    component: true;
+  };
 }
 
 export interface Component {

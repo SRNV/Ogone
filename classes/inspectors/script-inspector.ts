@@ -184,7 +184,7 @@ export default class ScriptInspector extends Utils {
         const columnPosition = sourceLine?.indexOf(source.trim());
         this.error(
           `${component.file}:${linePosition + 1}:${
-            columnPosition ? columnPosition + 1 : 0
+          columnPosition ? columnPosition + 1 : 0
           }\n\t${m}\n\t${sourceLine}\n\t`,
         );
       }
@@ -192,7 +192,7 @@ export default class ScriptInspector extends Utils {
     }
     this.warn(
       `TSC: ${component.file} - ${
-        Math.round(performance.now() - startPerf)
+      Math.round(performance.now() - startPerf)
       } ms`,
     );
     return (Object.values(emit)[0] as string).split("// ogone-sep")[1];
@@ -344,9 +344,9 @@ export default class ScriptInspector extends Utils {
             reflections: ogoneScript.body.reflections.join("\n"),
             beforeEach: each ? each : "",
             async: proto && proto.attributes &&
-                ["async", "store", "controller"].includes(
-                  proto.attributes.type as string,
-                )
+              ["async", "store", "controller"].includes(
+                proto.attributes.type as string,
+              )
               ? "async"
               : "",
           },
@@ -356,11 +356,11 @@ export default class ScriptInspector extends Utils {
             declarations,
           })).replace(/^(\s*;)/, "")
           : // @ts-ignore
-            (await Deno.transpileOnly({
-              "proto.ts": script,
-            }, {
-              sourceMap: false,
-            }))["proto.ts"].source;
+          (await Deno.transpileOnly({
+            "proto.ts": script,
+          }, {
+            sourceMap: false,
+          }))["proto.ts"].source;
       } else if (defData) {
         component.data = defData;
       }
@@ -394,6 +394,7 @@ export default class ScriptInspector extends Utils {
         }
         component.type =
           (type as "component" | "async" | "store" | "router" | "controller");
+        bundle.types[component.type] = true;
         if (type === "controller") {
           const run = eval(component.scripts.runtime);
           const namespace = proto.attributes.namespace;
@@ -414,7 +415,7 @@ export default class ScriptInspector extends Utils {
           const comp = {
             ns: component.namespace,
             data: component.data,
-            runtime: (_state: any, ctx: any) => {},
+            runtime: (_state: any, ctx: any) => { },
           };
           comp.runtime = run.bind(comp.data);
           // save the controller
