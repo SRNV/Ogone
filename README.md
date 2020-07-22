@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/SRNV/Ogone/raw/master/public/ogone-svg.svg" width="350">
+  <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-2" width="350">
 </p>
 
 # Ogone
@@ -46,8 +46,5 @@ deno run --allow-all --unstable examples/app/index.ts
 ---
 
 # Extensions
-<p align="center">
-  <img src="https://github.com/SRNV/Ogone/raw/master/public/async-example.png">
-</p>
   - VS Code
     - Syntax High-lighting: Otone 0.0.8^
