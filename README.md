@@ -29,13 +29,6 @@ o3.run({
   port: 8080,
 });
 ```
-# Learn Ogone
-
-to see more stuffs from Ogone, clone this repository
-
-```shell
-deno run --allow-all --unstable examples/app/index.ts
-```
 
 - [Introduction](https://github.com/SRNV/Ogone/tree/master/docs/introduction.md)
 - [Examples](https://github.com/SRNV/Ogone/tree/master/docs/examples.md)

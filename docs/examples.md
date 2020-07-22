@@ -179,3 +179,10 @@ use @/examples/app/components/scroll.o3 as 'scroll'
   </div>
 </div>
 ```
+# Learn Ogone
+
+to see more stuffs from Ogone, clone this repository
+
+```shell
+deno run --allow-all --unstable examples/app/index.ts
+```
