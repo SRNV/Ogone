@@ -1,5 +1,15 @@
 import { OnodeComponent } from "./component.ts";
+import { Route } from '../.d.ts';
 export interface NestedOgoneParameters {
+  uuid: string;
+  isTemplate: boolean;
+  isAsync: boolean;
+  isAsyncNode: boolean;
+  isStore: boolean;
+  isRouter: boolean;
+  isRemote: boolean;
+  isImported: boolean;
+  extends: string;
   key: string;
   parentNodeKey: string;
   name?: string;
@@ -18,6 +28,10 @@ export interface NestedOgoneParameters {
   positionInParentComponent: number[];
   levelInParentComponent: number;
   nodes: any[];
+  namespace?: string;
+  requirements: any;
+  dependencies: any;
+  routes: null | Route[];
 }
 export interface Template {
   isConnected: boolean;

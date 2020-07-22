@@ -1,7 +1,7 @@
 import o3 from "../../mod.ts";
 
 o3.run({
-  entrypoint: "examples/tests/events.o3",
+  entrypoint: "examples/tests/tests.o3",
   port: 8083,
-  modules: "/modules",
+  modules: "/examples/modules",
 });

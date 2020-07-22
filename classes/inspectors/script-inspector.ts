@@ -64,6 +64,7 @@ export default class ScriptInspector extends Utils {
         const newcomp = bundle.components.get(c);
         if (newcomp) {
           route.component = `${newcomp.uuid}-nt`;
+          route.uuid = newcomp.uuid;
         }
       } else {
         this.error(

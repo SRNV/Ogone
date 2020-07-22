@@ -9,7 +9,7 @@ import { Bundle, Component, XMLNodeDescription } from "./../../.d.ts";
 
 let ws: WebSocket | null = null;
 // open the websocket
-const wss: WebSocketServer = new WebSocketServer(4536);
+const wss: WebSocketServer = new WebSocketServer(3984);
 //
 let newApplicationCompilation: boolean = false;
 // when client open the connection
@@ -52,21 +52,7 @@ function getPragma(
   node: XMLNodeDescription,
 ): string {
   if (node.pragma) {
-    return node.pragma(
-      component.uuid,
-      true,
-      Object.keys(component.imports),
-      (tagName: string) => {
-        if (component.imports[tagName]) {
-          const newcomponent = bundle.components.get(
-            component.imports[tagName],
-          );
-          if (!newcomponent) return null;
-          return newcomponent.uuid;
-        }
-        return null;
-      },
-    );
+    return node.pragma(bundle, component, true);
   }
   return "undefined";
 }

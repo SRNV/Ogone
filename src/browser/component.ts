@@ -7,8 +7,7 @@ import { Template } from "../../types/template.ts";
 
 let Ogone: OgoneBrowser;
 
-function _OGONE_BROWSER_CONTEXT() {
-  function OComponent(this: OnodeComponent): OnodeComponent {
+function OComponent(this: OnodeComponent): OnodeComponent {
     this.key = null;
     this.data = null;
     this.dependencies = null;
@@ -213,7 +212,6 @@ function _OGONE_BROWSER_CONTEXT() {
       const context = Onode.context;
       // no need to render if it's the same
       if (context.list.length === dataLength) return;
-      let previousTemplate;
       // first we add missing nodes, we use cloneNode to generate the web-component
       for (let i = context.list.length, a = dataLength; i < a; i++) {
         let node;
@@ -225,13 +223,28 @@ function _OGONE_BROWSER_CONTEXT() {
           level: Onode.ogone.level,
           position: Onode.ogone.position.slice(),
           flags: Onode.ogone.flags,
-          orinal: Onode,
+          original: Onode,
           isRoot: false,
           name: Onode.ogone.name,
           tree: Onode.ogone.tree,
+
+          namespace: Onode.ogone.namespace,
+          isTemplate: Onode.ogone.isTemplate,
+          isImported: Onode.ogone.isImported,
+          isAsync: Onode.ogone.isAsync,
+          isAsyncNode: Onode.ogone.isAsyncNode,
+          isRouter: Onode.ogone.isRouter,
+          isStore: Onode.ogone.isStore,
+          isRemote: Onode.ogone.isRemote,
+          extends: Onode.ogone.extends,
+          uuid: Onode.ogone.uuid,
+          routes: Onode.ogone.routes,
+
           parentNodeKey: Onode.ogone.parentNodeKey,
           ...(!callingNewComponent ? { component: this } : {
             props: Onode.ogone.props,
+            dependencies: Onode.ogone.dependencies,
+            requirements: Onode.ogone.requirements,
             params: Onode.ogone.params,
             parentComponent: Onode.ogone.parentComponent,
             parentCTXId: Onode.ogone.parentCTXId,
@@ -251,7 +264,6 @@ function _OGONE_BROWSER_CONTEXT() {
           }
         }
         context.list.push(node);
-        previousTemplate = node;
       }
       // no need to remove if it's the same
       if (context.list.length === dataLength) return;
@@ -273,8 +285,5 @@ function _OGONE_BROWSER_CONTEXT() {
       }
     };
     return this;
-  }
 }
-export default _OGONE_BROWSER_CONTEXT.toString()
-  .replace("function _OGONE_BROWSER_CONTEXT() {", "")
-  .slice(0, -1);
+export default OComponent.toString();
