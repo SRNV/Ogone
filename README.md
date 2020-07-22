@@ -1,8 +1,3 @@
-<p align="center">
-  <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-1.png">
-</p>
-  <h1 align="center">Ogone</h1>
-
 [![deno version](https://img.shields.io/badge/deno-^1.0.2-informational)](https://github.com/denoland/deno)
 [![stars](https://img.shields.io/github/stars/SRNV/Ogone)](https://github.com/SRNV/Ogone/stargazers)
 [![issues](https://img.shields.io/github/issues/SRNV/Ogone)](https://github.com/SRNV/Ogone/issues)
@@ -10,7 +5,12 @@
 [![license](https://img.shields.io/github/license/SRNV/Ogone)](https://github.com/SRNV/Ogone)
 [![nest badge](https://nest.land/badge.svg)](https://nest.land/package/Ogone@0.16.0-rc.0)
 
----
+<p align="center">
+  <img src="https://github.com/SRNV/Ogone/raw/master/public/neum-ogone-1.png">
+</p>
+  <h1 align="center">Ogone</h1>
+
+
 # Description
 
 use Ogone to compile web-components for your applications. it's based on Deno.
