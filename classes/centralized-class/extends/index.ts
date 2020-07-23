@@ -1,3 +1,4 @@
+// @ts-nocheck
 /// <reference lib="dom"/>
 import { BrowserClassExtends } from '../../../types/component.ts';
 import { NestedOgoneParameters } from '../../../types/template.ts';
