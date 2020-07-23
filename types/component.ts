@@ -61,10 +61,5 @@ export interface ComponentItem {
   childs: ComponentItem[];
   getSize(): number;
 }
-export interface ComponentDescription {
-  style?: string;
-  className?: string;
-  href: string;
-  position: { x: number; y: number; delta?: number };
-  label?: string;
-}
+
+export interface BrowserClassExtends {}

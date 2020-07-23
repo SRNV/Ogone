@@ -1,7 +1,7 @@
 /**
  * tsc can slow down the compilation of the components
  * there is a way to avoid that
- * declare only types dependencies by inspection with regexp
+ * declare only types by inspection with regexp
  */
 interface Analysis {
   children?: Analysis[];

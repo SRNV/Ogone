@@ -1,5 +1,8 @@
-// @ts-nocheck
-const getClassExtends = (klass) => (class extends (klass) {
+/// <reference lib="dom"/>
+import { BrowserClassExtends } from '../../../types/component.ts';
+import { NestedOgoneParameters } from '../../../types/template.ts';
+const getClassExtends = (klass: typeof HTMLElement | typeof HTMLTemplateElement) => (class extends (klass) implements BrowserClassExtends {
+    public ogone: NestedOgoneParameters = {};
     get firstNode() {
       const o = this.ogone, oc = o.component;
       return o.nodes[0];
@@ -41,56 +44,8 @@ const getClassExtends = (klass) => (class extends (klass) {
       }
       return oc.contexts.for[o.key];
     }
-    constructor () {
+    constructor() {
       super();
-      if (!Ogone.root) {
-        this.setOgone({ isRoot: true, isTemplate: true });
-        Ogone.root = this;
-      }
-    };
-    construct() {
-      const o = this.ogone;
-      this.dependencies = o.dependencies;
-      if (o.isTemplate) {
-        this.positionInParentComponent = [];
-        o.component = new Ogone.components[o.uuid]();
-        o.component.requirements = o.requirements;
-        o.component.dependencies = o.dependencies;
-        o.component.type = o.type;
-        // define runtime for hmr
-        // Ogone.run[o.uuid] = Ogone.run[o.uuid] || [];
-      }
-      // define templates of hmr
-      // Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];
-    }
-    connectedCallback (){
-      const o = this.ogone;
-      // set position of the template/component
-      this.setPosition();
-
-      // set the context of the node
-      this.setContext();
-      // this.setHMRContext();
-
-      // parse the route that match with location.pathname
-      if (o.type === "router") {
-        this.setActualRouterTemplate();
-      }
-
-      // set the props required by the node
-      if (o.isTemplate) {
-        this.setProps();
-        o.component.updateProps();
-      }
-      this.renderingProcess();
-
-      // now ... just render ftw!
-      switch(true) {
-        case o.type === "router": this.renderRouter(); break;
-        case o.type === "store": this.renderStore(); break;
-        case o.type === "async": this.renderAsync(); break;
-        default: this.render(); break;
-      }
     }
   });
   export default getClassExtends.toString();

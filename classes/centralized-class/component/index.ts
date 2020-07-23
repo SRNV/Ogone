@@ -1,8 +1,57 @@
 // @ts-nocheck
+import { NestedOgoneParameters } from '../../../types/template.ts';
 const getClassComponent = (klass) => class extends (Ogone.classes.extends(klass)) {
   constructor() {
     super();
+    if (!Ogone.root) {
+      this.setOgone({ isRoot: true, isTemplate: true });
+      Ogone.root = this;
+    }
     this.type = "component";
+  }
+  construct() {
+    const o = this.ogone;
+    this.dependencies = o.dependencies;
+    if (o.isTemplate) {
+      this.positionInParentComponent = [];
+      o.component = new Ogone.components[o.uuid]();
+      o.component.requirements = o.requirements;
+      o.component.dependencies = o.dependencies;
+      o.component.type = o.type;
+      // define runtime for hmr
+      // Ogone.run[o.uuid] = Ogone.run[o.uuid] || [];
+    }
+    // define templates of hmr
+    // Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];
+  }
+  connectedCallback (){
+    const o = this.ogone;
+    // set position of the template/component
+    this.setPosition();
+
+    // set the context of the node
+    this.setContext();
+    // this.setHMRContext();
+
+    // parse the route that match with location.pathname
+    if (o.type === "router") {
+      this.setActualRouterTemplate();
+    }
+
+    // set the props required by the node
+    if (o.isTemplate) {
+      this.setProps();
+      o.component.updateProps();
+    }
+    this.renderingProcess();
+
+    // now ... just render ftw!
+    switch(true) {
+      case o.type === "router": this.renderRouter(); break;
+      case o.type === "store": this.renderStore(); break;
+      case o.type === "async": this.renderAsync(); break;
+      default: this.render(); break;
+    }
   }
   setContext() {
     const o = this.ogone, oc = o.component;
@@ -125,7 +174,7 @@ const getClassComponent = (klass) => class extends (Ogone.classes.extends(klass)
       o.nodes = [o.render(o.component, o.position, o.index, o.level)];
     }
     // set parentKey to template
-    { { /*nodes.devtool.parentKey*/ null } }
+    // ogone: {{ nodes.devtool.parentKey }}
   };
   setDeps() {
     const o = this.ogone, oc = o.component;
@@ -176,7 +225,7 @@ const getClassComponent = (klass) => class extends (Ogone.classes.extends(klass)
       o.component.runtime('destroy');
       o.component.activated = false;
     }
-    // {{ destroy.devTool }}
+    // ogone: {{ destroy.devTool }}
     this.remove();
   };
   render() {
@@ -232,7 +281,7 @@ const getClassComponent = (klass) => class extends (Ogone.classes.extends(klass)
       }
     }
   };
-  setOgone(def = {}) {
+  setOgone(def: NestedOgoneParameters = {}) {
     this.ogone = {
       // int[]
       position: [0],
