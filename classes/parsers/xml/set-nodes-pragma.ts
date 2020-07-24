@@ -1,5 +1,7 @@
 import { Utils } from "../../../classes/utils/index.ts";
 import {
+  Component,
+  Bundle,
   XMLNodeDescription,
   XMLNodeDescriberDescription,
   DOMParserIterator,
@@ -54,7 +56,8 @@ export default class XMLPragma extends Utils {
     "--wheel",
   ];
   private renderPragma({
-    nodeCreation,
+    bundle,
+    component,
     isOgone,
     node,
     props,
@@ -70,7 +73,13 @@ export default class XMLPragma extends Utils {
     flags,
     query,
     appending,
+    isTemplate,
+    isAsyncNode,
+    isRemote,
   }: any) {
+    const subcomp = isImported
+      ? bundle.components.get(component.imports[node.tagName])
+      : null;
     const start = isRoot
       ? this.template(
         `
@@ -117,6 +126,15 @@ export default class XMLPragma extends Utils {
         start,
         idComponent,
         nodeSuperCreation,
+        isTemplate: isTemplate || !!isImported && !!subcomp,
+        isAsync: !!isImported && !!subcomp && subcomp.type === "async",
+        isRouter: !!isImported && !!subcomp && subcomp.type === "router",
+        isStore: !!isImported && !!subcomp && subcomp.type === "store",
+        isAsyncNode,
+        isImported,
+        isRemote,
+        component,
+        subcomp,
         position: {
           slice: isOgone ? ` if (p) { p = pos.slice(); p[l] = i; }` : "",
         },
@@ -131,37 +149,49 @@ export default class XMLPragma extends Utils {
           : "",
         setOgone: {
           isOgone: isOgone
-            ? `{{nId}}.setOgone({
+            ? `
+            p = p.slice();
+            {{nId}}.setOgone({
                             isRoot: false,
+                            originalNode: true,
                             {{setOgone.tagname}}
                             {{setOgone.tree}}
                             {{setOgone.positionLevelIndex}}
-                            {{setOgone.positionInParentComponent}}
                             {{setOgone.inheritedCTX}}
                             {{setOgone.flags}},
+                            isTemplate: {{ isTemplate }},
+                            isAsync: {{ isAsync }},
+                            isRouter: {{ isRouter }},
+                            isStore: {{ isStore }},
+                            isAsyncNode: {{ isAsyncNode }},
+                            isImported: {{ isImported }},
+                            isRemote: {{ isRemote }},
+                            extends: '{{ setOgone.extends }}',
+                            uuid: '{{ component.uuid }}',
+                            {{setOgone.positionInParentComponent}}
                           });`
             : "",
-          inheritedCTX: nodeIsDynamic && !isImported || node.tagName === null
-            ? "component: ctx,"
-            : "",
+          inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
           flags: `flags: ${flags}`,
           tagname: isImported ? `name: "${node.tagName}",` : "",
           tree: isImported || nodeIsDynamic ? `tree: "${query}",` : "",
+          extends: isTemplate || isImported ? `-nt` : `-${node.id}`,
           positionLevelIndex: !isImported
             ? "position: p, level: l, index: i,"
             : "",
-          positionInParentComponent: isImported
+          positionInParentComponent: isImported && subcomp
             ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${
               JSON.stringify(props)
             }),
-                    dependencies: ${
-              JSON.stringify(
-                Object.values(node.attributes).filter((v) =>
-                  typeof v !== "boolean"
-                ),
-              )
-            },
-                    `
+            uuid: '${subcomp.uuid}',
+            routes: ${JSON.stringify(subcomp.routes)},
+            namespace: '${subcomp.namespace ? subcomp.namespace : ""}',
+            requirements: (${
+              subcomp && subcomp.requirements
+                ? JSON.stringify(subcomp.requirements)
+                : null
+            }),
+            dependencies: ${JSON.stringify(node.dependencies)},`
             : "",
         },
       },
@@ -200,14 +230,16 @@ export default class XMLPragma extends Utils {
               : `ctx.refs['${value}'] = ${nId};`
           )
           .join("");
-        pragma = (
-          idComponent: string,
-          isRoot = true,
-          imports = [],
-          getId: ((id: string) => string | null) | undefined,
-        ) => {
+        pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
           let identifier: string[] = [];
+          const idComponent: string = component.uuid;
+          const imports = Object.keys(component.imports);
           const isImported = imports.includes(node.tagName || "");
+          const isTemplate = node.tagName === null;
+          const isRouter = isTemplate && component.type === "router";
+          const isStore = isTemplate && component.type === "store";
+          const isAsync = isTemplate && component.type === "async";
+          const isRemote = !!component.remote;
           let nodesPragma = node.childNodes.filter((child) => child.pragma).map(
             (
               child,
@@ -216,22 +248,23 @@ export default class XMLPragma extends Utils {
             ) => {
               // return the pragma
               return child.pragma
-                ? child.pragma(idComponent, false, imports, getId).value
+                ? child.pragma(bundle, component, false).value
                 : "";
             },
           ).join("");
           let appending = node.childNodes.filter((child) =>
-            child.pragma && child.pragma(idComponent, false, imports, getId).id
+            child.pragma && child.pragma(bundle, component, false).id
           ).map((child) =>
             child.pragma
-              ? `ap(${nId},${
-                child.pragma(idComponent, false, imports, getId).id
-              });`
+              ? `ap(${nId},${child.pragma(bundle, component, false).id});`
               : ""
           ).join("\n");
           let extensionId: string | null = "";
-          if (isImported && getId && node.tagName) {
-            extensionId = getId(node.tagName);
+          if (isImported && component.imports[node.tagName as string]) {
+            const newcomponent = bundle.components.get(
+              component.imports[node.tagName as string],
+            );
+            if (newcomponent) extensionId = newcomponent.uuid;
           }
           const props = Object.entries(node.attributes).filter(([key]) =>
             key.startsWith(":")
@@ -263,6 +296,8 @@ export default class XMLPragma extends Utils {
           }
           const isOgone = isImported || nodeIsDynamic && !isImported && !isRoot;
           const opts = {
+            bundle,
+            component,
             query,
             props,
             flags,
@@ -276,7 +311,7 @@ export default class XMLPragma extends Utils {
               node.childNodes.filter((child) => child.pragma)
                 .map((child) => {
                   if (child.pragma) {
-                    const id = child.pragma(idComponent, false, imports, getId);
+                    const id = child.pragma(bundle, component, false);
                     if (id.getNodeCreations) {
                       id.getNodeCreations(idList);
                     }
@@ -290,6 +325,13 @@ export default class XMLPragma extends Utils {
             setAttributes,
             nodesPragma,
             appending,
+            isTemplate,
+            isAsync,
+            isRouter,
+            isStore,
+            isAsyncNode: !isTemplate && !isImported && !!node.flags &&
+              !!node.flags.await,
+            isRemote,
           };
           /**
              * all we set in this function
@@ -307,7 +349,7 @@ export default class XMLPragma extends Utils {
               node.childNodes.filter((child) => child.pragma)
                 .map((child) => {
                   if (child.pragma) {
-                    const id = child.pragma(idComponent, false, imports, getId);
+                    const id = child.pragma(bundle, component, false);
                     if (id.getNodeCreations) {
                       id.getNodeCreations(idList);
                     }
@@ -321,14 +363,15 @@ export default class XMLPragma extends Utils {
       if (node.nodeType === 3) {
         const nId = `t${node.id}`;
         node.id = nId;
-        pragma = (idComponent) => {
+        pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
+          const idComponent = component.uuid;
           const isEvaluated = node.rawText.indexOf("${") > -1;
           const saveText = isEvaluated
             ? `
                   const {{getContextConstant}} = Ogone.contexts['{{contextId}}'] ? Ogone.contexts['{{contextId}}'].bind(ctx.data) : null; /* getContext function */
                   const {{textConstant}} = '{{evaluatedString}}';
                   ctx.texts.push((k) => {
-                    if (typeof k == 'string' && {{textConstant}}.indexOf(k) < 0) return true;
+                    if ({{ dependencies }} typeof k === 'string' && {{textConstant}}.indexOf(k) < 0) return true;
                     if (!{{getContextConstant}}) return false;
                     const v = {{getContextConstant}}({
                       getText: {{textConstant}},
@@ -369,6 +412,12 @@ export default class XMLPragma extends Utils {
                 contextId: `${idComponent}-${node.id}`,
                 getContextConstant: `g${nId}`,
                 textConstant: `t${nId}`,
+                dependencies:
+                  node.parentNode && node.parentNode.dependencies.length
+                    ? `!${
+                      JSON.stringify(node.parentNode?.dependencies)
+                    }.includes(k) && `
+                    : "",
                 evaluatedString: `\`${
                   node.rawText.replace(/\n/gi, " ")
                     // preserve regular expressions

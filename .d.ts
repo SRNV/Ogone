@@ -89,6 +89,13 @@ export interface Bundle {
   customElements: string[];
   components: Map<string, Component>;
   repository: { [k: string]: { [s: string]: string } };
+  types: {
+    store: boolean;
+    router: boolean;
+    async: boolean;
+    controller: boolean;
+    component: true;
+  };
 }
 
 export interface Component {
@@ -158,10 +165,9 @@ export interface XMLAttrsNodeDescription {
 }
 
 export type DOMParserPragmaDescription = (
-  idComponent: string,
-  isRoot?: boolean | undefined,
-  imports?: string[] | undefined,
-  getId?: ((id: string) => string | null) | undefined,
+  bundle: Bundle,
+  component: Component,
+  isRoot: boolean,
 ) => string | any;
 
 /**
@@ -205,6 +211,7 @@ export interface RouteRedirection {
 }
 export interface Route {
   path: string;
+  uuid: string;
   redirect: string | RouteRedirection;
   component: string;
   name: string;
@@ -284,7 +291,7 @@ interface DOMParserExp {
   flags: ParseFlagsOutput | null;
   tagName: string | null | undefined;
   attributes: XMLAttrsNodeDescription;
-  parentNode: null | DOMParserExpressions;
+  parentNode: null | DOMParserExp;
   pragma: DOMParserPragmaDescription | null;
 }
 interface DOMParserExpressions {

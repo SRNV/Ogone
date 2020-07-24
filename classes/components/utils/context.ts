@@ -68,19 +68,7 @@ export default function contextMethods(
     }
     `;
   return `
-    setContext() {
-        const o = this.ogone;
-        const oc = o.component;
-        ${isTemplate ? templateContext : nodeContext}
-        ${
-    isStore
-      ? `
-          oc.namespace = this.getAttribute('namespace') || null;
-          oc.parent.store[oc.namespace] = oc;
-        `
-      : ""
-  }
-      }
+
       ${isProduction ? "" : hmrContext}
       ${hasDevtool ? devToolContext : ""}
     `;

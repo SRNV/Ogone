@@ -44,6 +44,13 @@ export default class Constructor extends Utils {
       render: [],
       remotes: [],
       repository: {},
+      types: {
+        component: true,
+        store: false,
+        async: false,
+        router: false,
+        controller: false,
+      },
     };
     await this.UseStatementsInspector.inspect(Configuration.entrypoint, bundle);
     await this.ComponentReader.read(bundle);

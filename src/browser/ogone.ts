@@ -1,3 +1,4 @@
+
 import { OgoneBrowser } from "../../types/ogone.ts";
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {

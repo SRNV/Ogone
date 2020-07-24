@@ -248,13 +248,11 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s*([^\§\(]*)+(§{2}keywordAs\d+§{2})\s*([^\§\[\]]*)+(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+([^\§\[\]\s]+)+(?=(§{2}(endLine|endPonctuation)\d+§{2})){0,1}/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
       }
-      const id = `§§require${gen.next().value}§§`;
-      const any = null;
       const isAlreadyRequired = typedExpressions.properties.find(
         ([key]) => key === matches[2],
       );

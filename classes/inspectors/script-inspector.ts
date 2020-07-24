@@ -64,6 +64,7 @@ export default class ScriptInspector extends Utils {
         const newcomp = bundle.components.get(c);
         if (newcomp) {
           route.component = `${newcomp.uuid}-nt`;
+          route.uuid = newcomp.uuid;
         }
       } else {
         this.error(
@@ -393,6 +394,7 @@ export default class ScriptInspector extends Utils {
         }
         component.type =
           (type as "component" | "async" | "store" | "router" | "controller");
+        bundle.types[component.type] = true;
         if (type === "controller") {
           const run = eval(component.scripts.runtime);
           const namespace = proto.attributes.namespace;

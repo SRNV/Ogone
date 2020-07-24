@@ -43,21 +43,7 @@ export default class WebComponentTemplater extends Utils {
       hasDevtool,
     };
     const componentPragma = node.pragma
-      ? node.pragma(
-        component.uuid,
-        true,
-        Object.keys(component.imports),
-        (tagName: string): string | null => {
-          if (component.imports[tagName]) {
-            const newcomponent = bundle.components.get(
-              component.imports[tagName],
-            );
-            if (!newcomponent) return null;
-            return newcomponent.uuid;
-          }
-          return null;
-        },
-      )
+      ? node.pragma(bundle, component, true)
       : "";
     // no definition for imported component
     if (isImported) {
@@ -65,6 +51,7 @@ export default class WebComponentTemplater extends Utils {
     }
     const templateSlots = {
       ...opts,
+      component,
       classId: isTemplate
         ? `${component.uuid}-nt`
         : `${component.uuid}-${node.id}`,
@@ -168,172 +155,13 @@ export default class WebComponentTemplater extends Utils {
           : "",
       },
     };
-    let componentExtension = `
-    class extends {{ extension }} {
-      {{ methods.constructor }}
-
-      // set the modifier object for Ogone fe atures
-      {{ methods.setOgone }}
-
-      // use bindStyle method
-      // this method allow --style flag
-      {{ methods.bindStyle }}
-
-      // use bindClass method
-      // this method allow --class flag
-      {{ methods.bindClass }}
-
-      // use bindValue method
-      // this method allow --bind flag
-      {{ methods.bindValue }}
-
-      // set events on the node
-      // this method allow all DOM level 3 events
-      {{ methods.setEvents }}
-
-      // methods for routers components
-      {{ methods.router }}
-
-      // methods for stores components
-      {{ methods.store }}
-
-      // methods for all components
-      // this allow the use of <slot> tag
-      {{ methods.slots }}
-
-      // methods for async components
-      {{ methods.async }}
-
-      // global methods for components
-      // mainly getters and setters
-      {{ methods.utils }}
-
-      // setContext and setHMRContext
-      {{ methods.context }}
-
-      connectedCallback() {
-        // set position of the template/component
-        this.setPosition();
-
-        // set the context of the node
-        this.setContext();
-        {{ connectedCallback.hmr }}
-
-        // parse the route that match with location.pathname
-        {{ connectedCallback.router }}
-
-        // set the props required by the node
-        {{ connectedCallback.props }}
-        this.renderingProcess();
-
-        // now ... just render ftw!
-        {{ connectedCallback.render }}
-      }
-      renderingProcess() {
-        // use the jsx renderer only for templates
-        this.setNodes();
-        // render DevTools
-        {{ render.devTool }}
-        // set Async context for Async nodes
-        {{ render.async }}
-        // use the previous jsx and push the result into ogone.nodes
-        // set the dependencies of the node into the component
-        this.setDeps();
-
-        // set the events
-        this.setEvents();
-
-        // bind classList
-        this.bindClass();
-
-        // bind style
-        this.bindStyle();
-
-        // bind value
-        this.bindValue();
-
-        // set history state and trigger default code for router
-        {{ render.router }}
-      }
-      setPosition() {
-        this.ogone.position[this.ogone.level] = this.ogone.index;
-      }
-      setProps() {
-        const o = this.ogone;
-        if (!o.index) {
-          o.index = 0;
-        }
-        o.component.props = o.props;
-        o.component.positionInParentComponent = o.positionInParentComponent;
-        o.positionInParentComponent[
-          o.levelInParentComponent] = o.index;
-        o.component.updateProps();
-      }
-      setNodes() {
-        const o = this.ogone;
-        {{ nodes.settings }}
-        // set parentKey to template
-        {{ nodes.devtool.parentKey }}
-      }
-      setDeps() {
-        const o = this.ogone;
-        if (o.originalNode && o.getContext) {
-            o.component{{ deps.isTemplate }}.react.push(() => this.renderContext());
-            this.renderContext();
-        }
-      }
-      renderContext() {
-        const o = this.ogone, oc = o.component;
-        const key = o.key;
-        const length = o.getContext({ getLength: true, position: o.position });
-        o.component{{ deps.isTemplate }}.render(this, {
-          callingNewComponent: {{ isTemplate }},
-          key,
-          length,
-        });
-        return true;
-      }
-      removeNodes() {
-        /* use it before removing template node */
-        if (this.ogone.actualTemplate) {
-          this.ogone.actualTemplate.forEach((n) => {
-            if (n.ogone) {
-              n.destroy();
-            } else {
-              n.remove();
-            }
-          })
-        }
-        this.ogone.nodes.forEach((n) => {
-          if (n.ogone) {
-            n.destroy();
-          } else {
-            n.remove();
-          }
-        });
-        return this;
-      }
-      destroy() {
-        this.context.list.forEach((n) => {
-          n.removeNodes().remove();
-        });
-        this.removeNodes();
-        {{ destroy.runtime }}
-        {{ destroy.devTool }}
-        this.remove();
-      }
-      render() {
-        const o = this.ogone, oc = o.component;
-        {{ render.statements }}
-      }
-    }
-  `;
+    let componentExtension = ``;
     let definition =
-      `customElements.define('{{ classId }}', Ogone.classes['{{ classId }}'], { extends: 'template' });`;
+      `customElements.define('{{ classId }}', Ogone.classes['{{ component.type }}']({{ extension }}), { extends: 'template' });`;
 
     if (!isTemplate) {
       definition =
-        `customElements.define('{{ classId }}', Ogone.classes['{{ classId }}']);`;
+        `customElements.define('{{ classId }}', Ogone.classes['{{ component.type }}']({{ extension }}));`;
     }
     if (!isProduction) {
       // for HMR

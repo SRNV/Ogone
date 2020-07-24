@@ -5,12 +5,14 @@ import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps.ts";
 import Constructor from "../main/constructor.ts";
 import { Configuration } from "../config/index.ts";
+import WebComponentExtends from "../centralized-class/index.ts";
 export default class Env extends Constructor {
   private bundle: Bundle | null = null;
   public env: Environment = "development";
   public devtool?: boolean;
   public static _devtool?: boolean;
   public static _env: Environment = "development";
+  public WebComponentExtends: WebComponentExtends = new WebComponentExtends();
   constructor() {
     super();
     this.devtool = Configuration.devtool;
@@ -104,11 +106,13 @@ export default class Env extends Constructor {
         ${this.bundle.datas.join("\n")}
         ${this.bundle.contexts.reverse().join("\n")}
         ${this.bundle.render.join("\n")}
-        ${this.bundle.classes.reverse().join("\n")}
+        ${/*this.bundle.classes.reverse().join("\n")*/ ""}
+        {{ extension }}
         ${this.bundle.customElements.join("\n")}
         {{ promise }}
         `,
         {
+          extension: this.WebComponentExtends.getExtensions(this.bundle),
           promise: esm.trim().length
             ? `
             Promise.all([
@@ -124,6 +128,9 @@ export default class Env extends Constructor {
               is: "${rootComponent.uuid}-nt",
             })
           );`,
+          render: {},
+          destroy: {},
+          nodes: {},
           debugg: `
           // debug tools
           const ___connectTime = ___perfData.responseEnd - ___perfData.requestStart;
@@ -239,6 +246,7 @@ export default class Env extends Constructor {
       }
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `import test from '/test.js'`,
+import WebComponentExtends from '../centralized-class/index';
         "test.js": 'export default 10;',
       }, {
         module: "esnext",

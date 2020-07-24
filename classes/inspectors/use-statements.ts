@@ -114,7 +114,7 @@ export default class UseStatementsInpector extends Utils {
             );
           }
         } else if (!opts.remote && type === "relative") {
-          const newPath = join(p, path);
+          const newPath = absolute(p, path);
           if (existsSync(newPath)) {
             const file = Deno.readTextFileSync(newPath);
             await this.startRecursiveInspectionOfComponent(
@@ -143,6 +143,9 @@ export default class UseStatementsInpector extends Utils {
         entrypoint,
         bundle,
         {
+          item: {
+            path: entrypoint,
+          },
           parent: entrypoint,
         },
       );

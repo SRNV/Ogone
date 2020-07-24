@@ -14,7 +14,10 @@ export default class ComponentCompiler extends Utils {
       });
     if (controllers.length && component.type !== "store") {
       this.error(
-        `forbidden use of a controller inside a non-store component. \ncomponent: {{ component.file }}`,
+        this.template(
+          `forbidden use of a controller inside a non-store component. \ncomponent: {{ component.file }}`,
+          { component },
+        ),
       );
     }
     return controllers;
@@ -130,8 +133,10 @@ export default class ComponentCompiler extends Utils {
             const ____r = (name, use, once) => {
               this.runtime(name, use[0], use[1], once);
             };
-            this.data = {{data}};
-            this.refs = { {{ mapRefs }} };
+            this.data = {{ data }};
+            this.refs = {
+              {{ refs }}
+            };
             const Refs = this.refs;
             {{ asyncResolve }}
             {{ modules }}
@@ -148,12 +153,12 @@ export default class ComponentCompiler extends Utils {
         data: JSON.stringify(component.data),
         runtime: runtime,
         controllerDef: component.type === "store" ? controllerDef : "",
-        mapRefs: component.refs
+        refs: Object.entries(component.refs).length
           ? Object.entries(component.refs).map(([key, value]) =>
             `'${key}': '${value}',`
           )
           : "",
-        hasStore: component.hasStore ? store : "",
+        hasStore: !!component.hasStore ? store : "",
       };
       result = this.template(result, d);
       if (t.has(result)) {

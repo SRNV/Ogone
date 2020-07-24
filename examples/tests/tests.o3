@@ -1,4 +1,4 @@
-use @/examples/testflags.o3 as 'test-d'
+use ../tests/testdirectives.o3 as 'test-d'
 <proto>
   def:
     array:
@@ -8,14 +8,18 @@ use @/examples/testflags.o3 as 'test-d'
   case 'update:array':
   console.warn(this.array);
     break;
+  default:
+    setInterval(() => {
+      this.array.push("t");
+    }, 1000)
 </proto>
 
-<div>
+<test-d :text="'test'">
     <h1>Test des flags</h1>
-    <div --for="Array.from(new Array(10)).map((a, i) => i) as (o)">
+    <div --for="array.map((a, i) => i) as (o)">
     ${o} t
     </div>
-</div>
+</test-d>
 
 <style>
 @media screen and (max-width:200px) {

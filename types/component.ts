@@ -1,5 +1,7 @@
+// @ts-nocheck
 import { Template } from "./template.ts";
 import { XMLNodeDescription } from "../.d.ts";
+import { NestedOgoneParameters } from "./template.ts";
 export type OnodeComponentRenderOptions = {
   callingNewComponent?: boolean;
   length: number;
@@ -30,15 +32,15 @@ export interface OnodeComponent {
   startLifecycle: (params?: any, event?: Event) => any;
   initStore(): any;
   runtime(_state: number | string, ctx?: any, event?: Event): any;
-  update(dependency?: string): void;
+  update(dependency?: string, ctx?: any): void;
   updateStore(dependency?: string): void;
   react: Function[];
-  updateProps(dependency: string): void;
+  updateProps(dependency?: string): void;
   resolve: Function | null;
   dispatchAwait: Function | null;
   render(Onode: Template, opts: OnodeComponentRenderOptions): void;
   reactTo(dependency: string): void;
-  renderTexts(dependency: string): void;
+  renderTexts(dependency: string | boolean): void;
   parentContext(ctx: any): any;
 }
 export interface ComponentItem {
@@ -61,10 +63,23 @@ export interface ComponentItem {
   childs: ComponentItem[];
   getSize(): number;
 }
-export interface ComponentDescription {
-  style?: string;
-  className?: string;
-  href: string;
-  position: { x: number; y: number; delta?: number };
-  label?: string;
+
+declare class BrowserClassExtends extends HTMLElement {
+  ogone: NestedOgoneParameters;
+  dependencies: NestedOgoneParameters["dependencies"];
+  positionInParentComponent?: number[];
+  get firstNode(): Template | HTMLElement;
+  get lastNode(): Template | HTMLElement;
+  get extends(): string;
+  get name(): string;
+  get isComponent(): boolean;
+  get isRecursiveConnected(): boolean;
+  get isConnected(): boolean;
+  get context(): {
+    list: [Template];
+    placeholder: HTMLTemplateElement;
+    parentNode: HTMLElement;
+    name: string;
+  };
 }
+export interface BCE extends BrowserClassExtends {}
