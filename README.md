@@ -26,7 +26,7 @@
 
 # WIP
 
-> ### Ogone is currently facing a big refactoring. features can be broken for now.
+> ### Ogone is currently facing a big refactoring.
 
 # Description
 
