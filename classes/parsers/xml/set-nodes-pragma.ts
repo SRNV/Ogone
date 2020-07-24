@@ -58,7 +58,6 @@ export default class XMLPragma extends Utils {
   private renderPragma({
     bundle,
     component,
-    nodeCreation,
     isOgone,
     node,
     props,
@@ -75,13 +74,12 @@ export default class XMLPragma extends Utils {
     query,
     appending,
     isTemplate,
-    isAsync,
-    isRouter,
-    isStore,
     isAsyncNode,
     isRemote,
   }: any) {
-    const subcomp = isImported ? bundle.components.get(component.imports[node.tagName]) : null;
+    const subcomp = isImported
+      ? bundle.components.get(component.imports[node.tagName])
+      : null;
     const start = isRoot
       ? this.template(
         `
@@ -129,9 +127,9 @@ export default class XMLPragma extends Utils {
         idComponent,
         nodeSuperCreation,
         isTemplate: isTemplate || !!isImported && !!subcomp,
-        isAsync: !!isImported && !!subcomp && subcomp.type === 'async',
-        isRouter: !!isImported && !!subcomp && subcomp.type === 'router',
-        isStore: !!isImported && !!subcomp && subcomp.type === 'store',
+        isAsync: !!isImported && !!subcomp && subcomp.type === "async",
+        isRouter: !!isImported && !!subcomp && subcomp.type === "router",
+        isStore: !!isImported && !!subcomp && subcomp.type === "store",
         isAsyncNode,
         isImported,
         isRemote,
@@ -155,6 +153,7 @@ export default class XMLPragma extends Utils {
             p = p.slice();
             {{nId}}.setOgone({
                             isRoot: false,
+                            originalNode: true,
                             {{setOgone.tagname}}
                             {{setOgone.tree}}
                             {{setOgone.positionLevelIndex}}
@@ -176,19 +175,23 @@ export default class XMLPragma extends Utils {
           flags: `flags: ${flags}`,
           tagname: isImported ? `name: "${node.tagName}",` : "",
           tree: isImported || nodeIsDynamic ? `tree: "${query}",` : "",
-          extends:  isTemplate || isImported ? `-nt` : `-${node.id}`,
+          extends: isTemplate || isImported ? `-nt` : `-${node.id}`,
           positionLevelIndex: !isImported
             ? "position: p, level: l, index: i,"
             : "",
           positionInParentComponent: isImported && subcomp
             ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${
-            JSON.stringify(props)
+              JSON.stringify(props)
             }),
             uuid: '${subcomp.uuid}',
             routes: ${JSON.stringify(subcomp.routes)},
-            namespace: '${subcomp.namespace ? subcomp.namespace : ''}',
-            requirements: (${ subcomp && subcomp.requirements ? JSON.stringify(subcomp.requirements) : null}),
-            dependencies: ${JSON.stringify( node.dependencies)},`
+            namespace: '${subcomp.namespace ? subcomp.namespace : ""}',
+            requirements: (${
+              subcomp && subcomp.requirements
+                ? JSON.stringify(subcomp.requirements)
+                : null
+            }),
+            dependencies: ${JSON.stringify(node.dependencies)},`
             : "",
         },
       },
@@ -250,12 +253,10 @@ export default class XMLPragma extends Utils {
             },
           ).join("");
           let appending = node.childNodes.filter((child) =>
-            child.pragma  && child.pragma(bundle, component, false).id
+            child.pragma && child.pragma(bundle, component, false).id
           ).map((child) =>
             child.pragma
-              ? `ap(${nId},${
-              child.pragma(bundle, component, false).id
-              });`
+              ? `ap(${nId},${child.pragma(bundle, component, false).id});`
               : ""
           ).join("\n");
           let extensionId: string | null = "";
@@ -329,7 +330,7 @@ export default class XMLPragma extends Utils {
             isRouter,
             isStore,
             isAsyncNode: !isTemplate && !isImported && !!node.flags &&
-            !!node.flags.await,
+              !!node.flags.await,
             isRemote,
           };
           /**
@@ -411,14 +412,19 @@ export default class XMLPragma extends Utils {
                 contextId: `${idComponent}-${node.id}`,
                 getContextConstant: `g${nId}`,
                 textConstant: `t${nId}`,
-                dependencies: node.parentNode && node.parentNode.dependencies.length ? `!${JSON.stringify(node.parentNode?.dependencies)}.includes(k) && ` : '',
+                dependencies:
+                  node.parentNode && node.parentNode.dependencies.length
+                    ? `!${
+                      JSON.stringify(node.parentNode?.dependencies)
+                    }.includes(k) && `
+                    : "",
                 evaluatedString: `\`${
                   node.rawText.replace(/\n/gi, " ")
                     // preserve regular expressions
                     .replace(/\\/gi, "\\\\")
                     // preserve quotes
                     .replace(/\'/gi, "\\'").trim()
-                  }\``,
+                }\``,
               },
             ),
           };

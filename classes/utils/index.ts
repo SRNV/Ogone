@@ -8,7 +8,11 @@ export abstract class Utils {
   public error(message: string, opts?: { [k: string]: any }): void {
     const { bgRed, red, bold, yellow } = colors;
     const m: string = this.message(
-      `${bgRed("  ERROR  ")} ${red(message)}\n${yellow(`\n\t\tfeeling like it's an issue ?\n\t\tplease report on https://github.com/SRNV/Ogone/issues/new?assignees=&labels=&template=bug_report.md&title=`)}`,
+      `${bgRed("  ERROR  ")} ${red(message)}\n${
+        yellow(
+          `\n\t\tfeeling like it's an issue ?\n\t\tplease report on https://github.com/SRNV/Ogone/issues/new?assignees=&labels=&template=bug_report.md&title=`,
+        )
+      }`,
       { returns: true },
     ) as string;
     throw new Error(m);
@@ -39,7 +43,7 @@ export abstract class Utils {
       result.indexOf("{{") > -1 && result.indexOf("}}") > -1
     ) {
       if (result.indexOf("{{") > result.indexOf("}}")) {
-        result = result.replace('}}', '} }');
+        result = result.replace("}}", "} }");
       }
       const start = result.indexOf("{{");
       const end = result.indexOf("}}") + 2;

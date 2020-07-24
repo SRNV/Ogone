@@ -5,7 +5,7 @@ import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps.ts";
 import Constructor from "../main/constructor.ts";
 import { Configuration } from "../config/index.ts";
-import WebComponentExtends from '../centralized-class/index.ts';
+import WebComponentExtends from "../centralized-class/index.ts";
 export default class Env extends Constructor {
   private bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -106,7 +106,7 @@ export default class Env extends Constructor {
         ${this.bundle.datas.join("\n")}
         ${this.bundle.contexts.reverse().join("\n")}
         ${this.bundle.render.join("\n")}
-        ${/*this.bundle.classes.reverse().join("\n")*/ '' }
+        ${/*this.bundle.classes.reverse().join("\n")*/ ""}
         {{ extension }}
         ${this.bundle.customElements.join("\n")}
         {{ promise }}
@@ -128,9 +128,7 @@ export default class Env extends Constructor {
               is: "${rootComponent.uuid}-nt",
             })
           );`,
-          render: {
-
-          },
+          render: {},
           destroy: {},
           nodes: {},
           debugg: `

@@ -14,7 +14,10 @@ export default class ComponentCompiler extends Utils {
       });
     if (controllers.length && component.type !== "store") {
       this.error(
-        this.template(`forbidden use of a controller inside a non-store component. \ncomponent: {{ component.file }}`, { component }),
+        this.template(
+          `forbidden use of a controller inside a non-store component. \ncomponent: {{ component.file }}`,
+          { component },
+        ),
       );
     }
     return controllers;

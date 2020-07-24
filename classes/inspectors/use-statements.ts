@@ -8,7 +8,6 @@ import {
   fetchRemoteRessource,
 } from "../../deps.ts";
 
-
 export default class UseStatementsInpector extends Utils {
   private ProtocolScriptParser: ProtocolScriptParser =
     new ProtocolScriptParser();
