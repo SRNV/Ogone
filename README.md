@@ -23,6 +23,9 @@
      <img alt="nest badge" src="https://nest.land/badge.svg">
    </a>
 </p>
+# WIP
+
+> ### Ogone is currently facing a big refactoring. features can be broken for now.
 
 # Description
 
