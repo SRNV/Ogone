@@ -73,7 +73,7 @@ Following this structure of declarations is strongly recommanded:
 
 - def\* (YAML)
 - declare\*
-- before-each\* (for global declarations)
+- before-each\*
 - case
 - default
 
