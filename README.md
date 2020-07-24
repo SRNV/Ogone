@@ -24,6 +24,10 @@
    </a>
 </p>
 
+# WIP
+
+> ### Ogone is currently facing a big refactoring. features can be broken for now.
+
 # Description
 
 use Ogone to compile web-components for your applications. it's based on Deno.
