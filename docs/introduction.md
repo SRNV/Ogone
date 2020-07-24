@@ -72,7 +72,7 @@ And Ogone is follwing a minimalistic philosophy. using few options/expressions t
 Following this structure of declarations is strongly recommanded:
 
 - def\* (YAML)
-- declare
+- declare\*
 - before-each\* (for global declarations)
 - case
 - default
