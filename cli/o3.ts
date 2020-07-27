@@ -65,8 +65,71 @@ class OgoneCLI {
   }
   private static async promptCreation(value: string) {
     switch (true) {
+      case value && ['app', 'application', 'a'].includes(value):
+        await this.createApp();
+        break;
       case value && ['comp', 'component', 'c'].includes(value):
-        let pathToFolder: string = await InputCLI.prompt(`path to the component's folder`);
+        await this.createComp();
+      break;
+    }
+  }
+  private static async createApp() {
+    let pathToApplication: string = await InputCLI.prompt(`name a directory to place your application`);
+    while(existsSync(pathToApplication)) {
+      console.warn('folder already exists.')
+      pathToApplication = await InputCLI.prompt(`name a directory to place your application`);
+    }
+    let indexPath = `${pathToApplication}/index.ts`;
+    let depsPath = `${pathToApplication}/deps.ts`;
+    let componentsPath = `${pathToApplication}/components`;
+    let entrypoint = `${pathToApplication}/components/index.o3`;
+    let distPath = `${pathToApplication}/dist`;
+    let publicPath = `${pathToApplication}/public`;
+    let modules = `${pathToApplication}/modules`;
+    const dirs = [
+      pathToApplication,
+      componentsPath,
+      publicPath,
+      distPath,
+      modules
+    ];
+    for await (let dir of dirs) {
+      console.warn(dir)
+      await Deno.mkdir(dir);
+    }
+    console.warn(`[Ogone] ${pathToApplication} rendered.`);
+    await Deno.writeTextFile(depsPath, `
+export { default as o3 } from 'https://x.nest.land/Ogone@0.18.0-rc.5/mod.ts';
+    `);
+    await Deno.writeTextFile(indexPath, `
+import { o3 } from './deps.ts';
+
+o3.run({
+  entrypoint: '/components/index.o3',
+  port: 3333,
+  modules: '/modules',
+  build: Deno.args.includes('--production'),
+});`);
+  await Deno.writeTextFile(entrypoint, `
+<proto>
+  declare:
+    public message: string = 'Welcome to your first Ogone application.';
+</proto>
+
+<div>
+  \${message}
+</div>
+
+<style global lang="sass">
+  body {
+    color: grey;
+    font-family: sans-serif;
+  }
+</style>
+`);
+  }
+  private static async createComp() {
+    let pathToFolder: string = await InputCLI.prompt(`path to the component's folder`);
         while(!existsSync(pathToFolder)) {
           console.warn('Invalid path.')
           pathToFolder = await InputCLI.prompt(`path to the component's folder`);
@@ -143,8 +206,6 @@ class OgoneCLI {
         });
         Deno.writeTextFileSync(fullPath, result);
         console.warn(result);
-        break;
-    }
   }
 }
 if (import.meta.main) {
