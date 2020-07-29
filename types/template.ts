@@ -49,6 +49,7 @@ export interface NestedOgoneParameters {
   original?: Template;
   component?: OnodeComponent | null;
   props: any;
+  nodeProps?: [string, string][];
   params?: any;
   parentComponent?: OnodeComponent | null;
   parentCTXId: string;

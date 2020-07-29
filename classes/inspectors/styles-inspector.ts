@@ -21,6 +21,7 @@ export default class StyleInspector extends Utils {
       );
       for await (const element of styles) {
         let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
+        const isGlobal = element.attributes.global;
         if (styleContent) {
           let compiledCss: string = "";
           const src = element.attributes.src
@@ -108,7 +109,7 @@ export default class StyleInspector extends Utils {
               compiledCss = styleContent as string;
               break;
           }
-          const css = this.CSSScoper.transform(compiledCss, component.uuid);
+          const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid) ;
           component.style.push(css);
         }
       }

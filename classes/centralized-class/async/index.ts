@@ -169,7 +169,7 @@ const getClassAsync = (
             }
             Ogone.error(
               err.message,
-              "Error in Async component. component: \${o.file}",
+              `Error in Async component. component: ${o.name}`,
               err,
             );
           }).finally((p) => {
@@ -202,10 +202,13 @@ const getClassAsync = (
     }
   }
   forceAsyncRender() {
+    const o = this.ogone;
     this.setPosition();
     this.setContext();
     // this.setHMRContext();
-    this.setProps();
+    if (o.isTemplate && o.component) {
+      this.setProps();
+    }
     this.setNodes();
     if (this.ogone.originalNode) this.setDeps();
     this.setEvents();

@@ -12,6 +12,9 @@ function* gen(i: number): Generator {
   }
 }
 const iterator: Generator = gen(0);
+const arrayAliasIterator: Generator = gen(0);
+iterator.next().value
+arrayAliasIterator.next().value
 export default class ContextCompiler extends Utils {
   public read(
     bundle: Bundle,
@@ -64,6 +67,7 @@ export default class ContextCompiler extends Utils {
         // get the flags
         const oForFlag = this.getForFlagDescription(v as string);
         const { item, index, array } = oForFlag;
+        const arrayAlias = `_____a_${arrayAliasIterator.next().value}`;
         if (legacy.ctx) {
           if (legacy.ctx[item]) {
             this.error(
@@ -82,19 +86,20 @@ export default class ContextCompiler extends Utils {
             if (!opts.filter) {
               return `
                   if (GET_LENGTH) {
-                    return (_____a_).length;
+                    return (${arrayAlias}).length;
                   }`;
             }
             return this.template(
               `
-                let _____a_2 = _____a_.filter(({{item}}, {{index}}) => {{filter}});
-                {{item}} = (_____a_2)[{{index}}];
+                let {{ arrayAlias }}2 = {{ arrayAlias }}.filter(({{item}}, {{index}}) => {{filter}});
+                {{item}} = ({{ arrayAlias }}2)[{{index}}];
                 if (GET_LENGTH) {
-                  return (_____a_2).length;
+                  return ({{ arrayAlias }}2).length;
                 }`,
               {
                 item,
                 index,
+                arrayAlias,
                 filter: opts.filter,
               },
             );
@@ -102,9 +107,9 @@ export default class ContextCompiler extends Utils {
           legacy.arrayName = array;
           legacy.getLength = getLengthScript;
           if (contextLegacy) {
-            const declarationScript = [`
+            const declarationScript = [`const ${arrayAlias} = ${array} || [];`,`
                           let ${index} = POSITION[${contextLegacy.limit}],
-                          ${item} = (_____a_)[${index}];`];
+                          ${item} = (${arrayAlias})[${index}];`];
 
             if (contextLegacy && contextLegacy.declarationScript) {
               contextLegacy.declarationScript = contextLegacy.declarationScript

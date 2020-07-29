@@ -1,0 +1,114 @@
+use ./github-badges.o3 as 'github-badges';
+<proto type="async">
+  declare:
+    public message: string = 'Welcome to your first Ogone application.';
+    public links: { label: string; href: string }[] = [
+      {
+        label: 'Introduction',
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md'
+      },
+      {
+        label: 'Examples',
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md'
+      },
+      {
+        label: 'Examples',
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md'
+      },
+    ];
+  default:
+    Async.resolve();
+</proto>
+
+<div class="container">
+  <div class="brand">
+    <img class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
+  </div>
+  <div class="brand__message">
+    ${message}
+  </div>
+  <github-badges />
+  <div class="links">
+    <ul>
+      <li --for="links as (item)">
+        <a :href="item.href">${item.label}</a>
+      </li>
+    </ul>
+  </div>
+</div>
+<marquee truespeed scrolldelay="23" class="brand_big">Ogone - Web Components Compiler for Deno</marquee>
+
+<!-- style is by default scoped, use the attribute global if you want to make the style general -->
+<style>
+  .container {
+    animation: appear;
+    animation-duration: 3s;
+    animation-iteration-count: 1;
+    transition: 0.5s ease;
+    filter: drop-shadow(-10px 10px 10px #00000055);
+    background: white;
+    width: min-content;
+    margin: auto;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    z-index: 5;
+  }
+  .brand {
+    width: fit-content;
+    margin: auto;
+  }
+  .brand__message {
+    text-align: center;
+    font-size: 24pt;
+    text-rendering: optimizeSpeed;
+    color: #b9b9b9;
+    margin: 37px;
+  }
+  .logo {
+    width: 970px;
+    height: auto;
+  }
+  .links {
+    background: #f1f1f1;
+    box-shadow: inset -3px 10px 8px #00000027, inset 10px -9px 11px #ffffff;
+    padding: 30px;
+    border-radius: 7px;
+    margin: 5px;
+  }
+  .brand_big {
+    display: inline-block;
+    overflow: hidden;
+    text-align: initial;
+    white-space: nowrap;
+    font-size: 132pt;
+    color: #e3e3e3;
+    transform: rotateZ(90deg);
+    transform-origin: top left;
+    position: fixed;
+    left: 64vw;
+    top: 0px;
+    width: 100vh;
+    font-weight: 700;
+    z-index: 4;
+    height: 100vh;
+  }
+  ul {
+    column-count: 3;
+  }
+  @media screen and (max-width: 1170px) {
+    .logo {
+      width: 81vw;
+    }
+  }
+  @keyframes appear {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+  }
+</style>

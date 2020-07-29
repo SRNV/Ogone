@@ -100,8 +100,11 @@ export default class ContextBuilder extends Utils {
           }
           return "";
         }
+        const nodeHasProps = !!Object.keys(node.attributes).find(n => n.startsWith(":"));
+        const isImported = bundle.components.get(keyComponent)?.imports[node.tagName];
+        const isNodeDynamic = nodeHasProps && !node.hasFlag && !isImported;
         const contextScript =
-          node.hasFlag || !node.tagName && node.nodeType === 1
+          node.hasFlag || !node.tagName && node.nodeType === 1 || isNodeDynamic
             ? `
         Ogone.contexts['{{ context.id }}'] = function(opts) {
             const GET_TEXT = opts.getText;
@@ -109,10 +112,9 @@ export default class ContextBuilder extends Utils {
             const POSITION = opts.position;
             {{ data }}
             {{ modules }}
-            {{ context.array }}
             {{ value }}
             {{ context.if }}
-            {{ context.getLength }}
+            {{ context.getNodeDynamicLength || context.getLength }}
             if (GET_TEXT) {
               try {
                 return eval('('+GET_TEXT+')');
@@ -141,7 +143,10 @@ export default class ContextBuilder extends Utils {
                 ? `${component.uuid}-${node.parentNode.id}`
                 : "",
               result: [...Object.keys(ctx), ...Object.keys(component.data)],
-              array: array ? `const _____a_ = ${array} || [];` : "",
+              getNodeDynamicLength: isNodeDynamic ? `
+              if (GET_LENGTH) {
+                return 1;
+              }` : null,
               getLength: getLength
                 ? getLength({
                   filter: renderConditions(node),

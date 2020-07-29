@@ -105,10 +105,10 @@ export { default as o3 } from 'https://x.nest.land/Ogone@0.18.0-rc.5/mod.ts';
 import { o3 } from './deps.ts';
 
 o3.run({
-  entrypoint: '/components/index.o3',
+  entrypoint: '${entrypoint}',
   port: 3333,
   modules: '/modules',
-  build: Deno.args.includes('--production'),
+  build: Deno.args.includes('--production') ? 'dist' : undefined,
 });`);
   await Deno.writeTextFile(entrypoint, `
 <proto>
@@ -116,14 +116,28 @@ o3.run({
     public message: string = 'Welcome to your first Ogone application.';
 </proto>
 
+<div class="brand">
+  <img class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
+</div>
 <div>
   \${message}
 </div>
 
-<style global lang="sass">
+<style global>
   body {
     color: grey;
     font-family: sans-serif;
+    background: white;
+  }
+</style>
+<style>
+  .brand {
+    width: fit-content;
+    margin: auto;
+  }
+  .logo {
+    width: 970px;
+    height: auto;
   }
 </style>
 `);

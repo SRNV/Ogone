@@ -1,0 +1,16 @@
+use ./brand-component.o3 as 'async-brand-component';
+
+<async-brand-component />
+
+<style global>
+  body {
+    color: grey;
+    font-family: 'Roboto', sans-serif;
+    background: #f1f1f1;
+    margin: 0px;
+  }
+  a {
+    text-decoration: none;
+  }
+</style>
+

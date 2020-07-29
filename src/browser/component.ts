@@ -227,7 +227,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         isRoot: false,
         name: Onode.ogone.name,
         tree: Onode.ogone.tree,
-
         namespace: Onode.ogone.namespace,
         isTemplate: Onode.ogone.isTemplate,
         isImported: Onode.ogone.isImported,
@@ -241,7 +240,10 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         routes: Onode.ogone.routes,
 
         parentNodeKey: Onode.ogone.parentNodeKey,
-        ...(!callingNewComponent ? { component: this } : {
+        ...(!callingNewComponent ? {
+          component: this,
+          nodeProps: Onode.ogone.nodeProps,
+        } : {
           props: Onode.ogone.props,
           dependencies: Onode.ogone.dependencies,
           requirements: Onode.ogone.requirements,

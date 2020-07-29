@@ -181,6 +181,24 @@ const getClassComponent = (
         type: o.isTemplate ? o.isRoot ? "root" : oc.type : "element",
       });
     }
+    setNodeProps(this: BCE & this) {
+      const o = this.ogone, oc = o.component;
+      if (!o || !oc || !o.nodes || !o.nodeProps) return;
+      function r(n: HTMLElement, p: [string, string]) {
+        const vl: string | ({ [k: string]: boolean }) = o.getContext({
+          position: o.position,
+          getText: `(${p[1]})`,
+        });
+        n.setAttribute(p[0], vl);
+        return n.isConnected;
+      }
+      for (let n of o.nodes) {
+        for(let p of o.nodeProps) {
+          oc.react.push(() => r(n as HTMLElement, p));
+          r(n as HTMLElement, p);
+        }
+      }
+    }
     renderingProcess(this: BCE & this) {
       const o = this.ogone, oc = o.component;
       // use the jsx renderer only for templates
@@ -194,6 +212,11 @@ const getClassComponent = (
       // use the previous jsx and push the result into ogone.nodes
       // set the dependencies of the node into the component
       if (this.ogone.originalNode) this.setDeps();
+
+      // set dynamic attributes through o.props
+      if (!o.isTemplate && o.nodeProps) {
+        this.setNodeProps();
+      }
 
       // set the events
       this.setEvents();

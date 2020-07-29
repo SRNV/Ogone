@@ -84,7 +84,7 @@ export default class XMLPragma extends Utils {
       ? this.template(
         `
       (function({{params}}) {
-          let p = pos;
+          let p = pos.slice();
 `,
         {
           params,
@@ -113,7 +113,6 @@ export default class XMLPragma extends Utils {
       `
               {{start}}
               {{nodeSuperCreation}}
-              {{position.slice}}
               {{setAwait}}
               {{setOgone.isOgone}}
               at({{nId}},'${idComponent}', '');
@@ -135,41 +134,38 @@ export default class XMLPragma extends Utils {
         isRemote,
         component,
         subcomp,
-        position: {
-          slice: isOgone ? ` if (p) { p = pos.slice(); p[l] = i; }` : "",
-        },
         setAwait: node.attributes && node.attributes.await
           ? `at({{nId}},'await', '');`
           : "",
         setAttributes: !(nodeIsDynamic && !isRoot && !isImported)
           ? setAttributes
           : "",
-        nodesPragma: nodesPragma.length
-          ? `l++; ${nodesPragma} l--; ${appending}`
+        nodesPragma: nodesPragma.length && !isOgone
+          ? `l++; ${nodesPragma}  l--; ${appending}`
           : "",
         setOgone: {
           isOgone: isOgone
             ? `
-            p = p.slice();
             {{nId}}.setOgone({
-                            isRoot: false,
-                            originalNode: true,
-                            {{setOgone.tagname}}
-                            {{setOgone.tree}}
-                            {{setOgone.positionLevelIndex}}
-                            {{setOgone.inheritedCTX}}
-                            {{setOgone.flags}},
-                            isTemplate: {{ isTemplate }},
-                            isAsync: {{ isAsync }},
-                            isRouter: {{ isRouter }},
-                            isStore: {{ isStore }},
-                            isAsyncNode: {{ isAsyncNode }},
-                            isImported: {{ isImported }},
-                            isRemote: {{ isRemote }},
-                            extends: '{{ setOgone.extends }}',
-                            uuid: '{{ component.uuid }}',
-                            {{setOgone.positionInParentComponent}}
-                          });`
+              isRoot: false,
+              originalNode: true,
+              {{setOgone.tagname}}
+              {{setOgone.tree}}
+              {{setOgone.positionLevelIndex}}
+              {{setOgone.inheritedCTX}}
+              {{setOgone.flags}},
+              isTemplate: {{ isTemplate }},
+              isAsync: {{ isAsync }},
+              isRouter: {{ isRouter }},
+              isStore: {{ isStore }},
+              isAsyncNode: {{ isAsyncNode }},
+              isImported: {{ isImported }},
+              isRemote: {{ isRemote }},
+              extends: '{{ setOgone.extends }}',
+              uuid: '{{ component.uuid }}',
+              {{setOgone.positionInParentComponent}}
+              {{ setOgone.nodeProps }}
+            });`
             : "",
           inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
           flags: `flags: ${flags}`,
@@ -193,6 +189,7 @@ export default class XMLPragma extends Utils {
             }),
             dependencies: ${JSON.stringify(node.dependencies)},`
             : "",
+          nodeProps: props.length && !isTemplate && !isImported && !isRoot ? `nodeProps: (${JSON.stringify(props)}),` : '',
         },
       },
     );
@@ -401,10 +398,6 @@ export default class XMLPragma extends Utils {
               ),
             value: this.template(
               `
-                  if (p) {
-                    p = pos.slice();
-                    p[l] = i;
-                  }
                   {{saveText}}`,
               {
                 nId,
