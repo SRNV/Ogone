@@ -102,7 +102,7 @@ export default class ContextBuilder extends Utils {
         }
         const nodeHasProps = !!Object.keys(node.attributes).find(n => n.startsWith(":"));
         const isImported = bundle.components.get(keyComponent)?.imports[node.tagName];
-        const isNodeDynamic = nodeHasProps && !node.hasFlag && !isImported;
+        const isNodeDynamic = nodeHasProps && !node.attributes['--for'] && !isImported;
         const contextScript =
           node.hasFlag || !node.tagName && node.nodeType === 1 || isNodeDynamic
             ? `

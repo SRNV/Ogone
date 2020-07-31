@@ -25,7 +25,7 @@ export interface NestedOgoneParameters {
     | "router"
     | "async"
     | "controller";
-
+  methodsCandidate?: Function[];
   isTemplate: boolean;
   isAsync: boolean;
   isAsyncNode: boolean;

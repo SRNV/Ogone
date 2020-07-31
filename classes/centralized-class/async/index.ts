@@ -87,13 +87,30 @@ const getClassAsync = (
           } else {
             onode.addEventListener(
               `${o.key}:${onode.ogone.key}:resolve`,
-              (event) => {
+              () => {
                 resolve();
               },
             );
           }
         });
         oc.promises.push(promise);
+      }
+    }
+  }
+  renderComponent() {
+    const o = this.ogone;
+    const filter = (t) => t.component && t.component.type === "component";
+    for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
+      const components = Array.from(node.querySelectorAll("template"))
+        .filter(filter);
+      if (
+        node.isComponent && node.ogone && node.ogone.component.type === "component"
+      ) {
+        components.push(node);
+      }
+      for (let onode of components) {
+        // force rendering of awaiting node
+        onode.forceAsyncRender();
       }
     }
   }
@@ -105,6 +122,9 @@ const getClassAsync = (
     // first render child router component
     this.renderAsyncRouter();
 
+    // render components
+    this.renderComponent();
+
     // then render child async components
     this.renderAsyncComponent();
 
@@ -115,7 +135,7 @@ const getClassAsync = (
       const UnwrappedTextnodeOnAsyncComponentException = new Error(
         `[Ogone] Top level textnode are not supported for Async component placeholder.
           Please wrap this text into an element.
-          textnode data: "$\{txt.data}"`,
+          textnode data: "${txt.data}"`,
       );
       Ogone.error(
         UnwrappedTextnodeOnAsyncComponentException.message,
@@ -124,6 +144,7 @@ const getClassAsync = (
       );
       throw UnwrappedTextnodeOnAsyncComponentException;
     }
+    // async placeholder feature
     if (chs.length) {
       this.replaceWith(...chs);
     } else {
@@ -154,7 +175,7 @@ const getClassAsync = (
           resolve();
         }, 0);
       }).then(() => {
-        const promise = Promise.all(oc.promises)
+        Promise.all(oc.promises)
           .then((p) => {
             // render the element;
             this.render();
@@ -194,27 +215,12 @@ const getClassAsync = (
       oc.async.finally = o.flags.finally;
     }
     if (o.flags && o.flags.defer) {
-      const promise = o.getContext({
+      const promise = oc.parentContext({
         getText: o.flags.defer,
-        position: o.position,
+        position: o.positionInParentComponent,
       });
       oc.promises.push(promise);
     }
-  }
-  forceAsyncRender() {
-    const o = this.ogone;
-    this.setPosition();
-    this.setContext();
-    // this.setHMRContext();
-    if (o.isTemplate && o.component) {
-      this.setProps();
-    }
-    this.setNodes();
-    if (this.ogone.originalNode) this.setDeps();
-    this.setEvents();
-    this.bindStyle();
-    this.bindClass();
-    this.renderAsync(true);
   }
 });
 export default getClassAsync.toString();

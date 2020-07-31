@@ -1,33 +1,70 @@
-use ./github-badges.o3 as 'github-badges';
+use ../atoms/github-badges.o3 as 'github-badges';
+use ../atoms/button.o3 as 'o-btn';
 <proto type="async">
   declare:
+    public visible: boolean = true;
+    public display: boolean = true;
     public message: string = 'Welcome to your first Ogone application.';
     public links: { label: string; href: string }[] = [
       {
+        label: 'Repository',
+        href: 'https://github.com/SRNV/Ogone',
+      },
+      {
         label: 'Introduction',
-        href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md'
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md',
       },
       {
         label: 'Examples',
-        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md'
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md',
       },
       {
-        label: 'Examples',
-        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md'
+        label: 'Learn How to use Ogone',
+        href: 'https://dev.to/srnv/deno-learn-how-to-use-ogone-486c',
+      },
+      {
+        label: 'Ogone\'s JSX',
+        href: 'https://dev.to/srnv/deno-ogone-s-jsx-output-1k8l',
       },
     ];
+  case 'event:animationend:fade-out-bottom':
+    Refs.marquee.classList.add('fade-out');
+  break;
+  case 'event:animationend:fade-out':
+    this.display = false;
+    Ogone.router.go('/ogone');
+  break;
+  case 'click:fade-out:exit':
+    this.visible = false;
+  break;
   default:
+    this.display = true;
     Async.resolve();
 </proto>
 
-<div class="container">
+<div
+  ref="container"
+  --if="display"
+  --event:animationend:fade-out-bottom
+  --class="{
+    container: true,
+    ['fade-in-bottom']: visible,
+    ['fade-out-bottom']: !visible, }">
   <div class="brand">
-    <img class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
+    <img
+    --for="[1,2] as (e)"
+      --await class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
   </div>
-  <div class="brand__message">
+  <div class="brand__message fade-in-down">
     ${message}
   </div>
+  <p align="center">
+    <o-btn
+      --click:fade-out:exit
+      :text="'Getting Started'"/>
+  </p>
   <github-badges />
+
   <div class="links">
     <ul>
       <li --for="links as (item)">
@@ -36,14 +73,21 @@ use ./github-badges.o3 as 'github-badges';
     </ul>
   </div>
 </div>
-<marquee truespeed scrolldelay="23" class="brand_big">Ogone - Web Components Compiler for Deno</marquee>
+<marquee
+  --if="display"
+  --event:animationend:fade-out
+  ref="marquee"
+  truespeed
+  scrolldelay="23"
+  class="brand_big">
+  Ogone - Web Components Compiler for Deno
+</marquee>
 
 <!-- style is by default scoped, use the attribute global if you want to make the style general -->
-<style>
+<style --keyframes="[
+  get('fade-in-down', { time: 0.5, style: 'ease-in' }),
+  ]">
   .container {
-    animation: appear;
-    animation-duration: 3s;
-    animation-iteration-count: 1;
     transition: 0.5s ease;
     filter: drop-shadow(-10px 10px 10px #00000055);
     background: white;
@@ -99,16 +143,6 @@ use ./github-badges.o3 as 'github-badges';
   @media screen and (max-width: 1170px) {
     .logo {
       width: 81vw;
-    }
-  }
-  @keyframes appear {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
     }
   }
 </style>

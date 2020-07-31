@@ -43,10 +43,8 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     if (this.type === "store") {
       this.initStore();
     }
-    // WIP
     Object.seal(this.data);
     this.runtime(0, params, event);
-    this.state = 1; // component is rendered
   };
   this.update = (dependency?: string) => {
     if (!this.activated) return;
@@ -205,14 +203,13 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     // Onode is a web component
     // based on the user token
     // this web component is a custom Element
-    // not an extension of an element cause the attr "is" is not dynamic
     // at the first call of this function Onode is not "rendered" (replaced by the required element)
     let { callingNewComponent, length: dataLength } = opts;
     typeof dataLength === "object" ? dataLength = 1 : [];
     const context = Onode.context;
     // no need to render if it's the same
     if (context.list.length === dataLength) return;
-    // first we add missing nodes, we use cloneNode to generate the web-component
+    // first we add missing nodes
     for (let i = context.list.length, a = dataLength; i < a; i++) {
       let node;
       // @ts-ignore
@@ -255,14 +252,23 @@ function OComponent(this: OnodeComponent): OnodeComponent {
           levelInParentComponent: Onode.ogone.levelInParentComponent,
         }),
       });
+      let previous = node;
       if (i === 0) {
         context.placeholder.replaceWith(node);
       } else {
         let lastEl = context.list[i - 1];
         if (lastEl && lastEl.isConnected) {
           lastEl.insertElement("afterend", node);
-        } else if (Onode && Onode.parentNode) {
+          // @ts-ignore
+        } else if (Onode && Onode.parentNode && !Onode.renderedList) {
           Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
+          // @ts-ignore
+          Onode.renderedList = true;
+          previous = node;
+          // @ts-ignore
+        } else if (Onode && Onode.parentNode && Onode.renderedList) {
+          Onode.parentNode.insertBefore(node, previous.nextElementSibling);
+          previous = node;
         }
       }
       context.list.push(node);

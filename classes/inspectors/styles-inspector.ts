@@ -9,10 +9,32 @@ import {
 import { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "../utils/index.ts";
+import keyframes from "../utils/keyframes.ts";
 
 export default class StyleInspector extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
-
+  private readKeyframes(keyframesEvaluated: string) {
+    const fn = new Function('get', `return (${keyframesEvaluated});`)
+    const get = (name: string, opts: any) => {
+      switch(true) {
+        case typeof name !== 'string' :
+          this.error('using keyframes fade: argument one has to be a string.')
+        break;
+      }
+      return `
+        .${name} {
+          animation-name: ${name};
+          animation-duration: ${opts.time || 1}s;
+          animation-iteration-count: ${opts.iteration || 1};
+          animation-fill-mode: ${opts.iteration || 'forwards'};
+          animation-timing-function: ${opts.style || 'linear'};
+        }
+        ${keyframes[name]}
+      `;
+    };
+    const k = fn(get);
+    return Array.isArray(k) ? k.join('\n') : k;
+  }
   async read(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
     for await (const [, component] of entries) {
@@ -91,7 +113,6 @@ export default class StyleInspector extends Utils {
                 );
             }
           }
-          Number.isNaN(12);
           switch (element.attributes.lang) {
             case "scss":
             case "sass":
@@ -108,6 +129,9 @@ export default class StyleInspector extends Utils {
             default:
               compiledCss = styleContent as string;
               break;
+          }
+          if (element.attributes['--keyframes']) {
+            compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
           }
           const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid) ;
           component.style.push(css);

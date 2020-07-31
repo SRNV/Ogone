@@ -1,0 +1,105 @@
+use ../atoms/li-menu.o3 as 'async-li-menu';
+
+<proto type="async">
+def:
+  links:
+    - label: Project Architecture
+      route: /ogone/project-architecture
+      children:
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+    - label: Project Architecture
+      route: /ogone/project-architecture
+      children:
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+    - label: Project Architecture
+      route: /ogone/project-architecture
+      children:
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+        - label: Test
+          route: /ogone/project-architecture/test
+
+default:
+  Async.resolve();
+</proto>
+
+<div class="container fade-in-slide-in-left">
+  <div class="header">
+    <img --await class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
+  </div>
+  <hr />
+  <ul>
+    <async-li-menu
+      --for="links as (item, i)"
+      --defer="new Promise((resolve) => setTimeout(resolve, 500 * (i+1)))"
+      :item="item">
+    </async-li-menu>
+  </ul>
+</div>
+
+<style>
+hr {
+  opacity: 0.4;
+  border-width: thick;
+}
+.logo {
+  width: 100%;
+}
+.container {
+  filter: drop-shadow(-6px 4px 6px black);
+  background: linear-gradient(0deg, #f9f9f9, white);
+  border-right: 1px solid #e8e8e8;
+  height: 100%;
+  z-index: 400;
+  position: relative;
+}
+.fade-in-slide-in-left {
+  animation-name: fade-in-slide-in-left;
+  animation-duration: 1s;
+  animation-iteration-count: 1;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+}
+@keyframes fade-in-slide-in-left {
+  0% {
+    position: relative;
+    left: -500px;
+    opacity: 0;
+  }
+  100% {
+    position: relative;
+    left: 0px;
+    opacity: 1;
+  }
+}
+</style>

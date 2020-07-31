@@ -264,6 +264,18 @@ const getClassComponent = (
       } else {
         o.nodes = [o.render(oc, o.position, o.index, o.level)];
       }
+      if (o.methodsCandidate && o.methodsCandidate.length) {
+        o.methodsCandidate.forEach((f, i, arr) => {
+          for (let n of o.nodes) {
+            if (n.ogone) {
+              n.saveUntilRender(f);
+            } else {
+              f(n);
+            }
+          }
+          delete arr[i];
+        });
+      }
       // set parentKey to template
       // ogone: {{ nodes.devtool.parentKey }}
     }
@@ -296,6 +308,7 @@ const getClassComponent = (
       function rm(n: any) {
         if ((n as typeof this).ogone) {
           (n as typeof this).destroy();
+          (n as typeof this).context.placeholder.remove();
         } else {
           (n as HTMLElement).remove();
         }
@@ -322,6 +335,7 @@ const getClassComponent = (
         oc.activated = false;
       }
       // ogone: {{ destroy.devTool }}
+      this.context.placeholder.remove();
       this.remove();
     }
     render(this: BCE & this) {
@@ -442,6 +456,9 @@ const getClassComponent = (
 
         // set state to pass it through the history.state
         historyState: null,
+
+        // usefull to delay actions on nodes
+        methodsCandidate: [],
         // overwrite properties
         ...def,
       };
@@ -465,6 +482,11 @@ const getClassComponent = (
       }
       this.construct();
     }
+
+    saveUntilRender(this: BCE & this, f: Function): void {
+      this.ogone.methodsCandidate.push(f);
+    }
+
     setEvents(this: BCE & this) {
       const o = this.ogone, oc = o.component;
       if (!o.flags || !o.getContext || !oc || !o.nodes) return;
@@ -477,40 +499,83 @@ const getClassComponent = (
           if (flag.type === "wheel") {
             /* for wheel events */
             // @ts-ignore
-            node.hasWheel = true;
-            (node as HTMLElement).addEventListener(flag.type, (ev) => {
-              const foundWheel = ev.path.find((n: HTMLElement) =>
-                // @ts-ignore
-                n && n.hasWheel
-              );
-              if (foundWheel && !foundWheel.isSameNode(node)) return;
-              if (o.getContext && c) {
-                const filter = o.getContext({
-                  getText: `${flag.filter}`,
-                  position,
-                }) as string;
-                const ctx = o.getContext({
-                  position,
+            if (node.ogone) {
+              // check if it's an ogone element
+              // if it's one
+              // node.ogone.nodes can be empty at this moment
+              // so we need to save the following function and remove it
+              node.saveUntilRender((nr: HTMLElement) => {
+                nr.hasWheel = true;
+                nr.addEventListener(flag.type, (ev) => {
+                  const foundWheel = ev.path.find((n: HTMLElement) =>
+                    // @ts-ignore
+                    n && n.hasWheel
+                  );
+                  if (foundWheel && !foundWheel.isSameNode(node)) return;
+                  if (o.getContext && c) {
+                    const filter = o.getContext({
+                      getText: `${flag.filter}`,
+                      position,
+                    }) as string;
+                    const ctx = o.getContext({
+                      position,
+                    });
+                    switch (true) {
+                      case filter === "right" && ev.wheelDeltaX < 0:
+                        c.runtime(flag.case, ctx, ev);
+                        break;
+                      case filter === "left" && ev.wheelDeltaX > 0:
+                        c.runtime(flag.case, ctx, ev);
+                        break;
+                      case filter === "up" && ev.wheelDeltaY > 0:
+                        c.runtime(flag.case, ctx, ev);
+                        break;
+                      case filter === "down" && ev.wheelDeltaY < 0:
+                        c.runtime(flag.case, ctx, ev);
+                        break;
+                      case filter === null:
+                        c.runtime(flag.case, ctx, ev);
+                        break;
+                    }
+                  }
                 });
-                switch (true) {
-                  case filter === "right" && ev.wheelDeltaX < 0:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case filter === "left" && ev.wheelDeltaX > 0:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case filter === "up" && ev.wheelDeltaY > 0:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case filter === "down" && ev.wheelDeltaY < 0:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case filter === null:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
+              });
+            } else {
+              node.hasWheel = true;
+              (node as HTMLElement).addEventListener(flag.type, (ev) => {
+                const foundWheel = ev.path.find((n: HTMLElement) =>
+                  // @ts-ignore
+                  n && n.hasWheel
+                );
+                if (foundWheel && !foundWheel.isSameNode(node)) return;
+                if (o.getContext && c) {
+                  const filter = o.getContext({
+                    getText: `${flag.filter}`,
+                    position,
+                  }) as string;
+                  const ctx = o.getContext({
+                    position,
+                  });
+                  switch (true) {
+                    case filter === "right" && ev.wheelDeltaX < 0:
+                      c.runtime(flag.case, ctx, ev);
+                      break;
+                    case filter === "left" && ev.wheelDeltaX > 0:
+                      c.runtime(flag.case, ctx, ev);
+                      break;
+                    case filter === "up" && ev.wheelDeltaY > 0:
+                      c.runtime(flag.case, ctx, ev);
+                      break;
+                    case filter === "down" && ev.wheelDeltaY < 0:
+                      c.runtime(flag.case, ctx, ev);
+                      break;
+                    case filter === null:
+                      c.runtime(flag.case, ctx, ev);
+                      break;
+                  }
                 }
-              }
-            });
+              });
+            }
           } else if (flag.type.startsWith("key") && c) {
             /* all keyboard event */ document.addEventListener(
               flag.type,
@@ -542,7 +607,23 @@ const getClassComponent = (
               },
             );
           } else if (flag.name === "router-go" && flag.eval) {
-            /* special for router-go flag */ (node as HTMLElement)
+            /* special for router-go flag */
+            if (node.ogone) {
+              node.saveUntilRender((nr: HTMLElement) => {
+                nr.addEventListener("click", (ev: MouseEvent) => {
+                  if (Ogone.router) {
+                    Ogone.router.go(
+                      o.getContext({
+                        getText: `${flag.eval}`,
+                        position,
+                      }),
+                      history.state,
+                    );
+                  }
+                });
+              });
+            } else {
+              (node as HTMLElement)
               .addEventListener("click", (ev: MouseEvent) => {
                 if (Ogone.router) {
                   Ogone.router.go(
@@ -554,14 +635,18 @@ const getClassComponent = (
                   );
                 }
               });
+            }
             /*
         } else if (flag.name === 'router-dev-tool' && flag.eval)  { // special for router-dev-tool flag
           node.addEventListener("click", (ev) => {
             Ogone.router.openDevTool();
           });
         */
-          } /* DOM L3 */ else {
-            (node as HTMLElement).addEventListener(flag.type, (ev) => {
+      } else if (flag.name === "event" && flag.type.startsWith('animation')) {
+        if (node.ogone) {
+          node.saveUntilRender((nr: HTMLElement) => {
+            nr.addEventListener(flag.type, (ev) => {
+              if (flag.eval !== ev.animationName) return;
               const ctx = o.getContext({
                 position,
               });
@@ -569,6 +654,40 @@ const getClassComponent = (
                 c.runtime(flag.case, ctx, ev);
               }
             });
+          })
+        } else {
+          (node as HTMLElement).addEventListener(flag.type, (ev) => {
+            if (flag.eval !== ev.animationName) return;
+            const ctx = o.getContext({
+              position,
+            });
+            if (c) {
+              c.runtime(flag.case, ctx, ev);
+            }
+          });
+        }
+      } /* DOM L3 */ else {
+            if (node.ogone) {
+              node.saveUntilRender((nr: HTMLElement) => {
+                nr.addEventListener(flag.type, (ev) => {
+                  const ctx = o.getContext({
+                    position,
+                  });
+                  if (c) {
+                    c.runtime(flag.case, ctx, ev);
+                  }
+                });
+              })
+            } else {
+              (node as HTMLElement).addEventListener(flag.type, (ev) => {
+                const ctx = o.getContext({
+                  position,
+                });
+                if (c) {
+                  c.runtime(flag.case, ctx, ev);
+                }
+              });
+            }
           }
         }
       }

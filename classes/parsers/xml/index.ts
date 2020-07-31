@@ -159,29 +159,22 @@ export default class XMLParser extends XMLPragma {
         const { expression, rawAttrs } = value;
         // we need to pad for the regexp
         // critical modifications here
-        let rawAttrsPadded = `${rawAttrs} `;
+        let attrs = `${rawAttrs}`.split(/[\s\n\r]/).filter(s => s.trim().length);
         // get rawAttrs
-        const attrRE = /([^§\s]*)+(§{2}\d*attr§§)/gi;
-        const attrbooleanRE = /(?<!(§{2}))(([^§\s]*)+)\s/gi;
-        const matches = rawAttrsPadded.match(attrRE);
-        const matchesBoolean = rawAttrsPadded.match(attrbooleanRE);
-        matches?.forEach((attr) => {
-          const attrIDRE = /([^§\s]*)+(§{2}\d*attr§§)/;
-          const m = attr.match(attrIDRE);
-          if (m) {
-            let [input, attributeName, id] = m;
-            const { value } = expressions[id];
-            // @ts-ignore
-            expressions[key].attributes[attributeName] = value;
-          }
-        });
-        matchesBoolean?.filter((attr) =>
-          // @ts-ignore
-          !expressions[key].attributes[attr.trim()] && attr.trim().length
-        )
-          .forEach((attr) => {
-            // @ts-ignore
-            expressions[key].attributes[attr.trim()] = true;
+          attrs.forEach((attr) => {
+            const attrIDRE = /([^\s]*)+(§{2}\d*attr§§)/;
+            if (attr.endsWith('attr§§')) {
+              const m = attr.match(attrIDRE);
+              if (m && expressions[m[2]]) {
+                let [input, attributeName, id] = m;
+                const { value } = expressions[id];
+                // @ts-ignore
+                expressions[key].attributes[attributeName] = value;
+              }
+            } else if (expressions[key] && !expressions[key].attributes[attr.trim()]) {
+              // @ts-ignore
+              expressions[key].attributes[attr.trim()] = true;
+            }
           });
       });
 
@@ -512,6 +505,7 @@ export default class XMLParser extends XMLPragma {
   }
 
   public parse(html: string): XMLNodeDescription | null {
+    const isTarget = html.indexOf('--event:animationend:') > -1;
     let expressions: DOMParserExpressions = {};
     let iterator: DOMParserIterator = {
       value: 0,

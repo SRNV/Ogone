@@ -1,0 +1,14 @@
+use ../pages/main.o3 as 'main-page';
+use ../pages/brand-component.o3 as 'brand-component';
+
+
+<proto type="router" namespace="global">
+def:
+  - path: /ogone
+    name: Ogone - xxxxx
+    component: main-page
+
+  - path: 404
+    name: Welcome to your first Ogone application
+    component: brand-component
+</proto>

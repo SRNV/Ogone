@@ -88,7 +88,7 @@ export const members: Analysis[] = [
       },
       {
         reg: /\bOgone.router\b/,
-        value: `export const router: RouterBrowser | null;`,
+        value: `export const router: RouterBrowser;`,
       },
       {
         reg: /\bOgone.DevTool\b/,
@@ -106,7 +106,7 @@ export const members: Analysis[] = [
     value: "declare function OComponent(): any;",
   },
   {
-    reg: /\bRouterBrowser\b/,
+    reg: /\bRouterBrowser|Ogone.router\b/,
     start: "declare interface RouterBrowser {",
     children: [
       {
@@ -119,7 +119,7 @@ export const members: Analysis[] = [
       },
       {
         reg: /\b(Ogone.router.go)\b/,
-        value: "go: (url: string, state: any) => void;",
+        value: "go: (url: string, state?: any) => void;",
       },
       {
         reg: /\b(Ogone.router.openDevTool)\b/,

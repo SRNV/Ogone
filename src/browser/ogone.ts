@@ -32,6 +32,7 @@ function _OGONE_BROWSER_CONTEXT() {
           width: "100vw",
           height: "100vh",
           position: "fixed",
+          top: "0px",
           overflowY: "auto",
           justifyContent: "center",
           display: "grid",

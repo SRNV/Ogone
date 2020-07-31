@@ -126,6 +126,10 @@ export default class UseStatementsInpector extends Utils {
                 parent: p,
               },
             );
+          } else {
+            this.error(
+              `component not found. input: ${path}`,
+            );
           }
         } else {
           this.error(

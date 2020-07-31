@@ -81,8 +81,11 @@ const getClassRouter = (klass) =>
         // like undefined data
         co.setOgone({
           isTemplate: true,
+          isRouter: false,
+          isStore: false,
           extends: "-nt",
           uuid: rendered.uuid,
+          tree: o.tree,
           params: rendered.params || null,
           props: o.props,
           parentComponent: o.parentComponent,
@@ -123,17 +126,26 @@ const getClassRouter = (klass) =>
         o.replacer = o.actualTemplate;
       } else if (o.routeChanged) {
         const replacer = o.replacer && o.replacer[0].ogone
-          ? [[o.replacer[0].context.placeholder], o.replacer[0].ogone.nodes]
-            .find((n) => n[0] && n[0].isConnected)
+          ? [o.replacer[0].ogone.nodes]
+            .find((n) => n[0] && n[0].isConnected || n[0] && n[0].ogone && n[0].isRecursiveConnected)
           : o.replacer;
         if (!replacer) return;
-        replacer.slice(1, replacer.length).forEach((n) => n.remove());
+        replacer.forEach((n, i, arr) => {
+          if (i > 0) {
+            if (n.ogone) {
+              n.destroy();
+            } else {
+              n.remove();
+            }
+            arr.splice(i, 1);
+          }
+        });
         for (let n of replacer) {
           n.isConnected ? n.replaceWith(...o.actualTemplate) : "";
         }
-        o.replacer[0] && o.replacer[0].isComponent
+        !!o.replacer[0] && !!o.replacer[0].isComponent
           ? o.replacer[0].destroy()
-          : 0;
+          : o.replacer[0].remove();
       }
       o.replacer = o.actualTemplate;
       oc.runtime(o.actualRouteName || o.locationPath, history.state);

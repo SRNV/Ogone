@@ -115,6 +115,7 @@ export default class XMLPragma extends Utils {
               {{nodeSuperCreation}}
               {{setAwait}}
               {{setOgone.isOgone}}
+              {{setNodeAwait}}
               at({{nId}},'${idComponent}', '');
               {{setAttributes}}
               {{nodesPragma}}
@@ -137,10 +138,22 @@ export default class XMLPragma extends Utils {
         setAwait: node.attributes && node.attributes.await
           ? `at({{nId}},'await', '');`
           : "",
+        // force the component to wait for resolution
+        setNodeAwait: isOgone && node.attributes && node.attributes.nodeAwait && !isRoot
+          ? `ctx.promises.push(new Promise((rs) => {
+            ${/*force render of the customElement*/ ''}
+            {{nId}}.connectedCallback();
+            for(let n of {{nId}}.ogone.nodes) {
+              n.addEventListener('load', () => {
+                rs();
+              });
+            }
+          }));`
+          : "",
         setAttributes: !(nodeIsDynamic && !isRoot && !isImported)
           ? setAttributes
           : "",
-        nodesPragma: nodesPragma.length && !isOgone
+        nodesPragma: nodesPragma.length
           ? `l++; ${nodesPragma}  l--; ${appending}`
           : "",
         setOgone: {
@@ -367,12 +380,15 @@ export default class XMLPragma extends Utils {
             ? `
                   const {{getContextConstant}} = Ogone.contexts['{{contextId}}'] ? Ogone.contexts['{{contextId}}'].bind(ctx.data) : null; /* getContext function */
                   const {{textConstant}} = '{{evaluatedString}}';
+                  const p{{textConstant}} = p.slice();
+                  /*removes txt position and root position*/
+                  p{{textConstant}}[l-2]=i;
                   ctx.texts.push((k) => {
                     if ({{ dependencies }} typeof k === 'string' && {{textConstant}}.indexOf(k) < 0) return true;
                     if (!{{getContextConstant}}) return false;
                     const v = {{getContextConstant}}({
                       getText: {{textConstant}},
-                      position: p,
+                      position: p{{textConstant}},
                     });
                     if ({{nId}}.data !== v) {{nId}}.data = v.length ? v : ' ';
                     return true
@@ -494,6 +510,17 @@ export default class XMLPragma extends Utils {
               eval: attributes[key],
             });
             break;
+          case key.startsWith("--event:") && key.split(':').length === 3:
+            const name = key.slice(2);
+            const tokens = key.split(':');
+            result.events.push({
+              name: "event",
+              type: tokens[1],
+              case: name,
+              eval: tokens[2],
+            });
+            node.hasFlag = true;
+            break;
           case key === "--class":
             result.class = `${attributes[key]}`;
             node.hasFlag = true;
@@ -515,9 +542,11 @@ export default class XMLPragma extends Utils {
             node.hasFlag = true;
             break;
           case key === "--await":
-            result.await = attributes[key] === true ? "" : `${attributes[key]}`;
+            result.await = attributes[key] === true ? true : `${attributes[key]}`;
             if (isImported) {
               node.attributes.await = true;
+            } else if (!node.attributes.nodeAwait) {
+              node.attributes.nodeAwait = true;
             }
             node.hasFlag = true;
             break;
@@ -525,15 +554,15 @@ export default class XMLPragma extends Utils {
             result.defer = `${attributes[key]}`;
             node.hasFlag = true;
             break;
-          case key.startsWith("--then"):
+          case key.startsWith("--then:"):
             result.then = key.slice(2);
             node.hasFlag = true;
             break;
-          case key.startsWith("--catch"):
+          case key.startsWith("--catch:"):
             result.catch = key.slice(2);
             node.hasFlag = true;
             break;
-          case key.startsWith("--finally"):
+          case key.startsWith("--finally:"):
             result.finally = key.slice(2);
             node.hasFlag = true;
             break;
