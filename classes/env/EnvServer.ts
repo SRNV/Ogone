@@ -77,12 +77,8 @@ export default class EnvServer extends Env {
             ]),
           });
           break;
-        case req.url.endsWith('.ico'):
-          break;
         default:
-          const app = this.application;
-          console.warn(app.length);
-          req.respond({ body: app });
+          req.respond({ body: this.application });
           break;
       }
     }

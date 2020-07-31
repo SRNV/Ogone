@@ -384,25 +384,13 @@ export default class XMLPragma extends Utils {
                   /*removes txt position and root position*/
                   p{{textConstant}}[l-2]=i;
                   ctx.texts.push((k) => {
-                    console.warn('1');
-                    if ({{ dependencies }} typeof k === 'string' && {{textConstant}}.indexOf(k) < 0) {
-                      return true;
-                    }
-                    console.warn('2', '{{contextId}}', Ogone.contexts);
-                    if (!{{getContextConstant}}) {
-                      return false;
-                    }
-                    console.warn('3');
+                    if ({{ dependencies }} typeof k === 'string' && {{textConstant}}.indexOf(k) < 0) return true;
+                    if (!{{getContextConstant}}) return false;
                     const v = {{getContextConstant}}({
                       getText: {{textConstant}},
                       position: p{{textConstant}},
                     });
-                    console.warn('4');
-                    if ({{nId}}.data !== v) {
-                      console.warn('5');
-                      {{nId}}.data = v.length ? v : ' ';
-                    }
-                    console.warn('6');
+                    if ({{nId}}.data !== v) {{nId}}.data = v.length ? v : ' ';
                     return true
                   });
                 `
@@ -422,7 +410,7 @@ export default class XMLPragma extends Utils {
             // const ${nId} = new Text('${isEvaluated ? " " : node.rawText}');
             getNodeCreations: (idList: string[][]) =>
               idList.push(
-                [nId, `new Text('${isEvaluated ? "aaa " : node.rawText}')`],
+                [nId, `new Text('${isEvaluated ? " " : node.rawText}')`],
               ),
             value: this.template(
               `
