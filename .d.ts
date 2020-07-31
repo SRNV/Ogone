@@ -88,6 +88,9 @@ export interface Bundle {
   contexts: string[];
   customElements: string[];
   components: Map<string, Component>;
+  mapRender: Map<string, any>;
+  mapClasses: Map<string, any>;
+  mapContexts: Map<string, any>;
   repository: { [k: string]: { [s: string]: string } };
   types: {
     store: boolean;

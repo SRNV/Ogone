@@ -1,7 +1,6 @@
 import { Bundle, Component } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
 
-const t = new Map();
 export default class ComponentCompiler extends Utils {
   private getControllers(
     bundle: Bundle,
@@ -23,6 +22,7 @@ export default class ComponentCompiler extends Utils {
     return controllers;
   }
   public async read(bundle: Bundle, component: Component): Promise<void> {
+    const { mapRender } = bundle;
     if (component.data instanceof Object) {
       const { runtime } = component.scripts;
       const { modules } = component;
@@ -161,8 +161,8 @@ export default class ComponentCompiler extends Utils {
         hasStore: !!component.hasStore ? store : "",
       };
       result = this.template(result, d);
-      if (t.has(result)) {
-        const item = t.get(result);
+      if (mapRender.has(result)) {
+        const item = mapRender.get(result);
         result = this.template(
           `Ogone.components['{{ component.uuid }}'] = Ogone.components['{{ item.id }}'];`,
           {
@@ -172,7 +172,7 @@ export default class ComponentCompiler extends Utils {
         );
         bundle.datas.push(this.template(result, d));
       } else {
-        t.set(result, {
+        mapRender.set(result, {
           id: component.uuid,
         });
         bundle.datas.push(

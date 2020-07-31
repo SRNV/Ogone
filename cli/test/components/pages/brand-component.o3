@@ -85,7 +85,7 @@ use ../atoms/button.o3 as 'o-btn';
 
 <!-- style is by default scoped, use the attribute global if you want to make the style general -->
 <style --keyframes="[
-  get('fade-in-down', { time: 0.5, style: 'ease-in' }),
+  get('fade-in-down', { time: 2, style: 'ease-in' }),
   ]">
   .container {
     transition: 0.5s ease;

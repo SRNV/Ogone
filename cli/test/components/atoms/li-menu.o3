@@ -29,7 +29,7 @@ li {
   cursor: pointer;
 }
 li:hover {
-  color: _ARE;
+  color: cadetblue;
 }
 ul {
   margin-left: 5px;

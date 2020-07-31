@@ -104,7 +104,7 @@ export default class Env extends Constructor {
           })
         }
         ${this.bundle.datas.join("\n")}
-        ${this.bundle.contexts.reverse().join("\n")}
+        ${this.bundle.contexts.slice().reverse().join("\n")}
         ${this.bundle.render.join("\n")}
         ${/*this.bundle.classes.reverse().join("\n")*/ ""}
         {{ extension }}

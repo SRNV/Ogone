@@ -1,7 +1,6 @@
 import { Bundle, XMLNodeDescription } from "../../.d.ts";
 import WebComponent from "../components/index.ts";
 
-const t = new Map();
 export default class Renderer extends WebComponent {
   async read(
     bundle: Bundle,
@@ -9,6 +8,7 @@ export default class Renderer extends WebComponent {
     node: XMLNodeDescription,
   ): Promise<void> {
     const component = bundle.components.get(keyComponent);
+    const { mapClasses } = bundle;
     if (component) {
       const isImported: string = component.imports[node.tagName as string];
       const subcomp = bundle.components.get(isImported);
@@ -18,8 +18,8 @@ export default class Renderer extends WebComponent {
           ? `${component.uuid}-nt`
           : `${component.uuid}-${node.id}`;
         const elementExtension = this.render(bundle, component, node);
-        if (t.has(elementExtension)) {
-          const item = t.get(elementExtension);
+        if (mapClasses.has(elementExtension)) {
+          const item = mapClasses.get(elementExtension);
           bundle.classes.push(
             this.template(
               `Ogone.classes['{{ classId }}'] = Ogone.classes['{{ classIdOrigin }}'];`,
@@ -30,7 +30,7 @@ export default class Renderer extends WebComponent {
             ),
           );
         } else {
-          t.set(elementExtension, {
+          mapClasses.set(elementExtension, {
             id,
           });
           bundle.classes.push(
