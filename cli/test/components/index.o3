@@ -66,3 +66,27 @@ use ./routers/main.o3 as 'router-main';
     animation-timing-function: linear;
   }
 </style>
+<style name="highlighter" global>
+span.pl-s1 {
+  color: #ffffff;
+}
+span.pl-en {
+  color: #afafaf;
+}
+span.pl-s {
+  color: #90eed9;
+}
+span.pl-k {
+  color: #a191f5;
+}
+span.pl-smi {
+  color: #f9cb76;
+}
+.highlight {
+  background: #383838;
+  padding: 29px;
+  box-shadow: inset -3px 12px 4px #00000089;
+  margin: auto;
+  word-break: break-word;
+}
+</style>

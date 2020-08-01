@@ -1,14 +1,20 @@
 use ../pages/main.o3 as 'main-page';
 use ../pages/brand-component.o3 as 'brand-component';
+use ../stores/doc.store.o3 as 'store-doc-component';
 
-
+<store-doc-component namespace="pages"/>
 <proto type="router" namespace="global">
 def:
   - path: /ogone
-    name: Ogone - xxxxx
+    name: main
     component: main-page
 
   - path: 404
-    name: Welcome to your first Ogone application
+    name: brand
     component: brand-component
+case 'router:main':
+  Store.dispatch('pages/getPage', {
+    route: 'main',
+  })
+break;
 </proto>

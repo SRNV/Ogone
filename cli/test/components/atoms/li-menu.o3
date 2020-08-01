@@ -32,6 +32,6 @@ li:hover {
   color: cadetblue;
 }
 ul {
-  margin-left: 5px;
+  padding-left: 15px;
 }
 </style>

@@ -119,6 +119,7 @@ export default class XMLPragma extends Utils {
               at({{nId}},'${idComponent}', '');
               {{setAttributes}}
               {{nodesPragma}}
+              {{ storeRender }}
               {{end}}`,
       {
         nId,
@@ -153,6 +154,7 @@ export default class XMLPragma extends Utils {
         setAttributes: !(nodeIsDynamic && !isRoot && !isImported)
           ? setAttributes
           : "",
+        storeRender: !!isImported && !!subcomp && subcomp.type === "store" ? '{{nId}}.connectedCallback();': '',
         nodesPragma: nodesPragma.length
           ? `l++; ${nodesPragma}  l--; ${appending}`
           : "",

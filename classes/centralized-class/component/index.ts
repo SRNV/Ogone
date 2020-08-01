@@ -363,7 +363,8 @@ const getClassComponent = (
           oc.startLifecycle({
             router: {
               params: o.params,
-              state: o.historyState,
+              state: history.state,
+              path: location.pathname,
             },
           });
         }

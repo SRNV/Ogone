@@ -141,15 +141,19 @@ export const members: Analysis[] = [
   },
   {
     reg: /\bStore\b/,
-    start: "declare namespace Store {",
+    start: "declare abstract class Store {",
     children: [
       {
         reg: /\bdispatch\b/,
-        value: "export function dispatch(ns: string, ctx?: any): any;",
+        value: "public static dispatch(ns: string, ctx?: any): any",
       },
       {
         reg: /\bcommit\b/,
-        value: "export function commit(ns: string, ctx?: any): any;",
+        value: "public static commit(ns: string, ctx?: any): any;",
+      },
+      {
+        reg: /\bget\b/,
+        value: "public static get(ns: string): any;",
       },
     ],
     end: "}",

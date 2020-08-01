@@ -148,7 +148,8 @@ const getClassRouter = (klass) =>
           : o.replacer[0].remove();
       }
       o.replacer = o.actualTemplate;
-      oc.runtime(o.actualRouteName || o.locationPath, history.state);
+      // run case router:xxx on the router component
+      oc.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
     }
   };
 export default getClassRouter.toString();
