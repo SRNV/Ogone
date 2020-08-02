@@ -1,53 +1,12 @@
 use ../atoms/li-menu.o3 as 'async-li-menu';
 
 <proto type="async">
-def:
-  links:
-    - label: Project Architecture
-      route: /ogone/project-architecture
-      children:
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-    - label: Project Architecture
-      route: /ogone/project-architecture
-      children:
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-    - label: Project Architecture
-      route: /ogone/project-architecture
-      children:
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
-        - label: Test
-          route: /ogone/project-architecture/test
+declare:
+  public readonly links: ({label: string; route: string; children: any[] })[] = [
+    { label: 'Ogone', route: '/ogone', children: [
+      { label: 'Examples', route: '/ogone/examples'},
+    ]},
+  ];
 
 default:
   Async.resolve();

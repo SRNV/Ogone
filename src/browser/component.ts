@@ -88,18 +88,19 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         namespace === this.namespace &&
         this.data &&
         this.parent &&
-        this.parent.data &&
-        key in this.parent.data
+        this.parent.data
       ) {
         if (!overwrite) {
           this.data[key] = Ogone.stores[this.namespace][key];
         } else {
           Ogone.stores[this.namespace][key] = this.data[key];
         }
-        this.parent.data[key] = this.data[key];
-        this.parent.update(key);
+        if (this.parent.data[key] !== this.data[key]) {
+          this.parent.data[key] = this.data[key];
+          this.parent.update(key);
+        }
       }
-      return true;
+      return this.activated;
     }]);
   };
   this.updateStore = (dependency: string) => {

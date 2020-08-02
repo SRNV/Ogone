@@ -1,6 +1,16 @@
 use ./nav.o3 as 'nav-component';
+use ../stores/doc.store.o3 as 'store-doc-component';
 
-<div class="container slide-in-right">
+<store-doc-component namespace="pages"/>
+<proto>
+  declare:
+    public pageRender: string = '';
+    public page: string = '';
+  case 'update:page':
+    Refs.renderer.insertAdjacentHTML('beforeend', this.page);
+  break;
+</proto>
+<div ref="renderer" class="content-component container slide-in-right">
 </div>
 <div class="nav">
   <nav-component />
@@ -9,9 +19,11 @@ use ./nav.o3 as 'nav-component';
 .container {
   background: #ffffff;
   border-right: 1px solid #e8e8e8;
-  height: 100%;
+  height: fit-content;
   z-index: 300;
   position: relative;
+  padding-bottom: 30px;
+  padding-top: 30px;
 }
 .slide-in-right {
   animation-name: slide-in-right;
@@ -29,5 +41,10 @@ use ./nav.o3 as 'nav-component';
     position: relative;
     right: 0px;
   }
+}
+</style>
+<style global>
+.content-component > *:not(.highlight) {
+  margin-left: 30px;
 }
 </style>
