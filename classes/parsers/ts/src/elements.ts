@@ -472,6 +472,7 @@ const tokens: ProtocolScriptRegExpList = [
     name: "block",
     open: "[",
     reg: /\[([^\[\]]*)+\]/,
+    pair: true,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§array${gen.next().value}§§`;
       if (expressions) expressions[id] = value;

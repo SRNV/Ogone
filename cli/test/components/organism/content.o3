@@ -19,9 +19,11 @@ use ../stores/doc.store.o3 as 'store-doc-component';
 .container {
   background: #ffffff;
   border-right: 1px solid #e8e8e8;
-  height: fit-content
+  height: fit-content;
   z-index: 300;
   position: relative;
+  padding-bottom: 30px;
+  padding-top: 30px;
 }
 .slide-in-right {
   animation-name: slide-in-right;
