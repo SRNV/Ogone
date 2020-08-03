@@ -9,12 +9,9 @@ import {
 import { existsSync } from "../../utils/exists.ts";
 import { Bundle, XMLNodeDescription, Component, Route } from "../../.d.ts";
 import Ogone from "../main/index.ts";
-import { tags as customTags } from "../../yaml-config.ts";
 import { Utils } from "../utils/index.ts";
 import { Configuration } from "../config/index.ts";
 
-// @ts-ignore
-YAML.defaultOptions.customTags = customTags;
 export default class ScriptInspector extends Utils {
   private ProtocolScriptParser: ProtocolScriptParser =
     new ProtocolScriptParser();
