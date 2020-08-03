@@ -456,6 +456,7 @@ export default class XMLPragma extends Utils {
       await: "",
       style: "",
       class: "",
+      html: "",
       catch: "",
       events: [],
       elseIf: "",
@@ -541,6 +542,10 @@ export default class XMLPragma extends Utils {
             break;
           case key === "--else-if":
             result.elseIf = `${attributes[key]}`;
+            node.hasFlag = true;
+            break;
+          case key === "--html":
+            result.html = `${attributes[key]}`;
             node.hasFlag = true;
             break;
           case key === "--await":

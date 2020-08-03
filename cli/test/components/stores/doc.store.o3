@@ -2,23 +2,11 @@
   declare:
     public page = 'loading...';
   case 'action:getPage':
-      try {
-        const a = await fetch(`https://raw.githubusercontent.com/SRNV/Ogone_docs/master/${ctx.route}.md`)
-        const b = await a.blob();
-        const c = await b.text();
-        const render = await fetch('https://api.github.com/markdown/raw', {
-          method: 'POST',
-          body: c,
-          headers: {
-            'Content-Type': 'text/plain'
-          },
-        });
-        const r2 = await render.blob();
-        const r3 = await r2.text();
-        this.page = r3;
-        return r3;
-      } catch (error) {
-        this.page = `${error.message}`;
-        return '';
-      }
+    try {
+      this.page = `/${ctx.route}.html`;
+    } catch (error) {
+      this.page = `${error.message}`;
+      return '';
+    }
+  break;
 </proto>

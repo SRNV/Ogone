@@ -13,7 +13,9 @@ default:
 </proto>
 
 <div class="container fade-in-slide-in-left">
-  <div class="header">
+  <div
+    class="header"
+    --router-go="'/'">
     <img --await class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
   </div>
   <hr />

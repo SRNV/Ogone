@@ -230,6 +230,9 @@ const getClassComponent = (
       // bind value
       this.bindValue();
 
+      // bind HTML
+      this.bindHTML();
+
       // set history state and trigger default code for router
       if (o.type === "router") {
         this.triggerLoad();
@@ -789,6 +792,25 @@ const getClassComponent = (
           n.classList.remove(...keys.filter((key) => !vl[key]));
         } else if (Array.isArray(vl)) {
           n.classList.value = vl.join(" ");
+        }
+        return n.isConnected;
+      }
+      for (let node of o.nodes) {
+        oc.react.push(() => r(node as HTMLElement));
+        r(node as HTMLElement);
+      }
+    }
+    bindHTML(this: BCE & this) {
+      const o = this.ogone, oc = o.component;
+      if (!o.flags || !o.flags.html || !oc || !o.nodes || o.isTemplate) return;
+      function r(n: HTMLElement) {
+        const vl = o.getContext({
+          position: o.position,
+          getText: (o.flags.html),
+        });
+        if (typeof vl === "string") {
+          n.innerHTML = '';
+          n.insertAdjacentHTML('beforeend', vl);
         }
         return n.isConnected;
       }

@@ -8,6 +8,10 @@ def:
   - path: /ogone
     name: main
     component: main-page
+    children:
+      - path: /examples
+        name: examples
+        component: main-page
 
   - path: 404
     name: brand
@@ -15,6 +19,11 @@ def:
 case 'router:main':
   Store.dispatch('pages/getPage', {
     route: 'main',
+  })
+break;
+case 'router:examples':
+  Store.dispatch('pages/getPage', {
+    route: 'examples',
   })
 break;
 </proto>

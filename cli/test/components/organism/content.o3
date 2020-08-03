@@ -4,18 +4,20 @@ use ../stores/doc.store.o3 as 'store-doc-component';
 <store-doc-component namespace="pages"/>
 <proto>
   declare:
-    public pageRender: string = '';
     public page: string = '';
-  case 'update:page':
-    Refs.renderer.insertAdjacentHTML('beforeend', this.page);
-  break;
 </proto>
-<div ref="renderer" class="content-component container slide-in-right">
-</div>
+<iframe :src="page"></iframe>
 <div class="nav">
   <nav-component />
 </div>
 <style>
+iframe {
+  height: 100%;
+  width: 100%;
+  background: white;
+  border: 0;
+  padding-top: 22px;
+}
 .container {
   background: #ffffff;
   border-right: 1px solid #e8e8e8;
@@ -24,6 +26,8 @@ use ../stores/doc.store.o3 as 'store-doc-component';
   position: relative;
   padding-bottom: 30px;
   padding-top: 30px;
+  position: absolute;
+  top: 0px;
 }
 .slide-in-right {
   animation-name: slide-in-right;
@@ -40,6 +44,23 @@ use ../stores/doc.store.o3 as 'store-doc-component';
   100% {
     position: relative;
     right: 0px;
+  }
+}
+.slide-out-right {
+  animation-name: slide-out-right;
+  animation-duration: 1s;
+  animation-iteration-count: 1;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+}
+@keyframes slide-out-right {
+  0% {
+    position: relative;
+    right: 0px;
+  }
+  100% {
+    position: relative;
+    right: -1000%;
   }
 }
 </style>

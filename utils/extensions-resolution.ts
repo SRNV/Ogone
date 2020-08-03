@@ -6,7 +6,7 @@ export const getHeaderContentTypeOf = function (url: string): string[] {
     jpeg: "image/jpeg",
     png: "image/png",
     svg: "image/svg+xml",
-    html: "application/xml+html",
+    html: "text/html",
     css: "text/css",
     js: "text/javascript",
     ts: "text/javascript",

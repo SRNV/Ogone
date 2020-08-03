@@ -63,6 +63,9 @@ const getClassRouter = (klass) =>
           rendered.params = preservedParams;
         }
       }
+      if (rendered) {
+        o.actualRouteName = rendered.name || null;
+      }
       if (!rendered) {
         o.actualTemplate = [new Comment()];
         o.actualRoute = null;
@@ -74,7 +77,6 @@ const getClassRouter = (klass) =>
         const co = document.createElement("template", { is: uuidC });
         o.actualTemplate = [co];
         o.actualRoute = rendered.component;
-        o.actualRouteName = rendered.name || null;
         o.routeChanged = true;
         // don't spread o
         // some props of o can overwritte the template.ogone and create errors in context

@@ -197,6 +197,7 @@ export interface ParseFlagsOutput {
   else: boolean;
   elseIf: string;
   finally: string;
+  html: string;
   await: string | boolean;
   events: ParseFlagDescription[];
   bind?: string;

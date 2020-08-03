@@ -50,7 +50,9 @@ export default class EnvServer extends Env {
   public async use(server: Server, port: number = 8000): Promise<void> {
     this.success(`http://localhost:${port}/`);
     for await (const req of server) {
-      const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
+      const pathToPublic: string = `${Deno.cwd()}/${
+        Configuration.static ? Configuration.static.replace(/^\//, '') : ''
+      }/${req.url}`.replace(/\/+/gi, '/');
       const controllerRendered = await this.control(req);
       if (controllerRendered) {
         continue;
@@ -68,7 +70,7 @@ export default class EnvServer extends Env {
             ]),
           });
           break;
-        case isUrlFile && req.url.startsWith("/public/"):
+        case isUrlFile:
           req.respond({
             body: Deno.readTextFileSync(pathToPublic),
             headers: new Headers([
@@ -103,7 +105,9 @@ export default class EnvServer extends Env {
       `Service running. check it here http://localhost:${port}/`,
     );
     for await (const req of server) {
-      const pathToPublic: string = `${Deno.cwd()}/${req.url}`;
+      const pathToPublic: string = `${Deno.cwd()}/${
+        Configuration.static ? Configuration.static.replace(/^\//, '') : ''
+      }/${req.url}`.replace(/\/+/gi, '/');
       const controllerRendered = await this.control(req);
       if (controllerRendered) {
         continue;
@@ -120,7 +124,7 @@ export default class EnvServer extends Env {
             ]),
           });
           break;
-        case isUrlFile && req.url.startsWith("/public/"):
+        case isUrlFile:
           req.respond({
             body: Deno.readTextFileSync(pathToPublic),
             headers: new Headers([
