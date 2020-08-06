@@ -70,7 +70,7 @@ export default class EnvServer extends Env {
             ]),
           });
           break;
-        case isUrlFile:
+        case isUrlFile && Deno.statSync(pathToPublic).isFile:
           req.respond({
             body: Deno.readTextFileSync(pathToPublic),
             headers: new Headers([

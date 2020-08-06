@@ -15,6 +15,7 @@ import { Configuration } from "../config/index.ts";
 export default class ScriptInspector extends Utils {
   private ProtocolScriptParser: ProtocolScriptParser =
     new ProtocolScriptParser();
+  private mapProtocol: Map<string, { value: string }> = new Map();
   private allowedKeys = [
     "path",
     "redirect",
@@ -130,6 +131,7 @@ export default class ScriptInspector extends Utils {
     };
   }
   public async renderTS(
+    bundle: Bundle,
     component: Component,
     script: string,
     opts: any = {},
@@ -137,6 +139,12 @@ export default class ScriptInspector extends Utils {
     let file = Deno.readTextFileSync(component.file);
     const startPerf = performance.now();
     let protocol = opts.declarations;
+    // save protocol for props inspection
+    if (opts.declarations) {
+      this.mapProtocol.set(component.uuid, {
+        value: protocol,
+      });
+    }
     // @ts-ignore
     let [diag, emit] = (await Deno.compile("proto.ts", {
       "proto.ts": `
@@ -349,7 +357,7 @@ export default class ScriptInspector extends Utils {
           },
         );
         component.scripts.runtime = value.trim().length && isTyped
-          ? (await this.renderTS(component, script, {
+          ? (await this.renderTS(bundle, component, script, {
             declarations,
           })).replace(/^(\s*;)/, "")
           : // @ts-ignore
@@ -448,5 +456,128 @@ export default class ScriptInspector extends Utils {
         }
       }
     }
+  }
+  async inspectContexts(bundle: Bundle): Promise<void> {
+    const c = Array.from(bundle.components.entries());
+    for await (let [, component] of c) {
+      const usedComponents: string[] = [];
+      const nodeInspect = (
+        component: Component,
+        importedComponent: Component,
+        tagName: string,
+        n: XMLNodeDescription,
+      ) => {
+        const { requirements } = importedComponent;
+        let propsTypes: string = "";
+        if (n.tagName === tagName) {
+          if (requirements && requirements.length) {
+            propsTypes = this.template(`: ({ {{ props }} })`, {
+              props: requirements.map(
+                ([name, constructors]) =>
+                  `\n${name}: ${
+                    constructors.map(
+                      (c) => `${c}`,
+                    ).join(" | ")
+                  };`,
+              ),
+            });
+          }
+          const item = bundle.mapContexts.get(`${component.uuid}-${n.id}`);
+          if (item) {
+            let result = this.template(
+              `
+              /** component: {{ tagName }} */
+              function {{ tagName.replace(/(\-)([a-z])/gi, '_$2') }}Component (this: Protocol & Props) {
+                {{ position }}
+                {{ data }}
+                {{ modules }}
+                {{ value }}
+                const {{ tagName.replace(/(\-)([a-z])/gi, '_$2') }} {{ propsTypes }} = ({ {{ props }} });
+              }
+            `,
+              {
+                tagName,
+                propsTypes,
+                position: item.position,
+                data: item.data,
+                modules: item.modules,
+                value: item.value,
+                props: Object.entries(n.attributes).filter(([key]) =>
+                  key.startsWith(":")
+                ).map(([key, value]) => `/** {{ tagName }} */ ${key.slice(1)}: ${value}`),
+              },
+            );
+            usedComponents.push(result);
+          }
+        }
+        if (n.childNodes) {
+          for (let nc of n.childNodes) {
+            nodeInspect(component, importedComponent, tagName, nc);
+          }
+        }
+      };
+      for (let [tagName, imp] of Object.entries(component.imports)) {
+        const subc = bundle.components.get(imp);
+        if (subc) {
+         nodeInspect(component, subc, tagName, component.rootNode);
+        }
+      }
+      const item = this.mapProtocol.get(component.uuid);
+      if (item) {
+        let compiledAnalyzer = this.template(
+          `\n
+          {{ protocol }}
+          {{ classProps }}
+          {{ allComponents }}`,
+          {
+            protocol: item.value,
+            allComponents: usedComponents.join("\n"),
+            classProps: `class Props {
+              {{ props }}
+            }`,
+            props: component.requirements
+              ? component.requirements.map(
+                ([name, constructors]) =>
+                  `\ndeclare public ${name}: ${
+                    constructors.join(" | ")
+                  };`,
+              )
+              : "",
+          },
+        );
+        this.warn(`TSC: Scanning ${component.file}`);
+        // @ts-ignore
+        let [diag, emit] = await (Deno.compile("proto.ts", {
+          "proto.ts": compiledAnalyzer,
+        }, {
+          module: "esnext",
+          target: "esnext",
+          noImplicitThis: false,
+          noFallthroughCasesInSwitch: false,
+          allowJs: false,
+          removeComments: false,
+          resolveJsonModule: false,
+          experimentalDecorators: true,
+          noImplicitAny: true,
+          allowUnreachableCode: false,
+          jsx: "preserve",
+          lib: ["dom", "esnext"],
+          inlineSourceMap: false,
+          inlineSources: false,
+          alwaysStrict: false,
+          sourceMap: false,
+          strictFunctionTypes: true,
+          types: Configuration.types || [],
+        }));
+        if (diag) {
+          diag.forEach((c: any) => {
+            this.error(c.message);
+          })
+          Deno.exit(1);
+        }
+      }
+    }
+    // remove all previous item
+    this.mapProtocol.clear();
   }
 }

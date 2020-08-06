@@ -162,6 +162,7 @@ export default class ContextCompiler extends Utils {
           value,
           node,
           ctx: legacy.ctx,
+          level: contextLegacy.limit,
           getLength: legacy.getLength,
           array: legacy.arrayName,
         };

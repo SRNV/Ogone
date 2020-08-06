@@ -1,4 +1,4 @@
-import { Bundle } from "../../.d.ts";
+import { Bundle, Component, XMLNodeDescription } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
 
 export default class extends Utils {

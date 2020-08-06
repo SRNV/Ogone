@@ -1,6 +1,6 @@
 <div class="container">
   <div class="logo-back">
-    <img class="logo" src="/public/ogone.svg" />
+    <img class="logo" src="/ogone.svg" />
   </div>
   <div class="text">404 route not found.</div>
 </div>

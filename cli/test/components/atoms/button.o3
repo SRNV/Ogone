@@ -1,4 +1,4 @@
-require text as String;
+require text as string;
 
 <div
   class="container">

@@ -5,7 +5,7 @@ import ImportedComponentsInpector from "../inspectors/imported-components-inspec
 import ScriptInspector from "../inspectors/script-inspector.ts";
 import NodeManager from "../inspectors/textnodes-top-level-exception.ts";
 import StoreConnectionsInspector from "../inspectors/store-connections-inspector.ts";
-import { Bundle, OgoneConfiguration } from "../../.d.ts";
+import { Bundle } from "../../.d.ts";
 import RuntimeCompiler from "../compiler/index.ts";
 import { Utils } from "../utils/index.ts";
 import { Configuration } from "../config/index.ts";
@@ -70,6 +70,7 @@ export default class Constructor extends Utils {
       await this.NodeManager.cleanRoot(bundle);
     }
     await this.RuntimeCompiler.read(bundle);
+    await this.ScriptInspector.inspectContexts(bundle);
     return bundle;
   }
 }

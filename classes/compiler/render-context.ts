@@ -127,34 +127,47 @@ export default class ContextBuilder extends Utils {
           };
         `
             : `Ogone.contexts['{{ context.id }}'] = Ogone.contexts['{{ context.parentId }}'];`;
-        bundle.contexts.push(
-          this.template(contextScript, {
-            component,
-            data: component.data instanceof Object
-              ? Object.keys(component.data).map((prop) =>
-                `const ${prop} = this.${prop};`
-              ).join("\n")
+        const result = this.template(contextScript, {
+          component,
+          data: component.data instanceof Object
+            ? Object.keys(component.data).map((prop) =>
+              `const ${prop} = this.${prop};`
+            ).join("\n")
+            : "",
+          value: script.value || "",
+          context: {
+            id: `${component.uuid}-${nId}`,
+            if: contextIf ? contextIf : "",
+            parentId: node.parentNode
+              ? `${component.uuid}-${node.parentNode.id}`
               : "",
-            value: script.value || "",
-            context: {
-              id: `${component.uuid}-${nId}`,
-              if: contextIf ? contextIf : "",
-              parentId: node.parentNode
-                ? `${component.uuid}-${node.parentNode.id}`
-                : "",
-              result: [...Object.keys(ctx), ...Object.keys(component.data)],
-              getNodeDynamicLength: isNodeDynamic ? `
-              if (GET_LENGTH) {
-                return 1;
-              }` : null,
-              getLength: getLength
-                ? getLength({
-                  filter: renderConditions(node),
-                })
-                : "",
-            },
-            modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
-          }).replace(/\n/gi, "")
+            result: [...Object.keys(ctx), ...Object.keys(component.data)],
+            getNodeDynamicLength: isNodeDynamic ? `
+            if (GET_LENGTH) {
+              return 1;
+            }` : null,
+            getLength: getLength
+              ? getLength({
+                filter: renderConditions(node),
+              })
+              : "",
+          },
+          modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
+        });
+        // save context into bundle
+        // will use it for type checking into props in compiler-time
+        bundle.mapContexts.set(`${component.uuid}-${node.id}`, {
+          position: `const POSITION = Array.from(new Array(${script.level})).map((a,i) => 0);`,
+          data: component.data instanceof Object
+            ? Object.keys(component.data).map((prop) =>
+              `const ${prop} = this.${prop};`
+            ).join("\n")
+            : "",
+          value: script.value || "",
+          modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
+        });
+        bundle.contexts.push(
+          result.replace(/\n/gi, "")
             .replace(/\s+/gi, " "),
         );
       });

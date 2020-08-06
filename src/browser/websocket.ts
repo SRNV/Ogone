@@ -77,7 +77,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
   };
   // @ts-ignore
-  const ws = new WebSocket(`ws://localhost:3487/`);
+  const ws = new WebSocket(`ws://localhost:9384/`);
 
   ws.onmessage = (msg) => {
     const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(
