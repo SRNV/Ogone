@@ -157,7 +157,7 @@ export default class ContextBuilder extends Utils {
         // save context into bundle
         // will use it for type checking into props in compiler-time
         bundle.mapContexts.set(`${component.uuid}-${node.id}`, {
-          position: `const POSITION = Array.from(new Array(${script.level})).map((a,i) => 0);`,
+          position: `const POSITION: number[] = Array.from(new Array(${script.level})).map((a,i) => 0);`,
           data: component.data instanceof Object
             ? Object.keys(component.data).map((prop) =>
               `const ${prop} = this.${prop};`

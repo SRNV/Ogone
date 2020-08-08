@@ -1,4 +1,4 @@
-require item as Object;
+require item as ({ label: string; route: string; children: any[]; });
 use @/cli/test/components/atoms/li-menu.o3 as 'async-recursive-component';
 
 <proto type="async">

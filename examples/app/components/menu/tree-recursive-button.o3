@@ -1,4 +1,4 @@
-require item as Object
+require item as (Object)
 
 use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/scroll.o3 as 'scroll-component'

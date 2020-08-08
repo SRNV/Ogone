@@ -16,6 +16,8 @@ export default class ScriptInspector extends Utils {
   private ProtocolScriptParser: ProtocolScriptParser =
     new ProtocolScriptParser();
   private mapProtocol: Map<string, { value: string }> = new Map();
+  private mapScript: Map<string, { script: string; declarations: any }> =
+    new Map();
   private allowedKeys = [
     "path",
     "redirect",
@@ -139,12 +141,6 @@ export default class ScriptInspector extends Utils {
     let file = Deno.readTextFileSync(component.file);
     const startPerf = performance.now();
     let protocol = opts.declarations;
-    // save protocol for props inspection
-    if (opts.declarations) {
-      this.mapProtocol.set(component.uuid, {
-        value: protocol,
-      });
-    }
     // @ts-ignore
     let [diag, emit] = (await Deno.compile("proto.ts", {
       "proto.ts": `
@@ -190,7 +186,7 @@ export default class ScriptInspector extends Utils {
         this.error(
           `${component.file}:${linePosition + 1}:${
             columnPosition ? columnPosition + 1 : 0
-          }\n\t${m}\n\t${sourceLine}\n\t`,
+          }\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
         );
       }
       Deno.exit(1);
@@ -356,16 +352,17 @@ export default class ScriptInspector extends Utils {
               : "",
           },
         );
-        component.scripts.runtime = value.trim().length && isTyped
-          ? (await this.renderTS(bundle, component, script, {
-            declarations,
-          })).replace(/^(\s*;)/, "")
-          : // @ts-ignore
-            (await Deno.transpileOnly({
-              "proto.ts": script,
-            }, {
-              sourceMap: false,
-            }))["proto.ts"].source;
+        // save script for scan
+        this.mapScript.set(component.uuid, {
+          script,
+          declarations,
+        });
+        // @ts-ignore
+        component.scripts.runtime = (await Deno.transpileOnly({
+          "proto.ts": script,
+        }, {
+          sourceMap: false,
+        }))["proto.ts"].source;
       } else if (defData) {
         component.data = defData;
       }
@@ -471,7 +468,7 @@ export default class ScriptInspector extends Utils {
         let propsTypes: string = "";
         if (n.tagName === tagName) {
           if (requirements && requirements.length) {
-            propsTypes = this.template(`: ({ {{ props }} })`, {
+            propsTypes = this.template(`: { {{ props }} }`, {
               props: requirements.map(
                 ([name, constructors]) =>
                   `\n${name}: ${
@@ -485,18 +482,31 @@ export default class ScriptInspector extends Utils {
           const item = bundle.mapContexts.get(`${component.uuid}-${n.id}`);
           if (item) {
             let result = this.template(
-              `
-              /** component: {{ tagName }} */
-              function {{ tagName.replace(/(\-)([a-z])/gi, '_$2') }}Component (this: Protocol & Props) {
+              `/** component: {{ tagName }} */
+              declare interface $_component_{{ tagNameFormatted }} {
+                {{ interfaceConstructors }}
+              };
+              function {{ tagNameFormatted }}Component (this: $_component_{{ tagNameFormatted }} & Protocol & Props) {
                 {{ position }}
                 {{ data }}
                 {{ modules }}
                 {{ value }}
-                const {{ tagName.replace(/(\-)([a-z])/gi, '_$2') }} {{ propsTypes }} = ({ {{ props }} });
-              }
-            `,
+                const {{ tagNameFormatted }} {{ propsTypes }} = ({
+                  {{ props }}
+                });
+              }`,
               {
                 tagName,
+                interfaceConstructors: Object.entries(component.data).map((
+                  [key, v],
+                ) =>
+                  v !== null
+                    ? v.constructor.name === "Array"
+                      ? `${key} : any[]`
+                      : `${key}: typeof ${v.constructor.name}`
+                    : `${key}: any`
+                ).join(";"),
+                tagNameFormatted: tagName.replace(/(\-)([a-z])/gi, "_$2"),
                 propsTypes,
                 position: item.position,
                 data: item.data,
@@ -504,7 +514,9 @@ export default class ScriptInspector extends Utils {
                 value: item.value,
                 props: Object.entries(n.attributes).filter(([key]) =>
                   key.startsWith(":")
-                ).map(([key, value]) => `/** {{ tagName }} */ ${key.slice(1)}: ${value}`),
+                ).map(([key, value]) =>
+                  `\n${key.slice(1)}: ${value === '=""' ? null : value}`
+                ).join("\n,"),
               },
             );
             usedComponents.push(result);
@@ -519,18 +531,18 @@ export default class ScriptInspector extends Utils {
       for (let [tagName, imp] of Object.entries(component.imports)) {
         const subc = bundle.components.get(imp);
         if (subc) {
-         nodeInspect(component, subc, tagName, component.rootNode);
+          nodeInspect(component, subc, tagName, component.rootNode);
         }
       }
-      const item = this.mapProtocol.get(component.uuid);
-      if (item) {
+      const itemScript = this.mapScript.get(component.uuid);
+      if (itemScript) {
         let compiledAnalyzer = this.template(
           `\n
-          {{ protocol }}
           {{ classProps }}
+          {{ script }}
           {{ allComponents }}`,
           {
-            protocol: item.value,
+            script: itemScript.script,
             allComponents: usedComponents.join("\n"),
             classProps: `class Props {
               {{ props }}
@@ -538,46 +550,17 @@ export default class ScriptInspector extends Utils {
             props: component.requirements
               ? component.requirements.map(
                 ([name, constructors]) =>
-                  `\ndeclare public ${name}: ${
-                    constructors.join(" | ")
-                  };`,
+                  `\ndeclare public ${name}: ${constructors.join(" | ")};`,
               )
               : "",
           },
         );
-        this.warn(`TSC: Scanning ${component.file}`);
-        // @ts-ignore
-        let [diag, emit] = await (Deno.compile("proto.ts", {
-          "proto.ts": compiledAnalyzer,
-        }, {
-          module: "esnext",
-          target: "esnext",
-          noImplicitThis: false,
-          noFallthroughCasesInSwitch: false,
-          allowJs: false,
-          removeComments: false,
-          resolveJsonModule: false,
-          experimentalDecorators: true,
-          noImplicitAny: true,
-          allowUnreachableCode: false,
-          jsx: "preserve",
-          lib: ["dom", "esnext"],
-          inlineSourceMap: false,
-          inlineSources: false,
-          alwaysStrict: false,
-          sourceMap: false,
-          strictFunctionTypes: true,
-          types: Configuration.types || [],
-        }));
-        if (diag) {
-          diag.forEach((c: any) => {
-            this.error(c.message);
-          })
-          Deno.exit(1);
-        }
+        await this.renderTS(bundle, component, compiledAnalyzer, {
+          declarations: itemScript.declarations || `declare class Protocol {}`,
+        });
       }
     }
     // remove all previous item
-    this.mapProtocol.clear();
+    this.mapScript.clear();
   }
 }

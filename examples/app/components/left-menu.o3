@@ -1,4 +1,4 @@
-require test as Number
+require test as (number);
 
 <div class="container">${test}</div>
 <style>

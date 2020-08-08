@@ -1,4 +1,4 @@
-require title, text, code as String;
+require title, text, code as (string);
 <div class="container">
   <div class="left">
     <h2 class="title">${title}</h2>

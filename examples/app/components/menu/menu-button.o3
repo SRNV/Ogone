@@ -1,4 +1,4 @@
-require item as Object;
+require item as (Object);
 
 <div class="container" --router-go="item.route">
   ${item.name}

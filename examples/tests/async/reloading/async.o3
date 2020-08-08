@@ -1,5 +1,5 @@
 // require statement tells to the parent component what is needed inside the component.
-require id as Number;
+require id as (number);
 // use statement tells to Ogone to use the file as store-component
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 

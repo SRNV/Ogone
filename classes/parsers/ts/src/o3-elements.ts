@@ -248,7 +248,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+([^\§\[\]\s]+)+(?=(§{2}(endLine|endPonctuation)\d+§{2})){0,1}/,
+      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(§{2}parenthese\d+§{2})(§{2}(endLine|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
@@ -261,46 +261,34 @@ not supported in this version of Ogone
           `property ${matches[2]} is already required in component`,
         );
       }
+      const type = templateReplacer(matches[4], expressions);
       const array = matches[2].split(",");
       if (array.length === 1) {
-        typedExpressions.properties.push([array[0].trim(), [matches[4]]]);
+        typedExpressions.properties.push([array[0].trim(), [type]]);
       } else {
         array.forEach((key) => {
-          typedExpressions.properties.push([key.trim(), [matches[4]]]);
+          typedExpressions.properties.push([key.trim(), [type]]);
         });
       }
       return "";
     },
     close: false,
   },
+  // fallbak for require syntax
   {
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s*([^\§]*)+(§{2}keywordAs\d+§{2})\s*(§{2}array\d+§{2})\s*(§{2}endLine\d+§{2})/,
+      /(§{2}keywordRequire\d+§{2})\s*([^\§]*)+(§{2}keywordAs\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
       }
-      const keys = matches[2].replace(/\s/gi, "").split(",");
-      const props: [string, string[]][] = keys.map((key) => {
-        const isAlreadyRequired = typedExpressions.properties.find(
-          ([key2]) => key2 === key,
-        );
-        if (isAlreadyRequired) {
-          throw new Error(
-            `property ${key} is already required in component`,
-          );
-        }
-        return [
-          key,
-          eval(expressions[matches[4]])
-            .filter((f: any) => f)
-            .map((f: any) => f.name),
-        ];
-      });
-      typedExpressions.properties.push(...props);
-      return "";
+      throw new SyntaxError(`[Ogone]
+      this require syntax is not supported in this version of Ogone.
+      please follow this syntax:
+        require <props> as (<type>);
+      `);
     },
     close: false,
   },

@@ -237,7 +237,7 @@ export default class XMLParser extends XMLPragma {
     iterator: DOMParserIterator,
   ): string {
     let result = html;
-    const regexp = /(\<)§§\d*node§§(\>)/;
+    const regexp = /(\<)§§\d+node§§(\>)/;
     const textnodes = result.split(regexp);
     textnodes
       .filter((content) => content.trim().length)

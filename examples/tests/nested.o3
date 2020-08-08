@@ -1,2 +1,2 @@
-require name as String;
+require name as (string);
 <div>${name}</div>
