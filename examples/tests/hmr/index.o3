@@ -24,25 +24,27 @@ use @/examples/tests/hmr/sub.o3 as 'sub-1';
   <li class="hmr-update"> change the style of the component </li>
 </ul>
 
-<h3> update dynamics nodes </h3>
-<p> those updates shouldn't throw an error </p>
-<ul>
-  <!--- adding or deleting any node shouldn't throw an error here -->
-<div></div>
-<div>aaa</div>
-<div>aaa</div>
-<div>aaa</div>
-  <li --for="[1, 2, 3] as (n)">add one dynamic node after ${n}a</li>
-  <div --for="[1, 2, 3] as (n)">add one dynamic node after ${n}</div>
-</ul>
+<template>
+  <h3> update dynamics nodes </h3>
+  <p> those updates shouldn't throw an error </p>
+  <ul>
+    <!--- adding or deleting any node shouldn't throw an error here -->
+  <div></div>
+  <div>aaa</div>
+  <div>aaa</div>
+  <div>aaa</div>
+    <li --for="[1, 2, 3] as (n)">add one dynamic node after ${n}a</li>
+    <div --for="[1, 2, 3] as (n)">add one dynamic node after ${n}</div>
+  </ul>
 
-<h3> update components</h3>
-<!-- try
-  using a new component
-  the greeting component thrown an error at the begining of hmr development -->
-<click-c></click-c>
-<greeting-g></greeting-g>
-<sub-1 />
+  <h3> update components</h3>
+  <!-- try
+    using a new component
+    the greeting component thrown an error at the begining of hmr development -->
+  <click-c></click-c>
+  <greeting-g></greeting-g>
+  <sub-1 />
+</template>
 <style>
 .hmr-update {
   background: blue;

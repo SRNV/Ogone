@@ -45,6 +45,11 @@ export default class ComponentReader {
       requirements: null,
       hasStore: false,
       ...opts,
+      elements: {
+        styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
+        template: opts.rootNode.childNodes.find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template"),
+        proto: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto"),
+      },
     };
   }
   read(bundle: Bundle) {

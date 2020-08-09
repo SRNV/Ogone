@@ -1,8 +1,6 @@
 use @/examples/tests/async/reloading/async.o3 as 'async-component';
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
-<store-component namespace="user" />
-<async-component :id="id" --await --then:user-loaded />
 <proto type="async">
   def:
     id: 1
@@ -28,3 +26,7 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
       }, 5000)
     });
 </proto>
+<template>
+  <store-component namespace="user" />
+  <async-component :id="id" --await --then:user-loaded />
+</template>

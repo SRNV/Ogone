@@ -1,5 +1,7 @@
-<div class="container slide-in-bottom">
-</div>
+<template>
+  <div class="container slide-in-bottom">
+  </div>
+</template>
 <style>
 .container {
   background: #f1f1f1;

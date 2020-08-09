@@ -1,6 +1,8 @@
 require text as (string);
-<div>
-    <slot></slot>
-    <slot name="test"></slot>
-    ${text}
-</div>
+<template>
+    <div>
+        <slot></slot>
+        <slot name="test"></slot>
+        ${text}
+    </div>
+</template>

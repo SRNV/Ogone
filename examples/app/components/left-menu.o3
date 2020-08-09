@@ -1,6 +1,8 @@
 require test as (number);
 
-<div class="container">${test}</div>
+<template>
+  <div class="container">${test}</div>
+</template>
 <style>
   .container {
     position: fixed;

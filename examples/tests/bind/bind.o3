@@ -3,7 +3,8 @@
     count: 5
   default:
 </proto>
-<!-- templates -->
-<p>${count}</p>
-<input --bind="count" />
-<textarea --bind="count"></textarea>
+<template>
+  <p>${count}</p>
+  <input --bind="count" />
+  <textarea --bind="count"></textarea>
+</template>

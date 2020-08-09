@@ -2,12 +2,14 @@ use @/examples/app/components/burger.o3 as 'burger-el';
 use @/examples/app/components/menu/menu-button.o3 as 'menu-button';
 
 <proto def="examples/app/defs/source.yml" />
-<div id="test" class="menu">
-  <menu-button --for="menu as (t)" :item="t" />
-  <div>
-    <burger-el />
+<template>
+  <div id="test" class="menu">
+    <menu-button --for="menu as (t)" :item="t" />
+    <div>
+      <burger-el />
+    </div>
   </div>
-</div>
+</template>
 <style>
   .menu {
     flex: 8;

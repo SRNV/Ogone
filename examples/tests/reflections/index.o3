@@ -23,8 +23,9 @@
     }, 500);
     break;
 </proto>
-
-<p>${position.name} ${position.origin}</p>
-<p --for="position.test as (item)">
-  ${item}
-</p>
+<template>
+  <p>${position.name} ${position.origin}</p>
+  <p --for="position.test as (item)">
+    ${item}
+  </p>
+</template>

@@ -1,17 +1,19 @@
 require title, text, code as (string);
-<div class="container">
-  <div class="left">
-    <h2 class="title">${title}</h2>
-    <p class="text">${text}</p>
+<template>
+  <div class="container">
+    <div class="left">
+      <h2 class="title">${title}</h2>
+      <p class="text">${text}</p>
+    </div>
+    <div class="right">
+      <pre>
+        <code>
+          ${code}
+        </code>
+      </pre>
+    </div>
   </div>
-  <div class="right">
-    <pre>
-      <code>
-        ${code}
-      </code>
-    </pre>
-  </div>
-</div>
+</template>
 <style>
   .container {
     min-height: 400px;

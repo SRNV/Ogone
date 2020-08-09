@@ -1,11 +1,13 @@
 require item as (Object);
 
-<div class="container" --router-go="item.route">
-  ${item.name}
-  <span class="ok" --if="item.status === 'ok'"></span>
-  <span class="todo" --if="item.status === 'todo'"></span>
-  <span class="in-progress" --if="item.status === 'in-progress'"></span>
-</div>
+<template>
+  <div class="container" --router-go="item.route">
+    ${item.name}
+    <span class="ok" --if="item.status === 'ok'"></span>
+    <span class="todo" --if="item.status === 'todo'"></span>
+    <span class="in-progress" --if="item.status === 'in-progress'"></span>
+  </div>
+</template>
 
 <style>
 .container {

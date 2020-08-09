@@ -1,5 +1,5 @@
 use @/examples/app/stores/menu.store.o3 as 'store-menu'
-<store-menu namespace="menu" />
+
 <proto>
   declare:
     public isOpen: boolean = false;
@@ -11,13 +11,14 @@ use @/examples/app/stores/menu.store.o3 as 'store-menu'
       });
   break;
 </proto>
-
-<div class="container" --click:openMenu>
-  <div class="line"></div>
-  <div class="line"></div>
-  <div class="line"></div>
-</div>
-
+<template>
+  <store-menu namespace="menu" />
+  <div class="container" --click:openMenu>
+    <div class="line"></div>
+    <div class="line"></div>
+    <div class="line"></div>
+  </div>
+</template>
 <style>
 .line, .container {
   border-radius: 5px;

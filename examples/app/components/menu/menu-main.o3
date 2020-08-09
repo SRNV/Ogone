@@ -3,7 +3,6 @@ use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/logo.o3 as 'logo-el'
 
 
-<store-component namespace="menu" />
 <proto def="examples/app/defs/menu-main.yml">
   declare:
     public isOpen: boolean = false;
@@ -12,19 +11,21 @@ use @/examples/app/components/logo.o3 as 'logo-el'
   break;
 </proto>
 
-<div class="left-menu"
-  --class="{ close: !isOpen }">
-  <div class="header">
-    <logo-el --click:toggle-menu></logo-el>
-    <div>0.1.0</div>
+<template>
+  <store-component namespace="menu" />
+  <div class="left-menu"
+    --class="{ close: !isOpen }">
+    <div class="header">
+      <logo-el --click:toggle-menu></logo-el>
+      <div>0.1.0</div>
+    </div>
+    <div class="tree">
+      <tree-recursive --for="menu as (item)" :item="item">
+      </tree-recursive>
+    </div>
   </div>
-  <div class="tree">
-    <tree-recursive --for="menu as (item)" :item="item">
-    </tree-recursive>
-  </div>
-</div>
-<div --class="{ darken: isOpen }" --click:toggle-menu></div>
-
+  <div --class="{ darken: isOpen }" --click:toggle-menu></div>
+</template>
 
 <style>
   .left-menu {

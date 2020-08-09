@@ -1,9 +1,11 @@
 require text as (string);
 
-<div
-  class="container">
-  ${text}
-</div>
+<template>
+  <div
+    class="container">
+    ${text}
+  </div>
+</template>
 
 <style>
   .container {

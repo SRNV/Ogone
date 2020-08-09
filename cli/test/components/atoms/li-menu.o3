@@ -6,19 +6,21 @@ use @/cli/test/components/atoms/li-menu.o3 as 'async-recursive-component';
     Async.resolve();
 </proto>
 
-<li
-  --event:animationend:fade-in-bottom
-  --router-go="item.route"
-  class="fade-in-bottom">
-  ${item.label}
-</li>
-<ul>
-  <async-recursive-component
-    --if="!!item.children"
-    --for="item.children as (child, i)"
-    --defer="new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))"
-    :item="child ? child : {}"/>
-</ul>
+<template>
+  <li
+    --event:animationend:fade-in-bottom
+    --router-go="item.route"
+    class="fade-in-bottom">
+    ${item.label}
+  </li>
+  <ul>
+    <async-recursive-component
+      --if="!!item.children"
+      --for="item.children as (child, i)"
+      --defer="new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))"
+      :item="child ? child : {}"/>
+  </ul>
+</template>
 
 <style --keyframes="get('fade-in-bottom', { time: 1, style: 'ease-in-out', })">
 li {

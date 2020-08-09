@@ -2,5 +2,6 @@
     def:
         name: Rudy
 </proto>
-
-<p>Hello ${name}</p>
+<template>
+  <p>Hello ${name}</p>
+</template>

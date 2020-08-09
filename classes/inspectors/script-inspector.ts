@@ -201,9 +201,7 @@ export default class ScriptInspector extends Utils {
   async read(bundle: Bundle): Promise<void> {
     const entries = Array.from(bundle.components.entries());
     for await (let [, component] of entries) {
-      const protos = component.rootNode.childNodes.filter((node) =>
-        node.tagName === "proto"
-      );
+      const protos = component.elements.proto;
       if (protos.length > 1) {
         this.error(
           `multiple proto found in ${component.file}. not supported in this version.`,
@@ -211,9 +209,7 @@ export default class ScriptInspector extends Utils {
       }
     }
     for await (let [, component] of entries) {
-      const proto = component.rootNode.childNodes.find((node) =>
-        node.tagName === "proto"
-      );
+      const proto = component.elements.proto[0];
       // @ts-ignore
       const moduleScript = proto?.getInnerHTML();
       let defData;

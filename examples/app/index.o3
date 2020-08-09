@@ -23,16 +23,18 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
     break;
 </proto>
 
-<div id="header" class="header">
-  <div class="logo">
-    <async-logo-el --router-go="'/'"></async-logo-el>
+<template>
+  <div id="header" class="header">
+    <div class="logo">
+      <async-logo-el --router-go="'/'"></async-logo-el>
+    </div>
+    <div --router-dev-tool class="open-dev-tool"> Dev </div>
+    <menu-content />
   </div>
-  <div --router-dev-tool class="open-dev-tool"> Dev </div>
-  <menu-content />
-</div>
-<router-component name="new" />
-<menu-main />
-<left-menu :test="scrollY"/>
+  <router-component name="new" />
+  <menu-main />
+  <left-menu :test="scrollY"/>
+</template>
 
 <style>
   h1, h2, h3, h4 {

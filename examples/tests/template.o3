@@ -1,7 +1,9 @@
-<div>
-    <slot> slot par defaut </slot>
-    <slot name="test"> slot nommé test </slot>
+<template>
     <div>
-        <slot name="test2"> slot nommé test 2</slot>
+        <slot> slot par defaut </slot>
+        <slot name="test"> slot nommé test </slot>
+        <div>
+            <slot name="test2"> slot nommé test 2</slot>
+        </div>
     </div>
-</div>
+</template>

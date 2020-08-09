@@ -38,9 +38,7 @@ export default class StyleInspector extends Utils {
   async read(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
     for await (const [, component] of entries) {
-      const styles = component.rootNode.childNodes.filter((node) =>
-        node.tagName === "style"
-      );
+      const { styles } = component.elements;
       for await (const element of styles) {
         let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
         const isGlobal = element.attributes.global;

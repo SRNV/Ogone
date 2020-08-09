@@ -123,6 +123,11 @@ export interface Component {
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
+  elements: {
+    styles: XMLNodeDescription[];
+    proto: XMLNodeDescription[];
+    template?: XMLNodeDescription;
+  };
 }
 
 interface ComponentScript {

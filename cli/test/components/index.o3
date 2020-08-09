@@ -1,6 +1,8 @@
 use ./routers/main.o3 as 'router-main';
 
-<router-main namespace="global"/>
+<template>
+  <router-main namespace="global"/>
+</template>
 
 <style global>
   body {

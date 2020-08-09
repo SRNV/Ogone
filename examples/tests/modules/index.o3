@@ -9,5 +9,6 @@ import { lol, instance } from '/examples/modules/allAS.js';
     this.name = random;
     console.warn(test, defaulto, instance, lol);
 </proto>
-
-<p>user ${name}</p>
+<template>
+  <p>user ${name}</p>
+</template>

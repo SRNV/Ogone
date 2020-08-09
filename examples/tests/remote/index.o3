@@ -2,6 +2,8 @@ use ../../reflections/index.o3 as 'relative-comp';
 use https://raw.githubusercontent.com/SRNV/Ogone/master/examples/app/index.o3 as 'remote-comp';
 use https://raw.githubusercontent.com/SRNV/Ogone/feat/remote-components-loading/examples/tests/remote/git-relative.o3 as 'git-relative';
 
-<relative-comp />
-<remote-comp />
-<git-relative />
+<template>
+  <relative-comp />
+  <remote-comp />
+  <git-relative />
+</template>

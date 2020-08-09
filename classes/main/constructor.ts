@@ -5,7 +5,7 @@ import ImportedComponentsInpector from "../inspectors/imported-components-inspec
 import ScriptInspector from "../inspectors/script-inspector.ts";
 import NodeManager from "../inspectors/textnodes-top-level-exception.ts";
 import StoreConnectionsInspector from "../inspectors/store-connections-inspector.ts";
-import { Bundle } from "../../.d.ts";
+import { Bundle, XMLNodeDescription } from "../../.d.ts";
 import RuntimeCompiler from "../compiler/index.ts";
 import { Utils } from "../utils/index.ts";
 import { Configuration } from "../config/index.ts";
@@ -59,7 +59,9 @@ export default class Constructor extends Utils {
     await this.ComponentReader.read(bundle);
     await this.ImportedComponentsInpector.inspect(bundle);
     if (this.ScriptInspector) await this.ScriptInspector.read(bundle);
-
+    if (this.NodeManager) {
+      await this.NodeManager.switchRootNodeToTemplateNode(bundle);
+    }
     if (this.StoreConnectionsInspector) {
       this.StoreConnectionsInspector.read(bundle);
     }

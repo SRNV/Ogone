@@ -30,4 +30,34 @@ export default class extends Utils {
       });
     });
   }
+  public switchRootNodeToTemplateNode(bundle: Bundle) {
+    bundle.components.forEach((component) => {
+      const forbiddenNode = component.rootNode.childNodes.find((n: XMLNodeDescription) => n
+        && n.nodeType === 1
+        && !["template", "proto", "style"].includes(n.tagName as string));
+      if (forbiddenNode) {
+        this.error(`Component Structure Error: ${component.file}
+          [v0.20.0] Only proto, template and style elements are allowed at the top-level of the component:
+          please follow this pattern:
+            <proto>
+              ...
+            </proto>
+            <template>
+              <${forbiddenNode.tagName} />
+            </template>
+            <style>
+              ...
+            </style>
+          you're getting this error cause the ${forbiddenNode.tagName} element is not wrapped into the template element.
+          This is to keep a scalable structure for your components.
+        `)
+      }
+      if (component.elements.template) {
+        component.rootNode.childNodes = component.elements.template.childNodes.slice();
+        component.rootNode.childNodes.forEach((n: XMLNodeDescription) => {
+          n.parentNode = component.rootNode;
+        });
+      }
+    });
+  }
 }

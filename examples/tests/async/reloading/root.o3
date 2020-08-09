@@ -1,5 +1,7 @@
 use @/examples/tests/async/reloading/parent.o3 as 'async-reloading-component';
 
-<async-reloading-component>
-  <div> loading </div>
-</async-reloading-component>
+<template>
+  <async-reloading-component>
+    <div> loading </div>
+  </async-reloading-component>
+</template>

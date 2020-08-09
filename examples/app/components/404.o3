@@ -1,11 +1,12 @@
-<div class="container">
-  <div class="logo-back">
-    <img class="logo" src="/ogone.svg" />
+<template>
+  <div class="container">
+    <div class="logo-back">
+      <img class="logo" src="/ogone.svg" />
+    </div>
+    <div class="text">404 route not found.</div>
   </div>
-  <div class="text">404 route not found.</div>
-</div>
+</template>
 <style>
-
 .container {
   display: flex;
   justify-content: center;

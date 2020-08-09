@@ -5,11 +5,13 @@
   break;
 </proto>
 
-<div class="container">
-  <div class="logo-back">
-    <img --await class="img" src="/ogone.svg"/>
+<template>
+  <div class="container">
+    <div class="logo-back">
+      <img --await class="img" src="/ogone.svg"/>
+    </div>
   </div>
-</div>
+</template>
 
 <style>
   .img {

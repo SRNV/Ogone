@@ -9,4 +9,6 @@
   break;
 </proto>
 
-<img --await src="public/ogone.svg" width="200" />
+<template>
+  <img --await src="public/ogone.svg" width="200" />
+</template>

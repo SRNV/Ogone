@@ -55,7 +55,6 @@ const getClassRouter = (klass) =>
         r.path === l || this.routerSearch(r, l) || r.path === 404
       );
       let preservedParams = rendered.params;
-
       // redirections
       while (rendered && rendered.redirect) {
         rendered = oc.routes.find((r) => r.name === rendered.redirect);
@@ -67,7 +66,7 @@ const getClassRouter = (klass) =>
         o.actualRouteName = rendered.name || null;
       }
       if (!rendered) {
-        o.actualTemplate = [new Comment()];
+        o.actualTemplate = new Comment();
         o.actualRoute = null;
         o.routeChanged = true;
       } else if (
@@ -75,7 +74,7 @@ const getClassRouter = (klass) =>
       ) {
         const { component: uuidC } = rendered;
         const co = document.createElement("template", { is: uuidC });
-        o.actualTemplate = [co];
+        o.actualTemplate = co;
         o.actualRoute = rendered.component;
         o.routeChanged = true;
         // don't spread o
@@ -103,7 +102,6 @@ const getClassRouter = (klass) =>
           name: rendered.name || rendered.component,
           parentNodeKey: o.key,
         });
-
         // if the route provide any title
         // we change the title of the document
 
@@ -118,38 +116,16 @@ const getClassRouter = (klass) =>
       const o = this.ogone, oc = o.component;
       // update Props before replacement of the element
       oc.updateProps();
-
-      // we will use o.replacer cause it's used in the flag if
-      if (!o.actualTemplate) {
-        o.actualTemplate = o.replacer;
+      if (!o.replacer) {
+        o.replacer = document.createElement('section');
       }
       if (this.parentNode) {
-        this.replaceWith(...o.actualTemplate);
-        o.replacer = o.actualTemplate;
-      } else if (o.routeChanged) {
-        const replacer = o.replacer && o.replacer[0].ogone
-          ? [o.replacer[0].ogone.nodes]
-            .find((n) => n[0] && n[0].isConnected || n[0] && n[0].ogone && n[0].isRecursiveConnected)
-          : o.replacer;
-        if (!replacer) return;
-        replacer.forEach((n, i, arr) => {
-          if (i > 0) {
-            if (n.ogone) {
-              n.destroy();
-            } else {
-              n.remove();
-            }
-            arr.splice(i, 1);
-          }
-        });
-        for (let n of replacer) {
-          n.isConnected ? n.replaceWith(...o.actualTemplate) : "";
-        }
-        !!o.replacer[0] && !!o.replacer[0].isComponent
-          ? o.replacer[0].destroy()
-          : o.replacer[0].remove();
+        this.replaceWith(o.replacer);
       }
-      o.replacer = o.actualTemplate;
+      if (o.routeChanged) {
+        o.replacer.innerHTML = "";
+        o.replacer.append(o.actualTemplate);
+      }
       // run case router:xxx on the router component
       oc.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
     }

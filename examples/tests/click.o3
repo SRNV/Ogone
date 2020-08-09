@@ -10,9 +10,11 @@
     console.warn(ctx);
     this.counts[i] = c+1;
 </proto>
-<div
-  --for="counts as (c, i)"
-  --click:increase> click ${c}</div>
+<template>
+  <div
+    --for="counts as (c, i)"
+    --click:increase> click ${c}</div>
+</template>
 <style>
 div {
   cursor: pointer;

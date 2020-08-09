@@ -14,12 +14,14 @@ use ../tests/testdirectives.o3 as 'test-d'
     }, 1000)
 </proto>
 
-<test-d :text="'test'">
+<template>
+  <test-d :text="'test'">
     <h1>Test des flags</h1>
     <div --for="array.map((a, i) => i) as (o)">
-    ${o} t
+      ${o} t
     </div>
-</test-d>
+  </test-d>
+</template>
 
 <style>
 @media screen and (max-width:200px) {

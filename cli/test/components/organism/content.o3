@@ -1,15 +1,19 @@
 use ./nav.o3 as 'nav-component';
 use ../stores/doc.store.o3 as 'store-doc-component';
 
-<store-doc-component namespace="pages"/>
 <proto>
   declare:
     public page: string = '';
 </proto>
-<iframe :src="page"></iframe>
-<div class="nav">
-  <nav-component />
-</div>
+
+<template>
+  <store-doc-component namespace="pages"/>
+  <iframe :src="page"></iframe>
+  <div class="nav">
+    <nav-component />
+  </div>
+</template>
+
 <style>
 iframe {
   height: 100%;
