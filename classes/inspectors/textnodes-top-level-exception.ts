@@ -31,6 +31,7 @@ export default class extends Utils {
     });
   }
   public switchRootNodeToTemplateNode(bundle: Bundle) {
+    this.read(bundle);
     bundle.components.forEach((component) => {
       const forbiddenNode = component.rootNode.childNodes.find((n: XMLNodeDescription) => n
         && n.nodeType === 1

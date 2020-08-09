@@ -68,7 +68,6 @@ export default class Constructor extends Utils {
     if (this.StyleInspector) await this.StyleInspector.read(bundle);
 
     if (this.NodeManager) {
-      await this.NodeManager.read(bundle);
       await this.NodeManager.cleanRoot(bundle);
     }
     await this.RuntimeCompiler.read(bundle);
