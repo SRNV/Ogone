@@ -1,0 +1,12 @@
+<proto>
+  declare:
+    public obj: string = "/robot.obj"
+</proto>
+<template context="3d">
+  <scene>
+    <cube />
+    <mesh
+      ref="robot"
+      --load="obj" />
+  </scene>
+</template>

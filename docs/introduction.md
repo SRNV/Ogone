@@ -14,7 +14,7 @@ After the first example, in your root-component.o3, you can make this first gree
   def:
     name: SRNV
 </proto>
-<p>Hello ${name}</p>
+<template>Hello ${name}</template>
 ```
 
 let's change the name after 1 second.
@@ -29,7 +29,7 @@ let's change the name after 1 second.
     }, 1000);
   break;
 </proto>
-<p>Hello ${name}</p>
+<template>Hello ${name}</template>
 ```
 
 this will only update the textnode containing 'Hello \${name}' and replace name by it's value.

@@ -7,20 +7,20 @@
   </div>
 </template>
 <style>
-.container {
-  display: flex;
-  justify-content: center;
-  margin: auto;
-  flex-direction: column;
-}
-.text {
+  .container {
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    flex-direction: column;
+  }
+  .text {
     font-weight: 400;
     font-size: 24pt;
     text-align: center;
     color: #9e9e9e;
     margin: 40px;
   }
-.logo-back {
+  .logo-back {
     filter: drop-shadow(2px 4px 6px var(--o-primary));
     background: var(--o-primary);
     border-radius: 100%;
@@ -32,13 +32,13 @@
     margin: auto;
   }
 
-img.logo {
-      width: 400px;
-      height: auto;
-      animation-name: rotate;
-      animation-duration: 5s;
-      animation-timing-function: ease;
-      animation-iteration-count: infinite;
-      animation-direction: alternate;
-    }
+  img.logo {
+    width: 400px;
+    height: auto;
+    animation-name: rotate;
+    animation-duration: 5s;
+    animation-timing-function: ease;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
 </style>

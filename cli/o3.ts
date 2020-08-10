@@ -1,3 +1,5 @@
+import structure from "./structure.ts";
+
 // @ts-nocheck
 import { parseFlags, OptionType, InputCLI, Confirm, Select, existsSync } from './deps.ts';
 
@@ -79,68 +81,17 @@ class OgoneCLI {
       console.warn('folder already exists.')
       pathToApplication = await InputCLI.prompt(`name a directory to place your application`);
     }
-    let indexPath = `${pathToApplication}/index.ts`;
-    let depsPath = `${pathToApplication}/deps.ts`;
-    let componentsPath = `${pathToApplication}/components`;
-    let entrypoint = `${pathToApplication}/components/index.o3`;
-    let distPath = `${pathToApplication}/dist`;
-    let publicPath = `${pathToApplication}/public`;
-    let modules = `${pathToApplication}/modules`;
-    const dirs = [
-      pathToApplication,
-      componentsPath,
-      publicPath,
-      distPath,
-      modules
-    ];
-    for await (let dir of dirs) {
-      console.warn(dir)
-      await Deno.mkdir(dir);
+    function recursiveRead(obj: { [k: string]: any | boolean }, base: string) {
+      const entries = Object.entries(obj);
+      entries.forEach(([key, value]) => {
+        if (typeof value === "object") {
+          recursiveRead(value, new URL(key, base).toString())
+        } else {
+          console.warn(`${base}/${key}`);
+        }
+      });
     }
-    console.warn(`[Ogone] ${pathToApplication} rendered.`);
-    await Deno.writeTextFile(depsPath, `
-export { default as o3 } from 'https://x.nest.land/Ogone@0.18.0-rc.5/mod.ts';
-    `);
-    await Deno.writeTextFile(indexPath, `
-import { o3 } from './deps.ts';
-
-o3.run({
-  entrypoint: '${entrypoint}',
-  port: 3333,
-  modules: '/modules',
-  build: Deno.args.includes('--production') ? 'dist' : undefined,
-});`);
-  await Deno.writeTextFile(entrypoint, `
-<proto>
-  declare:
-    public message: string = 'Welcome to your first Ogone application.';
-</proto>
-
-<div class="brand">
-  <img class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
-</div>
-<div>
-  \${message}
-</div>
-
-<style global>
-  body {
-    color: grey;
-    font-family: sans-serif;
-    background: white;
-  }
-</style>
-<style>
-  .brand {
-    width: fit-content;
-    margin: auto;
-  }
-  .logo {
-    width: 970px;
-    height: auto;
-  }
-</style>
-`);
+    recursiveRead(structure, pathToApplication);
   }
   private static async createComp() {
     let pathToFolder: string = await InputCLI.prompt(`path to the component's folder`);
@@ -193,7 +144,7 @@ o3.run({
           cssLang = await Select.prompt({
             message: 'now choose a CSS pre-processor ?',
             options: [
-              { name: 'Css', value: null },
+              // { name: 'Css', value: null },
               { name: 'Sass', value: 'sass' },
               { name: 'Denolus', value: 'denolus' },
             ]

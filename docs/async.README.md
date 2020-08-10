@@ -29,15 +29,19 @@ _only in an Async Component_
 In this Async Component you will be allowed to use --await flag, this component will wait for the img tag to dispatch load event:
 ```typescript
 // async-component.o3
-<img --await src="public/ogone.svg">
 <proto type="async"/>
+<template>
+  <img --await src="public/ogone.svg">
+</template>
 ```
 
 or any event:
 ```typescript
 // async-component.o3
-<img --await="'waitingForThisEvent'" src="public/ogone.svg">
 <proto type="async"/>
+<template>
+  <img --await="'waitingForThisEvent'" src="public/ogone.svg">
+</template>
 ```
 
 we can also wait for a component to resolve all it's internal promises:
@@ -46,8 +50,10 @@ we can also wait for a component to resolve all it's internal promises:
 // Ogone use this component as 'async-component'
 use @/path/to/async-component.o3 as 'async-component';
 
-<async-component --await />
 <proto type="async"/>
+<template>
+  <async-component --await />
+</template>
 ```
 ![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/docs/assets/async.3.jpg)
 ________
@@ -62,12 +68,14 @@ Use `--then` like in JS:
 // Ogone use this component as 'async-component'
 use @/path/to/async-component.o3 as 'async-component';
 
-<async-component --await --then:caseName/>
 <proto type="async">
   case 'then:caseName':
     console.log('promise resolved', ctx);
   break;
 </proto>
+<template>
+  <async-component --await --then:caseName/>
+</template>
 ```
 ![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/docs/assets/async.4.jpg)
 ________
@@ -83,12 +91,14 @@ Use `--catch` like in JS:
 // Ogone use this component as 'async-component'
 use @/path/to/async-component.o3 as 'async-component';
 
-<async-component --await --catch:caseName/>
 <proto type="async">
   case 'catch:caseName':
     console.log('promise error caught', ctx);
   break;
 </proto>
+<template>
+  <async-component --await --catch:caseName/>
+</template>
 ```
 ________
 
@@ -103,12 +113,14 @@ Use `--finally` like in JS:
 // Ogone use this component as 'async-component'
 use @/path/to/async-component.o3 as 'async-component';
 
-<async-component --await --finally:caseName/>
 <proto type="async">
   case 'finally:caseName':
     console.log('promise fulfilled', ctx);
   break;
 </proto>
+<template>
+  <async-component --await --finally:caseName/>
+</template>
 ```
 ________
 
@@ -123,18 +135,20 @@ the Async Component will includes this promise in it's own promise group.
 // Ogone use this component as 'async-component'
 use @/path/to/async-component.o3 as 'async-component';
 
-<async-component --await --defer="promise"/>
 <proto type="async">
   def:
     promise: null
   default:
-  this.promise = new Promise((resolve) => {
-     setTimeout(() => {
+    this.promise = new Promise((resolve) => {
+      setTimeout(() => {
         // aync-component will render only after this resolution
         resolve();
      }, 1500);
   })
 </proto>
+<template>
+  <async-component --await --defer="promise"/>
+</template>
 ```
 ________
 

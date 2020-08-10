@@ -35,7 +35,7 @@ case 'update:y':
 ## faking computed data
 
 ```typescript
-<p>${position}</p>
+<template>${position}</template>
 <proto>
     def:
         x: 0
@@ -60,7 +60,7 @@ case 'update:y':
 Reflections are custom features only supported by Ogone
 
 ```typescript
-<p>${position}</p>
+<template>${position}</template>
 <proto>
     def:
         x: 0

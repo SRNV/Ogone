@@ -9,7 +9,6 @@ require id as (number);
 // use statement tells to Ogone to use the file as store-component
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
-<store-component namespace="user"/>
 <proto type="async">
   def:
     user: null
@@ -25,9 +24,11 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
   default:
     getUser().then(user => Async.resolve(user));
 </proto>
-
-<div> Welcome ${user ? user.username : ''}</div>
-<img src="public/ogone.svg"  --await />
+<template>
+  <store-component namespace="user"/>
+  <div> Welcome ${user ? user.username : ''}</div>
+  <img src="public/ogone.svg"  --await />
+</template>
 
 ```
 
@@ -37,8 +38,6 @@ let's see what we can do inside the parent component
 use @/examples/tests/async/reloading/async.o3 as 'async-component';
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
-<store-component namespace="user" />
-<async-component :id="id" --await --then:user-loaded />
 <proto type="async">
   def:
     id: 1
@@ -49,6 +48,10 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
       });
     break;
 </proto>
+<template>
+  <store-component namespace="user" />
+  <async-component :id="id" --await --then:user-loaded />
+</template>
 ```
 
 [for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/docs/async.README.md).
@@ -70,7 +73,7 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
     }, 1000);
   break;
 </proto>
-<p>Hello ${fullname}</p>
+<template>Hello ${fullname}</template>
 ```
 
 more on reflected datas
@@ -101,10 +104,12 @@ more on reflected datas
     }, 500);
     break;
 </proto>
-<p>${position.name} ${position.origin}</p>
-<p --for="position.test as (item)">
-  ${item}
-</p>
+<template>
+  ${position.name} ${position.origin}
+  <p --for="position.test as (item)">
+    ${item}
+  </p>
+</template>
 
 ```
 
@@ -118,7 +123,6 @@ use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/logo.o3 as 'logo-el'
 
 
-<store-component namespace="menu" />
 <proto def="examples/app/defs/menu-main.yml">
   def:
     isOpen: false
@@ -127,19 +131,22 @@ use @/examples/app/components/logo.o3 as 'logo-el'
   break;
 </proto>
 
-<div class="left-menu"
-  --class="{ close: !isOpen }"
-  --html="innerHTML">
-  <div class="header">
-    <logo-el --click:toggle-menu></logo-el>
-    <div>0.1.0</div>
+<template>
+  <store-component namespace="menu" />
+  <div class="left-menu"
+    --class="{ close: !isOpen }"
+    --html="innerHTML">
+    <div class="header">
+      <logo-el --click:toggle-menu></logo-el>
+      <div>0.1.0</div>
+    </div>
+    <div class="tree">
+      <tree-recursive --for="menu as (item)" :item="item">
+      </tree-recursive>
+    </div>
   </div>
-  <div class="tree">
-    <tree-recursive --for="menu as (item)" :item="item">
-    </tree-recursive>
-  </div>
-</div>
-<div --class="{ darken: isOpen }" --click:toggle-menu></div>
+  <div --class="{ darken: isOpen }" --click:toggle-menu></div>
+</template>
 ```
 
 ### recursive component example
@@ -158,26 +165,28 @@ use @/examples/app/components/scroll.o3 as 'scroll'
   break;
 </proto>
 
-<div class="container">
-  <div class="title" --click:toggle --router-go="item.route">
-    <span>
-     ${item.name}
-    </span>
-    <span --class="!item.children && item.status ? `status ${item.status}` : ''">
-      ${!item.children && item.status ? item.status : ''}
-    </span>
-    <span --if="item.children && !openTree"> > </span>
-    <span --else-if="item.children && openTree"> < </span>
+<template>
+  <div class="container">
+    <div class="title" --click:toggle --router-go="item.route">
+      <span>
+      ${item.name}
+      </span>
+      <span --class="!item.children && item.status ? `status ${item.status}` : ''">
+        ${!item.children && item.status ? item.status : ''}
+      </span>
+      <span --if="item.children && !openTree"> > </span>
+      <span --else-if="item.children && openTree"> < </span>
+    </div>
+    <div class="child" --if="item.children" --class="{ 'child-open': openTree }">
+      <scroll>
+        <tree-recursive
+          --if="!!item.children"
+          --for="item.children as (child)"
+          :item="child ? child : {}"></tree-recursive>
+      </scroll>
+    </div>
   </div>
-  <div class="child" --if="item.children" --class="{ 'child-open': openTree }">
-    <scroll>
-      <tree-recursive
-        --if="!!item.children"
-        --for="item.children as (child)"
-        :item="child ? child : {}"></tree-recursive>
-    </scroll>
-  </div>
-</div>
+</template>
 ```
 # Learn Ogone
 

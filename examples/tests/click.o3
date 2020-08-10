@@ -16,8 +16,8 @@
     --click:increase> click ${c}</div>
 </template>
 <style>
-div {
-  cursor: pointer;
-  user-select: none;
-}
+  div {
+    cursor: pointer;
+    user-select: none;
+  }
 </style>

@@ -35,48 +35,48 @@ use @/examples/app/components/scroll.o3 as 'scroll-component'
 </template>
 
 <style>
-.container {
-  color: var(--o-grey);
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.child {
-  padding-left: 30px;
-  height: 0;
-  overflow: hidden;
-  transition: flex 0.5s ease;
-  background: #00000034;
-}
-.child-open {
-  flex: 1;
-}
-.title {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #555;
-  padding: 5px;
-  cursor: pointer;
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-}
-.title:hover {
-  background: var(--o-primary);
-  color: white;
-}
-.child .title {
-  border-left: 1px solid #555;
-}
-.status {
-  display: list-item;
-}
-.ok {
-  color: var(--o-success)
-}
-.todo {
-  color: var(--o-error)
-}
-.in-progress {
-  color: var(--o-info)
-}
+  .container {
+    color: var(--o-grey);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .child {
+    padding-left: 30px;
+    height: 0;
+    overflow: hidden;
+    transition: flex 0.5s ease;
+    background: #00000034;
+  }
+  .child-open {
+    flex: 1;
+  }
+  .title {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #555;
+    padding: 5px;
+    cursor: pointer;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+  }
+  .title:hover {
+    background: var(--o-primary);
+    color: white;
+  }
+  .child .title {
+    border-left: 1px solid #555;
+  }
+  .status {
+    display: list-item;
+  }
+  .ok {
+    color: var(--o-success)
+  }
+  .todo {
+    color: var(--o-error)
+  }
+  .in-progress {
+    color: var(--o-info)
+  }
 </style>
