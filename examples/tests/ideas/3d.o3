@@ -1,12 +1,24 @@
-<proto>
+use ./shader1.o3 as 'shader-component'
+
+<proto type="renderer">
   declare:
     public obj: string = "/robot.obj"
+    private background: number = 0xFF3423;
+  default:
+    const { scene, cube, prism, mesh } = Refs;
+    return scene.add(cube, prism, mesh);
 </proto>
-<template context="3d">
-  <scene>
-    <cube />
-    <mesh
-      ref="robot"
-      --load="obj" />
+<template>
+  <shader-component />
+  <scene ref="scene">
+    <!--
+      tells to Ogone to create those elements
+      these will need to be added in the scene
+    -->
+    <text>llll</text>
+    <cube ref="cube" />
+    <sphere />
+    <prism />
+    <mesh ref="robot" --load="obj" />
   </scene>
 </template>

@@ -23,7 +23,10 @@ use @/examples/app/components/scroll.o3 as 'scroll-component'
       <span --if="item.children && !openTree"> > </span>
       <span --else-if="item.children && openTree"> < </span>
     </div>
-    <div class="child" --if="item.children" --class="{ 'child-open': openTree }">
+    <div
+      class="child"
+      --if="item.children"
+      --class="{ 'child-open': openTree }">
       <scroll-component>
         <tree-recursive
           --if="!!item.children"
