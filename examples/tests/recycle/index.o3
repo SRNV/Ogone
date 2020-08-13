@@ -1,13 +1,15 @@
 import ScopedComponent from '/scoped-component.js';
 
+define scoped-component as 'scoped';
+
 <proto>
   declare:
     static scoped(): ScopedComponent {
-      return ScopedComponent;
+      return class Sub extends ScopedComponent {};
     }
 </proto>
 <template>
-  <scoped-component is="scoped" :input="'fdsgfg'"/>
+  <scoped-component :input="'fdsgfg'"/>
 </template>
 <style>
   scoped-component {
