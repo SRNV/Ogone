@@ -1,0 +1,31 @@
+<proto type="webgl">
+  declare:
+    model = "/model.obj";
+    static contextAttributes = {
+      antialias: false,
+      depth: false,
+      powerPreference: "low-power",
+      stencil: false,
+    };
+  before-each:
+    const { scene1, camera1, camera2, camera3, model } = Refs;
+  case 'webgl:loop':
+    camera1.lookAt(model);
+    break;
+  case 'click:raycasting':
+    console.warn('click on mesh')
+    break;
+  default:
+    scene1.render(camera1, camera2, camera3, model);
+</proto>
+<template>
+  <scene name="scene1">
+    <camera ref="camera1"/>
+    <camera ref="camera2"/>
+    <camera ref="camera3"/>
+    <mesh
+      ref="model"
+      --click:raycasting
+      :src="model"/>
+  </scene>
+</template>

@@ -1,0 +1,56 @@
+<head>
+    <script>
+        /**
+         * @param {HTMLCanvasElement} canvas
+         *
+         * */
+        function getWebGLContext(canvas) {
+            if (!canvas || !(canvas instanceof HTMLCanvasElement)) throw new Error('gtWebGLContext requires a canvas element');
+            let gl = null;
+            let i = 0;
+            const contexts = [
+                'webgl',
+                'experimental-webgl',
+                'webgl2',
+            ];
+            while (!gl) {
+                gl = canvas.getContext(contexts[i]);
+                console.warn(gl, contexts[i])
+                if (!gl) {
+                    i++
+                }
+                if (i > contexts.length) {
+                    gl = 0;
+                    break;
+                }
+            }
+            return gl;
+        }
+        function main() {
+            const canvas = document.getElementById('canvas');
+            if (!canvas) throw Error('no canvas found');
+            const gl = getWebGLContext(canvas);
+            console.warn(gl);
+            if (!gl) {
+                throw new Error('Failed to retrieve WebGL Context');
+            }
+            // set background color
+            gl.clearColor(192/255, 23/255, 45/255, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            console.warn(gl.COLOR_BUFFER_BIT)
+        }
+    </script>
+    <style>
+        canvas {
+          background: black;
+        }
+    </style>
+</head>
+<body onload="main()">
+    <canvas id="canvas" width="400" height="400">
+        no canvas support from your browser
+        <template>
+            test
+        </template>
+    </canvas>
+</body>
