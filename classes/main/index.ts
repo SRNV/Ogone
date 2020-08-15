@@ -58,9 +58,7 @@ export default class Ogone extends EnvServer {
     }
     if (opts.build) {
       if (!existsSync(opts.build)) {
-        this.error(
-          `build: can\'t find given path.\n\tinput: ${opts.build}`,
-        );
+        Deno.mkdirSync(opts.build);
       }
       const stats = Deno.statSync(opts.build);
       if (stats.isFile) {
@@ -75,10 +73,8 @@ export default class Ogone extends EnvServer {
         .then(async () => {
           //start compilation of o3 files
           const b = await this.getBuild();
-          /*
-          // TODO WAIT FOR DENO TO FIX COMPILER API
           const application = `${opts.build}/index.html`;
-          Deno.writeTextFileSync(application, b);
+          Deno.writeTextFileSync(application, b as string);
           this.warn(
             `your application successfully rendered. ${application}`,
           );
@@ -88,7 +84,6 @@ export default class Ogone extends EnvServer {
             server.close();
             Deno.exit();
           }
-          */
         });
     } else {
       //start compilation of o3 files
