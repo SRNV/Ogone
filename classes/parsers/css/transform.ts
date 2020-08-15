@@ -21,6 +21,7 @@ export default class TransformCSS extends Utils {
             parent: null,
             childs: [],
             properties: null,
+            rawStyle: '',
           }
         );
         result = result.replace(match, id);
@@ -45,13 +46,19 @@ export default class TransformCSS extends Utils {
           const parentItem = this.mapSelectors.get(parent);
           item.parent = parentItem;
           parentItem.childs.push(item);
+          item.rawStyle = childStyle;
         }
       }
+    this.mapSelectors.forEach((item) => {
+      item.value = item.value.trim();
+    })
     console.warn('ennnnnndd')
+    console.warn(this.mapSelectors);
   }
 }
 const test = new TransformCSS();
 test.read(`
+  @import '../style.o3s';
   @type container {
     background: red;
   };
