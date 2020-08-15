@@ -144,8 +144,6 @@ class OgoneCLI {
           cssLang = await Select.prompt({
             message: 'now choose a CSS pre-processor ?',
             options: [
-              // { name: 'Css', value: null },
-              { name: 'Sass', value: 'sass' },
               { name: 'Denolus', value: 'denolus' },
             ]
           });

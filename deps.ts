@@ -19,14 +19,9 @@ export {
   assertArrayContains,
   fail,
 } from "https://deno.land/std@0.61.0/testing/asserts.ts";
-export { compile as sassCompiler } from "https://deno.land/x/sass/mod.ts";
 export { parseFlags } from "https://x.nest.land/cliffy@0.11.1/packages/flags/mod.ts";
-import { parse } from "https://x.nest.land/denolus@0.0.4/src/parser/index.ts";
 import { compile } from "https://x.nest.land/denolus@0.0.4/src/compiler/index.ts";
 
-export function denolusCompiler(code: string) {
-  return compile(parse(code));
-}
 export function absolute(base: string, relative: string) {
   const stack = base.split("/"),
     parts = relative.split("/");

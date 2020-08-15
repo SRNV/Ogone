@@ -1,7 +1,5 @@
 import CSSScoper from "../parsers/css/scope.ts";
 import {
-  sassCompiler,
-  denolusCompiler,
   absolute,
   join,
   fetchRemoteRessource,
@@ -63,16 +61,6 @@ export default class StyleInspector extends Utils {
                 : relativePath
               : null;
             switch (true && !!p) {
-              case p &&
-                ((["scss", "sass"].includes(lang) || !lang) &&
-                    (p.endsWith(".sass") || p.endsWith(".scss")) ||
-                  ((["denolus"].includes(lang) || !lang) &&
-                    (p.endsWith(".lus") || p.endsWith(".yml") ||
-                      p.endsWith(".yaml"))) ||
-                  (["css"].includes(lang) && p.endsWith(".css"))):
-                styleContent = Deno.readTextFileSync(p as string) +
-                  styleContent;
-                break;
               case !p:
                 this.error(
                   `style's src attribute is not found. \ncomponent${component.file}\ninput: ${src}`,
@@ -92,15 +80,6 @@ export default class StyleInspector extends Utils {
               ? await fetchRemoteRessource(src)
               : await fetchRemoteRessource(remoteRelativePath);
             switch (true) {
-              case p &&
-                ((["scss", "sass"].includes(lang) || !lang) &&
-                    (p.endsWith(".sass") || p.endsWith(".scss")) ||
-                  ((["denolus"].includes(lang) || !lang) &&
-                    (p.endsWith(".lus") || p.endsWith(".yml") ||
-                      p.endsWith(".yaml"))) ||
-                  (["css"].includes(lang) && p.endsWith(".css"))):
-                styleContent = p + styleContent;
-                break;
               case !p:
                 this.error(
                   `style's src attribute is not reachable. \ncomponent${component.file}\ninput: ${src}`,
@@ -112,18 +91,6 @@ export default class StyleInspector extends Utils {
             }
           }
           switch (element.attributes.lang) {
-            case "scss":
-            case "sass":
-              compiledCss = sassCompiler(styleContent as string, {
-                output_style: "compressed",
-                precision: 5,
-                indented_syntax: false,
-                include_paths: [],
-              }).result;
-              break;
-            case "denolus":
-              compiledCss = denolusCompiler(styleContent as string);
-              break;
             default:
               compiledCss = styleContent as string;
               break;
