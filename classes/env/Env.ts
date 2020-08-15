@@ -209,15 +209,12 @@ export default class Env extends Constructor {
    * including HTML CSS and JS
    */
   public async getBuild() {
-    this.error(
-      "build is not ready yet, until Deno's compiler isn't fixed.\nplease check this issue > https://github.com/denoland/deno/issues/6423",
-    );
-    /*
-    letStyle = '';
-    // TODO WAIT FOR A FIX OF COMPILER API
+    this.error(`\nbuild is not yet ready.\nwaiting for a fix on the ts compiler\nplease check this issue: https://github.com/denoland/deno/issues/7054`);
+    let Style = '';
+    if (!this.bundle) return;
     if (Configuration && Configuration.compileCSS) {
       this.recursiveRead({
-        entrypoint: Configuration,
+        entrypoint: Configuration.entrypoint,
         onContent: (file: string, content: string) => {
           if (file.endsWith('.css')) {
             this.warn(`loading css: ${file}`);
@@ -229,7 +226,7 @@ export default class Env extends Constructor {
     const stylesProd = Array.from(this.bundle.components.entries()).map((
       entry: any,
     ) => entry[1].style.join("\n")).join("\n");
-    const compiledStyle = Configuration.minifyCSS ? Style + stylesProd).replace(/(\n|\s+|\t)/gi, ' ') : Style + stylesProd);
+    const compiledStyle = Configuration.minifyCSS ? Style + stylesProd.replace(/(\n|\s+|\t)/gi, ' ') : Style + stylesProd;
     const style = `<style>${(compiledStyle)}</style>`;
     const esmProd = Array.from(this.bundle.components.entries()).map((
       entry: any,
@@ -245,9 +242,10 @@ export default class Env extends Constructor {
         );
       }
       const [, scriptProd] = await Deno.compile("index.ts", {
-        "index.ts": `import test from '/test.js'`,
-import WebComponentExtends from '../centralized-class/index';
-        "test.js": 'export default 10;',
+        "index.ts": `
+        import test from "./test.js"
+        `,
+        "test.js": "export default 10;",
       }, {
         module: "esnext",
         target: "esnext",
@@ -261,7 +259,7 @@ import WebComponentExtends from '../centralized-class/index';
         alwaysStrict: false,
         sourceMap: false,
         strictFunctionTypes: true,
-        lib: ["dom", "esnext"],
+        lib: ["esnext"],
       });
       // in production DOM has to be
       // <template is="${rootComponent.uuid}-nt"></template>
@@ -279,6 +277,5 @@ import WebComponentExtends from '../centralized-class/index';
     } else {
       this.error("no root-component found");
     }
-    */
   }
 }
