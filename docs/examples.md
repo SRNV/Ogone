@@ -134,8 +134,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
 <template>
   <store-component namespace="menu" />
   <div class="left-menu"
-    --class="{ close: !isOpen }"
-    --html="innerHTML">
+    --class="{ close: !isOpen }">
     <div class="header">
       <logo-el --click:toggle-menu></logo-el>
       <div>0.1.0</div>
