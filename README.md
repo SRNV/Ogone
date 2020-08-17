@@ -5,7 +5,7 @@
 <h1 align="center">Ogone</h1>
 <p align="center">
    <a href="https://github.com/SRNV/Ogone/releases">
-     <img alt="ogone version" src="https://img.shields.io/github/v/release/SRNV/Ogone?style=plastic&logo=deno&labelColor=black">
+     <img alt="ogone version" src="https://img.shields.io/github/v/release/SRNV/Ogone?style=plastic&labelColor=black">
    </a>
    <a href="https://github.com/denoland/deno">
      <img alt="deno version" src="https://img.shields.io/badge/deno-^1.3.0-lightgrey?logo=deno">
