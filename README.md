@@ -10,6 +10,9 @@
    <a href="https://github.com/SRNV/Ogone">
      <img alt="ogone downloads" src="https://img.shields.io/github/downloads/SRNV/Ogone/total?labelColor=black">
    </a>
+   <a href="https://github.com/SRNV/Ogone">
+     <img alt="ogone commit" src="https://img.shields.io/github/last-commit/SRNV/Ogone?labelColor=black">
+   </a>
     <a href="https://github.com/SRNV/Ogone/stargazers">
      <img alt="stars" src="https://img.shields.io/github/stars/SRNV/Ogone">
    </a>
