@@ -11,7 +11,7 @@
      <img alt="nest badge" src="https://nest.land/badge.svg">
    </a>
    <a href="https://github.com/denoland/deno">
-     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.3.0-lightgrey">
+     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.3.0-lightgrey/x-black.svg?logo=deno">
    </a>
     <a href="https://github.com/SRNV/Ogone/stargazers">
      <img alt="stars" src="https://img.shields.io/github/stars/SRNV/Ogone">
