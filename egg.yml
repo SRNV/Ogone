@@ -15,6 +15,7 @@ files:
   - ./tests/**/*
   - ./types/**/*
   - ./utils/**/*
+  - ./externals/**/*
   - .d.ts
   - deps.ts
   - mod.ts

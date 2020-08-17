@@ -110,16 +110,23 @@ const test = new TransformCSS();
 test.read(`
   @import '../style.o3s';
   @export $dark = true;
+  @export $darkMode = \${0 === 0 /* this should be evaluated */};
   $b = a + $dark;
   $var = red + $dark + $b;
   $var2 = 'g g'
   'g g'
   'g g'
   'g g';
+  $t = div {
+    color: red;
+  };
   @type container {
     background: red;
   };
-  @container<div> {
+  @container<
+    div,
+    @Pick<@container, 'background'>> {
+    ...$t,
     background: blue;
     color: red;
     grid-template: "fdsqf dsqfds"
