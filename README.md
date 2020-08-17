@@ -43,7 +43,11 @@ No Proxies, no getters, no setters used for the reactivity, just code...
 # Installation
 
 ```typescript
-import o3 from 'https://x.nest.land/Ogone@0.16.0-rc.3/mod.ts';
+// from deno.land/x
+import o3 from 'https://deno.land/x/ogone@<version>/mod.ts';
+
+// from x.nest.land
+import o3 from 'https://x.nest.land/Ogone@<version>/mod.ts';
 
 o3.run({
   entrypoint: 'path/to/root-component.o3',
