@@ -19,6 +19,9 @@
    <a href="https://github.com/SRNV/Ogone">
      <img alt="license" src="https://img.shields.io/github/license/SRNV/Ogone">
    </a>
+   <a href="https://deno.land/x/ogone">
+     <img alt="denoland" src="http://img.shields.io/badge/available%20on-deno.land/x-black.svg?style=plastic&logo=deno&labelColor=lightgrey">
+   </a>
    <a href="https://nest.land/package/Ogone">
      <img alt="nest badge" src="https://nest.land/badge.svg">
    </a>
