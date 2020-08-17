@@ -10,7 +10,6 @@
    <a href="https://nest.land/package/Ogone">
      <img alt="nest badge" src="https://nest.land/badge.svg">
    </a>
-   <a>|</a>
    <a href="https://github.com/denoland/deno">
      <img alt="deno version" src="https://img.shields.io/badge/deno-^1.2.1-informational">
    </a>
