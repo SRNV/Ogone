@@ -8,7 +8,7 @@
      <img alt="ogone version" src="https://img.shields.io/github/v/release/SRNV/Ogone?labelColor=black">
    </a>
    <a href="https://github.com/SRNV/Ogone">
-     <img alt="ogone downloads" src="https://img.shields.io/github/downloads/SRNV/Ogone/total.svg?labelColor=black">
+     <img alt="ogone downloads" src="https://img.shields.io/github/downloads/SRNV/Ogone/total.svg">
    </a>
    <a href="https://github.com/SRNV/Ogone">
      <img alt="ogone commit" src="https://img.shields.io/github/last-commit/SRNV/Ogone?labelColor=black">
