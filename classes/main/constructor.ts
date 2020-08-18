@@ -8,7 +8,6 @@ import StoreConnectionsInspector from "../inspectors/store-connections-inspector
 import { Bundle, XMLNodeDescription } from "../../.d.ts";
 import RuntimeCompiler from "../compiler/index.ts";
 import { Utils } from "../utils/index.ts";
-import { Configuration } from "../config/index.ts";
 
 export default class Constructor extends Utils {
   private StoreConnectionsInspector: StoreConnectionsInspector =
@@ -32,7 +31,7 @@ export default class Constructor extends Utils {
    * this instance will assign the rootnode Element to the component
    */
   private ComponentReader: ComponentReader = new ComponentReader();
-  async getBundle(): Promise<Bundle> {
+  async getBundle(entrypoint: string): Promise<Bundle> {
     const bundle: Bundle = {
       files: [],
       datas: [],
@@ -55,7 +54,7 @@ export default class Constructor extends Utils {
         controller: false,
       },
     };
-    await this.UseStatementsInspector.inspect(Configuration.entrypoint, bundle);
+    await this.UseStatementsInspector.inspect(entrypoint, bundle);
     await this.ComponentReader.read(bundle);
     await this.ImportedComponentsInpector.inspect(bundle);
     if (this.ScriptInspector) await this.ScriptInspector.read(bundle);

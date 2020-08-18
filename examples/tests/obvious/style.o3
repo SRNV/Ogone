@@ -1,0 +1,6 @@
+<style>
+  @export const container = red;
+  @export const rule = div {
+    color: $container;
+  }
+</style>

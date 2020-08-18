@@ -1,6 +1,10 @@
 import { colors } from "../../deps.ts";
+import templateReplacer from '../../utils/template-recursive.ts';
+import { absolute } from '../../deps.ts';
 
 export abstract class Utils {
+  protected templateReplacer = templateReplacer;
+  protected absolute = absolute;
   public warn(message: string, opts?: { [k: string]: any }): void {
     const { bgYellow, bold, black, yellow } = colors;
     this.message(`${bgYellow(bold(black("   WARN  ")))} ${yellow(message)}`);

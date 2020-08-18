@@ -1,6 +1,6 @@
-import gen from "./generator.ts";
-import { ProtocolScriptRegExpList } from "../../../../.d.ts";
-import templateReplacer from "../../../../utils/template-recursive.ts";
+import gen from "../ts/src/generator.ts";
+import { ProtocolScriptRegExpList } from "../../../.d.ts";
+import templateReplacer from "../../../utils/template-recursive.ts";
 
 const tokens: ProtocolScriptRegExpList = [
   {
@@ -498,7 +498,7 @@ const tokens: ProtocolScriptRegExpList = [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§parenthese${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
-      if (typedExpressions) typedExpressions.parentheses[id] = value;
+      if (typedExpressions && typedExpressions.parentheses) typedExpressions.parentheses[id] = value;
       return id;
     },
     close: ")",
@@ -510,7 +510,7 @@ const tokens: ProtocolScriptRegExpList = [
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§block${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
-      if (typedExpressions) typedExpressions.blocks[id] = value;
+      if (typedExpressions && typedExpressions.blocks) typedExpressions.blocks[id] = value;
       return id;
     },
     close: "}",

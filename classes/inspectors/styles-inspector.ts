@@ -8,9 +8,11 @@ import { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "../utils/index.ts";
 import keyframes from "../utils/keyframes.ts";
+import ObviousParser from '../parsers/css/obvious.ts';
 
 export default class StyleInspector extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
+  private ObviousParser: ObviousParser = new ObviousParser();
   private readKeyframes(keyframesEvaluated: string) {
     const fn = new Function('get', `return (${keyframesEvaluated});`)
     const get = (name: string, opts: any) => {
@@ -98,6 +100,7 @@ export default class StyleInspector extends Utils {
           if (element.attributes['--keyframes']) {
             compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
           }
+          compiledCss = await this.ObviousParser.read(compiledCss, bundle, component);
           const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid) ;
           component.style.push(css);
         }

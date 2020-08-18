@@ -1,11 +1,11 @@
 import gen from "./src/generator.ts";
 import { YAML } from "../../../deps.ts";
 import getTypedExpression from "./src/typedExpressions.ts";
-import elements from "./src/elements.ts";
+import elements from "../utils/elements.ts";
 import computedExp from "./src/computed.ts";
 import esmElements from "./src/esm.ts";
 import cjsElements from "./src/cjsElements.ts";
-import notParsedElements from "./src/not-parsed.ts";
+import notParsedElements from "../utils/not-parsed.ts";
 import O3Elements from "./src/o3-elements.ts";
 import templateReplacer from "../../../utils/template-recursive.ts";
 import { Utils } from "../../utils/index.ts";
@@ -300,18 +300,14 @@ export default class ProtocolScriptParser extends Utils {
         }
       }
       if (item.split && item.splittedId) {
-        while (
-          result.indexOf(item.split[0]) > -1 &&
-          result.indexOf(item.split[1]) > -1
-        ) {
-          const exp: string = result.split(item.split[0])[1];
-          const all = `${item.split[0]}${exp.split(item.split[1])[0]}${
-            item.split[1]
-          }`;
-          result = result.replace(
-            all,
-            item.splittedId(result, expressions),
+        while (result.indexOf(item.split[0]) > -1
+          && result.indexOf(item.split[1]) > -1
+          && result.indexOf(item.split[0]) < result.indexOf(item.split[1])) {
+          const part1 = result.substring(
+            result.indexOf(item.split[0]),
+            result.indexOf(item.split[1]) +2,
           );
+          result = result.replace(part1, item.splittedId(result, expressions));
         }
       }
     });

@@ -53,7 +53,7 @@ export default class Env extends Constructor {
     entrypoint: string,
     shouldBundle?: boolean,
   ): Promise<any> {
-    const bundle: Bundle = await this.getBundle();
+    const bundle: Bundle = await this.getBundle(Configuration.entrypoint);
     if (shouldBundle) {
       this.setBundle(bundle);
       return bundle;
