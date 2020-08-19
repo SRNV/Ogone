@@ -4,7 +4,13 @@ use ./style.o3 as 'el-comp';
     background: red;
     color: red;
     grid-template: $var2;
-    sub {};
+    sub, h1
+    h2, h3,
+    h4, h5, #id, test, .fdsqfdsqfd, wesssshhhhh {
+      color: blue;
+      sub2 {};
+      color: red;
+    };
   } test2 { color: red } tt {
     background-size: 30%;
     color: calc(30% 20% 34% red);
@@ -44,9 +50,10 @@ use ./style.o3 as 'el-comp';
     sub {};
   }
   @type container = {
-    background: red;
+    background: "red" | "blue";
+    color: "red" | "blue";
   };
-  @export container = div {
+  @export const* container = div {
     ...t;
     ...Component.container;
     background: blue;

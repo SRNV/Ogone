@@ -23,7 +23,11 @@ export default class ObviousParser extends Utils {
   private expressions: { [k: string]: string } = {};
   private mapStyleBundle: Map<string, StyleBundle> = new Map();
   private getProperties(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component) {
-    const result: { [k: string]: string } = {};
+    const result: { children: string[], props: { [k: string]: string } } = {
+      children: [],
+      props: {},
+    };
+    const { expressions } = styleBundle.tokens;
     const endExp = /(?:(§{2}(endPonctuation|endLine)\d+§{2}))/;
     const parts = css.split(endExp)
     parts
@@ -31,21 +35,25 @@ export default class ObviousParser extends Utils {
         && !endExp.test(rule) && rule.trim().length)
       .forEach((rule) => {
         const isChild = rule.match(/(§{2}block\d+§{2})/);
-        if (!isChild) {
+        if (isChild) {
+          const [block] = isChild;
+          result.children.push(rule);
+        } else {
           const item = rule.split(/§{2}optionDiviser\d+§{2}/);
           if (item) {
             let [prop, value] = item;
-            prop = this.templateReplacer(prop.trim(), styleBundle.tokens.expressions);
-            result[prop] = this.templateReplacer(value.trim(), styleBundle.tokens.expressions);
+            prop = this.templateReplacer(prop.trim(), expressions);
+            result.props[prop] = this.templateReplacer(value.trim(), expressions);
           }
         }
       });
     return result;
   }
-  private getRules(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: any = null): string {
-    let result = styleBundle.value;
+  private getRules(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: any = {}): string {
+    let result = css;
     const regExp = /(§{2}block\d+§{2})/gi;
     const matches = result.match(regExp);
+    console.warn(1, css, matches);
     if (matches) {
       matches.forEach((block, i, arr) => {
         const endIndex = css.indexOf(block) + block.length;
@@ -63,17 +71,35 @@ export default class ObviousParser extends Utils {
         const style = read({
           expressions,
           typedExpressions,
-          value: expressions[block].trim().slice(1).slice(0, -1),
+          value: expressions[block]
+            .trim()
+            .slice(1)
+            .slice(0, -1),
           array: obviousElements,
         });
-        const properties = this.getProperties(style, styleBundle, bundle, component);
+        const { props: properties, children } = this.getProperties(style, styleBundle, bundle, component);
         styleBundle.mapSelectors.set(selector, {
           selector: selector,
           properties,
+          parent: opts.parent ? opts.parent : null,
+          children: [],
         });
-        console.warn(styleBundle.mapSelectors.get(selector));
+        console.warn(children)
+        children.forEach((child) => {
+          console.warn(child)
+          this.getRules(child, styleBundle, bundle, component, {
+            parent: styleBundle.mapSelectors.get(selector)
+          });
+        })
+        if (opts.parent) {
+          opts.parent.children.push(
+            styleBundle.mapSelectors.get(selector)
+          );
+        }
+        result = result.replace(rule, '');
       })
     }
+    console.warn(1, styleBundle.mapSelectors)
     return result;
   }
   private getUniqueId(type: string): string {
@@ -124,7 +150,6 @@ export default class ObviousParser extends Utils {
         return statement;
       }).join('');
     styleBundle.value = result;
-    console.warn(styleBundle.value);
     return result;
   }
   private readRules(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
@@ -142,9 +167,6 @@ export default class ObviousParser extends Utils {
         item.rawStyle = childStyle;
       }
     }
-    styleBundle.mapSelectors.forEach((item) => {
-      item.value = item.value.trim();
-    });
     styleBundle.value = result;
     return result;
   }
