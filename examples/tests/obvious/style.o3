@@ -1,6 +1,10 @@
 <style>
-  @export const container = red;
-  @export const rule = div {
-    color: $container;
+  @export const container = #234543F;
+  @export const rule = div { color: $container };
+  @const gridName = auto;
+  @const* list = [];
+  div {
+    ...$rule;
+    grid: $gridName;
   }
 </style>

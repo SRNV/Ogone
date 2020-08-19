@@ -328,3 +328,12 @@ export interface ForCtxDescription<T> {
   array: string;
   content: T;
 }
+export type StyleBundle = {
+  value: string;
+  input: string;
+  mapImports: Map<string, any>;
+  mapSelectors: Map<string, any>;
+  mapVars: Map<string, any>;
+  tokens: any;
+  component: Component;
+}

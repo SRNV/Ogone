@@ -1,81 +1,12 @@
 use ./style.o3 as 'el-comp';
 <style>
-  div + > complex .fsqfdsqf #el :not() test {
-    background: red;
-    color: red;
-    grid-template: $var2;
-    sub, h1
-    h2, h3,
-    h4, h5, #id, test, .fdsqfdsqfd, wesssshhhhh {
-      color: blue;
-      sub2 {};
-      color: red;
-    };
-  } test2 { color: red } tt {
-    background-size: 30%;
-    color: calc(30% 20% 34% red);
-  }
-  h2, h1,
-  h4 {
-    color: red;
-  }
-  /*
   @use 'el-comp' as Component;
-  @export const* dark = true;
+  @const* var2 = Component.container;
   div {
-    color: blue;
-  }
-  @export const* darkMode = 0 === 0;
-  @export const* ef = ({ Component }): string => {
-    return Component.style.container;
-  };
-  @const* m = 10;
-  @const* b = a + dark;
-  @const* var = red + dark + b;
-  @const* var2 = 'g g'
-    'g g'
-    'g g'
-    'g g';
-  @const t = div {
-    color: red;
-  };
-  @keyframes animation {
-    0% {}
-    100% {}
-  }
-  div {
-    background: red;
-    color: red;
     grid-template: $var2;
-    sub {};
-  }
-  @type container = {
-    background: "red" | "blue";
-    color: "red" | "blue";
-  };
-  @export const* container = div {
-    ...t;
-    ...Component.container;
-    background: blue;
-    color: red;
-    grid-template: "fdsqf dsqfds"
-    "fdsqf dsqfds"
-    "fdsqf dsqfds"
-    "fdsqf dsqfds";
-    &.parent {
-      background: url(qsfdsqfdsqfdsqf);
-      color: var;
-      a more nested {
-        for good { }
-        b: var;
-      }
-    }
-    another, one
-    with, newline {
-      aaaa
+    .sub {
+      color: linear-gradient(50% red, 10% blue);
     }
   }
-
-/** */
 
 </style>

@@ -8,7 +8,7 @@ import { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "../utils/index.ts";
 import keyframes from "../utils/keyframes.ts";
-import ObviousParser from '../parsers/css/obvious.ts';
+import ObviousParser from '../parsers/css/obvious/index.ts';
 
 export default class StyleInspector extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
@@ -16,10 +16,10 @@ export default class StyleInspector extends Utils {
   private readKeyframes(keyframesEvaluated: string) {
     const fn = new Function('get', `return (${keyframesEvaluated});`)
     const get = (name: string, opts: any) => {
-      switch(true) {
-        case typeof name !== 'string' :
+      switch (true) {
+        case typeof name !== 'string':
           this.error('using keyframes fade: argument one has to be a string.')
-        break;
+          break;
       }
       return `
         .${name} {
@@ -58,10 +58,10 @@ export default class StyleInspector extends Utils {
             const p = existsSync(src)
               ? src
               : existsSync(relativePath)
-              ? isAbsoluteRemote
-                ? await fetchRemoteRessource(src)
-                : relativePath
-              : null;
+                ? isAbsoluteRemote
+                  ? await fetchRemoteRessource(src)
+                  : relativePath
+                : null;
             switch (true && !!p) {
               case !p:
                 this.error(
@@ -75,7 +75,7 @@ export default class StyleInspector extends Utils {
           } else if (src.length && component.remote) {
             this.warn(
               `Downloading style: ${
-                isAbsoluteRemote ? src : remoteRelativePath
+              isAbsoluteRemote ? src : remoteRelativePath
               }`,
             );
             const p = isAbsoluteRemote
@@ -101,7 +101,7 @@ export default class StyleInspector extends Utils {
             compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
           }
           compiledCss = await this.ObviousParser.read(compiledCss, bundle, component);
-          const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid) ;
+          const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
           component.style.push(css);
         }
       }
