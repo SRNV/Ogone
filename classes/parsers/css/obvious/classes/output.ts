@@ -1,8 +1,8 @@
 import { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
-import ObviousMemory from './memory.ts';
+import ObviousParser from './parser.ts';
 
-export default class ObviousOutput extends ObviousMemory {
-  private getOutput(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
+export default class ObviousOutput extends ObviousParser {
+  protected getOutput(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = '';
     styleBundle.mapSelectors.forEach((item) => {
       const entries = Object.entries(item.properties);

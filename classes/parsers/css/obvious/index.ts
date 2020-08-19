@@ -1,14 +1,13 @@
 import { Bundle, Component, StyleBundle } from '../../../../.d.ts';
 import read from '../../utils/agnostic-transformer.ts';
-import { Utils } from '../../../utils/index.ts';
-import ObviousOutput from './classes/output.ts';
+import ObviousMemory from './classes/memory.ts';
 
 let i = 0;
 function getId(type: string): string {
   i++;
   return `${type}${i}`;
 }
-export default class ObviousParser extends ObviousOutput {
+export default class ObviousParser extends ObviousMemory {
   private expressions: { [k: string]: string } = {};
   private mapStyleBundle: Map<string, StyleBundle> = new Map();
   private getUniqueId(type: string): string {

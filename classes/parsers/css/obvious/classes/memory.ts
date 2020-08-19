@@ -1,8 +1,8 @@
 import { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
 import read from '../../../utils/agnostic-transformer.ts';
-import ObviousParser from './parser.ts';
+import ObviousOutput from './output.ts';
 
-export default class ObviousMemory extends ObviousParser {
+export default class ObviousMemory extends ObviousOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
     const parts = result.split(/(?:§{2}(endPonctuation|endLine)\d+§{2})/);
