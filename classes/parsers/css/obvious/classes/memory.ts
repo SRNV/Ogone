@@ -58,6 +58,7 @@ export default class ObviousMemory extends ObviousOutput {
       mapImports: new Map(),
       mapVars: new Map(),
       mapMedia: new Map(),
+      mapKeyframes: new Map(),
       mapSelectors: new Map(),
       component,
       tokens: {

@@ -39,7 +39,7 @@
       opacity: 0 | 1;
     }
   }
-  @keyframes animationName {
+  @keyframes animationName2 {
     0% {
       color: blue;
     }

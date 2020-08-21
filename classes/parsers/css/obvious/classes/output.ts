@@ -8,6 +8,11 @@ export default class ObviousOutput extends ObviousParser {
       const entries = Object.entries(item.properties.props);
       let rule = '';
       switch (true) {
+        case !!item.isKeyframes:
+          this.saveKeyframes(styleBundle, bundle, component, {
+            item,
+          });
+          break;
         case !!item.isMedia:
           this.saveMediaQueries(styleBundle, bundle, component, {
             item,
@@ -25,6 +30,7 @@ export default class ObviousOutput extends ObviousParser {
       result += rule;
     });
     result += this.renderMediaQueries(styleBundle, bundle, component);
+    result += this.renderKeyframes(styleBundle, bundle, component);
     styleBundle.value = result;
     return result;
   }
@@ -53,12 +59,63 @@ export default class ObviousOutput extends ObviousParser {
     });
     return result;
   }
+  protected renderKeyframes(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
+    let result = '';
+    const entries = Array.from(styleBundle.mapKeyframes.entries())
+    entries.forEach(([selector, item]: [string, any]) => {
+      if (item.isNestedKeyframes) {
+        const { props } = item.properties;
+        const { parent } = item;
+
+        const keys = Object.keys(props);
+        const animationKeys = keys.filter((k) => k.indexOf('animation') > -1);
+        const keyframes: { [k: string]: string }[] = [];
+        Object.entries(props)
+          .filter(([k]) => k.indexOf('animation') < 0)
+          .map(([k, value]: [string, any]) => {
+            const newValue = value.split('|');
+            newValue.forEach((v: string, i: number) => {
+              keyframes[i] = keyframes[i] || {};
+              keyframes[i][k] = v.trim().length ? v.trim() : keyframes[i - 1] ? keyframes[i - 1][k] : '';
+            });
+            return [k, newValue];
+          });
+        const m = item.selector.match(/@keyframes\s+(.*)/i);
+        if (m) {
+          let [, name] = m;
+          props["animation-name"] = props["animation-name"] || name;
+        }
+        result += `
+        ${item.selector} {
+          ${keyframes.map((keyframe, i: number, arr: typeof keyframes) => {
+          const total = arr.length;
+          const percent = Math.round((i / total) * 100);
+          const entries = Object.entries(keyframe);
+          return `${percent}% {${entries.map(([k, v]) => `${k}: ${v};`).join('')}}`;
+        }).join('')}
+        }
+        ${parent.selector} {${animationKeys.map((key) => `${key}:${props[key]};`)}animation-name: ${props["animation-name"]};}
+      `;
+      } else if (item.isKeyframes) {
+        result += this.getDeepTranslation(item.rule, styleBundle.tokens.expressions);
+      }
+    });
+    return result;
+  }
   protected saveMediaQueries(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: { item: any }): void {
     const { item } = opts;
     if (!styleBundle.mapMedia.has(item.isMedia)) styleBundle.mapMedia.set(item.isMedia, { queries: [item] });
     else {
       const itemMedia = styleBundle.mapMedia.get(item.isMedia);
       itemMedia.queries.push(item);
+    }
+  }
+  protected saveKeyframes(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: { item: any }): void {
+    const { item } = opts;
+    if (!styleBundle.mapKeyframes.has(item.selector)) styleBundle.mapKeyframes.set(item.selector, item);
+    else {
+      console.warn(item.selector);
+      this.error(`${component.file}\n\tduplicated keyframes.\n\tinput: ${item.selector} {...}`);
     }
   }
 }

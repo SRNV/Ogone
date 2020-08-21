@@ -204,11 +204,16 @@ export default class ObviousParser extends Utils {
           startIndex = 0;
         }
         const rule = css.slice(startIndex, endIndex);
+        const isKeyframes = rule.trim().startsWith("@keyframes");
+        const isMedia = rule.trim().startsWith("@media");
         const expressions = styleBundle.tokens.expressions;
         const typedExpressions = styleBundle.tokens.typedExpressions;
         let selector = this.getDeepTranslation(rule.replace(block, '').trim(), expressions);
         const keySelector = "k" + Math.random();
-        if (opts.parent && this.isNotSpecial(opts.parent.selector) && !rule.trim().startsWith("@media")) {
+        if (opts.parent
+          && this.isNotSpecial(opts.parent.selector)
+          && this.isNotSpecial(rule.trim())
+          && !isKeyframes) {
           const match = selector.match(/&/gi);
           if (!match) {
             selector = `${opts.parent.selector} ${selector}`;
@@ -233,27 +238,41 @@ export default class ObviousParser extends Utils {
           children: [],
           isMedia: opts.isMedia ? opts.isMedia : false,
           isNestedMedia: false,
+          isKeyframes,
         });
         const { props: properties, children } = this.getProperties(style, styleBundle, bundle, component, {
           selector: keySelector,
         });
         // handle nested media queries
-        if (opts.parent && rule.trim().startsWith("@media")) {
+        if (opts.parent && isMedia) {
           if (children.length) {
             this.error(
-              `${component.file}\nError in Style, can't assign nested rule inside a nested media.\ninput: ${selector} {${this.getDeepTranslation(children[0], expressions)}}`
+              `${component.file}\nError in Style, can't assign nested rule inside a nested @media.\ninput: ${selector} {${this.getDeepTranslation(children[0], expressions)}}`
             );
           }
           const item = styleBundle.mapSelectors.get(keySelector);
           item.isNestedMedia = selector;
           item.isMedia = selector;
         }
-        children.forEach((child) => {
-          this.getRules(child, styleBundle, bundle, component, {
-            parent: styleBundle.mapSelectors.get(keySelector),
-            isMedia: rule.trim().startsWith('@media') ? selector : !!opts.isMedia ? opts.isMedia : false,
-          });
-        })
+        // handle nested keyframes
+        if (opts.parent && isKeyframes) {
+          if (children.length) {
+            this.error(
+              `${component.file}\nError in Style, can't assign nested rule inside a nested @keyframes.\n\tif you're trying to use classic @keyframes please use it at the style's top level\ninput: ${selector} {${this.getDeepTranslation(children[0], expressions)}}`
+            );
+          }
+          const item = styleBundle.mapSelectors.get(keySelector);
+          item.isNestedKeyframes = selector;
+          item.isKeyframes = selector;
+        }
+        if (!isKeyframes) {
+          children.forEach((child) => {
+            this.getRules(child, styleBundle, bundle, component, {
+              parent: styleBundle.mapSelectors.get(keySelector),
+              isMedia: rule.trim().startsWith('@media') ? selector : !!opts.isMedia ? opts.isMedia : false,
+            });
+          })
+        }
         if (opts.parent) {
           opts.parent.children.push(
             styleBundle.mapSelectors.get(keySelector)
