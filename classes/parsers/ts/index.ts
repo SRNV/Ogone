@@ -7,7 +7,7 @@ import esmElements from "./src/esm.ts";
 import cjsElements from "./src/cjsElements.ts";
 import notParsedElements from "../utils/not-parsed.ts";
 import O3Elements from "./src/o3-elements.ts";
-import templateReplacer from "../../../utils/template-recursive.ts";
+import getDeepTranslation from "../../../utils/template-recursive.ts";
 import { Utils } from "../../utils/index.ts";
 import {
   TypedExpressions,
@@ -69,7 +69,7 @@ export default class ProtocolScriptParser extends Utils {
       data = this.read(
         { typedExpressions, expressions, value: data, array: O3Elements },
       );
-      data = templateReplacer(data, expressions);
+      data = getDeepTranslation(data, expressions);
       if (m.trim() === "before-each") {
         typedExpressions.switch.before.each = data;
       } else if (before) {
@@ -106,7 +106,7 @@ export default class ProtocolScriptParser extends Utils {
     if (result) {
       result = result.map((s) => {
         let sr = s;
-        sr = templateReplacer(sr, expressions).trim();
+        sr = getDeepTranslation(sr, expressions).trim();
         return sr;
       });
       typedExpressions.switch.cases.push(...result);
@@ -151,7 +151,7 @@ export default class ProtocolScriptParser extends Utils {
       arr[i + 1] && arr[i + 1] === data
     );
     let previous = data;
-    data = templateReplacer(data, expressions);
+    data = getDeepTranslation(data, expressions);
     const definition = `${def}:${previous}`;
     const yaml = YAML.parse(data, {});
     result = result.replace(definition, "");
@@ -220,7 +220,7 @@ export default class ProtocolScriptParser extends Utils {
         const name = key && key.startsWith("§§array")
           ? key
           : `'${expressions[key].replace(/(§{2}ponctuation\d*§{2})/, "")}'` ||
-            "";
+          "";
         result = result.replace(
           exp,
           `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`,
@@ -305,7 +305,7 @@ export default class ProtocolScriptParser extends Utils {
           && result.indexOf(item.split[0]) < result.indexOf(item.split[1])) {
           const part1 = result.substring(
             result.indexOf(item.split[0]),
-            result.indexOf(item.split[1]) +2,
+            result.indexOf(item.split[1]) + 2,
           );
           result = result.replace(part1, item.splittedId(result, expressions));
         }
@@ -555,7 +555,7 @@ export default class ProtocolScriptParser extends Utils {
       });
     });
     // finally replace all keys
-    prog = templateReplacer(prog, expressions);
+    prog = getDeepTranslation(prog, expressions);
     return {
       value: prog,
       body: typedExpressions,
@@ -606,10 +606,10 @@ export default class ProtocolScriptParser extends Utils {
     const content = declarations.filter((d) =>
       d && !d.match(/(§§Declaration\d+§§)/i)
     );
-    const all = templateReplacer(values.join(""), expressions);
+    const all = getDeepTranslation(values.join(""), expressions);
     typedExpressions.protocol = `class Protocol { ${
-      templateReplacer(content.join(""), expressions)
-    } }`;
+      getDeepTranslation(content.join(""), expressions)
+      } }`;
     const start = value.indexOf(all);
     const end = start + all.length;
     const startTokens = value.substring(0, start);

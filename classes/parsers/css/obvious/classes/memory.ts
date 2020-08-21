@@ -57,6 +57,7 @@ export default class ObviousMemory extends ObviousOutput {
       value: css,
       mapImports: new Map(),
       mapVars: new Map(),
+      mapMedia: new Map(),
       mapSelectors: new Map(),
       component,
       tokens: {
@@ -104,7 +105,7 @@ export default class ObviousMemory extends ObviousOutput {
       const m = result.match(regexp);
       if (m) {
         let [input, kUse, tag, kAs, name] = m;
-        tag = this.templateReplacer(tag, styleBundle.tokens.expressions)
+        tag = this.getDeepTranslation(tag, styleBundle.tokens.expressions)
           .replace(/["'`]/gi, '');
         styleBundle.mapImports.set(name, {
           tag,

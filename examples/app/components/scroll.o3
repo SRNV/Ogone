@@ -15,22 +15,12 @@
     overflow: hidden;
     display: flex;
     flex-direction: row-reverse;
-  }
-  .scrollbar {
-    width: 9px;
-    flex: 1;
-    background: #3e3e3e;
-  }
-  .scrollbar-button {
-    height: 20px;
-    width: 100%;
-    background: var(--o-grey);
-  }
-  .content {
-    flex: 18;
-  }
-  .view {
-    flex: 18;
-    overflow: auto;
+    .view {
+      flex: 18;
+      overflow: auto;
+      .content {
+        flex: 18;
+      }
+    }
   }
 </style>

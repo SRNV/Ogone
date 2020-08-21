@@ -1,4 +1,4 @@
-import templateReplacer from "../../../utils/template-recursive.ts";
+import getDeepTranslation from "../../../utils/template-recursive.ts";
 
 let i = 0;
 function getId(type: string): string {
@@ -136,7 +136,7 @@ export default class CSSScoper {
           value = value.replace(
             value,
             `${value}[${scopeId}]${
-              savedPseudoElement ? savedPseudoElement[0] : ""
+            savedPseudoElement ? savedPseudoElement[0] : ""
             }`,
           );
           arr[i].value = value;
@@ -151,7 +151,7 @@ export default class CSSScoper {
         result = result.replace(selector, s);
       });
     }
-    result = templateReplacer(result, expressions);
+    result = getDeepTranslation(result, expressions);
     return result;
   }
 }

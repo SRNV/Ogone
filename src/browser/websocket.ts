@@ -77,7 +77,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
   };
   // @ts-ignore
-  const ws = new WebSocket(`ws://localhost:9385/`);
+  const ws = new WebSocket(`ws://localhost:9382/`);
 
   ws.onmessage = (msg) => {
     const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(
@@ -116,7 +116,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     if (type === "runtime") {
       const r = eval(runtime);
-      Ogone.hmrRuntime(uuid, (r || function () {})).then(() => {
+      Ogone.hmrRuntime(uuid, (r || function () { })).then(() => {
         Ogone.infos({
           message: `[HMR] component updated: ${uuid}`,
         });

@@ -19,9 +19,7 @@ require title, text, code as (string);
     min-height: 400px;
     width: 100%;
     display: flex;
-  }
-  @media screen and (max-width: 965px) {
-    .container {
+    @media screen and (max-width: 965px) {
       flex-direction: column;
     }
   }

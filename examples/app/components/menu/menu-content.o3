@@ -4,7 +4,9 @@ use @/examples/app/components/menu/menu-button.o3 as 'menu-button';
 <proto def="examples/app/defs/source.yml" />
 <template>
   <div id="test" class="menu">
-    <menu-button --for="menu as (t)" :item="t" />
+    <div class="displayButtons">
+      <menu-button --for="menu as (t)" :item="t" />
+    </div>
     <div>
       <burger-el />
     </div>
@@ -18,5 +20,10 @@ use @/examples/app/components/menu/menu-button.o3 as 'menu-button';
     vertical-align: middle;
     align-items: center;
     justify-content: flex-end;
+  }
+  div.displayButtons {
+    @media screen and (max-width: 900px) {
+      display: none;
+    }
   }
 </style>

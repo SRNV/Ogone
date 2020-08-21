@@ -73,9 +73,7 @@ export default class Env extends Constructor {
       ) => {
         let result = "";
         if (entry[1].style.join("\n").trim().length) {
-          result = `<style id="${entry[1].uuid}">
-            ${entry[1].style.join("\n")}
-          </style>`;
+          result = `<style id="${entry[1].uuid}">${entry[1].style.join("\n")}</style>`;
         }
         return result;
       }).join("\n");
@@ -99,9 +97,9 @@ export default class Env extends Constructor {
         const ___perfData = window.performance.timing;
 
         ${
-          browserBuild(this.env === "production", {
-            hasDevtool: this.devtool,
-          })
+        browserBuild(this.env === "production", {
+          hasDevtool: this.devtool,
+        })
         }
         ${this.bundle.datas.join("\n")}
         ${this.bundle.contexts.slice().reverse().join("\n")}
@@ -176,11 +174,11 @@ export default class Env extends Constructor {
     const text = Deno.readTextFileSync(path);
     return isTsFile
       ? // @ts-ignore
-        (await Deno.transpileOnly({
-          [path]: text,
-        }, {
-          sourceMap: false,
-        }))[path].source
+      (await Deno.transpileOnly({
+        [path]: text,
+      }, {
+        sourceMap: false,
+      }))[path].source
       : text;
   }
   private recursiveRead(
@@ -218,7 +216,7 @@ export default class Env extends Constructor {
         onContent: (file: string, content: string) => {
           if (file.endsWith('.css')) {
             this.warn(`loading css: ${file}`);
-          Style += content;
+            Style += content;
           }
         }
       });
@@ -241,6 +239,7 @@ export default class Env extends Constructor {
           `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
         );
       }
+      // @ts-ignore
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `
         import test from "./test.js"

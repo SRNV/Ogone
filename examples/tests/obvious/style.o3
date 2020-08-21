@@ -1,10 +1,25 @@
 <style>
   @export const container = #234543F;
-  @export const rule = div { color: $container };
+  @export const rule = div {
+    color: $container;
+    cool {
+      color: blue;
+    }
+  };
   @const gridName = auto;
   @const* list = [];
-  div {
-    ...$rule;
-    grid: $gridName;
+  @media (width < 100px) {
+    div {
+      ...$rule;
+      grid: $gridName;
+      @media (width < 10px) {
+        grid: red;
+      }
+    }
+  }
+  span {
+    @media (height > 10px) {
+      grid: red;
+    }
   }
 </style>

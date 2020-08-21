@@ -7,20 +7,93 @@ import obviousElements from '../../src/elements.ts';
 
 
 export default class ObviousParser extends Utils {
+  public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
+  protected getContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {
+    let result = opts && opts.imported ? `(() => {` : '';
+    const { expressions } = styleBundle.tokens;
+    const varEntries = Array.from(styleBundle.mapVars.entries());
+    styleBundle.mapImports.forEach((item) => {
+      const { name } = item;
+      result += `\nconst $${name} = ${this.getContext(item.bundle, bundle, component, {
+        imported: true,
+      })};`;
+    });
+    varEntries.forEach(([key, item]) => {
+      switch (true) {
+        case item.eval:
+          result += `\nconst $${key} = typeof ${item.value} === "string" ? ${item.value} :
+            typeof ${item.value} === "function" ? ${item.value}() : eval(${item.value});`;
+          break;
+        case !item.eval && typeof item.value === "string":
+          result += `\nconst $${key} = "${item.value}";\n`;
+          break;
+        case item.isSelector:
+          result += `\nconst $${key} = $$target;\n`;
+          break;
+      }
+    });
+    if (opts && opts.imported) {
+      let exported = '{';
+      varEntries.filter(([, item]) => item.exportable && !item.isSelector)
+        .map(([key]) => {
+          exported += `${key}: $${key},`;
+        })
+      exported += '}';
+      result += `\nreturn (${exported}); })()`;
+    } else {
+      result += `
+        if ('{{ context }}' === 'spread' && ($$target ? $$target : {{ subject }})) {
+          const _target = ($$target ? $$target : {{ subject }});
+          if (!_target.value || !_target.value[0] || !_target.value[0].children) {
+            this.error(\`{{ component.file }}\n\tError in style of Component: {{ subject.trim() }} is not a rule.\n\tyou're getting this error cause you're trying to spread a non-rule value\n\tcant spread it inside another one\n\tinput: ...{{ subject.trim() }}\`);
+          }
+          $$item.children = [
+              ...$$item.children,
+              ..._target.value[0].children,
+            ];
+            $$item.props = {
+              ...$$item.props,
+              ..._target.value[0].properties.props,
+            };
+        }
+        if ('{{ context }}' === 'value') {
+          return {{ subject }};
+        }
+      `;
+    }
+    return this.getDeepTranslation(result, expressions);
+  }
   protected getValueOf(variable: { value: string, eval: boolean, isSelector: boolean, exportable: boolean }, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any) {
     const { value, eval: evaluated } = variable;
-    let result = this.templateReplacer(value, styleBundle.tokens.expressions);
+    const { expressions } = styleBundle.tokens;
+    let result = this.getDeepTranslation(value, expressions);
     const imports = Object.fromEntries(
       styleBundle.mapImports.entries()
     );
-    if (evaluated) {
-      const keys = Object.keys(imports);
-      const proxies = Object.values(imports);
-      console.warn(keys, imports.Component.bundle.mapVars.get('rule'))
-    }
+    const names = Object.keys(imports);
+    names.forEach((name) => {
+      const componentsRegExp = new RegExp(`(\\$${name})(\.([\\w\\d\\_\\-]*)+)*`);
+      const m = result.match(componentsRegExp);
+      if (m) {
+        const [match, nameOfComponent] = m;
+        const functionBody = this.template(
+          this.getContext(styleBundle, bundle, component),
+          {
+            context: 'value',
+            subject: match,
+            component,
+          }
+        );
+        const renderContext = new Function('$$item', '$$target', functionBody).bind(this);
+        const newValue = renderContext(result,
+          styleBundle.mapImports.get(nameOfComponent.replace(/^\$/, ''))
+        );
+        result = result.replace(match, newValue);
+      }
+    })
     return result;
   }
-  protected getProperties(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component) {
+  protected getProperties(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: { selector: string }) {
     const result: { children: string[], props: { [k: string]: string } } = {
       children: [],
       props: {},
@@ -33,21 +106,34 @@ export default class ObviousParser extends Utils {
         && !endExp.test(rule) && rule.trim().length)
       .forEach((rule) => {
         const isChild = rule.match(/(§{2}block\d+§{2})/);
-        const isSpread = rule.match(/(§{2}spread\d+§{2})/);
+        const isSpread = rule.match(/(§{2}spread\d+§{2})(.*)/);
         if (isChild) {
           const [block] = isChild;
           result.children.push(rule);
         } else if (isSpread) {
-          console.warn('spread');
+          let [, , variable] = isSpread;
+          variable = this.getDeepTranslation(variable, expressions);
+          const functionBody = this.template(
+            this.getContext(styleBundle, bundle, component),
+            {
+              context: 'spread',
+              subject: variable,
+              component,
+            }
+          );
+          const renderContext = new Function('$$item', '$$target', functionBody).bind(this);
+          renderContext(result,
+            styleBundle.mapVars.get(variable.replace(/^\$/, ''))
+          );
         } else {
           const item = rule.split(/§{2}optionDiviser\d+§{2}/);
           if (item) {
             let [prop, value] = item;
-            let realValue = this.templateReplacer(value.trim(), expressions);
-            prop = this.templateReplacer(prop.trim(), expressions);
+            let realValue = this.getDeepTranslation(value.trim(), expressions);
+            prop = this.getDeepTranslation(prop.trim(), expressions);
             result.props[prop] = realValue;
-            const regReference = /@([^\s]*)+/;
-            const regVars = /(?<!\-{2})\$([^\s]*)+/;
+            const regReference = /@([\w\_\-]*)+/;
+            const regVars = /(?<!\-{2})\$(\w*)+/;
             const vars = Object.fromEntries(
               styleBundle.mapVars.entries()
             );
@@ -77,10 +163,33 @@ export default class ObviousParser extends Utils {
           }
         }
       });
+    styleBundle.mapSelectors.get(opts.selector).properties = result;
+    return result;
+  }
+  protected isNotSpecial(selector: string): boolean {
+    const special = [
+      "@media",
+      "@keyframes",
+      "@font-face",
+      "@font-feature-values",
+      "@counter-style",
+      "@page",
+    ];
+    let result = true;
+    let i = 0;
+    const { length } = special;
+    while (result === true && i < length) {
+      result = selector.indexOf(special[i]) < 0;
+      if (result) break;
+      i++;
+    }
     return result;
   }
   protected getRules(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: any = {}): any {
     let result = css;
+    if (typeof result !== "string") {
+      return;
+    }
     const rules: any[] = [];
     const regExp = /(§{2}block\d+§{2})/gi;
     const matches = result.match(regExp);
@@ -97,10 +206,15 @@ export default class ObviousParser extends Utils {
         const rule = css.slice(startIndex, endIndex);
         const expressions = styleBundle.tokens.expressions;
         const typedExpressions = styleBundle.tokens.typedExpressions;
-        let selector = this.templateReplacer(rule.replace(block, '').trim(), expressions);
-        if (opts.parent) {
-          selector = `${opts.parent.selector} ${selector}`;
-          selector = selector.replace(/&/gi, opts.parent.selector);
+        let selector = this.getDeepTranslation(rule.replace(block, '').trim(), expressions);
+        const keySelector = "k" + Math.random();
+        if (opts.parent && this.isNotSpecial(opts.parent.selector) && !rule.trim().startsWith("@media")) {
+          const match = selector.match(/&/gi);
+          if (!match) {
+            selector = `${opts.parent.selector} ${selector}`;
+          } else {
+            selector = selector.replace(/&/gi, opts.parent.selector);
+          }
         }
         const style = read({
           expressions,
@@ -111,26 +225,43 @@ export default class ObviousParser extends Utils {
             .slice(0, -1),
           array: obviousElements,
         });
-        const { props: properties, children } = this.getProperties(style, styleBundle, bundle, component);
-        styleBundle.mapSelectors.set(selector, {
+        styleBundle.mapSelectors.set(keySelector, {
           selector,
-          properties,
+          rule,
+          properties: null,
           parent: opts.parent ? opts.parent : null,
           children: [],
+          isMedia: opts.isMedia ? opts.isMedia : false,
+          isNestedMedia: false,
         });
+        const { props: properties, children } = this.getProperties(style, styleBundle, bundle, component, {
+          selector: keySelector,
+        });
+        // handle nested media queries
+        if (opts.parent && rule.trim().startsWith("@media")) {
+          if (children.length) {
+            this.error(
+              `${component.file}\nError in Style, can't assign nested rule inside a nested media.\ninput: ${selector} {${this.getDeepTranslation(children[0], expressions)}}`
+            );
+          }
+          const item = styleBundle.mapSelectors.get(keySelector);
+          item.isNestedMedia = selector;
+          item.isMedia = selector;
+        }
         children.forEach((child) => {
           this.getRules(child, styleBundle, bundle, component, {
-            parent: styleBundle.mapSelectors.get(selector)
+            parent: styleBundle.mapSelectors.get(keySelector),
+            isMedia: rule.trim().startsWith('@media') ? selector : !!opts.isMedia ? opts.isMedia : false,
           });
         })
         if (opts.parent) {
           opts.parent.children.push(
-            styleBundle.mapSelectors.get(selector)
+            styleBundle.mapSelectors.get(keySelector)
           );
         }
         result = result.replace(rule, '');
-        rules.push(styleBundle.mapSelectors.get(selector))
-      })
+        rules.push(styleBundle.mapSelectors.get(keySelector));
+      });
     }
     return {
       rules,

@@ -4,7 +4,7 @@ import {
   ProtocolScriptRegExpItem,
   ProtocolScriptRegExpList,
 } from "../../../../.d.ts";
-import templateReplacer from "../../../../utils/template-recursive.ts";
+import getDeepTranslation from "../../../../utils/template-recursive.ts";
 
 const exportASKey: ProtocolScriptRegExpItem = {
   name: "exportAsKey",
@@ -492,10 +492,10 @@ const esm: ProtocolScriptRegExpList = [
               /[,\s\n]/gi,
               "",
             )
-          } from ${
+            } from ${
             expressions[id2]
               .replace(/[\s]/gi, "")
-          }`,
+            }`,
         };
         typedExpressions.imports[
           expressions[key].replace(/\n,/gi, ",").replace(/,\}/gi, "}")
@@ -508,10 +508,10 @@ const esm: ProtocolScriptRegExpList = [
             expressions[key]
               .replace(/\n,/gi, ",")
               .replace(/,\}/gi, "}")
-          } from ${
+            } from ${
             expressions[id2]
               .replace(/[\s]/gi, "")
-          };`,
+            };`,
         };
       }
       return ``;
@@ -528,7 +528,7 @@ const esm: ProtocolScriptRegExpList = [
       }
       throw new Error(
         `this syntax of import is not supported\ninput:${
-          templateReplacer(value, expressions)
+        getDeepTranslation(value, expressions)
         }`,
       );
     },

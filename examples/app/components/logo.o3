@@ -6,16 +6,16 @@
   </div>
 </template>
 <style>
-  .img {
-    width: auto;
-  }
-  .logo-back {
-    background: var(--o-primary);
-    padding: 6px;
-    border-radius: 100%;
-  }
   .container {
     width: 60px;
     height: auto;
+    .logo-back {
+      background: var(--o-primary);
+      padding: 6px;
+      border-radius: 100%;
+      .img {
+        width: auto;
+      }
+    }
   }
 </style>

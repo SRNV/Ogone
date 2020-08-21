@@ -1,4 +1,4 @@
-export default function templateReplacer(
+export default function getDeepTranslation(
   str: string = "",
   template: { [key: string]: string },
   callback?: (key: string) => string,
@@ -15,7 +15,7 @@ export default function templateReplacer(
       const secondPart = result.substring(index + key.length, result.length);
       result = `${firstPart}${
         callback ? callback(key) : template[key]
-      }${secondPart}`;
+        }${secondPart}`;
     }
   }
   return result;

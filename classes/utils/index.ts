@@ -1,9 +1,9 @@
 import { colors } from "../../deps.ts";
-import templateReplacer from '../../utils/template-recursive.ts';
+import getDeepTranslation from '../../utils/template-recursive.ts';
 import { absolute } from '../../deps.ts';
 
 export abstract class Utils {
-  protected templateReplacer = templateReplacer;
+  protected getDeepTranslation = getDeepTranslation;
   protected absolute = absolute;
   public warn(message: string, opts?: { [k: string]: any }): void {
     const { bgYellow, bold, black, yellow } = colors;
@@ -13,9 +13,9 @@ export abstract class Utils {
     const { bgRed, red, bold, yellow } = colors;
     const m: string = this.message(
       `${bgRed("  ERROR  ")} ${red(message)}\n${
-        yellow(
-          `\n\t\tfeeling like it's an issue ?\n\t\tplease report on https://github.com/SRNV/Ogone/issues/new?assignees=&labels=&template=bug_report.md&title=`,
-        )
+      yellow(
+        `\n\t\tfeeling like it's an issue ?\n\t\tplease report on https://github.com/SRNV/Ogone/issues/new?assignees=&labels=&template=bug_report.md&title=`,
+      )
       }`,
       { returns: true },
     ) as string;

@@ -30,38 +30,38 @@ use ../atoms/li-menu.o3 as 'async-li-menu';
 </template>
 
 <style>
-hr {
-  opacity: 0.4;
-  border-width: thick;
-}
-.logo {
-  width: 100%;
-}
-.container {
-  filter: drop-shadow(-6px 4px 6px black);
-  background: linear-gradient(0deg, #f9f9f9, white);
-  border-right: 1px solid #e8e8e8;
-  height: 100%;
-  z-index: 400;
-  position: relative;
-}
-.fade-in-slide-in-left {
-  animation-name: fade-in-slide-in-left;
-  animation-duration: 1s;
-  animation-iteration-count: 1;
-  animation-direction: normal;
-  animation-fill-mode: forwards;
-}
-@keyframes fade-in-slide-in-left {
-  0% {
-    position: relative;
-    left: -500px;
-    opacity: 0;
+  hr {
+    opacity: 0.4;
+    border-width: thick;
   }
-  100% {
-    position: relative;
-    left: 0px;
-    opacity: 1;
+  .logo {
+    width: 100%;
   }
-}
+  .container {
+    filter: drop-shadow(-6px 4px 6px black);
+    background: linear-gradient(0deg, #f9f9f9, white);
+    border-right: 1px solid #e8e8e8;
+    height: 100%;
+    z-index: 400;
+    position: relative;
+  }
+  .fade-in-slide-in-left {
+    animation-name: fade-in-slide-in-left;
+    animation-duration: 1s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
+  }
+  @keyframes fade-in-slide-in-left {
+    0% {
+      position: relative;
+      left: -500px;
+      opacity: 0;
+    }
+    100% {
+      position: relative;
+      left: 0px;
+      opacity: 1;
+    }
+  }
 </style>

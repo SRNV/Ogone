@@ -62,10 +62,10 @@ use @/examples/app/components/scroll.o3 as 'scroll-component'
     flex: 1;
     display: flex;
     justify-content: space-between;
-  }
-  .title:hover {
-    background: var(--o-primary);
-    color: white;
+    &:hover {
+      background: var(--o-primary);
+      color: white;
+    }
   }
   .child .title {
     border-left: 1px solid #555;

@@ -1,5 +1,5 @@
 import gen from "./generator.ts";
-import templateReplacer from "../../../../utils/template-recursive.ts";
+import getDeepTranslation from "../../../../utils/template-recursive.ts";
 import { TypedExpressions } from "../../../../.d.ts";
 
 export default function parseCases(
@@ -28,7 +28,7 @@ export default function parseCases(
   if (result) {
     result = result.map((s) => {
       let sr = s;
-      sr = templateReplacer(sr, expressions).trim();
+      sr = getDeepTranslation(sr, expressions).trim();
       return sr;
     });
     typedExpressions.switch.cases.push(...result);

@@ -1,5 +1,5 @@
 import XMLPragma from "./set-nodes-pragma.ts";
-import templateReplacer from "../../../utils/template-recursive.ts";
+import getDeepTranslation from "../../../utils/template-recursive.ts";
 import {
   XMLNodeDescription,
   DOMParserIterator,
@@ -105,7 +105,7 @@ export default class XMLParser extends XMLPragma {
       rootnode.dna += node.rawText;
       if (node.parentNode) node.parentNode.dna += node.rawText;
     }
-    node.dna = templateReplacer(
+    node.dna = getDeepTranslation(
       node.dna,
       (expressions as unknown) as { [key: string]: string },
       (key) => expressions[key].expression,
@@ -161,21 +161,21 @@ export default class XMLParser extends XMLPragma {
         // critical modifications here
         let attrs = `${rawAttrs}`.split(/[\s\n\r]/).filter(s => s.trim().length);
         // get rawAttrs
-          attrs.forEach((attr) => {
-            const attrIDRE = /([^\s]*)+(§{2}\d*attr§§)/;
-            if (attr.endsWith('attr§§')) {
-              const m = attr.match(attrIDRE);
-              if (m && expressions[m[2]]) {
-                let [input, attributeName, id] = m;
-                const { value } = expressions[id];
-                // @ts-ignore
-                expressions[key].attributes[attributeName] = value;
-              }
-            } else if (expressions[key] && !expressions[key].attributes[attr.trim()]) {
+        attrs.forEach((attr) => {
+          const attrIDRE = /([^\s]*)+(§{2}\d*attr§§)/;
+          if (attr.endsWith('attr§§')) {
+            const m = attr.match(attrIDRE);
+            if (m && expressions[m[2]]) {
+              let [input, attributeName, id] = m;
+              const { value } = expressions[id];
               // @ts-ignore
-              expressions[key].attributes[attr.trim()] = true;
+              expressions[key].attributes[attributeName] = value;
             }
-          });
+          } else if (expressions[key] && !expressions[key].attributes[attr.trim()]) {
+            // @ts-ignore
+            expressions[key].attributes[attr.trim()] = true;
+          }
+        });
       });
 
     const keysOfExp = Object.keys(expressions);
@@ -494,7 +494,7 @@ export default class XMLParser extends XMLPragma {
       if (node.nodeType === 3) {
         const { value } = node;
         let rawText = value;
-        rawText = templateReplacer(
+        rawText = getDeepTranslation(
           rawText,
           (expressions as unknown) as { [key: string]: string },
           (key) => expressions[key].expression,
@@ -544,7 +544,7 @@ export default class XMLParser extends XMLPragma {
       // get DNA of node
       // this will register any changes in the template
       this.setDNA(result, result, expressions);
-      result.dna = templateReplacer(
+      result.dna = getDeepTranslation(
         result.dna,
         (expressions as unknown) as { [key: string]: string },
         (key) => expressions[key].expression,

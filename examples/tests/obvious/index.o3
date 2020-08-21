@@ -1,12 +1,12 @@
 use ./style.o3 as 'el-comp';
 <style>
   @use 'el-comp' as Component;
-  @const* var2 = Component.container;
+  @const* var2 = $Component.container;
   div {
+    ...$Component.rule;
     grid-template: $var2;
     .sub {
       color: linear-gradient(50% red, 10% blue);
     }
   }
-
 </style>

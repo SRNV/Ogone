@@ -101,6 +101,7 @@ export default class StyleInspector extends Utils {
             compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
           }
           compiledCss = await this.ObviousParser.read(compiledCss, bundle, component);
+          component.mapStyleBundle = this.ObviousParser.mapStyleBundle;
           const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
           component.style.push(css);
         }

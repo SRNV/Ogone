@@ -1,5 +1,5 @@
 require item as ({ label: string; route: string; children: any[]; });
-use @/cli/test/components/atoms/li-menu.o3 as 'async-recursive-component';
+use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component';
 
 <proto type="async">
   default:
@@ -23,17 +23,17 @@ use @/cli/test/components/atoms/li-menu.o3 as 'async-recursive-component';
 </template>
 
 <style --keyframes="get('fade-in-bottom', { time: 1, style: 'ease-in-out', })">
-li {
-  color: black;
-  font-size: 10pt;
-  list-style: decimal;
-  margin: 5px;
-  cursor: pointer;
-}
-li:hover {
-  color: cadetblue;
-}
-ul {
-  padding-left: 15px;
-}
+  li {
+    color: black;
+    font-size: 10pt;
+    list-style: decimal;
+    margin: 5px;
+    cursor: pointer;
+  }
+  li:hover {
+    color: cadetblue;
+  }
+  ul {
+    padding-left: 15px;
+  }
 </style>

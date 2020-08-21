@@ -1,5 +1,5 @@
 import gen from "./generator.ts";
-import templateReplacer from "../../../../utils/template-recursive.ts";
+import getDeepTranslation from "../../../../utils/template-recursive.ts";
 import { Utils } from "../../../../classes/utils/index.ts";
 import { ProtocolScriptRegExpList, MapIndexable } from "../../../../.d.ts";
 let rid = 0;
@@ -62,8 +62,8 @@ const items: ProtocolScriptRegExpList = [
       let translate = fnbody;
       let translateIdentifier = identifier;
       function template() {
-        translate = templateReplacer(translate, expressions as MapIndexable);
-        translateIdentifier = templateReplacer(
+        translate = getDeepTranslation(translate, expressions as MapIndexable);
+        translateIdentifier = getDeepTranslation(
           translateIdentifier,
           expressions as MapIndexable,
         );
@@ -100,8 +100,8 @@ const items: ProtocolScriptRegExpList = [
         let translate = fnbody.replace(/(§§endPonctuation\d+§§)/gi, "");
         let translateIdentifier = identifier;
         function template() {
-          translate = templateReplacer(translate, expressions as MapIndexable);
-          translateIdentifier = templateReplacer(
+          translate = getDeepTranslation(translate, expressions as MapIndexable);
+          translateIdentifier = getDeepTranslation(
             translateIdentifier,
             expressions as MapIndexable,
           );
@@ -166,8 +166,8 @@ not supported in this version of Ogone
         throw new Error("expressions or matches are missing");
       }
       const id = `§§use${gen.next().value}§§`;
-      let path = templateReplacer(matches[2], expressions);
-      path = templateReplacer(path, expressions).trim();
+      let path = getDeepTranslation(matches[2], expressions);
+      path = getDeepTranslation(path, expressions).trim();
       if (typedExpressions) {
         typedExpressions.use[id] = {
           path,
@@ -191,7 +191,7 @@ not supported in this version of Ogone
       }
       const id = `§§use${gen.next().value}§§`;
       let path = expressions[matches[2]];
-      path = templateReplacer(path, expressions);
+      path = getDeepTranslation(path, expressions);
       if (typedExpressions) {
         typedExpressions.use[id] = {
           path,
@@ -214,7 +214,7 @@ not supported in this version of Ogone
         throw new Error("expressions or matches are missing");
       }
       const id = `§§use${gen.next().value}§§`;
-      let path = templateReplacer(matches[2], expressions);
+      let path = getDeepTranslation(matches[2], expressions);
       if (typedExpressions) {
         typedExpressions.use[id] = {
           path,
@@ -236,7 +236,7 @@ not supported in this version of Ogone
       }
       throw new Error(`
       this syntax of use is not supported, on this version.
-      input: ${templateReplacer(value, expressions)}
+      input: ${getDeepTranslation(value, expressions)}
       `);
     },
     close: false,
@@ -261,7 +261,7 @@ not supported in this version of Ogone
           `property ${matches[2]} is already required in component`,
         );
       }
-      const type = templateReplacer(matches[4], expressions);
+      const type = getDeepTranslation(matches[4], expressions);
       const array = matches[2].split(",");
       if (array.length === 1) {
         typedExpressions.properties.push([array[0].trim(), [type]]);

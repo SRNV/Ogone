@@ -1,3 +1,5 @@
+import ObviousParser from "./classes/parsers/css/obvious/index.ts";
+
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };
 export interface OgoneConfiguration {
@@ -123,6 +125,7 @@ export interface Component {
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
+  mapStyleBundle?: ObviousParser["mapStyleBundle"];
   elements: {
     styles: XMLNodeDescription[];
     proto: XMLNodeDescription[];
@@ -334,6 +337,7 @@ export type StyleBundle = {
   mapImports: Map<string, any>;
   mapSelectors: Map<string, any>;
   mapVars: Map<string, any>;
+  mapMedia: Map<string, any>;
   tokens: any;
   component: Component;
 }
