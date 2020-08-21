@@ -21,5 +21,30 @@
     @media (height > 10px) {
       grid: red;
     }
+    @keyframes animationName {
+      animation-duration: 1s;
+      color: blue
+        | red ;
+      background: #45FF23
+        | red ;
+      grid-template:
+        "v v"
+        "a a"
+        | "a v"
+          "a v";
+    }
+    @keyframes fade-in {
+      animation-duration: 2s;
+      animation-timing-function: ease;
+      opacity: 0 | 1;
+    }
+  }
+  @keyframes animationName {
+    0% {
+      color: blue;
+    }
+    100% {
+      color: red;
+    }
   }
 </style>
