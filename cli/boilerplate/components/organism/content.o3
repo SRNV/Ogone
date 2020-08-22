@@ -39,33 +39,19 @@ use ../stores/doc.store.o3 as 'store-doc-component';
     animation-iteration-count: 1;
     animation-direction: normal;
     animation-fill-mode: forwards;
-  }
-  @keyframes slide-in-right {
-    0% {
-      position: relative;
-      right: -1000%;
-    }
-    100% {
-      position: relative;
-      right: 0px;
+    @keyframes slide-in-right {
+      right: -1000% | 0px;
     }
   }
   .slide-out-right {
-    animation-name: slide-out-right;
-    animation-duration: 1s;
-    animation-iteration-count: 1;
-    animation-direction: normal;
-    animation-fill-mode: forwards;
-  }
-  @keyframes slide-out-right {
-    0% {
+    @keyframes slide-out-right {
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+      animation-direction: normal;
+      animation-fill-mode: forwards;
       position: relative;
-      right: 0px;
-    }
-    100% {
-      position: relative;
-      right: -1000%;
-    }
+      right: 0px | -1000%;
+    };
   }
 </style>
 <style global>

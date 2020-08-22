@@ -1,5 +1,4 @@
 import { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
-import read from '../../../utils/agnostic-transformer.ts';
 import ObviousOutput from './output.ts';
 
 export default class ObviousMemory extends ObviousOutput {

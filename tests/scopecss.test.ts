@@ -48,7 +48,7 @@ Deno.test("- scopecss doesn't scope special character", () => {
 
 Deno.test("- scopecss doesn't scope @keyframe's body: from, to, 100%,", () => {
   const css = `
-  @keyframes dfdqfsq$___6546543- -'("-(65 _$$anim {
+  @keyframes dfdqfsq$___6546543- --65 _$$anim {
     from {}
     to {}
     100% {}

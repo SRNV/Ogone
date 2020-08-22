@@ -18,10 +18,10 @@ require text as (string);
     box-shadow: -6px 6px 5px #00000045;
     user-select: none;
     cursor: pointer;
-  }
-  .container:hover {
-    transition: 1s ease box-shadow;
-    border: 1px solid #00000000;
-    box-shadow: inset -6px 6px 5px #00000045;
+    &:hover {
+      transition: 1s ease box-shadow;
+      border: 1px solid #00000000;
+      box-shadow: inset -6px 6px 5px #00000045;
+    }
   }
 </style>

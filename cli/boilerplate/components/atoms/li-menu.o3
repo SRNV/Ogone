@@ -29,9 +29,9 @@ use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component'
     list-style: decimal;
     margin: 5px;
     cursor: pointer;
-  }
-  li:hover {
-    color: cadetblue;
+    &:hover {
+      color: cadetblue;
+    }
   }
   ul {
     padding-left: 15px;

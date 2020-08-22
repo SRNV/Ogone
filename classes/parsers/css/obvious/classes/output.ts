@@ -84,18 +84,20 @@ export default class ObviousOutput extends ObviousParser {
         if (m) {
           let [, name] = m;
           props["animation-name"] = props["animation-name"] || name;
+        } else {
+          this.error(`${component.file}\n\t@keyframes requires a name\n\tplease follow this pattern: @keyframes <name> { ... }\n\tinput: ${item.selector} { ... }`);
         }
-        result += `
-        ${item.selector} {
-          ${keyframes.map((keyframe, i: number, arr: typeof keyframes) => {
-          const total = arr.length;
-          const percent = Math.round((i / total) * 100);
-          const entries = Object.entries(keyframe);
-          return `${percent}% {${entries.map(([k, v]) => `${k}: ${v};`).join('')}}`;
-        }).join('')}
-        }
-        ${parent.selector} {${animationKeys.map((key) => `${key}:${props[key]};`)}animation-name: ${props["animation-name"]};}
-      `;
+        result += this.template(`{{ parent.selector }} { {{ animation }} } {{ keyframesSelector }} { {{ frames }} } `, {
+          frames: keyframes.map((keyframe, i: number, arr: typeof keyframes) => {
+            const total = arr.length - 1;
+            let percent = Math.round((i / total) * 100);
+            const entries = Object.entries(keyframe);
+            return `${percent}% {${entries.map(([k, v]) => `${k}: ${v};`).join('')}}`;
+          }).join(''),
+          parent,
+          keyframesSelector: `@keyframes ${props["animation-name"]}`,
+          animation: `animation: ${props["animation-name"]}; ${animationKeys.map((key) => `${key}:${props[key]};`).join('')}`,
+        });
       } else if (item.isKeyframes) {
         result += this.getDeepTranslation(item.rule, styleBundle.tokens.expressions);
       }
@@ -114,7 +116,6 @@ export default class ObviousOutput extends ObviousParser {
     const { item } = opts;
     if (!styleBundle.mapKeyframes.has(item.selector)) styleBundle.mapKeyframes.set(item.selector, item);
     else {
-      console.warn(item.selector);
       this.error(`${component.file}\n\tduplicated keyframes.\n\tinput: ${item.selector} {...}`);
     }
   }

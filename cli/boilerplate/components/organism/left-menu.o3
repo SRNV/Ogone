@@ -46,22 +46,15 @@ use ../atoms/li-menu.o3 as 'async-li-menu';
     position: relative;
   }
   .fade-in-slide-in-left {
-    animation-name: fade-in-slide-in-left;
-    animation-duration: 1s;
-    animation-iteration-count: 1;
-    animation-direction: normal;
-    animation-fill-mode: forwards;
-  }
-  @keyframes fade-in-slide-in-left {
-    0% {
+    @keyframes fade-in-slide-in-left {
+      animation-iteration-count: 1;
+      animation-direction: normal;
+      animation-fill-mode: forwards;
+      animation-duration: 1.5s;
+
       position: relative;
-      left: -500px;
-      opacity: 0;
-    }
-    100% {
-      position: relative;
-      left: 0px;
-      opacity: 1;
+      opacity: 0   | 1;
+      left: -500px | 0px;
     }
   }
 </style>

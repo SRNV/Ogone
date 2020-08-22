@@ -18,71 +18,53 @@ use ./routers/main.o3 as 'router-main';
   }
 </style>
 <style name="animations" global>
-  @keyframes fade-in-bottom {
-    0% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-  }
-  @keyframes fade-out-bottom {
-    0% {
-      opacity: 1;
-      transform: translateY(0px);
-    }
-    100% {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-  }
-  @keyframes fade-out {
-    0% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
   .fade-in-bottom {
-    animation: fade-in-bottom;
-    animation-duration: 1s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-    animation-timing-function: ease;
+    @keyframes fade-in-bottom {
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      animation-timing-function: ease;
+      opacity: 0                  | 1;
+      transform: translateY(20px) | translateY(0px);
+    }
   }
   .fade-out-bottom {
-    animation: fade-out-bottom;
-    animation-duration: 0.5s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-    animation-timing-function: ease;
+    @keyframes fade-out-bottom {
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      animation-timing-function: ease;
+      opacity:   1               | 0;
+      transform: translateY(0px) | translateY(20px);
+    }
   }
   .fade-out {
-    animation: fade-out;
-    animation-duration: 0.5s;
-    animation-iteration-count: 1;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
+    @keyframes fade-out {
+      animation-duration: 0.5s;
+      animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      animation-timing-function: linear;
+      opacity: 1 | 0;
+    }
   }
 </style>
 <style name="highlighter" global>
-  span.pl-s1 {
-    color: #ffffff;
-  }
-  span.pl-en {
-    color: #afafaf;
-  }
-  span.pl-s {
-    color: #90eed9;
-  }
-  span.pl-k {
-    color: #a191f5;
-  }
-  span.pl-smi {
-    color: #f9cb76;
+  span {
+    &.pl-s1 {
+      color: #ffffff;
+    }
+    &.pl-en {
+      color: #afafaf;
+    }
+    &.pl-s {
+      color: #90eed9;
+    }
+    &.pl-k {
+      color: #a191f5;
+    }
+    &.pl-smi {
+      color: #f9cb76;
+    }
   }
   .highlight {
     background: #383838;

@@ -14,7 +14,6 @@ export default class CSSScoper {
     const reg = /\{([^\{\}])*\}/;
     const kReg = regexp;
     let result = str;
-    let r = str;
     // preserve all blocks
     while (result.match(reg)) {
       // @ts-ignore
@@ -24,14 +23,31 @@ export default class CSSScoper {
       expressions[key] = content;
       result = result.replace(content, key);
     }
-    // preserve keyframe
-    while (result.match(kReg)) {
-      const [input] = result.match(kReg);
-      const key = getId("reserved");
-      const content = input;
-      expressions[key] = content;
-      result = result.replace(content, key);
+    const regExp = /(§{2}block\d+§{2})/gi;
+    const matches = result.match(regExp);
+    if (matches) {
+      matches.forEach((block, i, arr) => {
+        const endIndex = result.indexOf(block) + block.length;
+        const previousBlock = arr[i - 1];
+        let startIndex = previousBlock ? result.indexOf(
+          previousBlock
+        ) + previousBlock.length : 0;
+        if (startIndex === endIndex || startIndex === -1) {
+          startIndex = 0;
+        }
+        let rule = result.slice(startIndex, endIndex);
+        // preserve keyframe
+        while (rule.match(kReg)) {
+          const [input] = rule.match(kReg);
+          const key = getId("reserved");
+          expressions[key] = input;
+          result = result.replace(input, key);
+          rule = rule.replace(input, key);
+        }
+      });
     }
+    /*
+        */
     // replace only blocks
     while (
       Object.keys(expressions).filter((k) => k.startsWith("§§block")).find((
@@ -73,31 +89,31 @@ export default class CSSScoper {
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@keyframe)([\s\S]*)+(§§block\d+§§)/,
+      /(\@keyframes)([\s\w\d\-]*)+(§§block\d+§§)/,
     );
     // preserve all font-feature-values statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@font-feature-values)([\s\S]*)+(§§block\d+§§)/,
+      /(\@font-feature-values)([\s\w\d\-]*)+(§§block\d+§§)/,
     );
     // preserve all font-face statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@font-face)([\s\S]*)+(§§block\d+§§)/,
+      /(\@font-face)([\s\w\d\-]*)+(§§block\d+§§)/,
     );
     // preserve all counter-style statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@counter-style)([\s\S]*)+(§§block\d+§§)/,
+      /(\@counter-style)([\s\w\d\-]*)+(§§block\d+§§)/,
     );
     // preserve all page statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@page)([\s\S]*)+(§§block\d+§§)/,
+      /(\@page)([\s\w\d\-]*)+(§§block\d+§§)/,
     );
     // preserve pseudo elements
     result = this.preserveRegexp(
@@ -111,7 +127,9 @@ export default class CSSScoper {
       ? match.filter((s) => !s.trim().startsWith("@"))
       : null;
     if (matches) {
-      matches.forEach((selector) => {
+      matches.forEach((select) => {
+        // if there is a reserved/block token erase it
+        let selector = select.replace(/(§{2}(reserved|block)\d+§{2})/gi, '');
         let s = selector;
         const inputs = selector.split(/([\s,\>\<\(\)\+\:])+/gi).filter((s) =>
           s.trim().length && !s.match(/^([^a-zA-Z])$/gi)

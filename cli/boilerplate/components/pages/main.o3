@@ -23,13 +23,13 @@ use ../organism/content.o3 as 'content-component';
       "menu content content";
     grid-template-columns: minmax(80px, 220px) 1fr 2fr;
     grid-template-rows: 1fr 1fr 1fr 1fr;
-  }
-  .menu {
-    grid-area: menu;
-  }
-  .content {
-    grid-area: content;
-    overflow-y: auto;
-    overflow-x: hidden;
+    .menu {
+      grid-area: menu;
+    }
+    .content {
+      grid-area: content;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
   }
 </style>

@@ -116,6 +116,9 @@ use ../atoms/button.o3 as 'o-btn';
   .logo {
     width: 970px;
     height: auto;
+    @media screen and (max-width: 1170px) {
+      width: 81vw;
+    }
   }
   .links {
     background: #f1f1f1;
@@ -144,9 +147,5 @@ use ../atoms/button.o3 as 'o-btn';
   ul {
     column-count: 3;
   }
-  @media screen and (max-width: 1170px) {
-    .logo {
-      width: 81vw;
-    }
-  }
+
 </style>
