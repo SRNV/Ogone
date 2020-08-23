@@ -211,7 +211,7 @@ export default class ObviousParser extends Utils {
         const rule = css.slice(startIndex, endIndex);
         const isKeyframes = rule.trim().startsWith("@keyframes");
         const isMedia = rule.trim().startsWith("@media");
-        const isDocument = rule.trim().startsWith("@document");
+        const isDocument = rule.trim().startsWith("@document") || rule.trim().startsWith("@supports");
         const expressions = styleBundle.tokens.expressions;
         const typedExpressions = styleBundle.tokens.typedExpressions;
         let selector = this.getDeepTranslation(rule.replace(block, '').trim(), expressions);
