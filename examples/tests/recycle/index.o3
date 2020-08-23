@@ -1,16 +1,14 @@
 import ScopedComponent from '/scoped-component.js';
 
-define scoped-component as 'scoped';
-
 <proto>
   declare:
     static scoped(): ScopedComponent {
-      return class Sub extends ScopedComponent {};
+      return class Sub extends ScopedComponent {
+        attributeChangedCallback(name, oldValue, newValue) {}
+      };
     }
 </proto>
-<template>
-  <scoped-component :input="'fdsgfg'"/>
-</template>
+<template is="scoped-component"></template>
 <style>
   scoped-component {
     --test: #ffffff;
