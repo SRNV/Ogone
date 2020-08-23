@@ -4,11 +4,15 @@ import ObviousOutput from './output.ts';
 export default class ObviousMemory extends ObviousOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
-    const parts = result.split(/(?:§{2}(endPonctuation|endLine)\d+§{2})/);
+    const parts = result.split(/(?:§{2}(?:endPonctuation|endLine)\d+§{2})/);
     const regExpVarsExported = /(@§{2}keywordExport\d+§{2})\s+(§{2}keywordConst\d+§{2}\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
     const regExpVars = /(@§{2}keywordConst\d+§{2}\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
     result = parts
       .map((statement) => {
+        if (statement.trim().match(this.regularAtRules)) {
+          styleBundle.mapPreservedRules.set(statement, statement);
+          return;
+        }
         if (statement.trim().length
           && statement.trim().match('@§§keyword')) {
           const isConstant = statement.match(regExpVars);
@@ -57,8 +61,10 @@ export default class ObviousMemory extends ObviousOutput {
       mapImports: new Map(),
       mapVars: new Map(),
       mapMedia: new Map(),
+      mapDocument: new Map(),
       mapKeyframes: new Map(),
       mapSelectors: new Map(),
+      mapPreservedRules: new Map(),
       component,
       tokens: {
         expressions: {},

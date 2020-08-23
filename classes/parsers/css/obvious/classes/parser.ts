@@ -7,6 +7,8 @@ import obviousElements from '../../src/elements.ts';
 
 
 export default class ObviousParser extends Utils {
+  protected regularAtRules: RegExp = /^(\@((§{2}keywordImport\d+§{2})|namespace|charset))/i;
+  protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
   public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
   protected getContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {
     let result = opts && opts.imported ? `(() => {` : '';
@@ -129,35 +131,37 @@ export default class ObviousParser extends Utils {
           const item = rule.split(/§{2}optionDiviser\d+§{2}/);
           if (item) {
             let [prop, value] = item;
-            let realValue = this.getDeepTranslation(value.trim(), expressions);
-            prop = this.getDeepTranslation(prop.trim(), expressions);
-            result.props[prop] = realValue;
-            const regReference = /@([\w\_\-]*)+/;
-            const regVars = /(?<!\-{2})\$(\w*)+/;
-            const vars = Object.fromEntries(
-              styleBundle.mapVars.entries()
-            );
-            while (result.props[prop].match(regReference)) {
-              const m = result.props[prop].match(regReference)
-              if (m) {
-                const [, ref] = m;
-                if (!result.props[ref]) {
-                  this.error(`${component.file}\n\tStyle error:\n\tcan't find value of property ${ref}.\n\tif it's defined, please place it before the property ${prop}.\n\tinput: ${prop}: ${realValue}`)
+            if (value) {
+              let realValue = this.getDeepTranslation(value.trim(), expressions);
+              prop = this.getDeepTranslation(prop.trim(), expressions);
+              result.props[prop] = realValue;
+              const regReference = /@([\w\_\-]*)+/;
+              const regVars = /(?<!\-{2})\$(\w*)+/;
+              const vars = Object.fromEntries(
+                styleBundle.mapVars.entries()
+              );
+              while (result.props[prop].match(regReference)) {
+                const m = result.props[prop].match(regReference)
+                if (m) {
+                  const [, ref] = m;
+                  if (!result.props[ref]) {
+                    this.error(`${component.file}\n\tStyle error:\n\tcan't find value of property ${ref}.\n\tif it's defined, please place it before the property ${prop}.\n\tinput: ${prop}: ${realValue}`)
+                  }
+                  result.props[prop] = result.props[prop].replace(`@${ref}`, result.props[ref]);
                 }
-                result.props[prop] = result.props[prop].replace(`@${ref}`, result.props[ref]);
               }
-            }
-            while (result.props[prop].match(regVars)) {
-              const m = result.props[prop].match(regVars)
-              if (m) {
-                const [, ref] = m;
-                const variableValue = this.getValueOf(vars[ref], styleBundle, bundle, component, {
-                  context: 'value',
-                });
-                if (!variableValue) {
-                  this.error(`${component.file}\n\tStyle error:\n\t${ref} is undefined.\n\tinput: ${prop}: ${realValue}`)
+              while (result.props[prop].match(regVars)) {
+                const m = result.props[prop].match(regVars)
+                if (m) {
+                  const [, ref] = m;
+                  const variableValue = this.getValueOf(vars[ref], styleBundle, bundle, component, {
+                    context: 'value',
+                  });
+                  if (!variableValue) {
+                    this.error(`${component.file}\n\tStyle error:\n\t${ref} is undefined.\n\tinput: ${prop}: ${realValue}`)
+                  }
+                  result.props[prop] = result.props[prop].replace(`$${ref}`, variableValue);
                 }
-                result.props[prop] = result.props[prop].replace(`$${ref}`, variableValue);
               }
             }
           }
@@ -174,6 +178,7 @@ export default class ObviousParser extends Utils {
       "@font-feature-values",
       "@counter-style",
       "@page",
+      "@document"
     ];
     let result = true;
     let i = 0;
@@ -206,14 +211,20 @@ export default class ObviousParser extends Utils {
         const rule = css.slice(startIndex, endIndex);
         const isKeyframes = rule.trim().startsWith("@keyframes");
         const isMedia = rule.trim().startsWith("@media");
+        const isDocument = rule.trim().startsWith("@document");
         const expressions = styleBundle.tokens.expressions;
         const typedExpressions = styleBundle.tokens.typedExpressions;
         let selector = this.getDeepTranslation(rule.replace(block, '').trim(), expressions);
         const keySelector = "k" + Math.random();
+        if (isDocument && opts.parent) {
+          this.error(`${component.file}\n\tcan't nest @document`);
+        }
+        console.warn(rule, selector)
         if (opts.parent
           && this.isNotSpecial(opts.parent.selector)
           && this.isNotSpecial(rule.trim())
-          && !isKeyframes) {
+          && !isKeyframes
+          && !opts.parent.selector.trim().startsWith("@document")) {
           const match = selector.match(/&/gi);
           if (!match) {
             selector = `${opts.parent.selector} ${selector}`;
@@ -237,6 +248,7 @@ export default class ObviousParser extends Utils {
           parent: opts.parent ? opts.parent : null,
           children: [],
           isMedia: opts.isMedia ? opts.isMedia : false,
+          isDocument: isDocument ? selector : opts.isDocument ? opts.isDocument : false,
           isNestedMedia: false,
           isKeyframes,
         });
@@ -270,6 +282,7 @@ export default class ObviousParser extends Utils {
             this.getRules(child, styleBundle, bundle, component, {
               parent: styleBundle.mapSelectors.get(keySelector),
               isMedia: rule.trim().startsWith('@media') ? selector : !!opts.isMedia ? opts.isMedia : false,
+              isDocument: rule.trim().startsWith('@document') ? selector : !!opts.isDocument ? opts.isDocument : false,
             });
           })
         }

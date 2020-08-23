@@ -8,6 +8,11 @@ export default class ObviousOutput extends ObviousParser {
       const entries = Object.entries(item.properties.props);
       let rule = '';
       switch (true) {
+        case !!item.isDocument:
+          this.saveDocument(styleBundle, bundle, component, {
+            item,
+          });
+          break;
         case !!item.isKeyframes:
           this.saveKeyframes(styleBundle, bundle, component, {
             item,
@@ -29,10 +34,20 @@ export default class ObviousOutput extends ObviousParser {
       }
       result += rule;
     });
+    result += this.renderDocument(styleBundle, bundle, component);
+    result += this.renderPreservedRules(styleBundle, bundle, component);
     result += this.renderMediaQueries(styleBundle, bundle, component);
     result += this.renderKeyframes(styleBundle, bundle, component);
     styleBundle.value = result;
+    console.warn(result);
     return result;
+  }
+  protected renderPreservedRules(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
+    let result = '';
+    styleBundle.mapPreservedRules.forEach((rule) => {
+      result += `${rule};`;
+    })
+    return this.getDeepTranslation(result, styleBundle.tokens.expressions);
   }
   protected renderMediaQueries(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = '';
@@ -53,6 +68,23 @@ export default class ObviousOutput extends ObviousParser {
           if (props) {
             result += `${query.selector} { ${props} } `;
           }
+        }
+      });
+      result += `} `;
+    });
+    return result;
+  }
+  protected renderDocument(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
+    let result = '';
+    const entries = Array.from(styleBundle.mapDocument.entries())
+    entries.forEach(([selector, item]: [string, any]) => {
+      result += `${selector} { `;
+      const { childs } = item;
+      childs.forEach((child: any) => {
+        const propsEntries = Object.entries(child.properties.props);
+        const props = propsEntries.length ? propsEntries.map(([name, value]) => `${name}: ${value};`).join('') : null;
+        if (props) {
+          result += `${child.selector} { ${props} } `;
         }
       });
       result += `} `;
@@ -117,6 +149,14 @@ export default class ObviousOutput extends ObviousParser {
     if (!styleBundle.mapKeyframes.has(item.selector)) styleBundle.mapKeyframes.set(item.selector, item);
     else {
       this.error(`${component.file}\n\tduplicated keyframes.\n\tinput: ${item.selector} {...}`);
+    }
+  }
+  protected saveDocument(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: { item: any }): void {
+    const { item } = opts;
+    if (!styleBundle.mapDocument.has(item.isDocument)) styleBundle.mapDocument.set(item.isDocument, { childs: [item] });
+    else {
+      const doc = styleBundle.mapDocument.get(item.isDocument);
+      doc.childs.push(item);
     }
   }
 }

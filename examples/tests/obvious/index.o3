@@ -1,12 +1,19 @@
-use ./style.o3 as 'el-comp';
 <style>
-  @use 'el-comp' as Component;
-  @const* var2 = $Component.container;
-  div {
-    ...$Component.rule;
-    grid-template: $var2;
-    .sub {
-      color: linear-gradient(50% red, 10% blue);
-    }
+  @document
+  /* Rules for a specific page */
+  url(https://css-tricks.com/),
+
+  /* Rules for pages with a URL that begin with... */
+  url-prefix(https://css-tricks.com/snippets/),
+
+  /* Rules for any page hosted on a domain */
+  domain(css-tricks.com),
+
+  /* Rules for all secure pages */
+  regexp("https:.*") {
+
+    /* Start styling */
+    body { font-family: Comic Sans; div { color: red } }
+
   }
 </style>
