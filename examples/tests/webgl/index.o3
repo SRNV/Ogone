@@ -31,15 +31,59 @@
     stencil: false;
   }
   @shader name {
-    vertex {
+    [vertex] {
 
     }
-    fragment {
+    [fragment] {
 
     }
   }
   @ref model {
     color: red;
-
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
+  }
+  @ref model {
+    color: red;
+    x: 10;
+    y: 30;
+    z: 400;
   }
 </style>
