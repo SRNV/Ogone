@@ -1,13 +1,5 @@
 import ScopedComponent from '/scoped-component.js';
 
-<proto>
-  declare:
-    static scoped(): ScopedComponent {
-      return class Sub extends ScopedComponent {
-        attributeChangedCallback(name, oldValue, newValue) {}
-      };
-    }
-</proto>
 <template is="scoped-component"></template>
 <style>
   scoped-component {
