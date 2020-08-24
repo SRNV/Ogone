@@ -1,5 +1,3 @@
-import ScopedComponent from '/scoped-component.js';
-
 <template is="scoped-component"></template>
 <style>
   scoped-component {
