@@ -1,12 +1,6 @@
 <proto type="webgl">
   declare:
     model = "/model.obj";
-    static contextAttributes = {
-      antialias: false,
-      depth: false,
-      powerPreference: "low-power",
-      stencil: false,
-    };
   before-each:
     const { scene1, camera1, camera2, camera3, model } = Refs;
   case 'webgl:loop':
@@ -29,3 +23,23 @@
       :src="model"/>
   </scene>
 </template>
+<style>
+  @render {
+    antialias: false;
+    depth: false;
+    powerPreference: "low-power";
+    stencil: false;
+  }
+  @shader name {
+    vertex {
+
+    }
+    fragment {
+
+    }
+  }
+  @ref model {
+    color: red;
+
+  }
+</style>
