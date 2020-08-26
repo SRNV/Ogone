@@ -1,7 +1,26 @@
 <style>
-  @supports {
-   @keyframes name {
-
-   }
+  @charset 'utf8';
+  @import url('fdsfdsqfdsqf') ;
+  @use 'el-comp' as Component;
+  @export const* test = purple;
+  @const* test2 = purple;
+  @export const rule = .aaa div + other {
+    color: $test;
+    color: @color;
+    & span {
+      color: red;
+    }
+  }
+  @keyframes aa {
+    animation-name: $test;
+  }
+  div.container {
+    ...$rule;
+    ...$rule;
+    ...$rule;
+    ...$rule;
+    ...$rule;
+    ...$rule;
+    ...$rule;
   }
 </style>

@@ -1,0 +1,10 @@
+<style>
+p {
+  color: grey;
+}
+div {
+  p {
+    color: blue;
+  }
+}
+</style>

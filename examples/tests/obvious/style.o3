@@ -2,7 +2,7 @@
   @export const container = #234543F;
   @export const rule = div {
     color: $container;
-    cool:not(.test) {
+    a:not(.test#lmm) {
       color: blue;
     }
   };

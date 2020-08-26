@@ -1,0 +1,22 @@
+<style>
+  @export const test = purple;
+  @supports {
+    div {
+      color: blue;
+      @media screen and (width: 10px) {
+        color: $test;
+      }
+    }
+  }
+  @supports  {
+    div {
+      color: blue;
+      @media (width  > 10px) {
+        color: red;
+      }
+    }
+  }
+  span {
+    color: red;
+  }
+</style>

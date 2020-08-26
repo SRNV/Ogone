@@ -339,6 +339,7 @@ export type StyleBundle = {
   mapVars: Map<string, any>;
   mapMedia: Map<string, any>;
   mapDocument: Map<string, any>;
+  mapSupports: Map<string, any>;
   mapKeyframes: Map<string, any>;
   mapPreservedRules: Map<string, any>;
   tokens: any;

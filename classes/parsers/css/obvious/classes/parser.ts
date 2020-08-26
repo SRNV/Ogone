@@ -53,10 +53,10 @@ export default class ObviousParser extends Utils {
               ...$$item.children,
               ..._target.value[0].children,
             ];
-            $$item.props = {
-              ...$$item.props,
-              ..._target.value[0].properties.props,
-            };
+          $$item.props = {
+            ...$$item.props,
+            ..._target.value[0].properties.props,
+          };
         }
         if ('{{ context }}' === 'value') {
           return {{ subject }};
@@ -175,19 +175,13 @@ export default class ObviousParser extends Utils {
       "@media",
       "@keyframes",
       "@font-face",
+      "@supports",
       "@font-feature-values",
       "@counter-style",
       "@page",
       "@document"
     ];
-    let result = true;
-    let i = 0;
-    const { length } = special;
-    while (result === true && i < length) {
-      result = selector.indexOf(special[i]) < 0;
-      if (result) break;
-      i++;
-    }
+    let result = !special.find((r) => selector.trim().startsWith(r));
     return result;
   }
   protected getRules(css: string, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: any = {}): any {
@@ -211,26 +205,14 @@ export default class ObviousParser extends Utils {
         const rule = css.slice(startIndex, endIndex);
         const isKeyframes = rule.trim().startsWith("@keyframes");
         const isMedia = rule.trim().startsWith("@media");
-        const isDocument = rule.trim().startsWith("@document") || rule.trim().startsWith("@supports");
+        const isDocument = rule.trim().startsWith("@document");
+        const isSupports = rule.trim().startsWith("@supports");
         const expressions = styleBundle.tokens.expressions;
         const typedExpressions = styleBundle.tokens.typedExpressions;
         let selector = this.getDeepTranslation(rule.replace(block, '').trim(), expressions);
         const keySelector = "k" + Math.random();
         if (isDocument && opts.parent) {
           this.error(`${component.file}\n\tcan't nest @document`);
-        }
-        console.warn(rule, selector)
-        if (opts.parent
-          && this.isNotSpecial(opts.parent.selector)
-          && this.isNotSpecial(rule.trim())
-          && !isKeyframes
-          && !opts.parent.selector.trim().startsWith("@document")) {
-          const match = selector.match(/&/gi);
-          if (!match) {
-            selector = `${opts.parent.selector} ${selector}`;
-          } else {
-            selector = selector.replace(/&/gi, opts.parent.selector);
-          }
         }
         const style = read({
           expressions,
@@ -242,13 +224,17 @@ export default class ObviousParser extends Utils {
           array: obviousElements,
         });
         styleBundle.mapSelectors.set(keySelector, {
+          id: keySelector,
           selector,
           rule,
           properties: null,
           parent: opts.parent ? opts.parent : null,
           children: [],
+          isSpecial: !this.isNotSpecial(rule.trim()),
+          omitOutputSelector: opts.omitOutputSelector,
           isMedia: opts.isMedia ? opts.isMedia : false,
           isDocument: isDocument ? selector : opts.isDocument ? opts.isDocument : false,
+          isSupports: isSupports ? selector : opts.isSupports ? opts.isSupports : false,
           isNestedMedia: false,
           isKeyframes,
         });
@@ -283,6 +269,7 @@ export default class ObviousParser extends Utils {
               parent: styleBundle.mapSelectors.get(keySelector),
               isMedia: rule.trim().startsWith('@media') ? selector : !!opts.isMedia ? opts.isMedia : false,
               isDocument: rule.trim().startsWith('@document') ? selector : !!opts.isDocument ? opts.isDocument : false,
+              isSupports: rule.trim().startsWith('@supports') ? selector : !!opts.isSupports ? opts.isSupports : false,
             });
           })
         }

@@ -25,7 +25,9 @@ export default class ObviousMemory extends ObviousOutput {
             }
             const isSelector = !evaluated && !!value.match(/(§§block\d+§§)$/);
             styleBundle.mapVars.set(name, {
-              value: isSelector ? this.getRules(value, styleBundle, bundle, component).rules : value,
+              value: isSelector ? this.getRules(value, styleBundle, bundle, component, {
+                omitOutputSelector: true,
+              }).rules : value,
               eval: evaluated,
               isSelector,
               exportable: true,
@@ -38,7 +40,9 @@ export default class ObviousMemory extends ObviousOutput {
             }
             const isSelector = !evaluated && !!value.match(/(§§block\d+§§)$/);
             styleBundle.mapVars.set(name, {
-              value: isSelector ? this.getRules(value, styleBundle, bundle, component).rules : value,
+              value: isSelector ? this.getRules(value, styleBundle, bundle, component, {
+                omitOutputSelector: true,
+              }).rules : value,
               eval: evaluated,
               isSelector,
               exportable: false,
@@ -62,6 +66,7 @@ export default class ObviousMemory extends ObviousOutput {
       mapVars: new Map(),
       mapMedia: new Map(),
       mapDocument: new Map(),
+      mapSupports: new Map(),
       mapKeyframes: new Map(),
       mapSelectors: new Map(),
       mapPreservedRules: new Map(),

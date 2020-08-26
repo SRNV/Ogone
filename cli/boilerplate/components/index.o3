@@ -18,7 +18,7 @@ use ./routers/main.o3 as 'router-main';
   }
 </style>
 <style name="animations" global>
-  .fade-in-bottom {
+  .fade-in-bottom a {
     @keyframes fade-in-bottom {
       animation-duration: 1s;
       animation-iteration-count: 1;
@@ -49,7 +49,7 @@ use ./routers/main.o3 as 'router-main';
   }
 </style>
 <style name="highlighter" global>
-  span {
+  span #id.container {
     &.pl-s1 {
       color: #ffffff;
     }
