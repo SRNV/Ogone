@@ -1,10 +1,19 @@
+// ./Hello-world.o3
+
+use ./style-component.o3 as 'style-component';
+
+<proto>
+  declare:
+    public readonly name: string = "World";
+</proto>
+
+<template>
+  Hello, <span>${name}</span>
+</template>
+
 <style>
-p {
-  color: grey;
-}
-div {
-  p {
-    color: blue;
+  @use 'style-component' as Luggage;
+  span {
+    ...$Luggage.spanRule;
   }
-}
 </style>
