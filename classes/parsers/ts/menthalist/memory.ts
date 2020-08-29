@@ -14,7 +14,24 @@ export default class MenthalistScopeInspector extends MenthalistImportInspector 
     const presentInScope = keys.filter((key) => parentScope.value.indexOf(key) > -1 && key.match(/^(§{2}(block|parenthese|array)\d+§{2})/));
     presentInScope.forEach((key) => {
       const value = expressions[key];
-      console.warn(parentScope.value);
+      const isFunctionMatch = parentScope.value.match(this.blockFunctionRegExpGI);
+      const isFunction = !!isFunctionMatch?.find((a) => a.indexOf(key) > -1);
+
+      const isVariableMatch = parentScope.value.match(this.constLetVarRegExpGI);
+      const isVariable = !!isVariableMatch?.find((a) => a.indexOf(key) > -1);
+
+      const isExportMatch = parentScope.value.match(this.exportsRegExpGI);
+      const isExport = !!isExportMatch?.find((a) => a.indexOf(key) > -1);
+
+      const isImportMatch = parentScope.value.match(this.importsRegExpGI);
+      const isImport = !!isImportMatch?.find((a) => a.indexOf(key) > -1);
+      console.warn(
+        isFunction,
+        isVariable,
+        isExport,
+        isImport,
+        value
+      )
       const scope = this.getScopeBundle({
         value,
         key,
