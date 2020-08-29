@@ -1,10 +1,9 @@
 name: Ogone
 repository: https://github.com/SRNV/Ogone
-version: 0.22.0
+version: 0.23.0
 description: >-
-  Web-Components compiler to create modern Apps (SPA, PWA)
-  inspired by Vue and Svelte
-stable: false
+  Web-Components compiler to create front-end modern Apps (SPA, PWA)
+stable: true
 files:
   - ./docs/**/*
   - ./classes/**/*

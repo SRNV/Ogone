@@ -11,7 +11,7 @@ export default class MenthalistImportInspector {
     const exports = root.value.match(exportRegExp);
     const imports = root.value.match(importRegExp);
     if (exports) {
-      console.warn(exports);
+      // console.warn(exports);
       exports.forEach((exp) => {
         read({
           value: exp,
@@ -34,5 +34,6 @@ export default class MenthalistImportInspector {
     }
     // console.warn(fileBundle.tokens.typedExpressions.imports);
     // console.warn(fileBundle.tokens.typedExpressions.exports);
+    // console.warn(fileBundle);
   }
 }
