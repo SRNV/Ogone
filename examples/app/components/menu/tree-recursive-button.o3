@@ -1,4 +1,13 @@
-require item as (Object)
+require item as {
+  route: string;
+  status: string;
+  children: ({
+    status: "ok" | "todo" | "in-progress";
+    name: string;
+    route: string;
+    children: any[]
+  })[];
+};
 
 use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/scroll.o3 as 'scroll-component'
@@ -29,9 +38,8 @@ use @/examples/app/components/scroll.o3 as 'scroll-component'
       --class="{ 'child-open': openTree }">
       <scroll-component>
         <tree-recursive
-          --if="!!item.children"
           --for="item.children as (child)"
-          :item="child ? child : {}"></tree-recursive>
+          :item="child"></tree-recursive>
       </scroll-component>
     </div>
   </div>

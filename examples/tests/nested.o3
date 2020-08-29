@@ -1,2 +1,2 @@
-require name as (string);
+require name as string;
 <template>${name}</template>

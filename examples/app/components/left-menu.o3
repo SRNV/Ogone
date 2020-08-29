@@ -1,4 +1,4 @@
-require test as (number);
+require test as number;
 
 <template>
   <div class="container">${test}</div>

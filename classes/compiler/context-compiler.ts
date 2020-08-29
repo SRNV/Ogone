@@ -107,7 +107,7 @@ export default class ContextCompiler extends Utils {
           legacy.arrayName = array;
           legacy.getLength = getLengthScript;
           if (contextLegacy) {
-            const declarationScript = [`const ${arrayAlias} = ${array} || [];`,`
+            const declarationScript = [`const ${arrayAlias} = ${array} || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`];
 
@@ -157,7 +157,7 @@ export default class ContextCompiler extends Utils {
           contextLegacy.declarationScript
             ? contextLegacy.declarationScript.join("")
             : ""
-        } `;
+          } `;
         contextLegacy.script = {
           value,
           node,
@@ -183,7 +183,7 @@ export default class ContextCompiler extends Utils {
       );
     }
     const oForRegExp =
-      /([\s\S]*)+\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi
+      /(.*?)\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi
         .exec(
           flagValue,
         );

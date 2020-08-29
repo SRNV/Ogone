@@ -1,4 +1,8 @@
-require item as (Object);
+require item as {
+  name: string;
+  route: string;
+  status: "ok" | "todo" | "in-progress";
+};
 
 <template>
   <div class="container" --router-go="item.route">

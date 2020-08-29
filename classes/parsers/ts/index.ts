@@ -3,7 +3,7 @@ import { YAML } from "../../../deps.ts";
 import getTypedExpression from "./src/typedExpressions.ts";
 import elements from "../utils/elements.ts";
 import computedExp from "./src/computed.ts";
-import esmElements from "./src/esm.ts";
+import esmElements from "../utils/esm/index.ts";
 import cjsElements from "./src/cjsElements.ts";
 import notParsedElements from "../utils/not-parsed.ts";
 import O3Elements from "./src/o3-elements.ts";
@@ -156,7 +156,7 @@ export default class ProtocolScriptParser extends Utils {
     const yaml = YAML.parse(data, {});
     result = result.replace(definition, "");
     // #REL1
-    typedExpressions.data = yaml;
+    typedExpressions.data = yaml as {};
     return result;
   }
   private transformSetStatements(opts: {
@@ -197,7 +197,7 @@ export default class ProtocolScriptParser extends Utils {
       "$1§§endExpression0§§$2",
     )
       .replace(/(§{2})(\})/gi, "$1§§endExpression0§§$2");
-    result.split(/(§{2}(endLine|endPonctuation|endExpression)\d+§{2})/gi)
+    result.split(/(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi)
       .filter((exp) => {
         return exp.length && exp.indexOf("endLine") < 0 && (
           exp.indexOf("operatorsetter") > -1 ||

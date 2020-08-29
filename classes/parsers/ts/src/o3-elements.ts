@@ -248,7 +248,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(§{2}parenthese\d+§{2})(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");

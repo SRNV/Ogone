@@ -1,4 +1,4 @@
-require text as (string);
+require text as string;
 <template>
     <div>
         <slot></slot>

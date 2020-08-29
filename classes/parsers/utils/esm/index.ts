@@ -1,15 +1,15 @@
-import gen from "./generator.ts";
-import { Utils } from "../../../../classes/utils/index.ts";
+import gen from "../../ts/src/generator.ts";
 import {
   ProtocolScriptRegExpItem,
   ProtocolScriptRegExpList,
 } from "../../../../.d.ts";
 import getDeepTranslation from "../../../../utils/template-recursive.ts";
+import exports from "./exports.ts";
 
 const exportASKey: ProtocolScriptRegExpItem = {
   name: "exportAsKey",
   open: false,
-  reg: /\s*([^§\{\,]*)+\s*(§{2}keywordAs\d+§{2})\s*([^§\}\,]*)+,?/,
+  reg: /(.*?)(§{2}keywordAs\d+§{2})\s*([^§\}\,]+)+\,/,
   id: (value, matches, typedExpressions, expressions) => {
     if (!expressions || !matches) {
       throw new Error("expressions or matches are missing");
@@ -36,7 +36,7 @@ const esm: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /\s*(§{2}block\d+§{2})\s*/,
+    reg: /\s*(§{2}block\d+§{2})\s*/m,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("typedExpressions, expressions or matches are missing");
@@ -52,14 +52,6 @@ const esm: ProtocolScriptRegExpList = [
           expression = expression.replace(input, newexpression);
         }
       }
-      /*
-      if (expression.indexOf('§§') > -1) {
-        const token = expression.match(/(§{2}([^§]*)+\d*§{2})/);
-        const exp = expressions[token[1]];
-        const UnexpectedTokenException = new SyntaxError(`Unexpected token "${exp}" in import expression`);
-        throw UnexpectedTokenException;
-      }
-      */
       expressions[block] = expression;
       typedExpressions.blocks[block] = expression;
       expressions[id] = expression;
@@ -68,39 +60,8 @@ const esm: ProtocolScriptRegExpList = [
     close: false,
   },
   {
-    name: "export default",
     open: false,
-    reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordDefault\d+§{2})\s*([^\s]*)+\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      const id = `§§export${gen.next().value}§§`;
-      expressions[id] = value;
-      return `exports.default = ${matches[3]}`;
-    },
-    close: false,
-  },
-  {
-    name: "export vars",
-    open: false,
-    reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}(keywordConst|keywordLet)\d+§{2})\s*([^§])+\s*(§{2}operatorsetter\d+§{2})/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      const id = `§§export${gen.next().value}§§`;
-      const [input, exp, constorLet, optional, key, setter] = matches;
-      expressions[id] = value;
-      return `exports.${key} ${setter}`;
-    },
-    close: false,
-  },
-  {
-    open: false,
-    reg: /(?<!§§blockImport\d+§§)([\w]+)+\s*,/,
+    reg: /(?<!§§blockImport\d+§§)(.*?)\,/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -126,10 +87,14 @@ const esm: ProtocolScriptRegExpList = [
       const str = expressions[id2].replace(/[\s]/gi, "");
       if (typedExpressions) {
         typedExpressions.imports[key] = {
-          ambient: null,
-          default: null,
-          block: null,
-          allAs: expressions[id2].replace(/['"`]/gi, ""),
+          value,
+          ambient: false,
+          default: false,
+          object: false,
+          allAs: true,
+          dynamic: `Ogone.imp(${str}),`,
+          path: expressions[id2].replace(/['"`]/gi, ""),
+          members: [],
           constantDeclaration: [
             `let ${key} = Ogone.mod[${str}];`,
             `
@@ -142,7 +107,6 @@ const esm: ProtocolScriptRegExpList = [
             }]);
           `,
           ],
-          expression: `Ogone.imp(${str}),`,
         };
       }
       return ``;
@@ -163,11 +127,15 @@ const esm: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.imports[id] = {
-          ambient: expressions[id2].replace(/['"`]/gi, ""),
-          allAs: null,
-          block: null,
-          default: null,
-          expression: `Ogone.imp(${expressions[id2]})`,
+          value,
+          path: expressions[id2].replace(/['"`]/gi, ""),
+          ambient: true,
+          allAs: false,
+          object: false,
+          default: false,
+          constantDeclaration: [],
+          members: [],
+          dynamic: `Ogone.imp(${expressions[id2]})`,
         };
       }
       return ``;
@@ -175,33 +143,10 @@ const esm: ProtocolScriptRegExpList = [
     close: false,
   },
   {
-    name: "export default from",
-    open: false,
-    reg:
-      /\s*(§{2}keywordExport\d+§{2})\s+([\w\d]*)+\s+(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      const id = `§§import${gen.next().value}§§`;
-      const [input, imp, key, f, id2] = matches;
-      expressions[id] = value;
-      if (typedExpressions) {
-        typedExpressions.exports[key] = {
-          default: null,
-          var: null,
-          require: expressions[id2].replace(/['"`]/gi, ""),
-        };
-      }
-      return `exports.${key} = require(${id2});`;
-    },
-    close: false,
-  },
-  {
     name: "default import",
     open: false,
     reg:
-      /\s*(§{2}keywordImport\d+§{2})\s+([\w\d]*)+\s+(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*((§{2}(endLine|endExpression|endPonctuation)\d+§{2}))/,
+      /\s*(§{2}keywordImport\d+§{2})\s+([\w\d]*)+\s+(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*((§{2}(endLine|endExpression|endPonctuation)\d+§{2})){0,1}/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -212,12 +157,14 @@ const esm: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.imports[key] = {
-          ambient: null,
-          allAs: null,
-          block: null,
-          default: expressions[id2].replace(/['"\s`]/gi, ""),
-          expression: `Ogone.imp(${str}),`,
+          ambient: false,
+          allAs: false,
+          object: false,
+          default: true,
+          path: expressions[id2].replace(/['"\s`]/gi, ""),
+          dynamic: `Ogone.imp(${str}),`,
           value: `import ${key} from ${str};`,
+          members: [],
           constantDeclaration: [
             `let ${key} = Ogone.mod[${str}].default;`,
             `Ogone.mod['*'].push([${str}, (m) => {
@@ -240,7 +187,7 @@ const esm: ProtocolScriptRegExpList = [
     name: "default and aliased import",
     open: false,
     reg:
-      /(§{2}keywordImport\d+§{2})\s*(§{2}importCandidate\d*§{2})\s*(§{2}allAs\d+§{2})\s*([^§]*)+\s*(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
+      /(§{2}keywordImport\d+§{2})\s*(§{2}importCandidate\d*§{2})\s*(§{2}allAs\d+§{2})(.*?)(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -251,10 +198,12 @@ const esm: ProtocolScriptRegExpList = [
       const str = expressions[id2].replace(/['"\s`]/gi, "");
       if (typedExpressions) {
         typedExpressions.imports[alias.replace(/[,\s\n]/gi, "")] = {
-          ambient: null,
-          default: null,
-          block: null,
-          allAs: expressions[id2].replace(/['"`]/gi, ""),
+          ambient: false,
+          default: false,
+          object: false,
+          allAs: true,
+          path: expressions[id2].replace(/['"`]/gi, ""),
+          members: [],
           constantDeclaration: [
             `let ${alias} = Ogone.mod[${str}];`,
             `Ogone.mod['*'].push([${str}, (m) => {
@@ -266,15 +215,17 @@ const esm: ProtocolScriptRegExpList = [
             }]);
           `,
           ],
-          expression: `Ogone.imp(${str}),`,
+          dynamic: `Ogone.imp(${str}),`,
           value: `import ${alias} from ${str};`,
         };
         typedExpressions.imports[expressions[key].replace(/[,\s\n]/gi, "")] = {
-          ambient: null,
-          allAs: null,
-          block: null,
-          default: str,
-          expression: `Ogone.imp(${str}),`,
+          ambient: false,
+          allAs: false,
+          object: false,
+          default: true,
+          path: str,
+          dynamic: `Ogone.imp(${str}),`,
+          members: [],
           value: `import ${key} from ${str};`,
           constantDeclaration: [
             `let ${key} = Ogone.mod[${str}].default;`,
@@ -298,7 +249,7 @@ const esm: ProtocolScriptRegExpList = [
     name: "default and aliased import",
     open: false,
     reg:
-      /(§{2}keywordImport\d+§{2})\s*(§{2}allAs\d*§{2})\s*(§{2}importCandidate\d+§{2})\s*([^§]*)+\s*(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
+      /(§{2}keywordImport\d+§{2})\s*(§{2}allAs\d*§{2})\s*(§{2}importCandidate\d+§{2})(.*?)(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -310,10 +261,11 @@ const esm: ProtocolScriptRegExpList = [
       const kAlias = expressions[alias].replace(/[,\s\n]/gi, "");
       if (typedExpressions) {
         typedExpressions.imports[kAlias] = {
-          ambient: null,
-          default: null,
-          block: null,
-          allAs: expressions[id2].replace(/['"`]/gi, ""),
+          ambient: false,
+          default: false,
+          object: false,
+          allAs: true,
+          path: expressions[id2].replace(/['"`]/gi, ""),
           value: `import ${kAlias} from ${str};`,
           constantDeclaration: [
             `let ${kAlias} = Ogone.mod[${str}];`,
@@ -326,15 +278,18 @@ const esm: ProtocolScriptRegExpList = [
             }]);
           `,
           ],
-          expression: `Ogone.imp(${str}),`,
+          dynamic: `Ogone.imp(${str}),`,
+          members: [],
         };
         typedExpressions.imports[key.trim()] = {
-          ambient: null,
-          allAs: null,
-          block: null,
-          default: str,
-          expression: `Ogone.imp(${str}),`,
+          ambient: false,
+          allAs: false,
+          object: false,
+          default: true,
+          path: str,
+          dynamic: `Ogone.imp(${str}),`,
           value: `import ${key} from ${str};`,
+          members: [],
           constantDeclaration: [
             `let ${key} = Ogone.mod[${str}].default;`,
             `Ogone.mod['*'].push([${str}, (m) => {
@@ -376,11 +331,13 @@ const esm: ProtocolScriptRegExpList = [
       const arrayOfKey = eval(arr);
       if (typedExpressions) {
         typedExpressions.imports[realKey] = {
-          ambient: null,
-          default: null,
-          allAs: null,
-          block: expressions[id2].replace(/['"`]/gi, ""),
-          expression: `Ogone.imp(${str}),`,
+          ambient: false,
+          default: false,
+          allAs: false,
+          members: arrayOfKey,
+          object: true,
+          path: expressions[id2].replace(/['"`]/gi, ""),
+          dynamic: `Ogone.imp(${str}),`,
           value: `import ${realKey} from ${str};`,
           constantDeclaration: arrayOfKey
             .map((prop: string) => [
@@ -405,7 +362,7 @@ const esm: ProtocolScriptRegExpList = [
     name: "default and object import",
     open: false,
     reg:
-      /\s*(§{2}keywordImport\d+§{2})\s*(§{2}blockImport\d+§{2})\s*([^§]*)+\s*(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
+      /\s*(§{2}keywordImport\d+§{2})\s*(§{2}blockImport\d+§{2})(.*?)(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -425,11 +382,13 @@ const esm: ProtocolScriptRegExpList = [
       const arrayOfKey = eval(arr);
       if (typedExpressions) {
         typedExpressions.imports[realKey] = {
-          ambient: null,
-          default: null,
-          allAs: null,
-          block: expressions[id2].replace(/['"`]/gi, ""),
-          expression: `Ogone.imp(${str}),`,
+          ambient: false,
+          default: false,
+          allAs: false,
+          object: true,
+          members: arrayOfKey,
+          dynamic: `Ogone.imp(${str}),`,
+          path: expressions[id2].replace(/['"`]/gi, ""),
           value: `import ${realKey} from ${str};`,
           constantDeclaration: arrayOfKey
             .map((prop: string) => [
@@ -447,12 +406,14 @@ const esm: ProtocolScriptRegExpList = [
             .flat(),
         };
         typedExpressions.imports[kDef.trim()] = {
-          ambient: null,
-          allAs: null,
-          block: null,
-          default: str,
+          ambient: false,
+          allAs: false,
+          object: false,
+          default: true,
+          path: str,
           value: `import ${kDef} from ${str};`,
-          expression: `Ogone.imp(${str}),`,
+          dynamic: `Ogone.imp(${str}),`,
+          members: [],
           constantDeclaration: [
             `let ${kDef} = Ogone.mod[${str}].default;`,
             `Ogone.mod['*'].push([${str}, (m) => {
@@ -483,11 +444,15 @@ const esm: ProtocolScriptRegExpList = [
       const [input, imp, def, key, f, id2] = matches;
       if (typedExpressions) {
         typedExpressions.imports[expressions[def].replace(/[,\s\n]/gi, "")] = {
-          ambient: null,
-          block: null,
-          allAs: null,
-          default: expressions[id2].replace(/['"`]/gi, ""),
-          expression: `import ${
+          value,
+          ambient: false,
+          object: false,
+          allAs: false,
+          default: true,
+          path: expressions[id2].replace(/['"`]/gi, ""),
+          constantDeclaration: [],
+          members: [],
+          dynamic: `import ${
             expressions[def].replace(
               /[,\s\n]/gi,
               "",
@@ -500,11 +465,15 @@ const esm: ProtocolScriptRegExpList = [
         typedExpressions.imports[
           expressions[key].replace(/\n,/gi, ",").replace(/,\}/gi, "}")
         ] = {
-          ambient: null,
-          default: null,
-          allAs: null,
-          block: expressions[id2].replace(/['"`]/gi, ""),
-          expression: `import ${
+          value,
+          ambient: false,
+          default: false,
+          allAs: false,
+          object: true,
+          path: expressions[id2].replace(/['"`]/gi, ""),
+          members: [],
+          constantDeclaration: [],
+          dynamic: `import ${
             expressions[key]
               .replace(/\n,/gi, ",")
               .replace(/,\}/gi, "}")
@@ -521,7 +490,7 @@ const esm: ProtocolScriptRegExpList = [
   {
     name: "fallback import",
     open: false,
-    reg: /(§{2}keywordImport\d+§{2})([^\s\S]*)+/,
+    reg: /(§{2}keywordImport\d+§{2})(.*?)(?=(§{2}(endPonctuation|endLine|endExpression)\d+§{2}))/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -534,6 +503,7 @@ const esm: ProtocolScriptRegExpList = [
     },
     close: false,
   },
+  ...exports
 ];
 
 export default esm;

@@ -29,7 +29,7 @@ export default class StoreConnectionsInspector extends Utils {
         // we need to get the textnode inside the store element
         const textnode = store.childNodes[0];
         if (textnode) {
-          const data = YAML.parse(textnode.rawText, {});
+          const data = YAML.parse(textnode.rawText as string, {});
           console.warn(data);
         } else {
           // store modules can be empty if the element is an auto-closing element

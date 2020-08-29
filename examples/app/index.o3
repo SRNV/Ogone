@@ -9,7 +9,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
   declare:
     public scrollY: number = 0
   default:
-    const header = document.getElementById('header');
+    const { header } = Refs;
     window.addEventListener('scroll', (ev) => {
       if (header) {
         if (window.scrollY > this.scrollY) {
@@ -24,7 +24,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
 </proto>
 
 <template>
-  <div id="header" class="header">
+  <div ref="header" class="header">
     <div class="logo">
       <async-logo-el --router-go="'/'"></async-logo-el>
     </div>
@@ -65,8 +65,10 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
     padding: 10px;
     filter: drop-shadow(0px 10px 0px #00000087);
     display: flex;
-    position: sticky;
+    position: fixed;
+    width: 99%;
     top: 0px;
+    left: @top;
     transition: top 0.5s ease;
     overflow: hidden;
     z-index: 500;

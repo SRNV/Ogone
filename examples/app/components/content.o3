@@ -1,4 +1,4 @@
-require title, text, code as (string);
+require title, text, code as string;
 <template>
   <div class="container">
     <div class="left">

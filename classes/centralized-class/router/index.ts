@@ -25,7 +25,7 @@ const getClassRouter = (klass) =>
       const result = {};
       if (
         !splitted.filter((r) => r.trim().length).length !==
-          !locationSplit.filter((r) => r.trim().length).length
+        !locationSplit.filter((r) => r.trim().length).length
       ) {
         return;
       }

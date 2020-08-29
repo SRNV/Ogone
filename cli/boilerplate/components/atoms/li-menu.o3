@@ -1,4 +1,4 @@
-require item as ({ label: string; route: string; children: any[]; });
+require item as { label: string; route: string; children: any[]; };
 use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component';
 
 <proto type="async">
@@ -15,10 +15,9 @@ use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component'
   </li>
   <ul>
     <async-recursive-component
-      --if="!!item.children"
       --for="item.children as (child, i)"
       --defer="new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))"
-      :item="child ? child : {}"/>
+      :item="child"/>
   </ul>
 </template>
 

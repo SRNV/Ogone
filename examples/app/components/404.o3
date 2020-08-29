@@ -12,6 +12,7 @@
     justify-content: center;
     margin: auto;
     flex-direction: column;
+    height: 100vh;
     .text {
       font-weight: 400;
       font-size: 24pt;

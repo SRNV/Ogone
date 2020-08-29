@@ -14,6 +14,7 @@ use @/examples/app/components/content.o3 as "content-page";
     height: auto;
     width: auto;
     background: black;
+    margin-top: 45px;
     animation-name: fade-in-right;
     animation-iteration-count: 1;
     animation-duration: 0.5s;

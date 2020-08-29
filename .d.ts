@@ -246,8 +246,37 @@ export interface TypedExpressions {
   blocks: MapIndexable;
   parentheses: MapIndexable;
   setters: MapIndexable;
-  imports: { [k: string]: { [s: string]: null | string | string[] } };
-  exports: { [k: string]: { [s: string]: null | string | string[] } };
+  imports: {
+    [k: string]: {
+      default: boolean;
+      ambient: boolean;
+      allAs: boolean;
+      path: string;
+      object: boolean;
+      members: string[];
+      value: string;
+      dynamic: string;
+      constantDeclaration: string[];
+    }
+  };
+  exports: {
+    [k: string]: {
+      member: boolean;
+      default: boolean;
+      members: string[];
+      path: string;
+      type: "object"
+      | "class"
+      | "function"
+      | "interface"
+      | "namespace"
+      | "type"
+      | "all"
+      | "member"
+      | "default"
+      value: string;
+    }
+  };
   require: string[];
   use: { [k: string]: { [s: string]: null | string | string[] } };
   properties: ([string, string[]])[];
@@ -344,4 +373,61 @@ export type StyleBundle = {
   mapPreservedRules: Map<string, any>;
   tokens: any;
   component: Component;
+}
+
+interface Variable {
+  name: string;
+  id: string;
+  value: string;
+}
+
+interface ScopeBundle {
+  id: string;
+  index: number;
+  type: "object"
+  | "class"
+  | "argument-variable"
+  | "argument-value"
+  | "function"
+  | "arrow-function"
+  | "import"
+  | "export"
+  | "top-level";
+  key: string,
+  parent: ScopeBundle | null;
+  children: ScopeBundle[];
+  variablesMembers: Variable[];
+  dependencies: string[];
+  value: string;
+  file: FileBundle | null;
+}
+
+interface ModuleTransfert {
+  index: number;
+  type: "default" | "members";
+  value: string;
+  parent: ScopeBundle;
+  target: ScopeBundle;
+}
+
+interface FileBundle {
+  path: string;
+  id: string;
+  root: ScopeBundle;
+  mapScopes: Map<string, ScopeBundle>;
+  mapExports: Map<string, ModuleTransfert>;
+  mapImports: Map<string, ModuleTransfert>;
+  dependencies: FileBundle[];
+  type: "local" | "remote" | "";
+  baseUrl: string;
+  value: string;
+  tokens: {
+    expressions: { [k: string]: string };
+    typedExpressions: Pick<TypedExpressions, 'imports' | 'exports' | 'blocks' | 'parentheses'>;
+
+  }
+}
+
+interface MenthalistOptions {
+  path: string;
 }

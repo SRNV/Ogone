@@ -185,7 +185,7 @@ export default class ScriptInspector extends Utils {
         const columnPosition = sourceLine?.indexOf(source.trim());
         this.error(
           `${component.file}:${linePosition + 1}:${
-            columnPosition ? columnPosition + 1 : 0
+          columnPosition ? columnPosition + 1 : 0
           }\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
         );
       }
@@ -193,7 +193,7 @@ export default class ScriptInspector extends Utils {
     }
     this.warn(
       `TSC: ${component.file} - ${
-        Math.round(performance.now() - startPerf)
+      Math.round(performance.now() - startPerf)
       } ms`,
     );
     return (Object.values(emit)[0] as string).split("// ogone-sep")[1];
@@ -212,7 +212,7 @@ export default class ScriptInspector extends Utils {
       const proto = component.elements.proto[0];
       // @ts-ignore
       const moduleScript = proto?.getInnerHTML();
-      let defData;
+      let defData: any;
       if (proto && "def" in proto.attributes) {
         // allowing <proto def="..."
         // absolute <proto def="http://..."
@@ -341,9 +341,9 @@ export default class ScriptInspector extends Utils {
             reflections: ogoneScript.body.reflections.join("\n"),
             beforeEach: each ? each : "",
             async: proto && proto.attributes &&
-                ["async", "store", "controller"].includes(
-                  proto.attributes.type as string,
-                )
+              ["async", "store", "controller"].includes(
+                proto.attributes.type as string,
+              )
               ? "async"
               : "",
           },
@@ -413,7 +413,7 @@ export default class ScriptInspector extends Utils {
           const comp = {
             ns: component.namespace,
             data: component.data,
-            runtime: (_state: any, ctx: any) => {},
+            runtime: (_state: any, ctx: any) => { },
           };
           comp.runtime = run.bind(comp.data);
           // save the controller
@@ -468,9 +468,9 @@ export default class ScriptInspector extends Utils {
               props: requirements.map(
                 ([name, constructors]) =>
                   `\n${name}: ${
-                    constructors.map(
-                      (c) => `${c}`,
-                    ).join(" | ")
+                  constructors.map(
+                    (c) => `${c}`,
+                  ).join(" | ")
                   };`,
               ),
             });
@@ -480,6 +480,7 @@ export default class ScriptInspector extends Utils {
             let result = this.template(
               `/** component: {{ tagName }} */
               declare interface $_component_{{ tagNameFormatted }} {
+                /** values of {{ tagName }} */
                 {{ interfaceConstructors }}
               };
               function {{ tagNameFormatted }}Component (this: $_component_{{ tagNameFormatted }} & Protocol & Props) {
@@ -487,9 +488,9 @@ export default class ScriptInspector extends Utils {
                 {{ data }}
                 {{ modules }}
                 {{ value }}
-                const {{ tagNameFormatted }} {{ propsTypes }} = ({
+                const {{ tagNameFormatted }} {{ propsTypes }} = {
                   {{ props }}
-                });
+                };
               }`,
               {
                 tagName,
@@ -500,8 +501,8 @@ export default class ScriptInspector extends Utils {
                     ? v.constructor.name === "Array"
                       ? `${key} : any[]`
                       : `${key}: typeof ${v.constructor.name}`
-                    : `${key}: any`
-                ).join(";"),
+                    : ``
+                ).join(";\n"),
                 tagNameFormatted: tagName.replace(/(\-)([a-z])/gi, "_$2"),
                 propsTypes,
                 position: item.position,
