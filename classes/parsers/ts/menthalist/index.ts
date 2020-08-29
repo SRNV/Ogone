@@ -8,9 +8,7 @@ import modifiers from '../../utils/modifiers.ts';
 
 export default class Menthalist extends MenthalistScopeInspector {
   pick(opts: MenthalistOptions): string | null {
-    const fileBundle = this.getFileBundle({
-      path: opts.path,
-    });
+    const fileBundle = this.getFileBundle(opts);
     if (fileBundle) {
       this.getAllScopes(fileBundle);
       this.getAllImportsExports(fileBundle);
@@ -18,8 +16,8 @@ export default class Menthalist extends MenthalistScopeInspector {
     return fileBundle ? fileBundle.value : null;
   }
   getFileBundle(opts: Partial<FileBundle>): FileBundle | null {
-    if (!opts || !opts.path || !existsSync(opts.path)) return null;
-    let result: string = Deno.readTextFileSync(opts.path);
+    if (!opts || !opts.path || !existsSync(opts.path) && !opts.code) return null;
+    let result: string = opts.code || Deno.readTextFileSync(opts.path);
     const fileBundle: FileBundle = {
       id: "k" + Math.random(),
       type: "",
@@ -58,5 +56,8 @@ export default class Menthalist extends MenthalistScopeInspector {
 }
 const instance = new Menthalist();
 instance.pick({
-  path: './.d.ts',
+  code: `
+    export import M = A;
+  `,
+  path: './'
 });

@@ -490,7 +490,7 @@ const esm: ProtocolScriptRegExpList = [
   {
     name: "fallback import",
     open: false,
-    reg: /(§{2}keywordImport\d+§{2})(.*?)(?=(§{2}(endPonctuation|endLine|endExpression)\d+§{2}))/,
+    reg: /(§{2}keywordImport\d+§{2})(.*?)(§{2}keywordFrom\d+§{2})(.*?)(?=(§{2}(endPonctuation|endLine|endExpression)\d+§{2}))/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");

@@ -413,6 +413,7 @@ interface ModuleTransfert {
 interface FileBundle {
   path: string;
   id: string;
+  code?: string;
   root: ScopeBundle;
   mapScopes: Map<string, ScopeBundle>;
   mapExports: Map<string, ModuleTransfert>;
@@ -428,6 +429,4 @@ interface FileBundle {
   }
 }
 
-interface MenthalistOptions {
-  path: string;
-}
+type MenthalistOptions = { path: string; } | { code: string, path: string };
