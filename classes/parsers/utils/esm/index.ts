@@ -87,6 +87,7 @@ const esm: ProtocolScriptRegExpList = [
       const str = expressions[id2].replace(/[\s]/gi, "");
       if (typedExpressions) {
         typedExpressions.imports[key] = {
+          key: id,
           value,
           ambient: false,
           default: false,
@@ -127,6 +128,7 @@ const esm: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.imports[id] = {
+          key: id,
           value,
           path: expressions[id2].replace(/['"`]/gi, ""),
           ambient: true,
@@ -157,6 +159,7 @@ const esm: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.imports[key] = {
+          key: id,
           ambient: false,
           allAs: false,
           object: false,
@@ -198,6 +201,7 @@ const esm: ProtocolScriptRegExpList = [
       const str = expressions[id2].replace(/['"\s`]/gi, "");
       if (typedExpressions) {
         typedExpressions.imports[alias.replace(/[,\s\n]/gi, "")] = {
+          key: id,
           ambient: false,
           default: false,
           object: false,
@@ -219,6 +223,7 @@ const esm: ProtocolScriptRegExpList = [
           value: `import ${alias} from ${str};`,
         };
         typedExpressions.imports[expressions[key].replace(/[,\s\n]/gi, "")] = {
+          key: id,
           ambient: false,
           allAs: false,
           object: false,
@@ -261,6 +266,7 @@ const esm: ProtocolScriptRegExpList = [
       const kAlias = expressions[alias].replace(/[,\s\n]/gi, "");
       if (typedExpressions) {
         typedExpressions.imports[kAlias] = {
+          key: id,
           ambient: false,
           default: false,
           object: false,
@@ -282,6 +288,7 @@ const esm: ProtocolScriptRegExpList = [
           members: [],
         };
         typedExpressions.imports[key.trim()] = {
+          key: id,
           ambient: false,
           allAs: false,
           object: false,
@@ -331,6 +338,7 @@ const esm: ProtocolScriptRegExpList = [
       const arrayOfKey = eval(arr);
       if (typedExpressions) {
         typedExpressions.imports[realKey] = {
+          key: id,
           ambient: false,
           default: false,
           allAs: false,
@@ -382,6 +390,7 @@ const esm: ProtocolScriptRegExpList = [
       const arrayOfKey = eval(arr);
       if (typedExpressions) {
         typedExpressions.imports[realKey] = {
+          key: id,
           ambient: false,
           default: false,
           allAs: false,
@@ -406,6 +415,7 @@ const esm: ProtocolScriptRegExpList = [
             .flat(),
         };
         typedExpressions.imports[kDef.trim()] = {
+          key: id,
           ambient: false,
           allAs: false,
           object: false,
@@ -444,6 +454,7 @@ const esm: ProtocolScriptRegExpList = [
       const [input, imp, def, key, f, id2] = matches;
       if (typedExpressions) {
         typedExpressions.imports[expressions[def].replace(/[,\s\n]/gi, "")] = {
+          key: id,
           value,
           ambient: false,
           object: false,
@@ -465,6 +476,7 @@ const esm: ProtocolScriptRegExpList = [
         typedExpressions.imports[
           expressions[key].replace(/\n,/gi, ",").replace(/,\}/gi, "}")
         ] = {
+          key: id,
           value,
           ambient: false,
           default: false,

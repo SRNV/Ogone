@@ -146,7 +146,7 @@ export interface XMLNodeDescription {
   autoclosing?: boolean;
   tagName: null | string;
   dependencies: string[];
-  id: null | number | string;
+  id?: null | number | string;
   nodeList: XMLNodeDescription[];
   flags: ParseFlagsOutput | null;
   childNodes: XMLNodeDescription[];
@@ -248,6 +248,7 @@ export interface TypedExpressions {
   setters: MapIndexable;
   imports: {
     [k: string]: {
+      key: string;
       default: boolean;
       ambient: boolean;
       allAs: boolean;
@@ -261,6 +262,7 @@ export interface TypedExpressions {
   };
   exports: {
     [k: string]: {
+      key: string;
       member: boolean;
       default: boolean;
       members: string[];
@@ -317,14 +319,14 @@ interface DOMParserIterator {
 }
 interface DOMParserExp {
   id: number | null | string;
-  type: string;
+  type?: string;
   key?: string;
   nodeType: number;
   value?: string;
   rawText: string;
   rawAttrs: string;
   closing?: boolean;
-  expression: string;
+  expression?: string;
   autoclosing?: boolean;
   dependencies: string[];
   childNodes: DOMParserExp[];

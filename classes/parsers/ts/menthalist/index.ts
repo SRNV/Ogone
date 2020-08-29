@@ -56,5 +56,5 @@ export default class Menthalist extends MenthalistScopeInspector {
 }
 const instance = new Menthalist();
 instance.pick({
-  path: './mod.ts'
+  path: './deps.ts',
 });

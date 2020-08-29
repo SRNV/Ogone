@@ -19,6 +19,7 @@ const exports: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.exports['default'] = {
+          key: id,
           default: true,
           members: [],
           path: "",
@@ -35,7 +36,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export vars",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}(keywordConst|keywordLet)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s*(§{2}(keywordConst|keywordLet|keywordVar)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -46,6 +47,7 @@ const exports: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.exports[key] = {
+          key: id,
           default: false,
           members: [],
           path: "",
@@ -62,7 +64,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export function",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordFunction\d+§{2})(.*?)(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordFunction\d+§{2})(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -72,8 +74,10 @@ const exports: ProtocolScriptRegExpList = [
       const [input, exp, func, key] = matches;
       const [input2, exp2, ...f2] = matches;
       expressions[id] = value;
+      console.warn('gfdsgfdsgfdsg')
       if (typedExpressions) {
         typedExpressions.exports[key] = {
+          key: id,
           default: false,
           members: [],
           path: "",
@@ -102,6 +106,7 @@ const exports: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.exports[key] = {
+          key: id,
           default: false,
           members: [],
           path: "",
@@ -128,6 +133,7 @@ const exports: ProtocolScriptRegExpList = [
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.exports[key] = {
+          key: id,
           default: false,
           member: true,
           members: [],

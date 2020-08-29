@@ -108,7 +108,7 @@ export default class XMLParser extends XMLPragma {
     node.dna = getDeepTranslation(
       node.dna,
       (expressions as unknown) as { [key: string]: string },
-      (key) => expressions[key].expression,
+      (key) => expressions[key].expression as string,
     );
     if (node.childNodes && node.childNodes.length) {
       node.childNodes.forEach((child, i, arr) => {
@@ -217,7 +217,7 @@ export default class XMLParser extends XMLPragma {
               .forEach((k) => {
                 node.rawAttrs = node.rawAttrs.replace(
                   k,
-                  expressions[k].expression,
+                  expressions[k].expression as string,
                 );
               });
             // @ts-ignore
@@ -497,7 +497,7 @@ export default class XMLParser extends XMLPragma {
         rawText = getDeepTranslation(
           rawText,
           (expressions as unknown) as { [key: string]: string },
-          (key) => expressions[key].expression,
+          (key) => expressions[key].expression as string,
         );
         node.rawText = rawText;
       }
@@ -547,7 +547,7 @@ export default class XMLParser extends XMLPragma {
       result.dna = getDeepTranslation(
         result.dna,
         (expressions as unknown) as { [key: string]: string },
-        (key) => expressions[key].expression,
+        (key) => expressions[key].expression as string,
       );
       this.setInnerOuterHTML(result, expressions);
       // critical this will say to o3 that's the rootNode
