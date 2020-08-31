@@ -394,7 +394,8 @@ interface ScopeBundle {
   | "arrow-function"
   | "import"
   | "export"
-  | "top-level";
+  | "top-level"
+  | "";
   key: string,
   parent: ScopeBundle | null;
   children: ScopeBundle[];
@@ -431,4 +432,4 @@ interface FileBundle {
   }
 }
 
-type MenthalistOptions = { path: string; } | { code: string, path: string };
+type SusanoOptions = { path: string; } | { code: string, path: string };

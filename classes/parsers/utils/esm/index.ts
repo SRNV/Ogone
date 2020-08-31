@@ -318,7 +318,7 @@ const esm: ProtocolScriptRegExpList = [
     name: "object import",
     open: false,
     reg:
-      /\s*(§{2}keywordImport\d+§{2})\s*(§{2}blockImport\d+§{2})\s*(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})?/,
+      /(§{2}keywordImport\d+§{2})\s*(§{2}blockImport\d+§{2})\s*(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(endLine|endExpression|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -507,6 +507,7 @@ const esm: ProtocolScriptRegExpList = [
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
+      console.warn(value)
       throw new Error(
         `this syntax of import is not supported\ninput:${
         getDeepTranslation(value, expressions)

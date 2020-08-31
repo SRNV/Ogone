@@ -1,18 +1,20 @@
 import read from '../../utils/agnostic-transformer.ts';
 import notParsed from '../../utils/not-parsed.ts';
 import elements from '../../utils/elements.ts';
-import { MenthalistOptions, FileBundle, } from '../../../../.d.ts';
+import { SusanoOptions, FileBundle, } from '../../../../.d.ts';
 import { existsSync } from "../../../../deps.ts";
-import MenthalistScopeInspector from './memory.ts';
+import SusanoScopeInspector from './memory.ts';
 import modifiers from '../../utils/modifiers.ts';
 
-export default class Menthalist extends MenthalistScopeInspector {
-  pick(opts: MenthalistOptions): string | null {
+export default class Susano extends SusanoScopeInspector {
+  pick(opts: SusanoOptions): string | null {
     const fileBundle = this.getFileBundle(opts);
     if (fileBundle) {
       this.getAllScopes(fileBundle);
       this.getAllImportsExports(fileBundle);
     }
+    console.warn(fileBundle?.tokens.expressions)
+
     return fileBundle ? fileBundle.value : null;
   }
   getFileBundle(opts: Partial<FileBundle>): FileBundle | null {
@@ -48,13 +50,13 @@ export default class Menthalist extends MenthalistScopeInspector {
       typedExpressions: fileBundle.tokens.typedExpressions,
       value: result,
       array: notParsed.concat(elements).concat(modifiers),
-    })
+    });
     fileBundle.value = topLevel;
     fileBundle.root.value = topLevel;
     return fileBundle;
   }
 }
-const instance = new Menthalist();
+const instance = new Susano();
 instance.pick({
-  path: './deps.ts',
+  path: './classes/parsers/css/obvious/classes/parser.ts',
 });

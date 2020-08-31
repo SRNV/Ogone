@@ -21,7 +21,9 @@ export default function (
   array.forEach((item) => {
     if (name && !item.name) return;
     if (name && item.name && name !== item.name) return;
+    // console.warn(item)
     if (item.open && item.close && item.id && item.pair) {
+      // console.warn(1);
       while (
         // we need to parse if the character is alone or not
         // no need to change it if it's not
@@ -42,6 +44,7 @@ export default function (
       return;
     }
     if (item.open && item.close && item.id && !item.pair) {
+      // console.warn(2);
       while (
         result.indexOf(item.open as string) > -1 &&
         result.indexOf(item.close as string) > -1 &&
@@ -59,6 +62,7 @@ export default function (
       return;
     }
     if (item.open === false && item.close === false && item.id) {
+      // console.warn(3);
       while (result.match(item.reg as RegExp)) {
         const matches = result.match(item.reg as RegExp);
         const value = matches ? matches[0] : null;

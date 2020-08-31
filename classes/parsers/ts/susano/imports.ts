@@ -1,12 +1,12 @@
 import { FileBundle, ScopeBundle, } from '../../../../.d.ts';
 import esmElements from "../../utils/esm/index.ts";
 import read from '../../utils/agnostic-transformer.ts';
-import MenthalistRegularExpressions from './regexps.ts';
+import SusanoRegularExpressions from './regexps.ts';
 
-export default class MenthalistImportInspector extends MenthalistRegularExpressions {
+export default class SusanoImportInspector extends SusanoRegularExpressions {
   getAllImportsExports(fileBundle: FileBundle) {
     const { root } = fileBundle;
-    console.warn(`[Menthalist] inpsecting imports/exports of ${fileBundle.path}`);
+    console.warn(`[Susano] inpsecting imports/exports of ${fileBundle.path}`);
     const exports = root.value.match(this.exportsRegExpGI);
     const imports = root.value.match(this.importsRegExpGI);
     if (imports) {

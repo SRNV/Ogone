@@ -7,69 +7,24 @@ import {
 const nullish: ProtocolScriptRegExpList = [
   // strings
   {
-    pair: true,
-    open: '"',
-    reg: /\"([^"])*\"/,
+    open: false,
+    reg: /(?<!\\)\$\{(.*?)(?<!\\)\}/i,
+    id: (value, matches, typedExpressions, expressions) => {
+      const id = `§§template${gen.next().value}§§`;
+      if (expressions) expressions[id] = value;
+      return id;
+    },
+    close: false,
+  },
+  {
+    open: false,
+    reg: /(?<!\\)(["'`])(.*?)(?<!\\)\1/i,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§string${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
-    close: '"',
-  },
-  {
-    open: '\"',
-    reg: /\\\"([^"]*)+\\\"/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§escapedstring${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: '\"',
-  },
-  {
-    pair: true,
-    open: "'",
-    reg: /\'([^']*)+\'/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§string${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "'",
-  },
-  {
-    pair: true,
-    open: "\'",
-    reg: /\\\'([^']*)+\\\'/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§escapedstring${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "\'",
-  },
-  {
-    pair: true,
-    open: "`",
-    reg: /\`([^`]*)+\`/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§string${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "`",
-  },
-  {
-    pair: true,
-    open: "\`",
-    reg: /\\\`([^`]*)+\\\`/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§escapedstring${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "\`",
+    close: false,
   },
   // end annulations
   {
