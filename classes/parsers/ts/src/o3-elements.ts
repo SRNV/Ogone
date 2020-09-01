@@ -112,7 +112,6 @@ const items: ProtocolScriptRegExpList = [
           identifier: translateIdentifier,
         });
         template();
-        console.warn(translate)
         typedExpressions.reflections.push(translate);
       }
       return "";

@@ -1,0 +1,19 @@
+<proto>
+  declare:
+     public array: number[] = [];
+  default:
+    this.array.push(0);
+    // test inline reactions
+    const a = (() => this.array
+      .splice(0));
+    // should erase li element after 1400ms
+    setTimeout(() => this.array.splice(0) && true, 1400);
+</proto>
+<template>
+  Numbers:
+  <ul>
+     <li --for="array as (number)">
+       ${number}
+     </li>
+  </ul>
+</template>

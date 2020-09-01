@@ -16,6 +16,8 @@ import {
   ProtocolScriptParserReturnType,
 } from "../../../.d.ts";
 
+// TODO clean code
+
 /**
 * class to parse custom script for Ogone
 * this class will parse the setters statements
@@ -66,7 +68,6 @@ export default class ProtocolScriptParser extends Utils {
         /((chainedLine|parenthese|array|functionCall)\d*§{2})\s*(§{2}keyword)/gi,
         "$1§§endExpression0§§$3",
       );
-      console.warn(3, getDeepTranslation(data, expressions));
       data = this.read(
         { typedExpressions, expressions, value: data, array: O3Elements },
       );
@@ -199,7 +200,7 @@ export default class ProtocolScriptParser extends Utils {
       "$1§§endExpression0§§$2",
     )
       .replace(/(§{2})(\})/gi, "$1§§endExpression0§§$2");
-    result.split(/(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi)
+    result.split(/(?:§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi)
       .filter((exp) => {
         return exp.length && exp.indexOf("endLine") < 0 && (
           exp.indexOf("operatorsetter") > -1 ||
@@ -214,7 +215,8 @@ export default class ProtocolScriptParser extends Utils {
           (exp.indexOf("arrayModifier") > -1 && exp.indexOf("keywordThis") > -1)
         );
       })
-      .map((exp) => {
+      .map((tokens) => {
+        let exp = tokens.replace(/\n\s*/gi, '');
         const key = Object.keys(typedExpressions.setters).find((key) =>
           exp.indexOf(key) > -1
         );
@@ -223,9 +225,16 @@ export default class ProtocolScriptParser extends Utils {
           ? key
           : `'${expressions[key].replace(/(§{2}ponctuation\d*§{2})/, "")}'` ||
           "";
+        let invalidationExpression = `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`;
+        const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)(§§arrowFunction\d+§§)\s*(?!§§block)(.+?)(\,|\)|§§(?:endPonctuation|endLine|endEpxression)\d+§§)/gi;
+        const invMatch = exp.match(InlineArrowFunctionRegExp);
+        if (invMatch) {
+          const varName = `__a${Math.random()}`.replace(/\./i, '').slice(0, 8)
+          invalidationExpression = exp.replace(InlineArrowFunctionRegExp, `$1=>{const ${varName} = $3;____(${name},this);return ${varName};}$4`);
+        }
         result = result.replace(
-          exp,
-          `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`,
+          tokens,
+          invalidationExpression,
         );
       });
     return result;

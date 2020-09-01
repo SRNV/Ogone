@@ -13,7 +13,7 @@ export default class Susano extends SusanoScopeInspector {
       this.getAllScopes(fileBundle);
       this.getAllImportsExports(fileBundle);
     }
-    console.warn(fileBundle?.tokens.expressions)
+    console.warn(fileBundle?.tokens.expressions);
 
     return fileBundle ? fileBundle.value : null;
   }
