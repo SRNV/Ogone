@@ -248,6 +248,9 @@ function OComponent(this: OnodeComponent): OnodeComponent {
       // don't use destroy here
       // if rm.destroy is used, it will not allow empty list to rerender
       rm.removeNodes().remove();
+      if (context.list.length) {
+        rm.destroy();
+      }
     }
   };
   return this;

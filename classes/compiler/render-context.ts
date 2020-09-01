@@ -10,7 +10,7 @@ export default class ContextBuilder extends Utils {
         // @ts-ignore
         const { script } = flag;
         const { modules } = component;
-        const { node, ctx, getLength, array } = script;
+        const { node, ctx, getLength, array, item: itemName } = script;
         let contextIf = null;
         if (node.attributes && node.attributes["--if"]) {
           let nxt = node.nextElementSibling;
@@ -77,7 +77,7 @@ export default class ContextBuilder extends Utils {
               } else if (GET_LENGTH && ${key}) {
                 return 0;`;
               }).join("\n")
-            }
+              }
               }
             `;
           }
@@ -119,6 +119,7 @@ export default class ContextBuilder extends Utils {
               try {
                 return eval('('+GET_TEXT+')');
               } catch(err) {
+                if (!${itemName}) { return undefined }
                 Ogone.error('Error in component:\\n\\t {{component.file}} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }

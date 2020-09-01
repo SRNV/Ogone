@@ -106,11 +106,12 @@ export default class ContextCompiler extends Utils {
           };
           legacy.arrayName = array;
           legacy.getLength = getLengthScript;
+          // @ts-ignore
+          legacy.item = item;
           if (contextLegacy) {
             const declarationScript = [`const ${arrayAlias} = ${array} || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`];
-
             if (contextLegacy && contextLegacy.declarationScript) {
               contextLegacy.declarationScript = contextLegacy.declarationScript
                 .concat(declarationScript);
@@ -161,6 +162,8 @@ export default class ContextCompiler extends Utils {
         contextLegacy.script = {
           value,
           node,
+          // @ts-ignore
+          item: legacy.item,
           ctx: legacy.ctx,
           level: contextLegacy.limit,
           getLength: legacy.getLength,
