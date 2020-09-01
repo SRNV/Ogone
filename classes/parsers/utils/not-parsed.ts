@@ -45,5 +45,15 @@ const nullish: ProtocolScriptRegExpList = [
     },
     close: "/",
   },
+  {
+    open: false,
+    reg: /(\/)(.+?)(?<!\\)(\/)(\w+){0,1}/i,
+    id: (value, matches, typedExpressions, expressions) => {
+      const id = `§§regexp${gen.next().value}§§`;
+      if (expressions) expressions[id] = value;
+      return id;
+    },
+    close: false,
+  },
 ];
 export default nullish;
