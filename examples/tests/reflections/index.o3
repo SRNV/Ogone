@@ -1,25 +1,17 @@
 <proto>
   def:
-    x: 0
+    x: 1
     y: 0
     position:
       name: Test
-      origin: 0
+      origin: 1
       test: []
-  before-each:
-    // this is a reflection
-    this.position.origin => this.x;
-    // you can reflect any property of your data
-    this.position.test[this.position.origin -1] => this.position.origin;
-    this.position.test[this.position.origin] => 'yup';
-    // or
-    this.position.name => {
-      return `${this.x}, test ${this.y}`;
-    };
   default:
     setInterval(() => {
       this.x++;
       this.y--;
+      let i = Math.random();
+      i > 0.5 ? this.position.test.push(0) : this.position.test.pop();;
     }, 500);
     break;
 </proto>

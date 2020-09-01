@@ -66,9 +66,11 @@ export default class ProtocolScriptParser extends Utils {
         /((chainedLine|parenthese|array|functionCall)\d*§{2})\s*(§{2}keyword)/gi,
         "$1§§endExpression0§§$3",
       );
+      console.warn(3, getDeepTranslation(data, expressions));
       data = this.read(
         { typedExpressions, expressions, value: data, array: O3Elements },
       );
+
       data = getDeepTranslation(data, expressions);
       if (m.trim() === "before-each") {
         typedExpressions.switch.before.each = data;

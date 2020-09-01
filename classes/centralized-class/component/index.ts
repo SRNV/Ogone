@@ -136,7 +136,7 @@ const getClassComponent = (
       }
       Ogone.mod[this.extends].push((pragma: string) => {
         Ogone.render[this.extends] = eval(pragma);
-      if (!o.nodes) return;
+        if (!o.nodes) return;
         if (o.isTemplate) {
           return true;
         } else if (oc) {
@@ -193,7 +193,7 @@ const getClassComponent = (
         return n.isConnected;
       }
       for (let n of o.nodes) {
-        for(let p of o.nodeProps) {
+        for (let p of o.nodeProps) {
           oc.react.push(() => r(n as HTMLElement, p));
           r(n as HTMLElement, p);
         }
@@ -582,34 +582,34 @@ const getClassComponent = (
             }
           } else if (flag.type.startsWith("key") && c) {
             /* all keyboard event */ document.addEventListener(
-              flag.type,
-              (ev) => {
-                const filter = o.getContext({
-                  getText: `${flag.filter}`,
-                  position,
-                });
-                const ctx = o.getContext({
-                  position,
-                });
-                switch (true) {
-                  case ev.charCode === filter:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case ev.key === filter:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case ev.keyCode === filter:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case ev.code.toLowerCase() === filter:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                  case !filter:
-                    c.runtime(flag.case, ctx, ev);
-                    break;
-                }
-              },
-            );
+            flag.type,
+            (ev) => {
+              const filter = o.getContext({
+                getText: `${flag.filter}`,
+                position,
+              });
+              const ctx = o.getContext({
+                position,
+              });
+              switch (true) {
+                case ev.charCode === filter:
+                  c.runtime(flag.case, ctx, ev);
+                  break;
+                case ev.key === filter:
+                  c.runtime(flag.case, ctx, ev);
+                  break;
+                case ev.keyCode === filter:
+                  c.runtime(flag.case, ctx, ev);
+                  break;
+                case ev.code.toLowerCase() === filter:
+                  c.runtime(flag.case, ctx, ev);
+                  break;
+                case !filter:
+                  c.runtime(flag.case, ctx, ev);
+                  break;
+              }
+            },
+          );
           } else if (flag.name === "router-go" && flag.eval) {
             /* special for router-go flag */
             if (node.ogone) {
@@ -628,17 +628,17 @@ const getClassComponent = (
               });
             } else {
               (node as HTMLElement)
-              .addEventListener("click", (ev: MouseEvent) => {
-                if (Ogone.router) {
-                  Ogone.router.go(
-                    o.getContext({
-                      getText: `${flag.eval}`,
-                      position,
-                    }),
-                    history.state,
-                  );
-                }
-              });
+                .addEventListener("click", (ev: MouseEvent) => {
+                  if (Ogone.router) {
+                    Ogone.router.go(
+                      o.getContext({
+                        getText: `${flag.eval}`,
+                        position,
+                      }),
+                      history.state,
+                    );
+                  }
+                });
             }
             /*
         } else if (flag.name === 'router-dev-tool' && flag.eval)  { // special for router-dev-tool flag
@@ -646,31 +646,31 @@ const getClassComponent = (
             Ogone.router.openDevTool();
           });
         */
-      } else if (flag.name === "event" && flag.type.startsWith('animation')) {
-        if (node.ogone) {
-          node.saveUntilRender((nr: HTMLElement) => {
-            nr.addEventListener(flag.type, (ev) => {
-              if (flag.eval !== ev.animationName) return;
-              const ctx = o.getContext({
-                position,
+          } else if (flag.name === "event" && flag.type.startsWith('animation')) {
+            if (node.ogone) {
+              node.saveUntilRender((nr: HTMLElement) => {
+                nr.addEventListener(flag.type, (ev) => {
+                  if (flag.eval !== ev.animationName) return;
+                  const ctx = o.getContext({
+                    position,
+                  });
+                  if (c) {
+                    c.runtime(flag.case, ctx, ev);
+                  }
+                });
+              })
+            } else {
+              (node as HTMLElement).addEventListener(flag.type, (ev) => {
+                if (flag.eval !== ev.animationName) return;
+                const ctx = o.getContext({
+                  position,
+                });
+                if (c) {
+                  c.runtime(flag.case, ctx, ev);
+                }
               });
-              if (c) {
-                c.runtime(flag.case, ctx, ev);
-              }
-            });
-          })
-        } else {
-          (node as HTMLElement).addEventListener(flag.type, (ev) => {
-            if (flag.eval !== ev.animationName) return;
-            const ctx = o.getContext({
-              position,
-            });
-            if (c) {
-              c.runtime(flag.case, ctx, ev);
             }
-          });
-        }
-      } /* DOM L3 */ else {
+          } /* DOM L3 */ else {
             if (node.ogone) {
               node.saveUntilRender((nr: HTMLElement) => {
                 nr.addEventListener(flag.type, (ev) => {

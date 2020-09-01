@@ -198,16 +198,16 @@ function OComponent(this: OnodeComponent): OnodeComponent {
           component: this,
           nodeProps: Onode.ogone.nodeProps,
         } : {
-          props: Onode.ogone.props,
-          dependencies: Onode.ogone.dependencies,
-          requirements: Onode.ogone.requirements,
-          params: Onode.ogone.params,
-          parentComponent: Onode.ogone.parentComponent,
-          parentCTXId: Onode.ogone.parentCTXId,
-          positionInParentComponent: Onode.ogone.positionInParentComponent ? Onode.ogone.positionInParentComponent
-            .slice(): [],
-          levelInParentComponent: Onode.ogone.levelInParentComponent,
-        }),
+            props: Onode.ogone.props,
+            dependencies: Onode.ogone.dependencies,
+            requirements: Onode.ogone.requirements,
+            params: Onode.ogone.params,
+            parentComponent: Onode.ogone.parentComponent,
+            parentCTXId: Onode.ogone.parentCTXId,
+            positionInParentComponent: Onode.ogone.positionInParentComponent ? Onode.ogone.positionInParentComponent
+              .slice() : [],
+            levelInParentComponent: Onode.ogone.levelInParentComponent,
+          }),
       });
       let previous = node;
       if (i === 0) {
@@ -245,8 +245,9 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         }
       }
       const rm = context.list.pop();
-      // deactivate all the reactions of the component
-      rm.destroy();
+      // don't use destroy here
+      // if rm.destroy is used, it will not allow empty list to rerender
+      rm.removeNodes().remove();
     }
   };
   return this;

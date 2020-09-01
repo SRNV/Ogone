@@ -74,7 +74,6 @@ const exports: ProtocolScriptRegExpList = [
       const [input, exp, func, key] = matches;
       const [input2, exp2, ...f2] = matches;
       expressions[id] = value;
-      console.warn('gfdsgfdsgfdsg')
       if (typedExpressions) {
         typedExpressions.exports[key] = {
           key: id,

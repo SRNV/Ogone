@@ -507,7 +507,6 @@ const esm: ProtocolScriptRegExpList = [
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      console.warn(value)
       throw new Error(
         `this syntax of import is not supported\ninput:${
         getDeepTranslation(value, expressions)

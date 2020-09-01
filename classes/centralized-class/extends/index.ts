@@ -26,7 +26,7 @@ const getClassExtends = (
     return o.isTemplate;
   }
   get isRecursiveConnected() {
-    return this.firstNode.isConnected && this.lastNode.isConnected;
+    return this.ogone.nodes.length && this.firstNode.isConnected && this.lastNode.isConnected;
   }
   get isConnected() {
     if (!this.firstNode) {

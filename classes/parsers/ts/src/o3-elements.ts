@@ -27,7 +27,7 @@ export function translateReflection(
       }
     });
     return `
-      if ([${cases}].includes(_state) || _state === 0) {
+      if ([${cases}].includes(_state as any) || _state === 0) {
         this${identifier} = (() => ${body})();____("${n}", this);
       }`;
   } else {
@@ -83,7 +83,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/,
+      /(§{2}keywordThis\d+§{2})\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -112,6 +112,7 @@ const items: ProtocolScriptRegExpList = [
           identifier: translateIdentifier,
         });
         template();
+        console.warn(translate)
         typedExpressions.reflections.push(translate);
       }
       return "";
