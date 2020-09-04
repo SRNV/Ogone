@@ -13,8 +13,6 @@ export default class Susano extends SusanoScopeInspector {
       this.getAllScopes(fileBundle);
       this.getAllImportsExports(fileBundle);
     }
-    console.warn(fileBundle?.tokens.expressions);
-
     return fileBundle ? fileBundle.value : null;
   }
   getFileBundle(opts: Partial<FileBundle>): FileBundle | null {
@@ -58,5 +56,5 @@ export default class Susano extends SusanoScopeInspector {
 }
 const instance = new Susano();
 instance.pick({
-  path: './classes/parsers/css/obvious/classes/parser.ts',
+  path: './deps.ts',
 });

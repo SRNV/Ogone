@@ -2,6 +2,7 @@ import { FileBundle, ScopeBundle, } from '../../../../.d.ts';
 import esmElements from "../../utils/esm/index.ts";
 import read from '../../utils/agnostic-transformer.ts';
 import SusanoRegularExpressions from './regexps.ts';
+import { absolute } from '../../../../deps.ts';
 
 export default class SusanoImportInspector extends SusanoRegularExpressions {
   getAllImportsExports(fileBundle: FileBundle) {
@@ -12,16 +13,22 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
     if (imports) {
       // console.warn(imports);
       imports.forEach((imp) => {
+        console.warn(imp)
         read({
           value: imp,
           array: esmElements,
           typedExpressions: fileBundle.tokens.typedExpressions,
           expressions: fileBundle.tokens.expressions,
         });
-      })
+      });
+      const savedImportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.imports);
+      savedImportsAfterRead.forEach(([name, details]) => {
+        const a = absolute(fileBundle.baseUrl, details.path);
+        // TODO work on members of import
+        fileBundle.mapImports.set(a, details as any);
+      });
     }
     if (exports) {
-      // console.warn(exports);
       exports.forEach((exp) => {
         read({
           value: exp,
@@ -29,10 +36,18 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
           typedExpressions: fileBundle.tokens.typedExpressions,
           expressions: fileBundle.tokens.expressions,
         });
-      })
+      });
+      const savedExportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.exports);
+      savedExportsAfterRead.forEach(([name, details]) => {
+        const a = absolute(fileBundle.baseUrl, details.path);
+        // TODO work on members of export
+        fileBundle.mapExports.set(a, details as any);
+      });
     }
     // console.warn(fileBundle.tokens.typedExpressions.imports);
     // console.warn(fileBundle.tokens.typedExpressions.exports);
-    // console.warn(fileBundle);
+    // console.warn(1, fileBundle);
+    console.warn(fileBundle.mapImports);
+    console.warn(fileBundle.mapExports);
   }
 }

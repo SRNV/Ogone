@@ -36,6 +36,7 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
    */
   protected getScopeType(fileBundle: FileBundle, parent: ScopeBundle, key: string): ScopeType {
     let result: ScopeType = 'object';
+    /*
     const isFunctionMatch = parent.value.match(this.blockFunctionRegExpGI);
     const isFunction = !!isFunctionMatch?.find((a) => a.indexOf(key) > -1);
 
@@ -71,20 +72,7 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
 
     const isSwitchMatch = parent.value.match(this.switchStatementRegExpGI);
     const isSwitch = !!isSwitchMatch?.find((a) => a.indexOf(key) > -1);
-    console.warn(key, parent.value, {
-      isFunction,
-      isVariable,
-      isExport,
-      isImport,
-      isElseIf,
-      isElse,
-      isIf,
-      isDo,
-      isWith,
-      isFor,
-      isSwitch,
-      isLabel
-    })
+    */
     return result;
   }
   protected getScopeBundle(opts: Partial<ScopeBundle>): ScopeBundle {

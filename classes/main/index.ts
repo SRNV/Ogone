@@ -9,6 +9,11 @@ export default class Ogone extends EnvServer {
   static directories: string[] = [];
   static controllers: { [key: string]: any } = {};
   static main: string = "";
+  public readonly contributorMessage: string = `0.24.0: Ogone is actively looking for collaborators.
+    Any advice, any problem report related to the development, to the use of Ogone, will be studied and will get a response as soon as possible.
+    note that if you come across a bug but don't report it, it may never be resolved.
+    Thank you for your interest, and your participation in this project.
+    a problem, a question or an idea ? please open an issue on the Ogone github repo: https://github.com/SRNV/Ogone/issues`;
   static readonly allowedTypes = [
     // controls the location of the web page
     "router",
@@ -75,9 +80,11 @@ export default class Ogone extends EnvServer {
           const b = await this.getBuild();
           const application = `${opts.build}/index.html`;
           Deno.writeTextFileSync(application, b as string);
-          this.warn(
+          this.success(
             `your application successfully rendered. ${application}`,
           );
+          // message for contributions, ideas, issues and any help.
+          this.message(this.contributorMessage);
           if (opts.serve) {
             this.runService(application, server, opts.port);
           } else {
@@ -90,6 +97,8 @@ export default class Ogone extends EnvServer {
       this.setDevTool(Configuration.devtool as boolean);
       this.compile(Configuration.entrypoint, true)
         .then(() => {
+          // message for contributions, ideas, issues and any help.
+          this.message(this.contributorMessage);
           // Ogone is now ready to serve
           this.use(server, port);
         });

@@ -25,7 +25,7 @@ export abstract class Utils {
     const { bgRed, bgBlack, white, bold, green } = colors;
     this.message(`${bgBlack(bold(green(" SUCCESS ")))} ${white(message)}`);
   }
-  private message(message: string, opts?: { [k: string]: any }): void | string {
+  public message(message: string, opts?: { [k: string]: any }): void | string {
     const { cyan, bold, white } = colors;
     const name = bold(cyan(" [Ogone] "));
     if (opts && opts.returns) {
