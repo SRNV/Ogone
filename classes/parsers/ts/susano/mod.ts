@@ -7,7 +7,7 @@ import SusanoScopeInspector from './memory.ts';
 import modifiers from '../../utils/modifiers.ts';
 
 export default class Susano extends SusanoScopeInspector {
-  pick(opts: SusanoOptions): string | null {
+  release(opts: SusanoOptions): string | null {
     const fileBundle = this.getFileBundle(opts);
     if (fileBundle) {
       this.getAllScopes(fileBundle);
@@ -55,6 +55,6 @@ export default class Susano extends SusanoScopeInspector {
   }
 }
 const instance = new Susano();
-instance.pick({
+instance.release({
   path: './deps.ts',
 });
