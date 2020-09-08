@@ -47,7 +47,7 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
     // console.warn(fileBundle.tokens.typedExpressions.imports);
     // console.warn(fileBundle.tokens.typedExpressions.exports);
     // console.warn(1, fileBundle);
-    console.warn(fileBundle.mapImports);
-    console.warn(fileBundle.mapExports);
+    // console.warn(fileBundle.mapImports);
+    // console.warn(fileBundle.mapExports);
   }
 }

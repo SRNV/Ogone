@@ -254,7 +254,7 @@ export interface TypedExpressions {
       allAs: boolean;
       path: string;
       object: boolean;
-      members: string[];
+      members: { [key: string]: string };
       value: string;
       dynamic: string;
       constantDeclaration: string[];
@@ -265,7 +265,7 @@ export interface TypedExpressions {
       key: string;
       member: boolean;
       default: boolean;
-      members: string[];
+      members: { [key: string]: string };
       path: string;
       type: "object"
       | "class"
