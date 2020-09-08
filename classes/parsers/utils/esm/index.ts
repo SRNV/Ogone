@@ -48,19 +48,6 @@ const esm: ProtocolScriptRegExpList = [
     close: false,
   },
   {
-    open: false,
-    reg: /(?<!§§blockImport\d+§§)(.*?)\,/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      const id = `§§importCandidate${gen.next().value}§§`;
-      expressions[id] = value;
-      return id;
-    },
-    close: false,
-  },
-  {
     name: "ambient import",
     open: false,
     reg:
@@ -142,8 +129,8 @@ const esm: ProtocolScriptRegExpList = [
       const id = `§§import${gen.next().value}§§`;
       const [input, imp, tokens, f, id2] = matches;
       expressions[id] = value;
+      console.warn(value);
       if (typedExpressions) {
-        console.warn(3, tokens);
         console.warn(4, getMembers(
           getDeepTranslation(tokens, expressions)
         ));

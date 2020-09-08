@@ -13,7 +13,6 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
     if (imports) {
       // console.warn(imports);
       imports.forEach((imp) => {
-        console.warn(imp)
         read({
           value: imp,
           array: esmElements,
