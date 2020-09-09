@@ -1,5 +1,6 @@
 import { Bundle, Component } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
+import Env from '../env/Env.ts';
 
 export default class ComponentCompiler extends Utils {
   private getControllers(
@@ -31,10 +32,10 @@ export default class ComponentCompiler extends Utils {
         ? `
             const Controllers = {};
             ${
-          controllers.map(([tagName, path]) => {
-            const subcomp = bundle.components.get(path);
-            let result = subcomp
-              ? `
+        controllers.map(([tagName, path]) => {
+          const subcomp = bundle.components.get(path);
+          let result = subcomp
+            ? `
             Controllers["${tagName}"] = {
                 async get(rte) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`)).blob()).text(); },
                 async post(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op, body: JSON.stringify(data || {}), method: 'POST'})).blob()).text(); },
@@ -42,9 +43,9 @@ export default class ComponentCompiler extends Utils {
                 async delete(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'DELETE'})).blob()).text(); },
                 async patch(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'PATCH'})).blob()).text(); },
               }`
-              : "";
-            return result;
-          })
+            : "";
+          return result;
+        })
         }
             Object.seal(Controllers);
           `
@@ -147,7 +148,7 @@ export default class ComponentCompiler extends Utils {
           `;
       const d = {
         component,
-        modules: modules ? modules.flat().join("\n") : "",
+        modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
         asyncResolve: component.type === "async" ? asyncResolve : "",
         protocol: component.protocol ? component.protocol : "",
         data: JSON.stringify(component.data),

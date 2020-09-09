@@ -22,7 +22,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports['default'] = {
           key: id,
           default: true,
-          members: {},
+          members: [],
           path: "",
           member: false,
           value: getDeepTranslation(token, expressions),
@@ -50,7 +50,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports[key] = {
           key: id,
           default: false,
-          members: {},
+          members: [],
           path: "",
           member: true,
           type: "member",
@@ -79,7 +79,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports[key] = {
           key: id,
           default: false,
-          members: {},
+          members: [],
           path: "",
           member: true,
           type: "function",
@@ -108,7 +108,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports[key] = {
           key: id,
           default: false,
-          members: {},
+          members: [],
           path: "",
           member: true,
           type: "class",
@@ -134,22 +134,14 @@ const exports: ProtocolScriptRegExpList = [
       if (typedExpressions) {
         let members: { [key: string]: string } = {};
         const tokens = getDeepTranslation(key, expressions);
-        console.warn(tokens)
-        if (tokens.indexOf('{') > -1 && tokens.indexOf('}') > -1) {
-          tokens.split('{')
-            .forEach((part1) => {
-              const content = part1.split('}')[0];
-              members = {
-                ...members,
-                ...getMembers(`{${content}}`),
-              };
-            });
-        }
+        const exportDescription = getMembers(
+          getDeepTranslation(tokens, expressions)
+        );
         typedExpressions.exports[key] = {
           key: id,
           default: false,
           member: true,
-          members,
+          members: exportDescription.members,
           path: getDeepTranslation(id2, expressions).replace(/["'`]/gi, ''),
           type: "all",
           value: getDeepTranslation(key, expressions).trim(),

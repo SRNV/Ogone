@@ -16,9 +16,23 @@ export function getMembersKeys(tokens: string): string[] {
 // start by fetching all members: { export1, export2 as member }
 // then fetch aliased imports: * as defaultExport
 // then fetch default
-export function getMembers(tokens: string): { [key: string]: string } {
-  let result: any = {
+type ImportDescriber = {
+  members: ({ name: string, alias: string })[],
+  hasDefault: boolean,
+  hasMembers: boolean,
+  hasAllAs: boolean,
+  default: {
+    alias?: string,
+    name: string,
+  },
+  allAs?: string,
+}
+export function getMembers(tokens: string): ImportDescriber {
+  let result: ImportDescriber = {
     members: [],
+    hasDefault: false,
+    hasMembers: false,
+    hasAllAs: false,
     default: {
       alias: void 0,
       name: '',
@@ -27,7 +41,8 @@ export function getMembers(tokens: string): { [key: string]: string } {
   };
   const membersRegExpGI = /\b(.*?)(?:\s+(?:as)\s+(.*?)){0,1}(?:[\}\,])/gi;
   const membersRegExp = /\b(.*?)(?:\s+(?:as)\s+(.*?)){0,1}(?:[\}\,])/i;
-  const allAsRegExp = /(\*)\s+(?:as)\s+(.*?)(?:(\,))/i;
+  const allAsRegExp = /(\*)\s+(?:as)\s+(.+?)(?:(\,|\s))/i;
+  const defaultRegExp = /(.+?)(?=\b)/i;
   let text = tokens
     .replace(/\n,/gi, ",")
     .trim();
@@ -42,13 +57,13 @@ export function getMembers(tokens: string): { [key: string]: string } {
         if (m) {
           m.forEach((match) => {
             const p = match.match(membersRegExp);
-            console.warn(match, p)
             if (p) {
               // @ts-ignore
               const [, variable, alias] = p;
               if (variable) {
+                result.hasMembers = true;
                 result.members.push({
-                  variable: variable.trim(),
+                  name: variable.trim(),
                   alias: alias?.trim(),
                 });
               }
@@ -59,11 +74,24 @@ export function getMembers(tokens: string): { [key: string]: string } {
         }
       });
     });
-  const allAsTokenMatch = text.match(allAsRegExp);
+  let allAsTokenMatch = text.match(allAsRegExp);
   // now get '* as exportName' expression
-  if (allAsTokenMatch) {
-    const [, asterix, name] = allAsTokenMatch;
+  while (allAsTokenMatch) {
+    const [input, asterix, name] = allAsTokenMatch;
     result.allAs = name;
+    text = text.replace(input, '');
+    allAsTokenMatch = text.match(allAsRegExp);
+    result.hasAllAs = true;
+  }
+  // time to fetch the default import
+  // now text is free from "* as export1" and "{ exportMembers, [...]}"
+  // so the only thing that still is the words
+  const defaultTokenMatch = text.match(defaultRegExp);
+  if (defaultTokenMatch) {
+    const [input, name] = defaultTokenMatch;
+    result.default.name = name;
+    text = text.replace(input, '');
+    result.hasDefault = true;
   }
   return result;
 }

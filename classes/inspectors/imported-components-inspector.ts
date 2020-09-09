@@ -32,11 +32,12 @@ export default class ImportedComponentsInpector extends Utils {
             const { imports } = importBody.body;
             component.esmExpressions = Object.entries(imports).map(
               ([key, imp]: [string, any]) => {
-                component.modules.push(imp.constantDeclaration);
-                return imp.expression;
+                component.modules.push(imp.getHmrModuleSystem());
+                return imp.dynamic();
               },
             ).join("\n");
             // @ts-ignore
+            // save esm tokens for production
             component.esmExpressionsProd = Object.entries(imports).map(
               ([key, imp]: [string, any]) => {
                 return imp.value;

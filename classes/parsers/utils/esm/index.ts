@@ -23,31 +23,6 @@ const exportASKey: ProtocolScriptRegExpItem = {
 };
 const esm: ProtocolScriptRegExpList = [
   {
-    open: false,
-    reg: /\s*(§{2}block\d+§{2})\s*/m,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches || !typedExpressions) {
-        throw new Error("typedExpressions, expressions or matches are missing");
-      }
-      const id = `§§blockImport${gen.next().value}§§`;
-      let [input, block] = matches;
-      let expression = expressions[block];
-      while (expression && expression.match(exportASKey.reg as RegExp)) {
-        const exportingAliasedKey = expression.match(exportASKey.reg as RegExp);
-        if (exportingAliasedKey) {
-          const [input, key, as, alias] = exportingAliasedKey;
-          const newexpression = ` ${key.trim()}: ${alias},`;
-          expression = expression.replace(input, newexpression);
-        }
-      }
-      expressions[block] = expression;
-      typedExpressions.blocks[block] = expression;
-      expressions[id] = expression;
-      return id;
-    },
-    close: false,
-  },
-  {
     name: "ambient import",
     open: false,
     reg:
@@ -68,50 +43,12 @@ const esm: ProtocolScriptRegExpList = [
           allAs: false,
           object: false,
           default: false,
-          constantDeclaration: [],
-          members: {},
-          dynamic: `Ogone.imp(${expressions[id2]})`,
-        };
-      }
-      return ``;
-    },
-    close: false,
-  },
-  {
-    name: "default import",
-    open: false,
-    reg:
-      /\s*(§{2}keywordImport\d+§{2})\s+([\w\d]*)+\s+(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*((§{2}(endLine|endExpression|endPonctuation)\d+§{2})){0,1}/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      const id = `§§import${gen.next().value}§§`;
-      const [input, imp, key, f, id2] = matches;
-      const str = expressions[id2].replace(/[\s]/gi, "");
-      expressions[id] = value;
-      if (typedExpressions) {
-        typedExpressions.imports[key] = {
-          key: id,
-          ambient: false,
-          allAs: false,
-          object: false,
-          default: true,
-          path: expressions[id2].replace(/['"\s`]/gi, ""),
-          dynamic: `Ogone.imp(${str}),`,
-          value: `import ${key} from ${str};`,
-          members: {},
-          constantDeclaration: [
-            `let ${key} = Ogone.mod[${str}].default;`,
-            `Ogone.mod['*'].push([${str}, (m) => {
-              if (!this.activated) return false;
-              ${key} = m.default;
-              this.runtime('destroy');
-              this.runtime(0);
-              return this.activated;
-            }]);
-          `,
-          ],
+          // TODO write getHmrModuleSystem
+          getHmrModuleSystem: () => '',
+          members: [],
+          dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${
+            getDeepTranslation(id2, expressions)
+            }),`,
         };
       }
       return ``;
@@ -127,25 +64,29 @@ const esm: ProtocolScriptRegExpList = [
         throw new Error("expressions or matches are missing");
       }
       const id = `§§import${gen.next().value}§§`;
-      const [input, imp, tokens, f, id2] = matches;
+      const [input, imp, tokens, f, str] = matches;
       expressions[id] = value;
-      console.warn(value);
       if (typedExpressions) {
-        console.warn(4, getMembers(
+        const importDescription = getMembers(
           getDeepTranslation(tokens, expressions)
-        ));
-        /*
-        typedExpressions.imports[key] = {
+        );
+        typedExpressions.imports[id] = {
           key: id,
           ambient: false,
-          allAs: false,
-          object: false,
-          default: true,
-          path: expressions[id2].replace(/['"\s`]/gi, ""),
-          dynamic: `Ogone.imp(${str}),`,
-          value: `import ${key} from ${str};`,
-          members: {},
-          constantDeclaration: [
+          allAs: importDescription.hasAllAs,
+          object: importDescription.hasMembers,
+          default: importDescription.hasDefault,
+          path: expressions[str].replace(/['"\s`]/gi, ""),
+          dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${
+            getDeepTranslation(str, expressions)
+            }),`,
+          value: getDeepTranslation(value, expressions),
+          members: importDescription.members,
+          // TODO write getHmrModuleSystem
+          getHmrModuleSystem: () => '',
+          /*
+          // earlier version
+          getHmrModuleSystem: [
             `let ${key} = Ogone.mod[${str}].default;`,
             `Ogone.mod['*'].push([${str}, (m) => {
               if (!this.activated) return false;
@@ -153,11 +94,10 @@ const esm: ProtocolScriptRegExpList = [
               this.runtime('destroy');
               this.runtime(0);
               return this.activated;
-            }]);
-          `,
+            }]);`,
           ],
+          */
         };
-        */
       }
       return ``;
     },

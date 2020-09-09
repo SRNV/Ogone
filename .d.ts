@@ -254,10 +254,10 @@ export interface TypedExpressions {
       allAs: boolean;
       path: string;
       object: boolean;
-      members: { [key: string]: string };
+      members: ({ name: string, alias: string })[];
       value: string;
-      dynamic: string;
-      constantDeclaration: string[];
+      dynamic: (importFn: string) => string;
+      getHmrModuleSystem: () => string;
     }
   };
   exports: {
@@ -265,7 +265,7 @@ export interface TypedExpressions {
       key: string;
       member: boolean;
       default: boolean;
-      members: { [key: string]: string };
+      members: ({ name: string, alias: string })[];
       path: string;
       type: "object"
       | "class"
