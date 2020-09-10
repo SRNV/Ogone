@@ -38,10 +38,6 @@ export function translateReflection(
   }
 }
 const items: ProtocolScriptRegExpList = [
-  // reflection regexp this.name => {};
-  // reflection is the same feature for computed datas but with the following syntax
-  // this.reflected => { return Math.random() };
-  // TODO
   {
     name: "reflection",
     open: false,

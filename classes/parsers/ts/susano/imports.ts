@@ -24,6 +24,7 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
       savedImportsAfterRead.forEach(([name, details]) => {
         const a = absolute(fileBundle.baseUrl, details.path);
         // TODO work on members of import
+        console.warn(details)
         fileBundle.mapImports.set(a, details as any);
       });
     }

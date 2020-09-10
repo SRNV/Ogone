@@ -242,6 +242,14 @@ export interface LegacyDescription {
   getLengthDeclarationAfterArrayEvaluation?: "";
 }
 
+export type hmrModuleSystemOptions = {
+  variable: string;
+  registry: string;
+  isDefault: boolean;
+  isAllAs: boolean;
+  isMember: boolean;
+  path: string;
+};
 export interface TypedExpressions {
   blocks: MapIndexable;
   parentheses: MapIndexable;
@@ -250,14 +258,16 @@ export interface TypedExpressions {
     [k: string]: {
       key: string;
       default: boolean;
+      defaultName: string | null;
       ambient: boolean;
       allAs: boolean;
+      allAsName: string | null;
       path: string;
       object: boolean;
       members: ({ name: string, alias: string })[];
       value: string;
       dynamic: (importFn: string) => string;
-      getHmrModuleSystem: () => string;
+      getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
     }
   };
   exports: {
@@ -265,6 +275,7 @@ export interface TypedExpressions {
       key: string;
       member: boolean;
       default: boolean;
+      defaultName: string | null;
       members: ({ name: string, alias: string })[];
       path: string;
       type: "object"

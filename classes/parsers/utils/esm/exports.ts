@@ -22,6 +22,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports['default'] = {
           key: id,
           default: true,
+          defaultName: null,
           members: [],
           path: "",
           member: false,
@@ -50,6 +51,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports[key] = {
           key: id,
           default: false,
+          defaultName: null,
           members: [],
           path: "",
           member: true,
@@ -79,6 +81,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports[key] = {
           key: id,
           default: false,
+          defaultName: null,
           members: [],
           path: "",
           member: true,
@@ -108,6 +111,7 @@ const exports: ProtocolScriptRegExpList = [
         typedExpressions.exports[key] = {
           key: id,
           default: false,
+          defaultName: null,
           members: [],
           path: "",
           member: true,
@@ -132,7 +136,6 @@ const exports: ProtocolScriptRegExpList = [
       const [input, imp, key, f, id2] = matches;
       expressions[id] = value;
       if (typedExpressions) {
-        let members: { [key: string]: string } = {};
         const tokens = getDeepTranslation(key, expressions);
         const exportDescription = getMembers(
           getDeepTranslation(tokens, expressions)
@@ -142,6 +145,7 @@ const exports: ProtocolScriptRegExpList = [
           default: false,
           member: true,
           members: exportDescription.members,
+          defaultName: exportDescription.default.alias || exportDescription.default.name || null,
           path: getDeepTranslation(id2, expressions).replace(/["'`]/gi, ''),
           type: "all",
           value: getDeepTranslation(key, expressions).trim(),

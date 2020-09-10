@@ -32,7 +32,33 @@ export default class ImportedComponentsInpector extends Utils {
             const { imports } = importBody.body;
             component.esmExpressions = Object.entries(imports).map(
               ([key, imp]: [string, any]) => {
-                component.modules.push(imp.getHmrModuleSystem());
+                // TODO fix examples/tests/modules/index.ts
+                console.warn(imp)
+                const hmrModule = {
+                  registry: 'Ogone.mod',
+                  variable: '',
+                  path: imp.path,
+                  isDefault: false,
+                  isAllAs: false,
+                  isMember: false,
+                };
+                if (imp.default) {
+                  hmrModule.variable = imp.defaultName;
+                  hmrModule.isDefault = true;
+                  component.modules.push(imp.getHmrModuleSystem(hmrModule));
+                }
+                if (imp.allAs) {
+                  hmrModule.variable = imp.allAsName;
+                  hmrModule.isAllAs = true;
+                  component.modules.push(imp.getHmrModuleSystem(hmrModule));
+                }
+                if (imp.object) {
+                  hmrModule.isMember = true;
+                  imp.members.forEach((element: any) => {
+                    hmrModule.variable = element.alias || element.name;
+                    component.modules.push(imp.getHmrModuleSystem(hmrModule));
+                  });
+                }
                 return imp.dynamic();
               },
             ).join("\n");

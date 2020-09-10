@@ -1,26 +1,37 @@
 import gen from "../../ts/src/generator.ts";
 import {
-  ProtocolScriptRegExpItem,
+  hmrModuleSystemOptions,
   ProtocolScriptRegExpList,
 } from "../../../../.d.ts";
 import getDeepTranslation from "../../../../utils/template-recursive.ts";
 import exports from "./exports.ts";
 import { getMembersKeys, getMembers } from '../../../../utils/get-members.ts';
 
-const exportASKey: ProtocolScriptRegExpItem = {
-  name: "exportAsKey",
-  open: false,
-  reg: /(.*?)(§{2}keywordAs\d+§{2})\s*([^§\}\,]+)+\,/,
-  id: (value, matches, typedExpressions, expressions) => {
-    if (!expressions || !matches) {
-      throw new Error("expressions or matches are missing");
-    }
-    const id = `§§exportAsKey${gen.next().value}§§`;
-    expressions[id] = value;
-    return id;
-  },
-  close: false,
-};
+function getHmrModuleSystem({
+  variable,
+  registry,
+  isDefault,
+  isAllAs,
+  isMember,
+  path,
+}: hmrModuleSystemOptions): string {
+  let result = getDeepTranslation(`
+    let $_1 = $_2["$_3"]$_4;
+    $_2['*'].push(["$_3", (m) => {
+      if (!this.activated) return false;
+      $_1 = m$_4;
+      this.runtime('destroy');
+      this.runtime(0);
+      return this.activated;
+    }]);`, {
+    $_1: variable,
+    $_2: registry,
+    $_3: path,
+    $_4: isDefault ? '.default' : isMember ? `.${variable}` : '',
+  });
+  return result;
+}
+
 const esm: ProtocolScriptRegExpList = [
   {
     name: "ambient import",
@@ -38,13 +49,14 @@ const esm: ProtocolScriptRegExpList = [
         typedExpressions.imports[id] = {
           key: id,
           value,
-          path: expressions[id2].replace(/['"`]/gi, ""),
+          path: getDeepTranslation(id2, expressions).replace(/['"`]/gi, ""),
           ambient: true,
           allAs: false,
           object: false,
           default: false,
-          // TODO write getHmrModuleSystem
-          getHmrModuleSystem: () => '',
+          defaultName: null,
+          allAsName: null,
+          getHmrModuleSystem,
           members: [],
           dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${
             getDeepTranslation(id2, expressions)
@@ -76,27 +88,13 @@ const esm: ProtocolScriptRegExpList = [
           allAs: importDescription.hasAllAs,
           object: importDescription.hasMembers,
           default: importDescription.hasDefault,
-          path: expressions[str].replace(/['"\s`]/gi, ""),
-          dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${
-            getDeepTranslation(str, expressions)
-            }),`,
+          defaultName: importDescription.default.alias || importDescription.default.name || null,
+          allAsName: importDescription.allAs || null,
+          path: getDeepTranslation(str, expressions).replace(/['"\s`]/gi, ""),
+          dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${str}),`,
           value: getDeepTranslation(value, expressions),
           members: importDescription.members,
-          // TODO write getHmrModuleSystem
-          getHmrModuleSystem: () => '',
-          /*
-          // earlier version
-          getHmrModuleSystem: [
-            `let ${key} = Ogone.mod[${str}].default;`,
-            `Ogone.mod['*'].push([${str}, (m) => {
-              if (!this.activated) return false;
-              ${key} = m.default;
-              this.runtime('destroy');
-              this.runtime(0);
-              return this.activated;
-            }]);`,
-          ],
-          */
+          getHmrModuleSystem,
         };
       }
       return ``;

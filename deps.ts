@@ -1,15 +1,15 @@
-export { existsSync } from "https://deno.land/std@v0.61.0/fs/exists.ts";
-export { serve } from "https://deno.land/std@v0.61.0/http/server.ts";
+export { existsSync } from "https://deno.land/std@0.61.0/fs/exists.ts";
+export { serve } from "https://deno.land/std@0.61.0/http/server.ts";
 export * as colors from "https://deno.land/std@0.61.0/fmt/colors.ts";
 export {
   join,
   relative,
 } from "https://deno.land/std@0.61.0/path/mod.ts";
-export { Server } from "https://deno.land/std@v0.61.0/http/server.ts";
+export { Server } from "https://deno.land/std@0.61.0/http/server.ts";
 export {
   WebSocket,
   WebSocketServer,
-} from "https://deno.land/x/websocket/mod.ts";
+} from "https://deno.land/x/websocket@v0.0.3/mod.ts";
 export * as YAML from "https://deno.land/std@0.66.0/encoding/yaml.ts";
 export * as SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
 export {
