@@ -1,6 +1,6 @@
 name: Ogone
 repository: https://github.com/SRNV/Ogone
-version: 0.23.3
+version: 0.24.0
 description: >-
   Web-Components compiler to create front-end modern Apps (SPA, PWA)
 stable: true
