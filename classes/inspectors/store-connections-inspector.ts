@@ -1,4 +1,4 @@
-import { Bundle } from "../../.d.ts";
+import type { Bundle } from "../../.d.ts";
 import { YAML } from "../../deps.ts";
 import { Utils } from "../utils/index.ts";
 

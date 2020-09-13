@@ -1,5 +1,5 @@
 import gen from "./generator.ts";
-import {
+import type {
   ProtocolScriptRegExpList,
   TypedExpressions,
 } from "../../../../.d.ts";

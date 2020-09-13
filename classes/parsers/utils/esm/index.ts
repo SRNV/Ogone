@@ -1,5 +1,5 @@
 import gen from "../../ts/src/generator.ts";
-import {
+import type {
   hmrModuleSystemOptions,
   ProtocolScriptRegExpList,
 } from "../../../../.d.ts";
@@ -58,8 +58,7 @@ const esm: ProtocolScriptRegExpList = [
           allAsName: null,
           getHmrModuleSystem,
           members: [],
-          dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${
-            getDeepTranslation(id2, expressions)
+          dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${getDeepTranslation(id2, expressions)
             }),`,
         };
       }
@@ -111,8 +110,7 @@ const esm: ProtocolScriptRegExpList = [
         throw new Error("expressions or matches are missing");
       }
       throw new Error(
-        `this syntax of import is not supported\ninput:${
-        getDeepTranslation(value, expressions)
+        `this syntax of import is not supported\ninput:${getDeepTranslation(value, expressions)
         }`,
       );
     },

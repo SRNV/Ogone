@@ -1,4 +1,4 @@
-import { TypedExpressions, ProtocolScriptRegExpList } from '../../../.d.ts';
+import type { TypedExpressions, ProtocolScriptRegExpList } from '../../../.d.ts';
 export default function (
   opts: {
     typedExpressions: any;

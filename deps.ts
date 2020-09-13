@@ -6,10 +6,13 @@ export {
   relative,
 } from "https://deno.land/std@0.61.0/path/mod.ts";
 export { Server } from "https://deno.land/std@0.61.0/http/server.ts";
+/*
+// TODO fix HMR
 export {
   WebSocket,
   WebSocketServer,
 } from "https://deno.land/x/websocket@v0.0.3/mod.ts";
+*/
 export * as YAML from "https://deno.land/std@0.66.0/encoding/yaml.ts";
 export * as SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
 export {
@@ -19,8 +22,6 @@ export {
   assertArrayContains,
   fail,
 } from "https://deno.land/std@0.61.0/testing/asserts.ts";
-export { parseFlags } from "https://x.nest.land/cliffy@0.11.1/packages/flags/mod.ts";
-import { compile } from "https://x.nest.land/denolus@0.0.4/src/compiler/index.ts";
 export function absolute(base: string, relative: string) {
   const stack = base.split("/"),
     parts = relative.split("/");

@@ -1,5 +1,4 @@
-import { Bundle, Component, StyleBundle } from '../../../../.d.ts';
-import read from '../../utils/agnostic-transformer.ts';
+import type { Bundle, Component, StyleBundle } from '../../../../.d.ts';
 import ObviousMemory from './classes/memory.ts';
 
 let i = 0;

@@ -1,5 +1,5 @@
 import Ogone from "./classes/main/index.ts";
-import { OgoneConfiguration } from "./.d.ts";
+import type { OgoneConfiguration } from "./.d.ts";
 import { Configuration } from "./classes/config/index.ts";
 
 export default {

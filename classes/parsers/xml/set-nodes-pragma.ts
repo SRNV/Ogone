@@ -1,5 +1,5 @@
 import { Utils } from "../../../classes/utils/index.ts";
-import {
+import type {
   Component,
   Bundle,
   XMLNodeDescription,
@@ -154,7 +154,7 @@ export default class XMLPragma extends Utils {
         setAttributes: !(nodeIsDynamic && !isRoot && !isImported)
           ? setAttributes
           : "",
-        storeRender: !!isImported && !!subcomp && subcomp.type === "store" ? '{{nId}}.connectedCallback();': '',
+        storeRender: !!isImported && !!subcomp && subcomp.type === "store" ? '{{nId}}.connectedCallback();' : '',
         nodesPragma: nodesPragma.length
           ? `l++; ${nodesPragma}  l--; ${appending}`
           : "",
@@ -191,16 +191,14 @@ export default class XMLPragma extends Utils {
             ? "position: p, level: l, index: i,"
             : "",
           positionInParentComponent: isImported && subcomp
-            ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${
-              JSON.stringify(props)
+            ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${JSON.stringify(props)
             }),
             uuid: '${subcomp.uuid}',
             routes: ${JSON.stringify(subcomp.routes)},
             namespace: '${subcomp.namespace ? subcomp.namespace : ""}',
-            requirements: (${
-              subcomp && subcomp.requirements
-                ? JSON.stringify(subcomp.requirements)
-                : null
+            requirements: (${subcomp && subcomp.requirements
+              ? JSON.stringify(subcomp.requirements)
+              : null
             }),
             dependencies: ${JSON.stringify(node.dependencies)},`
             : "",
@@ -392,7 +390,7 @@ export default class XMLPragma extends Utils {
                       getText: {{textConstant}},
                       position: p{{textConstant}},
                     });
-                    if ({{nId}}.data !== v) {{nId}}.data = v.length ? v : ' ';
+                    if ({{nId}}.data !== v && v) {{nId}}.data = v.length ? v : ' ';
                     return true
                   });
                 `
@@ -425,17 +423,15 @@ export default class XMLPragma extends Utils {
                 textConstant: `t${nId}`,
                 dependencies:
                   node.parentNode && node.parentNode.dependencies.length
-                    ? `!${
-                      JSON.stringify(node.parentNode?.dependencies)
+                    ? `!${JSON.stringify(node.parentNode?.dependencies)
                     }.includes(k) && `
                     : "",
-                evaluatedString: `\`${
-                  node.rawText.replace(/\n/gi, " ")
-                    // preserve regular expressions
-                    .replace(/\\/gi, "\\\\")
-                    // preserve quotes
-                    .replace(/\'/gi, "\\'").trim()
-                }\``,
+                evaluatedString: `\`${node.rawText.replace(/\n/gi, " ")
+                  // preserve regular expressions
+                  .replace(/\\/gi, "\\\\")
+                  // preserve quotes
+                  .replace(/\'/gi, "\\'").trim()
+                  }\``,
               },
             ),
           };

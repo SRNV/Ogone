@@ -4,7 +4,7 @@ import {
   join,
   fetchRemoteRessource,
 } from "../../deps.ts";
-import { Bundle } from "../../.d.ts";
+import type { Bundle } from "../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "../utils/index.ts";
 import keyframes from "../utils/keyframes.ts";
@@ -74,8 +74,7 @@ export default class StyleInspector extends Utils {
             }
           } else if (src.length && component.remote) {
             this.warn(
-              `Downloading style: ${
-              isAbsoluteRemote ? src : remoteRelativePath
+              `Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath
               }`,
             );
             const p = isAbsoluteRemote

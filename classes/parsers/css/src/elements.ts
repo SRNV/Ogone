@@ -1,6 +1,5 @@
 import gen from "../../ts/src/generator.ts";
-import { ProtocolScriptRegExpList } from "../../../../.d.ts";
-import getDeepTranslation from "../../../../utils/template-recursive.ts";
+import type { ProtocolScriptRegExpList } from "../../../../.d.ts";
 
 const tokens: ProtocolScriptRegExpList = [
   {

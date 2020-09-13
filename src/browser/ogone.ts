@@ -1,5 +1,5 @@
 
-import { OgoneBrowser } from "../../types/ogone.ts";
+import type { OgoneBrowser } from "../../types/ogone.ts";
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {
   // @ts-ignore
@@ -76,14 +76,13 @@ function _OGONE_BROWSER_CONTEXT() {
         // @ts-ignore
         errorObject && errorObject.stack
           ? // @ts-ignore
-            errorObject.stack.replace(message, "")
+          errorObject.stack.replace(message, "")
           : ""
-      }`;
+        }`;
       // check if stack is empty or not
       if (!stack.innerText.length && errorObject && errorObject.message) {
-        stack.innerText = `${
-          errorObject && errorObject.message ? errorObject.message : ""
-        }`;
+        stack.innerText = `${errorObject && errorObject.message ? errorObject.message : ""
+          }`;
       }
       !stack.innerText.length ? stack.innerText = "undefined stack" : "";
       // set the styles

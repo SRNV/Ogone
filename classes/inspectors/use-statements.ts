@@ -1,5 +1,5 @@
 import { existsSync } from "../../utils/exists.ts";
-import { Bundle } from "../../.d.ts";
+import type { Bundle } from "../../.d.ts";
 import { Utils } from "../../classes/utils/index.ts";
 import ProtocolScriptParser from "../parsers/ts/index.ts";
 import {
@@ -91,9 +91,8 @@ export default class UseStatementsInpector extends Utils {
           });
         } else if (opts.remote && type === "relative" && opts.base) {
           // relative and remote
-          const newPath = `${opts.current.split("://")[0]}://${
-            absolute(opts.current.split("://")[1], path)
-          }`;
+          const newPath = `${opts.current.split("://")[0]}://${absolute(opts.current.split("://")[1], path)
+            }`;
           this.warn(`Downloading ${newPath}`);
           const file = await fetchRemoteRessource(newPath);
           if (file) {

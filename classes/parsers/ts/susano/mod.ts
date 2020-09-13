@@ -1,7 +1,7 @@
 import read from '../../utils/agnostic-transformer.ts';
 import notParsed from '../../utils/not-parsed.ts';
 import elements from '../../utils/elements.ts';
-import { SusanoOptions, FileBundle, } from '../../../../.d.ts';
+import type { SusanoOptions, FileBundle, } from '../../../../.d.ts';
 import { existsSync } from "../../../../deps.ts";
 import SusanoScopeInspector from './memory.ts';
 import modifiers from '../../utils/modifiers.ts';

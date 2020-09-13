@@ -9,7 +9,7 @@ import notParsedElements from "../utils/not-parsed.ts";
 import O3Elements from "./src/o3-elements.ts";
 import getDeepTranslation from "../../../utils/template-recursive.ts";
 import { Utils } from "../../utils/index.ts";
-import {
+import type {
   TypedExpressions,
   ProtocolScriptRegExpList,
   ProtocolScriptParserOptions,
@@ -618,8 +618,7 @@ export default class ProtocolScriptParser extends Utils {
       d && !d.match(/(§§Declaration\d+§§)/i)
     );
     const all = getDeepTranslation(values.join(""), expressions);
-    typedExpressions.protocol = `class Protocol { ${
-      getDeepTranslation(content.join(""), expressions)
+    typedExpressions.protocol = `class Protocol { ${getDeepTranslation(content.join(""), expressions)
       } }`;
     const start = value.indexOf(all);
     const end = start + all.length;

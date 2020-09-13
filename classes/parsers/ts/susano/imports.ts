@@ -1,4 +1,4 @@
-import { FileBundle, ScopeBundle, } from '../../../../.d.ts';
+import type { FileBundle, ScopeBundle, } from '../../../../.d.ts';
 import esmElements from "../../utils/esm/index.ts";
 import read from '../../utils/agnostic-transformer.ts';
 import SusanoRegularExpressions from './regexps.ts';

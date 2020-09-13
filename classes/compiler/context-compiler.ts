@@ -1,5 +1,5 @@
 import { Utils } from "../utils/index.ts";
-import {
+import type {
   Bundle,
   XMLNodeDescription,
   LegacyDescription,
@@ -109,7 +109,7 @@ export default class ContextCompiler extends Utils {
           // @ts-ignore
           legacy.item = item;
           if (contextLegacy) {
-            const declarationScript = [`const ${arrayAlias} = ${array} || [];`, `
+            const declarationScript = [`const ${arrayAlias} = !!${array.split('.')[0]} && ${array} ? ${array} : null || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`];
             if (contextLegacy && contextLegacy.declarationScript) {
@@ -154,10 +154,9 @@ export default class ContextCompiler extends Utils {
           });
       }
       if (contextLegacy) {
-        const value = `${
-          contextLegacy.declarationScript
-            ? contextLegacy.declarationScript.join("")
-            : ""
+        const value = `${contextLegacy.declarationScript
+          ? contextLegacy.declarationScript.join("")
+          : ""
           } `;
         contextLegacy.script = {
           value,

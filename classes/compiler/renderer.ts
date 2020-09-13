@@ -1,4 +1,4 @@
-import { Bundle, XMLNodeDescription } from "../../.d.ts";
+import type { Bundle, XMLNodeDescription } from "../../.d.ts";
 import WebComponent from "../components/index.ts";
 
 export default class Renderer extends WebComponent {
@@ -61,8 +61,7 @@ export default class Renderer extends WebComponent {
       }
       if (node.attributes && node.attributes["--defer"] && !isImported) {
         const BadUseDeferFlagException =
-          `--defer must be called only on async components. discard <${node.tagName} --defer="${
-            node.attributes["--defer"]
+          `--defer must be called only on async components. discard <${node.tagName} --defer="${node.attributes["--defer"]
           }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
         this.error(BadUseDeferFlagException);
       }
@@ -71,8 +70,7 @@ export default class Renderer extends WebComponent {
         subcomp && subcomp.type !== "async"
       ) {
         const BadUseDeferFlagException =
-          `--defer must be called only on async components. change type of <${node.tagName} --defer="${
-            node.attributes["--defer"]
+          `--defer must be called only on async components. change type of <${node.tagName} --defer="${node.attributes["--defer"]
           }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
         this.error(BadUseDeferFlagException);
       }

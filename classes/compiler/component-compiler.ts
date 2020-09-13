@@ -1,4 +1,4 @@
-import { Bundle, Component } from "../../.d.ts";
+import type { Bundle, Component } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
 import Env from '../env/Env.ts';
 
@@ -31,8 +31,7 @@ export default class ComponentCompiler extends Utils {
       const controllerDef = controllers.length > 0
         ? `
             const Controllers = {};
-            ${
-        controllers.map(([tagName, path]) => {
+            ${controllers.map(([tagName, path]) => {
           const subcomp = bundle.components.get(path);
           let result = subcomp
             ? `

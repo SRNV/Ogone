@@ -1,6 +1,6 @@
 import XMLPragma from "./set-nodes-pragma.ts";
 import getDeepTranslation from "../../../utils/template-recursive.ts";
-import {
+import type {
   XMLNodeDescription,
   DOMParserIterator,
   DOMParserExp,

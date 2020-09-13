@@ -1,4 +1,4 @@
-import { FileBundle, ScopeBundle, } from '../../../../.d.ts';
+import type { FileBundle, ScopeBundle, } from '../../../../.d.ts';
 import SusanoImportInspector from './imports.ts';
 import getDeepTranslation from '../../../../utils/template-recursive.ts';
 

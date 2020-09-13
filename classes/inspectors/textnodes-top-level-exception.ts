@@ -1,4 +1,4 @@
-import { Bundle, Component, XMLNodeDescription } from "../../.d.ts";
+import type { Bundle, Component, XMLNodeDescription } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
 
 export default class extends Utils {
@@ -21,9 +21,9 @@ export default class extends Utils {
     bundle.components.forEach((c) => {
       c.rootNode.childNodes = c.rootNode.childNodes.filter((node, id) => {
         return node.tagName !== "style" &&
-            node.tagName !== "script" &&
-            node.tagName !== "proto" &&
-            node.nodeType !== 8 ||
+          node.tagName !== "script" &&
+          node.tagName !== "proto" &&
+          node.nodeType !== 8 ||
           (node.nodeType === 3 && node.rawText &&
             !node.rawText.trim().length) ||
           (id === 0 && node.nodeType !== 3);

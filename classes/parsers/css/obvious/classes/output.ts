@@ -1,4 +1,4 @@
-import { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
 import ObviousParser from './parser.ts';
 
 export default class ObviousOutput extends ObviousParser {

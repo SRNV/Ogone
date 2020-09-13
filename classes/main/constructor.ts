@@ -5,7 +5,7 @@ import ImportedComponentsInpector from "../inspectors/imported-components-inspec
 import ScriptInspector from "../inspectors/script-inspector.ts";
 import NodeManager from "../inspectors/textnodes-top-level-exception.ts";
 import StoreConnectionsInspector from "../inspectors/store-connections-inspector.ts";
-import { Bundle, XMLNodeDescription } from "../../.d.ts";
+import type { Bundle, XMLNodeDescription } from "../../.d.ts";
 import RuntimeCompiler from "../compiler/index.ts";
 import { Utils } from "../utils/index.ts";
 

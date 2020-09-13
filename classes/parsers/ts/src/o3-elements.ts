@@ -1,7 +1,7 @@
 import gen from "./generator.ts";
 import getDeepTranslation from "../../../../utils/template-recursive.ts";
 import { Utils } from "../../../../classes/utils/index.ts";
-import { ProtocolScriptRegExpList, MapIndexable } from "../../../../.d.ts";
+import type { ProtocolScriptRegExpList, MapIndexable } from "../../../../.d.ts";
 let rid = 0;
 export function translateReflection(
   { body, identifier }: { body: string; identifier: string },

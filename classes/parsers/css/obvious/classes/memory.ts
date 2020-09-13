@@ -1,4 +1,4 @@
-import { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../../../../.d.ts';
 import ObviousOutput from './output.ts';
 
 export default class ObviousMemory extends ObviousOutput {

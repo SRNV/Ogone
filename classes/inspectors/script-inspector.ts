@@ -7,7 +7,7 @@ import {
   fetchRemoteRessource,
 } from "../../deps.ts";
 import { existsSync } from "../../utils/exists.ts";
-import { Bundle, XMLNodeDescription, Component, Route } from "../../.d.ts";
+import type { Bundle, XMLNodeDescription, Component, Route } from "../../.d.ts";
 import Ogone from "../main/index.ts";
 import { Utils } from "../utils/index.ts";
 import { Configuration } from "../config/index.ts";
@@ -172,6 +172,7 @@ export default class ScriptInspector extends Utils {
 
     if (diag) {
       for (const d of diag) {
+        // @ts-ignore
         const m = d.message ? d.message : "";
         const source = d.sourceLine && d.sourceLine.indexOf("____('") > -1
           ? d.sourceLine.split("____('")[0].trim()
@@ -184,16 +185,14 @@ export default class ScriptInspector extends Utils {
         const linePosition = lines.indexOf(sourceLine || "");
         const columnPosition = sourceLine?.indexOf(source.trim());
         this.error(
-          `${component.file}:${linePosition + 1}:${
-          columnPosition ? columnPosition + 1 : 0
+          `${component.file}:${linePosition + 1}:${columnPosition ? columnPosition + 1 : 0
           }\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
         );
       }
       Deno.exit(1);
     }
     this.warn(
-      `TSC: ${component.file} - ${
-      Math.round(performance.now() - startPerf)
+      `TSC: ${component.file} - ${Math.round(performance.now() - startPerf)
       } ms`,
     );
     return (Object.values(emit)[0] as string).split("// ogone-sep")[1];
@@ -467,8 +466,7 @@ export default class ScriptInspector extends Utils {
             propsTypes = this.template(`: { {{ props }} }`, {
               props: requirements.map(
                 ([name, constructors]) =>
-                  `\n${name}: ${
-                  constructors.map(
+                  `\n${name}: ${constructors.map(
                     (c) => `${c}`,
                   ).join(" | ")
                   };`,

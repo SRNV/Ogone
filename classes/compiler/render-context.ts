@@ -1,5 +1,5 @@
-import { Bundle } from "../../.d.ts";
-import { XMLNodeDescription } from "../../.d.ts";
+import type { Bundle } from "../../.d.ts";
+import type { XMLNodeDescription } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
 
 export default class ContextBuilder extends Utils {
@@ -71,12 +71,11 @@ export default class ContextBuilder extends Utils {
             contextIf = `
               if (GET_LENGTH && (${main})) {
                 return 0;
-              ${
-              allElseIf.map((key) => {
-                return `
+              ${allElseIf.map((key) => {
+              return `
               } else if (GET_LENGTH && ${key}) {
                 return 0;`;
-              }).join("\n")
+            }).join("\n")
               }
               }
             `;

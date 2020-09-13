@@ -1,4 +1,7 @@
 // @ts-nocheck
+/*
+// TODO fix HMR
+// use std websocket in deps.ts
 import {
   WebSocket,
   WebSocketServer,
@@ -279,3 +282,4 @@ function mergeComponentsUUIDs(txt: string, opts: any) {
   }
   return result;
 }
+*/

@@ -1,4 +1,4 @@
-import { Bundle, OgoneConfiguration } from "../../.d.ts";
+import type { Bundle, OgoneConfiguration } from "../../.d.ts";
 import ContextCompiler from "./context-compiler.ts";
 import ContextBuilder from "./render-context.ts";
 import ComponentCompiler from "./component-compiler.ts";

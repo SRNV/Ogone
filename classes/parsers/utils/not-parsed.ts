@@ -1,7 +1,6 @@
 import gen from "../ts/src/generator.ts";
-import {
+import type {
   ProtocolScriptRegExpList,
-  TypedExpressions,
 } from "../../../.d.ts";
 
 const nullish: ProtocolScriptRegExpList = [

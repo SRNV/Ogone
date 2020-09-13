@@ -1,4 +1,4 @@
-import ObviousParser from "./classes/parsers/css/obvious/index.ts";
+import type ObviousParser from "./classes/parsers/css/obvious/index.ts";
 
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };

@@ -1,4 +1,4 @@
-import { Bundle } from "../../.d.ts";
+import type { Bundle } from "../../.d.ts";
 import { Utils } from "../utils/index.ts";
 import getClassController from "./controller/index.ts";
 import getClassRouter from "./router/index.ts";

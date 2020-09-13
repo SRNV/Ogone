@@ -1,6 +1,6 @@
 import SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
 import XMLParser from "../parsers/xml/index.ts";
-import { Bundle, XMLNodeDescription, Component } from "../../.d.ts";
+import type { Bundle, XMLNodeDescription, Component } from "../../.d.ts";
 
 const uuid: SUI = new SUI({
   length: 5,

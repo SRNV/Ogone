@@ -1,6 +1,8 @@
 import { browserBuild, template } from "./../../src/browser/readfiles.ts";
-import { HCR } from "../../lib/hmr/index.ts";
-import { Bundle, Environment, OgoneConfiguration } from "./../../.d.ts";
+// TODO fix HMR
+// use std websocket instead of deno.x one
+// import { HCR } from "../../lib/hmr/index.ts";
+import type { Bundle, Environment, OgoneConfiguration } from "./../../.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps.ts";
 import Constructor from "../main/constructor.ts";
@@ -96,8 +98,7 @@ export default class Env extends Constructor {
         `
         const ___perfData = window.performance.timing;
 
-        ${
-        browserBuild(this.env === "production", {
+        ${browserBuild(this.env === "production", {
           hasDevtool: this.devtool,
         })
         }
@@ -157,7 +158,9 @@ export default class Env extends Constructor {
       });
 
       // start watching components
-      HCR(this.bundle);
+      // TODO fix HMR
+      // use websocket
+      // HCR(this.bundle);
       return body;
     } else {
       return "no root-component found";

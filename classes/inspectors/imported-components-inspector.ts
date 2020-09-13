@@ -1,4 +1,4 @@
-import { Bundle } from "../../.d.ts";
+import type { Bundle } from "../../.d.ts";
 import ProtocolScriptParser from "../parsers/ts/index.ts";
 import { Utils } from "../../classes/utils/index.ts";
 

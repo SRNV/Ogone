@@ -1,9 +1,9 @@
-import {
+import type {
   OnodeComponent,
   OnodeComponentRenderOptions,
 } from "../../types/component.ts";
-import { OgoneBrowser } from "../../types/ogone.ts";
-import { Template } from "../../types/template.ts";
+import type { OgoneBrowser } from "../../types/ogone.ts";
+import type { Template } from "../../types/template.ts";
 
 let Ogone: OgoneBrowser;
 

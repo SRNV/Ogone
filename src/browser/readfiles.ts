@@ -16,7 +16,9 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
     components,
     ogone,
     router,
-    websocket,
+    // TODO fix HMR
+    // use std websokect
+    // websocket,
     opts.hasDevtool ? devTool({}) : "",
   ].join("\n");
 };

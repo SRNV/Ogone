@@ -1,8 +1,8 @@
-import { Server } from "../../deps.ts";
+import type { Server } from "../../deps.ts";
 import { getHeaderContentTypeOf } from "./../../utils/extensions-resolution.ts";
 import Ogone from "../main/index.ts";
 import { existsSync } from "./../../utils/exists.ts";
-import HMR from "../../lib/hmr/index.ts";
+// import HMR from "../../lib/hmr/index.ts";
 import Env from "./Env.ts";
 import { Configuration } from "../config/index.ts";
 
@@ -50,9 +50,8 @@ export default class EnvServer extends Env {
   public async use(server: Server, port: number = 8000): Promise<void> {
     this.success(`http://localhost:${port}/`);
     for await (const req of server) {
-      const pathToPublic: string = `${Deno.cwd()}/${
-        Configuration.static ? Configuration.static.replace(/^\//, '') : ''
-      }/${req.url}`.replace(/\/+/gi, '/');
+      const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
+        }/${req.url}`.replace(/\/+/gi, '/');
       const controllerRendered = await this.control(req);
       if (controllerRendered) {
         continue;
@@ -61,7 +60,9 @@ export default class EnvServer extends Env {
       switch (true) {
         case req.url.startsWith(Configuration.modules):
           const denoReqUrl = req.url.slice(1).split("?")[0];
-          HMR(denoReqUrl);
+          // TODO fix HMR
+          // use std websocket
+          // HMR(denoReqUrl);
           req.respond({
             body: await this.resolveAndReadText(denoReqUrl),
             headers: new Headers([
@@ -105,9 +106,8 @@ export default class EnvServer extends Env {
       `Service running. check it here http://localhost:${port}/`,
     );
     for await (const req of server) {
-      const pathToPublic: string = `${Deno.cwd()}/${
-        Configuration.static ? Configuration.static.replace(/^\//, '') : ''
-      }/${req.url}`.replace(/\/+/gi, '/');
+      const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
+        }/${req.url}`.replace(/\/+/gi, '/');
       const controllerRendered = await this.control(req);
       if (controllerRendered) {
         continue;
