@@ -16,6 +16,7 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     const presentInScope = keys.filter((key) => parentScope.value.indexOf(key) > -1 && key.match(/^(§{2}(block)\d+§{2})/));
     presentInScope.forEach((key) => {
       const value = expressions[key];
+      // TODO define and use scope type
       this.getScopeType(fileBundle, parentScope, key);
       const scope = this.getScopeBundle({
         value,

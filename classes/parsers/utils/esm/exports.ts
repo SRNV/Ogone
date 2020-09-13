@@ -38,25 +38,27 @@ const exports: ProtocolScriptRegExpList = [
     name: "export vars",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}(keywordConst|keywordLet|keywordVar)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s*(§{2}(?:keywordConst|keywordLet|keywordVar)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
       const id = `§§export${gen.next().value}§§`;
       // @ts-ignore
-      const [input, exp, constorLet, optional, key] = matches;
+      const [input, exp, constorLet, key, optional, types, val] = matches;
       expressions[id] = value;
       if (typedExpressions) {
         typedExpressions.exports[key] = {
           key: id,
           default: false,
           defaultName: null,
+          // @ts-ignore
+          name: key.trim(),
           members: [],
           path: "",
           member: true,
           type: "member",
-          value: '',
+          value: val,
         };
       }
       return '';
@@ -67,7 +69,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export function",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordFunction\d+§{2})(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordFunction\d+§{2})(.*?)(\<(?:.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -83,6 +85,8 @@ const exports: ProtocolScriptRegExpList = [
           default: false,
           defaultName: null,
           members: [],
+          // @ts-ignore
+          name: key.trim(),
           path: "",
           member: true,
           type: "function",
@@ -97,14 +101,14 @@ const exports: ProtocolScriptRegExpList = [
     name: "export class",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordClass\d+§{2})(.*?)\s*(?:§{2}keywordExtends\d+§{2}(.*?)){0,1}(§{2}block\w*\d+§{2})\s*(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s+(§{2}keywordClass\d+§{2})(.*?)(§{2}keywordExtends\d+§{2}(.*?)){0,1}(§{2}block\w*\d+§{2})\s*(?:§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
       const id = `§§export${gen.next().value}§§`;
       // @ts-ignore
-      const [input, exp, func, key] = matches;
+      const [input, exp, cl, key] = matches;
       const [input2, exp2, ...klass] = matches
       expressions[id] = value;
       if (typedExpressions) {
@@ -113,6 +117,8 @@ const exports: ProtocolScriptRegExpList = [
           default: false,
           defaultName: null,
           members: [],
+          // @ts-ignore
+          name: key.trim(),
           path: "",
           member: true,
           type: "class",

@@ -18,6 +18,7 @@ export default class Susano extends SusanoScopeInspector {
   getFileBundle(opts: Partial<FileBundle>): FileBundle | null {
     if (!opts || !opts.path || !existsSync(opts.path) && !opts.code) return null;
     let result: string = opts.code || Deno.readTextFileSync(opts.path);
+    result = `${result}\n`;
     const fileBundle: FileBundle = {
       id: "k" + Math.random(),
       type: "",
@@ -55,25 +56,13 @@ export default class Susano extends SusanoScopeInspector {
   }
 }
 const susano = new Susano();
+// TODO get export abstract class
 susano.release({
   path: './deps.ts',
   code: `
     import { ll, ok as p } from './path.ts';
-    import fdsqf, * as THREE, {
-      l, a, b,
-      c as test,
-      d, e, f,
-       g as hijk
-    } from "three";
-    import THR from "thr";
-import defaultExport from "module-name";
-import * as name from "module-name";
-import { export1 } from "module-name";
-import { export1 as alias1 } from "module-name";
-import { export1 , export2 } from "module-name";
-import { foo , bar } from "module-name/path/to/specific/un-exported/file";
-import { export1 , export2 as alias2 , [...] } from "module-name";
-import defaultExport, { export1 [ , [...] ] } from "module-name";
-import defaultExport, * as name from "module-name";
-  `,
+    export default '';
+    export abstract class A extends B {
+      constructor() {}
+    }`,
 });

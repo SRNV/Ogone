@@ -11,7 +11,6 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
     const exports = root.value.match(this.exportsRegExpGI);
     const imports = root.value.match(this.importsRegExpGI);
     if (imports) {
-      // console.warn(imports);
       imports.forEach((imp) => {
         read({
           value: imp,
@@ -22,10 +21,10 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
       });
       const savedImportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.imports);
       savedImportsAfterRead.forEach(([name, details]) => {
-        const a = absolute(fileBundle.baseUrl, details.path);
+        const a = absolute(fileBundle.path, details.path);
         // TODO work on members of import
-        console.warn(details)
-        fileBundle.mapImports.set(a, details as any);
+        console.warn(a, details)
+        fileBundle.mapImports.set(`${a}${Math.random()}`, details as any);
       });
     }
     if (exports) {
@@ -39,9 +38,10 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
       });
       const savedExportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.exports);
       savedExportsAfterRead.forEach(([name, details]) => {
-        const a = absolute(fileBundle.baseUrl, details.path);
+        const a = absolute(fileBundle.path, details.path);
+        console.warn(a, details)
         // TODO work on members of export
-        fileBundle.mapExports.set(a, details as any);
+        fileBundle.mapExports.set(`${a}${Math.random()}`, details as any);
       });
     }
     // console.warn(fileBundle.tokens.typedExpressions.imports);
