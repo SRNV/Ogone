@@ -5,7 +5,7 @@
 
 ```typescript
 // require statement tells to the parent component what is needed inside the component.
-require id as (number);
+require id as number;
 // use statement tells to Ogone to use the file as store-component
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
@@ -151,7 +151,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
 ### recursive component example
 
 ```typescript
-require item as (Object)
+require item as Object
 
 use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
 use @/examples/app/components/scroll.o3 as 'scroll'
