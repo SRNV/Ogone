@@ -59,10 +59,4 @@ const susano = new Susano();
 // TODO get export abstract class
 susano.release({
   path: './deps.ts',
-  code: `
-    import { ll, ok as p } from './path.ts';
-    export default '';
-    export abstract class A extends B {
-      constructor() {}
-    }`,
 });

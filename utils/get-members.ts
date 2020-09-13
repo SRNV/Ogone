@@ -74,13 +74,14 @@ export function getMembers(tokens: string): ImportDescriber {
         }
       });
     });
-  let allAsTokenMatch = text.match(allAsRegExp);
+  let allAsTokenMatch = `${text} `.match(allAsRegExp);
+  console.warn(text, allAsTokenMatch);
   // now get '* as exportName' expression
   while (allAsTokenMatch) {
     const [input, asterix, name] = allAsTokenMatch;
     result.allAs = name;
-    text = text.replace(input, '');
-    allAsTokenMatch = text.match(allAsRegExp);
+    text = text.replace(input.trim(), '');
+    allAsTokenMatch = `${text} `.match(allAsRegExp);
     result.hasAllAs = true;
   }
   // time to fetch the default import
