@@ -75,7 +75,6 @@ export function getMembers(tokens: string): ImportDescriber {
       });
     });
   let allAsTokenMatch = `${text} `.match(allAsRegExp);
-  console.warn(text, allAsTokenMatch);
   // now get '* as exportName' expression
   while (allAsTokenMatch) {
     const [input, asterix, name] = allAsTokenMatch;

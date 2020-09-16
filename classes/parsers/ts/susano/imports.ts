@@ -5,9 +5,9 @@ import SusanoRegularExpressions from './regexps.ts';
 import { absolute } from '../../../../deps.ts';
 
 export default class SusanoImportInspector extends SusanoRegularExpressions {
+  protected readonly mapFileBundle: Map<string, FileBundle> = new Map();
   getAllImportsExports(fileBundle: FileBundle) {
     const { root } = fileBundle;
-    console.warn(`[Susano] inpsecting imports/exports of ${fileBundle.path}`);
     const exports = root.value.match(this.exportsRegExpGI);
     const imports = root.value.match(this.importsRegExpGI);
     if (imports) {
@@ -23,7 +23,6 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
       savedImportsAfterRead.forEach(([name, details]) => {
         const a = absolute(fileBundle.path, details.path);
         // TODO work on members of import
-        console.warn(a, details)
         fileBundle.mapImports.set(`${a}${Math.random()}`, details as any);
       });
     }
@@ -39,7 +38,6 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
       const savedExportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.exports);
       savedExportsAfterRead.forEach(([name, details]) => {
         const a = absolute(fileBundle.path, details.path);
-        console.warn(a, details)
         // TODO work on members of export
         fileBundle.mapExports.set(`${a}${Math.random()}`, details as any);
       });

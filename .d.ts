@@ -436,6 +436,7 @@ interface FileBundle {
   type: "local" | "remote" | "";
   baseUrl: string;
   value: string;
+  parent: FileBundle | null | undefined;
   tokens: {
     expressions: { [k: string]: string };
     typedExpressions: Pick<TypedExpressions, 'imports' | 'exports' | 'blocks' | 'parentheses'>;
@@ -443,4 +444,4 @@ interface FileBundle {
   }
 }
 
-type SusanoOptions = { path: string; } | { code: string, path: string };
+type SusanoOptions = { path: string; parent?: FileBundle } | { code: string, path: string; parent?: FileBundle };

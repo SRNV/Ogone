@@ -109,7 +109,7 @@ export default class ContextCompiler extends Utils {
           // @ts-ignore
           legacy.item = item;
           if (contextLegacy) {
-            const declarationScript = [`const ${arrayAlias} = !!${array.split('.')[0]} && ${array} ? ${array} : null || [];`, `
+            const declarationScript = [`const ${arrayAlias} = !!${array.split('.')[0]} ? ${array} : null || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`];
             if (contextLegacy && contextLegacy.declarationScript) {
