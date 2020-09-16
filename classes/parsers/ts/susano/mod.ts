@@ -13,7 +13,7 @@ export default class Susano extends SusanoScopeInspector {
     console.warn('%c[Susano] %cbundling...', "color: orchid", "color: lightblue");
     return this;
   }
-  async release(opts: SusanoOptions): Promise<string | null> {
+  async release(opts: SusanoOptions, level = 0): Promise<string | null> {
     const start = performance.now();
     const fileBundle = await this.getFileBundle(opts);
     if (fileBundle) {
@@ -30,20 +30,31 @@ export default class Susano extends SusanoScopeInspector {
             // @ts-ignore
             path: details.path,
             parent: fileBundle,
-          });
+          }, level + 1);
         }
       }
       const time = Math.round(performance.now() - start);
       const timeGraph = Array.from(new Array(time.toString().length)).map(() => '-')
-      const color = [
+      const levelGraph = Array.from(new Array(level)).map(() => '|-')
+      const colors = [
         'cyan',
         'lightgreen',
         'yellow',
         'orange',
-        'red'
-      ][timeGraph.length -1] || 'red';
-
-      this.console.push([`%c| %c${timeGraph.join('')}> %c${time}ms\t\t\t %c${fileBundle.path}`, "color: orchid;", `color: ${color};`, "color: grey;", "color: white;"]);
+        'red',
+      ];
+      const timeColor = colors[timeGraph.length -1] || 'red';
+      const bytesColor = colors[(fileBundle.code?.length.toString().length || 1) -1] || 'red';
+      const title = `             ${fileBundle.path}`.slice(-20);
+      const extensionColor = title.endsWith('.ts') ? 'lightblue' : title.endsWith('.js') ? 'yellow' : 'lightgrey';
+      this.console.push([`%c${levelGraph.join('')}%c• %c ${title} %c${time}ms / %c${entries.length} dep / %c${fileBundle.code?.length} bytes `,
+        "color: black",
+        `color: ${extensionColor};`,
+        "color: lightgrey",
+        `color: ${timeColor}; font-style: italic`, // time
+        "color: grey; font-style: italic", // dependecies
+        `color: ${bytesColor}; font-style: italic`, // bytes
+       ]);
     }
     return fileBundle ? fileBundle.value : null;
   }
@@ -108,6 +119,7 @@ export default class Susano extends SusanoScopeInspector {
       baseUrl: file.baseUrl,
       path: file.newPath || opts && opts.path || "",
       value: result,
+      code: result,
       parent: opts.parent,
       dependencies: [],
       root: this.getScopeBundle({
@@ -145,7 +157,7 @@ const susano = new Susano();
 await susano.start().release({
   path: './deps.ts',
   code: `
-    import t from 'https://deno.land/x/denopack@0.9.0/deps.ts';
+    import t from './mod.ts';
   `,
 }).then(() => {
   susano.console
