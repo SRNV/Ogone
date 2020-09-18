@@ -432,7 +432,7 @@ interface FileBundle {
   mapScopes: Map<string, ScopeBundle>;
   mapExports: Map<string, ModuleTransfert>;
   mapImports: Map<string, ModuleTransfert>;
-  dependencies: FileBundle[];
+  dependencies: string[];
   type: "local" | "remote" | "";
   baseUrl: string;
   value: string;

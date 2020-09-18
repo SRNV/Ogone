@@ -324,6 +324,7 @@ const getClassComponent = (
       o.nodes.forEach((n) => {
         rm(n);
       });
+      this.ogone.component.activated = false;
       return this;
     }
     destroy(this: BCE & this) {

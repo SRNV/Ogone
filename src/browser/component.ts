@@ -47,7 +47,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     this.runtime(0, params, event);
   };
   this.update = (dependency?: string) => {
-    if (!this.activated) return;
     if (this.type === "store") {
       this.updateStore(dependency);
       return;
@@ -70,7 +69,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     });
   };
   this.reactTo = (dependency: string) => {
-    if (!this.activated) return;
     this.react.forEach((t: Function, i: number, arr: Function[]) => {
       if (t && !t(dependency)) delete arr[i];
     });

@@ -1,8 +1,8 @@
-import type { FileBundle, ScopeBundle, } from '../../../../.d.ts';
+import type { FileBundle, ScopeBundle } from "../../../../.d.ts";
 import esmElements from "../../utils/esm/index.ts";
-import read from '../../utils/agnostic-transformer.ts';
-import SusanoRegularExpressions from './regexps.ts';
-import { absolute } from '../../../../deps.ts';
+import read from "../../utils/agnostic-transformer.ts";
+import SusanoRegularExpressions from "./regexps.ts";
+import { absolute } from "../../../../deps.ts";
 
 export default class SusanoImportInspector extends SusanoRegularExpressions {
   protected readonly mapFileBundle: Map<string, FileBundle> = new Map();
@@ -19,7 +19,9 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
           expressions: fileBundle.tokens.expressions,
         });
       });
-      const savedImportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.imports);
+      const savedImportsAfterRead = Object.entries(
+        fileBundle.tokens.typedExpressions.imports,
+      );
       savedImportsAfterRead.forEach(([name, details]) => {
         const a = absolute(fileBundle.path, details.path);
         // TODO work on members of import
@@ -35,7 +37,9 @@ export default class SusanoImportInspector extends SusanoRegularExpressions {
           expressions: fileBundle.tokens.expressions,
         });
       });
-      const savedExportsAfterRead = Object.entries(fileBundle.tokens.typedExpressions.exports);
+      const savedExportsAfterRead = Object.entries(
+        fileBundle.tokens.typedExpressions.exports,
+      );
       savedExportsAfterRead.forEach(([name, details]) => {
         const a = absolute(fileBundle.path, details.path);
         // TODO work on members of export

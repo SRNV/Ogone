@@ -17,7 +17,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "this",
     reg: /\bthis\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordThis${gen.next().value}§§`;
+      const id = `§§keywordThis1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -28,7 +28,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "use",
     reg: /\buse\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordUse${gen.next().value}§§`;
+      const id = `§§keywordUse1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -39,7 +39,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "require",
     reg: /\brequire\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordRequire${gen.next().value}§§`;
+      const id = `§§keywordRequire1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -50,7 +50,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "as",
     reg: /\bas\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordAs${gen.next().value}§§`;
+      const id = `§§keywordAs1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -71,7 +71,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "...",
     reg: /\.{3}/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§spread${gen.next().value}§§`;
+      const id = `§§spread1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -81,7 +81,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: ".",
     reg: /\./,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§ponctuation${gen.next().value}§§`;
+      const id = `§§ponctuation1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -91,7 +91,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(default)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordDefault${gen.next().value}§§`;
+      const id = `§§keywordDefault1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -101,7 +101,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(abstract)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordAbstract${gen.next().value}§§`;
+      const id = `§§keywordAbstract1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -111,7 +111,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(static)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordStatic${gen.next().value}§§`;
+      const id = `§§keywordStatic1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -121,7 +121,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(private)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordPrivate${gen.next().value}§§`;
+      const id = `§§keywordPrivate1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -131,7 +131,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(protected)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordProtected${gen.next().value}§§`;
+      const id = `§§keywordProtected1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -141,7 +141,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(readonly)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordReadonly${gen.next().value}§§`;
+      const id = `§§keywordReadonly1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -151,7 +151,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(public)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordPublic${gen.next().value}§§`;
+      const id = `§§keywordPublic1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -161,7 +161,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(do)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordDo${gen.next().value}§§`;
+      const id = `§§keywordDo1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -171,7 +171,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(with)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordWith${gen.next().value}§§`;
+      const id = `§§keywordWith1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -181,7 +181,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(interface)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordInterface${gen.next().value}§§`;
+      const id = `§§keywordInterface1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -191,7 +191,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(while)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordWhile${gen.next().value}§§`;
+      const id = `§§keywordWhile1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -211,7 +211,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(if)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordIf${gen.next().value}§§`;
+      const id = `§§keywordIf1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -221,7 +221,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(else)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordElse${gen.next().value}§§`;
+      const id = `§§keywordElse1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -231,7 +231,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(for)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordFor${gen.next().value}§§`;
+      const id = `§§keywordFor1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -241,7 +241,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(async)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordAsync${gen.next().value}§§`;
+      const id = `§§keywordAsync1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -251,7 +251,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(await)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordAwait${gen.next().value}§§`;
+      const id = `§§keywordAwait1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -261,7 +261,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(function)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordFunction${gen.next().value}§§`;
+      const id = `§§keywordFunction1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -271,7 +271,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(switch)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordSwitch${gen.next().value}§§`;
+      const id = `§§keywordSwitch1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -281,7 +281,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(return)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordReturn${gen.next().value}§§`;
+      const id = `§§keywordReturn1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -291,7 +291,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(yield)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordYield${gen.next().value}§§`;
+      const id = `§§keywordYield1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -301,7 +301,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(case)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordCase${gen.next().value}§§`;
+      const id = `§§keywordCase1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -311,7 +311,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(new)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordNew${gen.next().value}§§`;
+      const id = `§§keywordNew1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -321,7 +321,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(break)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordBreak${gen.next().value}§§`;
+      const id = `§§keywordBreak1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -331,7 +331,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(const)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordConst${gen.next().value}§§`;
+      const id = `§§keywordConst1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -341,7 +341,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(let)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordLet${gen.next().value}§§`;
+      const id = `§§keywordLet1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -351,7 +351,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(import)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordImport${gen.next().value}§§`;
+      const id = `§§keywordImport1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -361,7 +361,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(export)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordExport${gen.next().value}§§`;
+      const id = `§§keywordExport1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -371,7 +371,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(class)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordClass${gen.next().value}§§`;
+      const id = `§§keywordClass1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -381,7 +381,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(extends)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordExtends${gen.next().value}§§`;
+      const id = `§§keywordExtends1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -391,7 +391,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(from)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordFrom${gen.next().value}§§`;
+      const id = `§§keywordFrom1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -401,7 +401,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(delete)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordDelete${gen.next().value}§§`;
+      const id = `§§keywordDelete1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -411,7 +411,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: false,
     reg: /\b(type)\b/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordType${gen.next().value}§§`;
+      const id = `§§keywordType1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -441,7 +441,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "!",
     reg: /\!/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorNegative${gen.next().value}§§`;
+      const id = `§§operatorNegative1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -451,7 +451,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "&",
     reg: /\&\&/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorAnd${gen.next().value}§§`;
+      const id = `§§operatorAnd1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -461,7 +461,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "|",
     reg: /\|\|/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorOr${gen.next().value}§§`;
+      const id = `§§operatorOr1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -471,7 +471,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "=",
     reg: /\={3}/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operator3equal${gen.next().value}§§`;
+      const id = `§§operator3equal1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -481,7 +481,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "=",
     reg: /\={2}/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operator2equal${gen.next().value}§§`;
+      const id = `§§operator2equal1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -502,7 +502,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "+",
     reg: /\+{2}/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorDoubleIncrease${gen.next().value}§§`;
+      const id = `§§operatorDoubleIncrease1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -512,7 +512,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "+",
     reg: /\+/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operator${gen.next().value}§§`;
+      const id = `§§operator1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -532,7 +532,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "-",
     reg: /\-{2}/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorDoubleDecrease${gen.next().value}§§`;
+      const id = `§§operatorDoubleDecrease1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -542,7 +542,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "-",
     reg: /\-/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operator${gen.next().value}§§`;
+      const id = `§§operator1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -562,7 +562,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "?",
     reg: /\?/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§option${gen.next().value}§§`;
+      const id = `§§option1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -572,7 +572,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: ":",
     reg: /\:/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§optionDiviser${gen.next().value}§§`;
+      const id = `§§optionDiviser1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -594,7 +594,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: ";",
     reg: /\;/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§endPonctuation${gen.next().value}§§`;
+      const id = `§§endPonctuation1§§`;
       if (expressions) expressions[id] = value;
       return id;
     },

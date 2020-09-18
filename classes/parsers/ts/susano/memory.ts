@@ -1,19 +1,33 @@
-import type { FileBundle, ScopeBundle, } from '../../../../.d.ts';
-import SusanoImportInspector from './imports.ts';
-import getDeepTranslation from '../../../../utils/template-recursive.ts';
+import type { FileBundle, ScopeBundle } from "../../../../.d.ts";
+import SusanoImportInspector from "./imports.ts";
+import getDeepTranslation from "../../../../utils/template-recursive.ts";
+import {
+  existsSync,
+} from "../../../../deps.ts";
 
-declare type ScopeType = "function" | "object" | "label" | "class" | "namespace" | "interface";
+declare type ScopeType =
+  | "function"
+  | "object"
+  | "label"
+  | "class"
+  | "namespace"
+  | "interface";
 export default class SusanoScopeInspector extends SusanoImportInspector {
   protected getAllScopes(fileBundle: FileBundle): void {
     const { root } = fileBundle;
-    fileBundle.mapScopes.set('root', root);
+    fileBundle.mapScopes.set("root", root);
     this.getDeepScopes(fileBundle, root);
   }
-  protected getDeepScopes(fileBundle: FileBundle, parentScope: ScopeBundle): void {
+  protected getDeepScopes(
+    fileBundle: FileBundle,
+    parentScope: ScopeBundle,
+  ): void {
     const { tokens } = fileBundle;
     const { expressions } = tokens;
     const keys = Object.keys(expressions);
-    const presentInScope = keys.filter((key) => parentScope.value.indexOf(key) > -1 && key.match(/^(§{2}(block)\d+§{2})/));
+    const presentInScope = keys.filter((key) =>
+      parentScope.value.indexOf(key) > -1 && key.match(/^(§{2}(block)\d+§{2})/)
+    );
     presentInScope.forEach((key) => {
       const value = expressions[key];
       // TODO define and use scope type
@@ -35,8 +49,12 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
    * @param key
    * @note return the scope's stype by reading tokens of the parent scope
    */
-  protected getScopeType(fileBundle: FileBundle, parent: ScopeBundle, key: string): ScopeType {
-    let result: ScopeType = 'object';
+  protected getScopeType(
+    fileBundle: FileBundle,
+    parent: ScopeBundle,
+    key: string,
+  ): ScopeType {
+    let result: ScopeType = "object";
     /*
     const isFunctionMatch = parent.value.match(this.blockFunctionRegExpGI);
     const isFunction = !!isFunctionMatch?.find((a) => a.indexOf(key) > -1);
@@ -90,5 +108,87 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
       index: opts && opts.index !== undefined ? opts.index : 0,
     };
     return scope;
+  }
+  protected async mkSusanoDir(): Promise<void> {
+    console.warn(
+      "%c[Susano] %cstart cache process, allowed to create .susano/ drectory...",
+      "color: orchid",
+      "color: grey",
+    );
+    // create a folder in cwd /.susano
+    if (!existsSync("./.susano")) {
+      console.warn(
+        "%c[Susano] %ccreate .susano/ for caching",
+        "color: orchid",
+        "color: grey",
+      );
+      Deno.mkdir("./.susano");
+    }
+    if (!existsSync("./.gitignore")) {
+      console.warn(
+        "%c[Susano] %cadd .gitignore with .susano/",
+        "color: orchid",
+        "color: grey",
+      );
+      Deno.writeTextFile("./.gitignore", ".susano/");
+    }
+    // now it's created, add /.susano to gitignore
+    if (existsSync("./.gitignore")) {
+      let content = await Deno.readTextFile("./.gitignore");
+      if (content) {
+        const regexp = /(\n|\s|^)\.susano\/(?=\n|\s|$)/i;
+        if (!content.match(regexp)) {
+          console.warn(
+            "%c[Susano] %cadd .susano/ to .gitignore",
+            "color: orchid",
+            "color: grey",
+          );
+          Deno.writeTextFile("./.gitignore", `${content}\n.susano/`);
+        }
+      }
+    }
+  }
+  protected async isInSusanoDir(path: string): Promise<boolean> {
+    return existsSync(await this.getSusanoModPath(path));
+  }
+  protected async getSusanoModPath(path: string): Promise<string> {
+    return `.susano/${btoa(path)}.json`;
+  }
+  protected async saveInSusanoDir(fileBundle: FileBundle): Promise<boolean> {
+    const saved = await this.isInSusanoDir(fileBundle.path);
+    if (!saved) {
+      // TODO save file bundle in susano dir
+      const modPath = await this.getSusanoModPath(fileBundle.path);
+      await Deno.writeTextFile(
+        modPath,
+        JSON.stringify({
+          value: fileBundle.value,
+          code: fileBundle.code,
+          dependencies: fileBundle.dependencies,
+          tokens: fileBundle.tokens,
+          type: fileBundle.type,
+          id: fileBundle.id,
+          baseUrl: fileBundle.baseUrl,
+        }),
+      );
+      return true;
+    }
+    return false;
+  }
+  protected async getModFromSusanoDir(
+    path: string,
+    opts: Partial<FileBundle>,
+  ): Promise<any | null> {
+    const modPath = await this.getSusanoModPath(path);
+    if (existsSync(modPath)) {
+      const file = await Deno.readTextFile(modPath);
+      const mod = JSON.parse(file);
+      if (mod.code !== opts.code) {
+        return null;
+      }
+      return mod;
+    } else {
+      return null;
+    }
   }
 }

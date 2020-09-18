@@ -86,12 +86,15 @@ export default class ContextCompiler extends Utils {
             if (!opts.filter) {
               return `
                   if (GET_LENGTH) {
-                    return (${arrayAlias}).length;
+                    if (!${arrayAlias}) {
+                      return 0;
+                    }
+                    return ${arrayAlias}.length;
                   }`;
             }
             return this.template(
               `
-                let {{ arrayAlias }}2 = {{ arrayAlias }}.filter(({{item}}, {{index}}) => {{filter}});
+                let {{ arrayAlias }}2 = ({{ arrayAlias }} || []).filter(({{item}}, {{index}}) => {{filter}});
                 {{item}} = ({{ arrayAlias }}2)[{{index}}];
                 if (GET_LENGTH) {
                   return ({{ arrayAlias }}2).length;
@@ -109,9 +112,9 @@ export default class ContextCompiler extends Utils {
           // @ts-ignore
           legacy.item = item;
           if (contextLegacy) {
-            const declarationScript = [`const ${arrayAlias} = !!${array.split('.')[0]} ? ${array} : null || [];`, `
+            const declarationScript = [`const ${arrayAlias} = !!${array.split('.')[0]} && ${array} || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
-                          ${item} = (${arrayAlias})[${index}];`];
+                          ${item} = (${arrayAlias})[${index}]; console.warn(${item});`];
             if (contextLegacy && contextLegacy.declarationScript) {
               contextLegacy.declarationScript = contextLegacy.declarationScript
                 .concat(declarationScript);
