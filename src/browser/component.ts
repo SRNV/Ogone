@@ -169,7 +169,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
       let node;
       // @ts-ignore
       node = document.createElement(context.name, { is: Onode.extends });
-      node.setOgone({
+      let ogoneOpts: any = {
         index: i,
         originalNode: false,
         level: Onode.ogone.level,
@@ -206,7 +206,9 @@ function OComponent(this: OnodeComponent): OnodeComponent {
               .slice() : [],
             levelInParentComponent: Onode.ogone.levelInParentComponent,
           }),
-      });
+      };
+      node.setOgone(ogoneOpts);
+      ogoneOpts = null;
       let previous = node;
       if (i === 0) {
         context.placeholder.replaceWith(node);

@@ -158,19 +158,22 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     const saved = await this.isInSusanoDir(fileBundle.path);
     if (!saved) {
       // TODO save file bundle in susano dir
-      const modPath = await this.getSusanoModPath(fileBundle.path);
+      let modPath: string | null = await this.getSusanoModPath(fileBundle.path);
+      let mod: any = {
+        value: fileBundle.value,
+        code: fileBundle.code,
+        dependencies: fileBundle.dependencies,
+        tokens: fileBundle.tokens,
+        type: fileBundle.type,
+        id: fileBundle.id,
+        baseUrl: fileBundle.baseUrl,
+      };
       await Deno.writeTextFile(
         modPath,
-        JSON.stringify({
-          value: fileBundle.value,
-          code: fileBundle.code,
-          dependencies: fileBundle.dependencies,
-          tokens: fileBundle.tokens,
-          type: fileBundle.type,
-          id: fileBundle.id,
-          baseUrl: fileBundle.baseUrl,
-        }),
+        JSON.stringify(mod),
       );
+      modPath = null;
+      mod = null;
       return true;
     }
     return false;
@@ -179,10 +182,11 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     path: string,
     opts: Partial<FileBundle>,
   ): Promise<any | null> {
-    const modPath = await this.getSusanoModPath(path);
+    let modPath: string | null = await this.getSusanoModPath(path);
     if (existsSync(modPath)) {
       const file = await Deno.readTextFile(modPath);
       const mod = JSON.parse(file);
+      modPath = null;
       if (mod.code !== opts.code) {
         return null;
       }

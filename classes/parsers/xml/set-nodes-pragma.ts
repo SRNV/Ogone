@@ -85,6 +85,7 @@ export default class XMLPragma extends Utils {
         `
       (function({{params}}) {
           let p = pos.slice();
+          let o = null;
 `,
         {
           params,
@@ -161,7 +162,7 @@ export default class XMLPragma extends Utils {
         setOgone: {
           isOgone: isOgone
             ? `
-            {{nId}}.setOgone({
+            o = {
               isRoot: false,
               originalNode: true,
               {{setOgone.tagname}}
@@ -180,7 +181,8 @@ export default class XMLPragma extends Utils {
               uuid: '{{ component.uuid }}',
               {{setOgone.positionInParentComponent}}
               {{ setOgone.nodeProps }}
-            });`
+            };
+              {{nId}}.setOgone(o); o = null;`
             : "",
           inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
           flags: `flags: ${flags}`,

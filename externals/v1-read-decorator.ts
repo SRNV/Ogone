@@ -40,7 +40,6 @@ export default function readDecoratorsExportedClass(
         break;
     }
   });
-  console.warn(result);
   const regExp =
     /(?:\@(?<decorator>[\w]+?))\s*(?:export\s+)(default\s+){0,1}(abstract\s+){0,1}(?:class\s+){0,1}(?<function>[\w]+?)\s+{/;
   const match = result.match(regExp);

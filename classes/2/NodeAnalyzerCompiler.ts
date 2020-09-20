@@ -1,7 +1,7 @@
 import type { Bundle, XMLNodeDescription } from "../../.d.ts";
 import WebComponent from "../components/index.ts";
 
-export default class Renderer extends WebComponent {
+export default class NodeAnalyzerCompiler extends WebComponent {
   async read(
     bundle: Bundle,
     keyComponent: string,

@@ -24,7 +24,7 @@ const getClassComponent = (
       super();
       this.type = "component";
       if (!Ogone.root) {
-        (this as BCE & this).setOgone({
+        let opts = {
           props: null,
           parentCTXId: '',
           dependencies: null,
@@ -45,7 +45,9 @@ const getClassComponent = (
           originalNode: true,
           uuid: '{{ root.uuid }}',
           extends: '-nt',
-        });
+        };
+        (this as BCE & this).setOgone(opts);
+        opts = null;
         Ogone.root = true;
       }
     }

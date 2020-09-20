@@ -627,9 +627,9 @@ const tokens: ProtocolScriptRegExpList = [
   {
     name: "endLine",
     open: false,
-    reg: /([\n\r])+/,
+    reg: /\n+/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§endLine${gen.next().value}§§`;
+      const id = `§§endLine0§§`;
       if (expressions) expressions[id] = value;
       return id;
     },

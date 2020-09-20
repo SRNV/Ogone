@@ -28,10 +28,13 @@ export default class Susano extends SusanoScopeInspector {
       level: infos && infos.level || 0,
     };
     const fileBundle = await this.getFileBundle(opts);
+    console.warn(fileBundle)
     if (fileBundle) {
       this.getAllScopes(fileBundle);
       this.getAllImportsExports(fileBundle);
       await this.saveChildBundle(fileBundle, newInfos);
+      // start cherry-picking
+      await this.cherryPick(fileBundle, newInfos);
       await this.saveLogs(fileBundle, newInfos);
       await this.saveInSusanoDir(fileBundle);
     }
@@ -193,7 +196,7 @@ export default class Susano extends SusanoScopeInspector {
       return null;
     }
     const path = file.newPath || opts && opts.path || "";
-    const susanoMod = await this.getModFromSusanoDir(path, {
+    const susanoMod = file.type !== "local" && await this.getModFromSusanoDir(path, {
       code: opts.code || file.code,
     });
     let result: string = susanoMod && susanoMod.code || opts.code || file.code;
@@ -237,7 +240,7 @@ export default class Susano extends SusanoScopeInspector {
       fileBundle.value = topLevel;
       fileBundle.root.value = topLevel;
     } else {
-      fileBundle.root.value = susanoMod.value;
+      fileBundle.root.value = susanoMod.code;
     }
     this.mapFileBundle.set(fileBundle.path as string, fileBundle);
     return fileBundle;
@@ -252,7 +255,7 @@ susano.start(true).release({
   path: "./deps.ts",
   code: `
     import s from 'https://deno.land/x/drake@v1.4.0/mod.ts';
-    import t from 'https://deno.land/x/denopack@0.9.0/mod.ts';
+    // import t from 'https://deno.land/x/denopack@0.9.0/mod.ts';
   `,
 }).then(() => {
   susano.console

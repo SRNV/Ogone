@@ -29,7 +29,7 @@ const nullish: ProtocolScriptRegExpList = [
   {
     split: ["/*", "*/"],
     splittedId: (value, expressions) => {
-      const id = `§§comment${gen.next().value}§§`;
+      const id = `§§comment0§§`;
       if (expressions) expressions[id] = value;
       return "";
     },

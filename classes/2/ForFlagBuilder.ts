@@ -15,7 +15,7 @@ const iterator: Generator = gen(0);
 const arrayAliasIterator: Generator = gen(0);
 iterator.next().value
 arrayAliasIterator.next().value
-export default class ContextCompiler extends Utils {
+export default class ForFlagBuilder extends Utils {
   public read(
     bundle: Bundle,
     keyComponent: string,

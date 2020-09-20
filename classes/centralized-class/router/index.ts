@@ -80,7 +80,7 @@ const getClassRouter = (klass) =>
         // don't spread o
         // some props of o can overwritte the template.ogone and create errors in context
         // like undefined data
-        co.setOgone({
+        let ogoneOpts = {
           isTemplate: true,
           isRouter: false,
           isStore: false,
@@ -101,7 +101,9 @@ const getClassRouter = (klass) =>
           isRoot: false,
           name: rendered.name || rendered.component,
           parentNodeKey: o.key,
-        });
+        };
+        co.setOgone(ogoneOpts);
+        ogoneOpts = null;
         // if the route provide any title
         // we change the title of the document
 
