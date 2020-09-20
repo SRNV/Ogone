@@ -31,6 +31,7 @@ export default class StoreConnectionsInspector extends Utils {
         if (textnode) {
           const data = YAML.parse(textnode.rawText as string, {});
           console.warn(data);
+          // TODO finish filters
         } else {
           // store modules can be empty if the element is an auto-closing element
           // in this case the developper seems to use all actions, states of the store
