@@ -12,10 +12,6 @@ export function getMembersKeys(tokens: string): string[] {
   return arrayOfKey.split('')
 }
 
-// TODO finish getMembers
-// start by fetching all members: { export1, export2 as member }
-// then fetch aliased imports: * as defaultExport
-// then fetch default
 type ImportDescriber = {
   members: ({ name: string, alias: string })[],
   hasDefault: boolean,

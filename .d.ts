@@ -1,4 +1,4 @@
-import type ObviousParser from "./classes/parsers/css/obvious/index.ts";
+import type Obvious from "./classes/Obvious.ts";
 
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };
@@ -125,7 +125,7 @@ export interface Component {
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
-  mapStyleBundle?: ObviousParser["mapStyleBundle"];
+  mapStyleBundle?: Obvious["mapStyleBundle"];
   elements: {
     styles: XMLNodeDescription[];
     proto: XMLNodeDescription[];

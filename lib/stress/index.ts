@@ -1,6 +1,6 @@
 import { existsSync } from "./../../utils/exists.ts";
 import { join } from "../../deps.ts";
-import { Utils } from "../../classes/utils/index.ts";
+import { Utils } from "../../classes/Utils.ts";
 const stressMap: string[] = [];
 
 interface StressOptions {
