@@ -10,6 +10,22 @@ import { Utils } from "./Utils.ts";
 import keyframes from "../utils/keyframes.ts";
 import Obvious from './Obvious.ts';
 
+/**
+ * @name StylesheetBuilder
+ * @code OSB7
+ * @code OSB7-OC0
+ * @description style step of the components
+ * this class will use the style elements of the component
+ * pass the textnode to the Obvious module and scope all the rules after it with the CSSScoper
+ * then the style is saved like following:
+ * ```ts
+ *   component.style.push(css);
+ * ```
+ * all style are scoped to the component's uuid
+ * excepted if the style tag has a global attribute
+ * @dependency CSSScoper
+ * @dependency Obvious
+ */
 export default class StylesheetBuilder extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
   private Obvious: Obvious = new Obvious();

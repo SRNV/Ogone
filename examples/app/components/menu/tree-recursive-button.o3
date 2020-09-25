@@ -1,3 +1,6 @@
+use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
+use @/examples/app/components/scroll.o3 as 'scroll-component'
+
 require item as {
   route: string;
   status: string;
@@ -8,9 +11,6 @@ require item as {
     children: any[]
   })[];
 };
-
-use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/examples/app/components/scroll.o3 as 'scroll-component'
 
 <proto>
   declare:

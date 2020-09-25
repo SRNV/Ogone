@@ -1,4 +1,4 @@
-import type { Bundle, XMLNodeDescription } from "../.d.ts";
+import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 /**
  * @name ComponentTopLevelAnalyzer
@@ -8,6 +8,11 @@ import { Utils } from "./Utils.ts";
  * and only <proto>, <template> and <style> tags are allowed at the top level
  */
 export default class ComponentTopLevelAnalyzer extends Utils {
+  /**
+   * @method read
+   * @param bundle {Bundle}
+   * @description throw Error: text is not allowed excepted for the first line
+   */
   read(bundle: Bundle) {
     bundle.components.forEach((c) => {
       c.rootNode.childNodes.filter((node, id) => id !== 0).forEach(
@@ -23,8 +28,13 @@ export default class ComponentTopLevelAnalyzer extends Utils {
       );
     });
   }
+  /**
+   * @method cleanRoot
+   * @param bundle {Bundle}
+   * @description rootNode clean up: removes style script proto tags from rootNode, also removes empty textnodes
+   */
   cleanRoot(bundle: Bundle) {
-    bundle.components.forEach((c) => {
+    bundle.components.forEach((c: Component) => {
       c.rootNode.childNodes = c.rootNode.childNodes.filter((node, id) => {
         return node.tagName !== "style" &&
           node.tagName !== "script" &&
@@ -36,9 +46,16 @@ export default class ComponentTopLevelAnalyzer extends Utils {
       });
     });
   }
+  /**
+   *
+   * @param bundle {Bundle}
+   * @description start reading the components and focus the rootNode to the template
+   * because proto style tags are no more needed at this step
+   * after this, top level is template tag level
+   */
   public switchRootNodeToTemplateNode(bundle: Bundle) {
     this.read(bundle);
-    bundle.components.forEach((component) => {
+    bundle.components.forEach((component: Component) => {
       const forbiddenNode = component.rootNode.childNodes.find((n: XMLNodeDescription) => n
         && n.nodeType === 1
         && !["template", "proto", "style"].includes(n.tagName as string));

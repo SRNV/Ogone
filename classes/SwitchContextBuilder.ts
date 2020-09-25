@@ -1,7 +1,11 @@
 import type { Bundle } from "../.d.ts";
 import type { XMLNodeDescription } from "../.d.ts";
 import { Utils } from "./Utils.ts";
-
+/**
+ * @name SwitchContextBuilder
+ * @code OSCB3-ORC8-OC0
+ * @description this class will build the context part. context part helps for loop rendering
+ */
 export default class SwitchContextBuilder extends Utils {
   read(bundle: Bundle, keyComponent: string) {
     const component = bundle.components.get(keyComponent);

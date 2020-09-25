@@ -1,7 +1,11 @@
 import type { Bundle, Component } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import Env from './Env.ts';
-
+/**
+ * @name ComponentCompiler
+ * @code OCC2-ORC8-OC0
+ * @description this will build Components and add access to APIs like: Async, Refs, Controllers, Store
+ */
 export default class ComponentCompiler extends Utils {
   private getControllers(
     bundle: Bundle,

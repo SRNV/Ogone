@@ -2,6 +2,33 @@ import type { Bundle } from "../.d.ts";
 import { YAML } from "../deps.ts";
 import { Utils } from "./Utils.ts";
 
+/**
+ * TODO provide a way to filter the data that we want from the store
+ * @name StoreArgumentReader
+ * @code OSAR6
+ * @code OSAR6-OC0
+ * @description this class will inspect all stores
+ * few errors are fired, for example, this will trigger an error as it's forbidden to nest an element inside a StoreComponent:
+ * ```html
+ * <store-component>
+ *  <div></div>
+ * </store-component>
+ * ```
+ * the developer should be able to cherry-pick the data, actions, mutations that he want to plug to his component
+ *
+ * ```html
+ * <store-component>
+ *  data:
+ *    - myData
+ *  actions:
+ *    - myAction
+ *    - myotherAction
+ *  mutations:
+ *    - myMutation
+ * </store-component>
+ * ```
+ * @dependency YAML
+ */
 export default class StoreArgumentReader extends Utils {
   read(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
@@ -19,7 +46,7 @@ export default class StoreArgumentReader extends Utils {
       });
       component.hasStore = stores.length > 0;
       stores.forEach((store) => {
-        // throw exceptions if there is anything else than textnode
+        // throw exceptions if there is anything else than a textnode
         const forbiddenElement = store.childNodes.find((c) => c.nodeType !== 3);
         if (forbiddenElement) {
           this.error(
@@ -32,10 +59,9 @@ export default class StoreArgumentReader extends Utils {
           const data = YAML.parse(textnode.rawText as string, {});
           console.warn(data);
           // TODO finish filters
-        } else {
-          // store modules can be empty if the element is an auto-closing element
-          // in this case the developper seems to use all actions, states of the store
         }
+        // store modules can be empty if the element is an auto-closing element
+        // in this case the developper seems to use all actions, states of the store
       });
     });
   }

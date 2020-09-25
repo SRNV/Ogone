@@ -1,6 +1,12 @@
 import type { Bundle, XMLNodeDescription } from "../.d.ts";
 import WebComponentDefinition from "./WebComponentDefinition.ts";
-
+/**
+ * @name NodeAnalyzerCompiler
+ * @code ONAC3-ORC8-OC0
+ * @description this will throw errors if any error is found like:
+ * BadUseOfAwaitInSyncComponentException, BadUseDeferFlagException, valid selector
+ * if all is good, it will use an inherited method (render) to get the WebComponent definition.
+ */
 export default class NodeAnalyzerCompiler extends WebComponentDefinition {
   async read(
     bundle: Bundle,

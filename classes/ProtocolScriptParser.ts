@@ -19,11 +19,16 @@ import type {
 // TODO clean code
 
 /**
-* class to parse custom script for Ogone
-* this class will parse the setters statements
-* and add some features like: reflections, execute default, before-each statement, def's Area
-*/
-
+ * @name ProtocolScriptParser
+ * @code OPSP
+ * @code OPSP-OCS1-OC0
+ * @code OPSP-OIA3
+ * @code OPSP-OSB4
+ * @description
+ * class to parse custom script for Ogone
+ * this class will parse the setters statements
+ * and add some features like: reflections, execute default, before-each statement, def's Area
+ */
 export default class ProtocolScriptParser extends Utils {
   private parseBeforeCases(opts: {
     typedExpressions: TypedExpressions;

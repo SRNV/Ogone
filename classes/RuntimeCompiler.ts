@@ -4,6 +4,16 @@ import SwitchContextBuilder from "./SwitchContextBuilder.ts";
 import ComponentCompiler from "./ComponentCompiler.ts";
 import NodeAnalyzerCompiler from "./NodeAnalyzerCompiler.ts";
 
+/**
+ * @name RuntimeCompiler
+ * @code ORC8
+ * @code ORC8-OC0
+ * @description walk into all components and apply to it some builder methods
+ * @dependency ForFlagBuilder
+ * @dependency ComponentCompiler
+ * @dependency SwitchContextBuilder
+ * @dependency NodeAnalyzerCompiler
+ */
 export default class RuntimeCompiler {
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   private ComponentCompiler: ComponentCompiler = new ComponentCompiler();

@@ -5,7 +5,12 @@ import elements from "../utils/elements.ts";
 import notParsed from "../utils/not-parsed.ts";
 import obviousElements from '../utils/elements.ts';
 
-
+// TODO needs more explications on the process
+/**
+ * @name ObviousParser
+ * @code OOP1-OSB7-OC0
+ * @description this class will help parsing tokens and apply regexp
+ */
 export default class ObviousParser extends Utils {
   protected regularAtRules: RegExp = /^(\@((§{2}keywordImport\d+§{2})|namespace|charset))/i;
   protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
@@ -66,7 +71,7 @@ export default class ObviousParser extends Utils {
     return this.getDeepTranslation(result, expressions);
   }
   protected getValueOf(variable: { value: string, eval: boolean, isSelector: boolean, exportable: boolean }, styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any) {
-    const { value, eval: evaluated } = variable;
+    const { value } = variable;
     const { expressions } = styleBundle.tokens;
     let result = this.getDeepTranslation(value, expressions);
     const imports = Object.fromEntries(

@@ -15,6 +15,15 @@ const iterator: Generator = gen(0);
 const arrayAliasIterator: Generator = gen(0);
 iterator.next().value
 arrayAliasIterator.next().value
+/**
+ * @name ForFlagBuilder
+ * @code OFFB1-ORC8-OC0
+ * @description traverse all nodes, if the `--for` flag is set this will start getting all the tokens through a regular expression
+ * this will send to the SwitchContextBuilder, all the variable declarations
+ * (variables for any component's property: const item = this.item)
+ * SwitchContextBuilder class will wrap it into a tiny function and register it into `Ogone.context`
+ * this is only a build made through a string composition
+ */
 export default class ForFlagBuilder extends Utils {
   public read(
     bundle: Bundle,

@@ -1,7 +1,15 @@
 import Env from "./Env.ts";
 import type { Bundle, Component, XMLNodeDescription } from "./../.d.ts";
 import { Utils } from "./Utils.ts";
-
+/**
+ * @name WebComponentDefinition
+ * @code OWCD1-ONAC3-ORC8-OC0
+ * @description will build the definition part and the render part.
+ * this add for each components
+ * ```ts
+ * customElements.define(component.uuid, Ogone.classes[component.type]);
+ * ```
+ */
 export default class WebComponentDefinition extends Utils {
   protected render(
     bundle: Bundle,

@@ -5,6 +5,16 @@ function getId(type: string): string {
   i++;
   return `§§${type}${i}§§`;
 }
+/**
+ * @name CSSScoper
+ * @code OCS-OSB7-OC0
+ * @description scopes the rules of component's style
+ * ```ts
+ *   CSSScoper.transform(cssStr: string, scopeId: string): string
+ * ```
+ * it returns a string with rules edited like ```div[data-xu1dg2] a[data-xu1dg2] {}```
+ * this class shouldn't scope the at-rules like keyframes, media, import, etc...
+ */
 export default class CSSScoper {
   private preserveRegexp(
     str: string,

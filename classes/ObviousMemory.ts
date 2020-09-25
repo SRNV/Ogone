@@ -1,6 +1,17 @@
 import type { Bundle, Component, StyleBundle } from '../.d.ts';
 import ObviousOutput from './ObviousOutput.ts';
-
+// TODO needs more explications on the process
+/**
+ * @name ObviousMemory
+ * @code OOM1-OSB7-OC0
+ * @description saves vars, use statements, imported components and styleBundle
+ * you can add a new var syntax by editing the getVars method, the method getVars will at the end save the variable
+ * inside the styleBundle's mapVars (Map)
+ * the use statement is parsed by the method setUse, this method will save the dependency inside styleBundle's mapImport
+ * after this the async method getImports will bundle all dependencies asynchronously
+ * @dependency ObviousOutput
+ * @dependency ObviousParser
+ */
 export default class ObviousMemory extends ObviousOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
@@ -95,7 +106,7 @@ export default class ObviousMemory extends ObviousOutput {
       const filePath = component.imports[tag];
       const subcomp = bundle.components.get(filePath);
       if (!subcomp) {
-        this.error(`${component.file}\n\tStyle Use Error while fetching component.\n\tinput: @use ${tag} as ${name}`);
+        this.error(`${component.file}\n\tStyle Use Error while fetching component: component not found.\n\tinput: @use ${tag} as ${name}`);
       } else {
         item.bundle = await this.getNewStyleBundle(
           subcomp.elements.styles.map((style) => {
