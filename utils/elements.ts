@@ -12,38 +12,6 @@ const tokens: ProtocolScriptRegExpList = [
     },
     close: false,
   },
-  {
-    open: "this",
-    reg: /\bthis\b/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordThis1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "this",
-  },
-  // for o3
-  {
-    open: "use",
-    reg: /\buse\b/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordUse1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "use",
-  },
-  // for o3
-  {
-    open: "require",
-    reg: /\brequire\b/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordRequire1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "require",
-  },
   // for o3
   {
     open: "as",

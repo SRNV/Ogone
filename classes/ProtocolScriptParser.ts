@@ -178,12 +178,12 @@ export default class ProtocolScriptParser extends Utils {
       value,
     } = opts;
     let result = value;
-    const reg = /(§§keywordThis\d+§§)\s*(§§(identifier||array)\d+§§)/gi;
+    const reg = /(this)\s*(§§(identifier||array)\d+§§)/gi;
     const matches = result.match(reg);
     if (!matches) return result;
     matches.forEach((input) => {
       const match = input.match(
-        /(§§keywordThis\d+§§)\s*(§§(identifier||array)\d+§§)/,
+        /(this)\s*(§§(identifier||array)\d+§§)/,
       );
       if (match) {
         const key = match[2];
@@ -212,12 +212,12 @@ export default class ProtocolScriptParser extends Utils {
           exp.indexOf("operatorDoubleIncrease") > -1 ||
           exp.indexOf("operatorDoubleDecrease") > -1 ||
           exp.match(
-            /(§{2}keywordThis\d*§{2})\s*(§{2}identifier\d*§{2})\s*(§{2}chainedLine\d*§{2})+/,
+            /(this)\s*(§{2}identifier\d*§{2})\s*(§{2}chainedLine\d*§{2})+/,
           ) ||
           exp.match(
-            /(§{2}keywordThis\d*§{2})\s*(§{2}identifier\d*§{2})\s*(§{2}arrayModifier\d*§{2})+/,
+            /(this)\s*(§{2}identifier\d*§{2})\s*(§{2}arrayModifier\d*§{2})+/,
           ) ||
-          (exp.indexOf("arrayModifier") > -1 && exp.indexOf("keywordThis") > -1)
+          (exp.indexOf("arrayModifier") > -1 && exp.indexOf("this") > -1)
         );
       })
       .map((tokens) => {

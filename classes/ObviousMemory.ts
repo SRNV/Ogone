@@ -122,7 +122,7 @@ export default class ObviousMemory extends ObviousOutput {
   }
   protected setUse(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
     let result = styleBundle.value;
-    const regexp = /(\@§{2}keywordUse\d+§{2})\s+(§{2}string\d+§{2})\s+(§{2}keywordAs\d+§{2})\s+(\w*)+\s*(§{2}(endPonctuation|endLine)\d+§{2})/;
+    const regexp = /(\@use)\s+(§{2}string\d+§{2})\s+(as)\s+(\w*)+\s*(§{2}(endPonctuation|endLine)\d+§{2})/;
     while (result.match(regexp)) {
       const m = result.match(regexp);
       if (m) {

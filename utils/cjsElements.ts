@@ -7,7 +7,7 @@ import type {
 const cjs: ProtocolScriptRegExpList = [
   {
     open: false,
-    reg: /(§{2}keywordRequire\d+§{2})\s*(§{2}parenthese\d+§{2})/,
+    reg: /(require)\s*(§{2}parenthese\d+§{2})/,
     id: (
       value,
       matches,

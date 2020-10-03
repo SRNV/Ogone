@@ -42,7 +42,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})\s*(§{2}block\d+§{2})/,
+      /(this)\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})\s*(§{2}block\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -79,7 +79,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
+      /(this)\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -118,7 +118,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+/,
+      /(this)\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -140,7 +140,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!(§§string))/,
+      /(use)\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!(§§string))/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -156,7 +156,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s*((§{2}ponctuation)([^\s]*)+)\s*(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((§{2}ponctuation)([^\s]*)+)\s*(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -180,7 +180,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s+(§{2}path\d+§{2})\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+(§{2}path\d+§{2})\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -204,7 +204,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s+((https|http)(§{2}optionDiviser\d+§{2}\/{2})([^\s]*)+)\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((https|http)(§{2}optionDiviser\d+§{2}\/{2})([^\s]*)+)\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -225,7 +225,7 @@ not supported in this version of Ogone
   {
     name: "declarations",
     open: false,
-    reg: /(§{2}keywordUse\d+§{2})(.*)(\s*§{2}endLine\d+§{2})*/,
+    reg: /(use)(.*)(\s*§{2}endLine\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -244,7 +244,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /(require)\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
@@ -275,7 +275,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s*([^\§]*)+(§{2}keywordAs\d+§{2})/,
+      /(require)\s*([^\§]*)+(§{2}keywordAs\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
