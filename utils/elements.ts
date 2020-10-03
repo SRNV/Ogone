@@ -12,28 +12,6 @@ const tokens: ProtocolScriptRegExpList = [
     },
     close: false,
   },
-  // for o3
-  {
-    open: "as",
-    reg: /\bas\b/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordAs1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "as",
-  },
-  // preserve path
-  {
-    open: false,
-    reg: /(\@\/[^\s]+\/{0,1})+/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§path${gen.next().value}§§`;
-      if (expressions) expressions[id] = value.replace(/\@[\/\\]/, "");
-      return id;
-    },
-    close: false,
-  },
   {
     open: "...",
     reg: /\.{3}/,

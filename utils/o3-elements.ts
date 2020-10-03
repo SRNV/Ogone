@@ -135,28 +135,12 @@ not supported in this version of Ogone
   },
   // use syntax
   // use @/path/to/comp.o3 as element-name
-  {
-    // parse missing string
-    name: "declarations",
-    open: false,
-    reg:
-      /(use)\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!(§§string))/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      throw new Error(
-        "please follow this pattern for use expression: use @/absolute/path.o3 as <string>\n\n",
-      );
-    },
-    close: false,
-  },
   // use relative path
   {
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((§{2}ponctuation)([^\s]*)+)\s*(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((§{2}ponctuation)([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -180,18 +164,18 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+(§{2}path\d+§{2})\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+(\@\/)((.*?)\s+as\s+)(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
       const id = `§§use${gen.next().value}§§`;
-      let path = expressions[matches[2]];
+      let path = matches[4];
       path = getDeepTranslation(path, expressions);
       if (typedExpressions) {
         typedExpressions.use[id] = {
           path,
-          as: expressions[matches[4]],
+          as: expressions[matches[5]],
           type: "absolute",
         };
       }
@@ -204,7 +188,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((https|http)(§{2}optionDiviser\d+§{2}\/{2})([^\s]*)+)\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((https|http)(§{2}optionDiviser\d+§{2}\/{2})([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -219,6 +203,23 @@ not supported in this version of Ogone
         };
       }
       return "";
+    },
+    close: false,
+  },
+  {
+    // parse missing string
+    name: "declarations",
+    open: false,
+    reg:
+      /(use)\s+(\@\/)(.*?)(\s+as\s+)/,
+    id: (value, matches, typedExpressions, expressions) => {
+      if (!expressions || !matches) {
+        throw new Error("expressions or matches are missing");
+      }
+      console.warn(matches)
+      throw new Error(
+        "please follow this pattern for use expression: use <path> as <string>\n\n",
+      );
     },
     close: false,
   },
@@ -244,7 +245,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(require)\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /(require)\s+([^\§\(]*)+(as)\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
@@ -275,7 +276,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(require)\s*([^\§]*)+(§{2}keywordAs\d+§{2})/,
+      /(require)\s*([^\§]*)+(as)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
