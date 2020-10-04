@@ -113,7 +113,7 @@ export default class ObviousParser extends Utils {
         && !endExp.test(rule) && rule.trim().length)
       .forEach((rule) => {
         const isChild = rule.match(/(§{2}block\d+§{2})/);
-        const isSpread = rule.match(/(§{2}spread\d+§{2})(.*)/);
+        const isSpread = rule.match(/(\.{3})(.*)/);
         if (isChild) {
           const [block] = isChild;
           result.children.push(rule);

@@ -140,12 +140,12 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((§{2}ponctuation)([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((\.)([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      const id = `§§use${gen.next().value}§§`;
+      const id = `use${gen.next().value}`;
       let path = getDeepTranslation(matches[2], expressions);
       path = getDeepTranslation(path, expressions).trim();
       if (typedExpressions) {
@@ -169,7 +169,7 @@ not supported in this version of Ogone
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      const id = `§§use${gen.next().value}§§`;
+      const id = `use${gen.next().value}`;
       let path = matches[4];
       path = getDeepTranslation(path, expressions);
       if (typedExpressions) {
@@ -293,7 +293,7 @@ not supported in this version of Ogone
     name: "linkCases",
     open: false,
     reg:
-      /\s*(\*){0,1}execute\s+(§{2}keywordDefault\d+§{2})\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /\s*(\*){0,1}execute\s+(\b(default)\b)\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
     id: (value, match, typedExpressions, expressions) => {
       if (!expressions || !match) {
         throw new Error("expressions or matches are missing");
@@ -310,7 +310,7 @@ not supported in this version of Ogone
   {
     name: "linkCases",
     open: false,
-    reg: /\s*(\*){0,1}execute\s+(§{2}(keywordDefault|keywordCase)\d+§{2})\s*/,
+    reg: /\s*(\*){0,1}execute\s+(case|default)\s*/,
     id: (value, match, typedExpressions, expressions) => {
       if (!expressions || !match) {
         throw new Error("expressions or matches are missing");

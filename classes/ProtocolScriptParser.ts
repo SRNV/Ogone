@@ -228,7 +228,7 @@ export default class ProtocolScriptParser extends Utils {
         if (!key) return;
         const name = key && key.startsWith("§§array")
           ? key
-          : `'${expressions[key].replace(/(§{2}ponctuation\d*§{2})/, "")}'` ||
+          : `'${expressions[key].replace(/\./, "")}'` ||
           "";
         let invalidationExpression = `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`;
         const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)(§§arrowFunction\d+§§)\s*(?!§§block)(.+?)(\,|\)|§§(?:endPonctuation|endLine|endEpxression)\d+§§)/gi;
@@ -611,7 +611,7 @@ export default class ProtocolScriptParser extends Utils {
       expressions,
     });
     const declarations: string[] = result.split(
-      /((§§Declaration\d+§§)|(§§keywordDefault\d+§§)|(§§keywordCase\d+§§)|(§§keywordBeforeEach\d+§§))/gi,
+      /((§§Declaration\d+§§)|(\b(default)\b)|(\bcase\b)|(§§keywordBeforeEach\d+§§))/gi,
     )
       .filter((d) => d)
       .filter((d, i, arr) =>

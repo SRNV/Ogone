@@ -10,7 +10,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export default",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordDefault\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/,
+      /(§{2}keywordExport\d+§{2})\s*(\b(default)\b)(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -38,7 +38,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export vars",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}(?:keywordConst|keywordLet|keywordVar)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s*(const|§{2}(?:keywordLet|keywordVar)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -69,7 +69,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export function",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordFunction\d+§{2})(.*?)(\<(?:.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(§{2}keywordExport\d+§{2})\s*(\bfunction\b)(.*?)(\<(?:.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");

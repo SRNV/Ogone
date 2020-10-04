@@ -15,7 +15,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(§{2})(ponctuation\d+)(§{2})(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(§{2})(parenthese\d+)(§{2})/,
+      /(\.)(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(§{2})(parenthese\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§arrayModifier${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -25,7 +25,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2}ponctuation\d+§{2})([^§\s])+/,
+    reg: /\.\s*([\w\d]+)+/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§identifier${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -33,7 +33,6 @@ const computed: ProtocolScriptRegExpList = [
     },
     close: false,
   },
-
   {
     open: false,
     reg: /(§{2})(identifier\d+)(§{2})\s*(§{2})(parenthese\d+)(§{2})/,
@@ -67,7 +66,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(§{2})(keywordFunction\d+)(§{2})(\s)*([^§\s])+(\s)*(§{2})(parenthese\d+)(§{2})([\s\n])*(§{2})(block\d+)(§{2})/,
+      /(\bfunction\b)(\s)*([^§\s])+(\s)*(§{2})(parenthese\d+)(§{2})([\s\n])*(§{2})(block\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§functionDeclaration${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
