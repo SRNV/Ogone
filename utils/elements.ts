@@ -2,56 +2,6 @@ import gen from "./generator.ts";
 import type { ProtocolScriptRegExpList } from "../.d.ts";
 
 const tokens: ProtocolScriptRegExpList = [
-  {
-    open: "!",
-    reg: /\!/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorNegative1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "!",
-  },
-  {
-    open: "&",
-    reg: /\&\&/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorAnd1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "&",
-  },
-  {
-    open: "|",
-    reg: /\|\|/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operatorOr1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "|",
-  },
-  {
-    open: "=",
-    reg: /\={3}/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operator3equal1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "=",
-  },
-  {
-    open: "=",
-    reg: /\={2}/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§operator2equal1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "=",
-  },
 
   {
     open: "+",
