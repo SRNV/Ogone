@@ -1,6 +1,6 @@
 import gen from "./generator.ts";
 import getDeepTranslation from ".//template-recursive.ts";
-import { TypedExpressions } from "../.d.ts";
+import type { TypedExpressions } from "../.d.ts";
 
 export default function parseCases(
   typedExpressions: TypedExpressions,
