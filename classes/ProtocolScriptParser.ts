@@ -231,7 +231,7 @@ export default class ProtocolScriptParser extends Utils {
           : `'${expressions[key].replace(/\./, "")}'` ||
           "";
         let invalidationExpression = `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`;
-        const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)(§§arrowFunction\d+§§)\s*(?!§§block)(.+?)(\,|\)|§§(?:endPonctuation|endLine|endEpxression)\d+§§)/gi;
+        const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)\s*(\=\>)\s*(?!§§block)(.+?)(\,|\)|§§(?:endPonctuation|endLine|endEpxression)\d+§§)/gi;
         const invMatch = exp.match(InlineArrowFunctionRegExp);
         if (invMatch) {
           const varName = `__a${Math.random()}`.replace(/\./i, '').slice(0, 8)

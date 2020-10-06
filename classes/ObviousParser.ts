@@ -12,7 +12,7 @@ import obviousElements from '../utils/elements.ts';
  * @description this class will help parsing tokens and apply regexp
  */
 export default class ObviousParser extends Utils {
-  protected regularAtRules: RegExp = /^(\@((§{2}keywordImport\d+§{2})|namespace|charset))/i;
+  protected regularAtRules: RegExp = /^(\@(import|namespace|charset))/i;
   protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
   public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
   protected getContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {

@@ -42,7 +42,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(this)\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})\s*(§{2}block\d+§{2})/,
+      /(this)\s*((§{2}(identifier|array)\d+§{2})+)\s*(=>)\s*(§{2}block\d+§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -52,7 +52,7 @@ const items: ProtocolScriptRegExpList = [
       const id = `§§reflection${gen.next().value}§§`;
       const [input, keywordThis, identifier] = matches;
       const fnbody = matches.find(
-        (k, i, arr) => arr[i - 1] && arr[i - 1].startsWith("§§arrowFunction"),
+        (k, i, arr) => arr[i - 1] && arr[i - 1].trim() === "=>",
       );
       if (expressions) expressions[id] = value;
       let translate = fnbody;
@@ -79,7 +79,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(this)\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
+      /(this)\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(=>)(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -89,7 +89,7 @@ const items: ProtocolScriptRegExpList = [
       const id = `§§reflection${gen.next().value}§§`;
       const [input, keywordThis, identifier] = matches;
       const fnbody = matches.find(
-        (k, i, arr) => arr[i - 1] && arr[i - 1].startsWith("§§arrowFunction"),
+        (k, i, arr) => arr[i - 1] && arr[i - 1].trim() === "=>",
       );
       if (expressions) expressions[id] = value;
       if (fnbody) {
@@ -118,7 +118,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(this)\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+/,
+      /(this)\s*(§{2}identifier\d+§{2})\s*(=>)\s*([^\s]+)+/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");

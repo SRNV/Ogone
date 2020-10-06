@@ -16,7 +16,7 @@ export default class ObviousMemory extends ObviousOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
     const parts = result.split(/(?:§{2}(?:endPonctuation|endLine)\d+§{2})/);
-    const regExpVarsExported = /(@§{2}keywordExport\d+§{2})\s+(const\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
+    const regExpVarsExported = /(@export)\s+(const\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
     const regExpVars = /(@const\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
     result = parts
       .map((statement) => {
