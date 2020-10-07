@@ -38,10 +38,10 @@ export default class ProtocolScriptParser extends Utils {
     const { value, typedExpressions, expressions } = opts;
     let result = value;
     const matches = value.match(
-      /([^\n\r]+){0,1}(before-(each|case\s[^\:]+))/gi,
+      /([^\n\r]+){0,1}(before-each)/gi,
     );
     if (!matches) return result;
-    const p = value.split(/(def|case[^:]+|default|before\s*[^:]+)\s*\:/gi);
+    const p = value.split(/(def|case[^:]+|default|before-each)\s*\:/gi);
     matches.forEach((m) => {
       let data = p.find((el, i, arr) => arr[i - 1] && arr[i - 1] === m.trim());
       let before = p.find((el, i, arr) => arr[i + 1] && arr[i + 1] === data);
@@ -208,9 +208,8 @@ export default class ProtocolScriptParser extends Utils {
     result.split(/(?:§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi)
       .filter((exp) => {
         return exp.length && exp.indexOf("endLine") < 0 && (
-          exp.indexOf("operatorsetter") > -1 ||
-          exp.indexOf("operatorDoubleIncrease") > -1 ||
-          exp.indexOf("operatorDoubleDecrease") > -1 ||
+          exp.match(/\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+)/) ||
+          exp.match(/[\-\+]{1,2}/) ||
           exp.match(
             /(this)\s*(§{2}identifier\d*§{2})\s*(§{2}chainedLine\d*§{2})+/,
           ) ||
@@ -611,7 +610,7 @@ export default class ProtocolScriptParser extends Utils {
       expressions,
     });
     const declarations: string[] = result.split(
-      /((§§Declaration\d+§§)|(\b(default)\b)|(\bcase\b)|(§§keywordBeforeEach\d+§§))/gi,
+      /((§§Declaration\d+§§)|(\b(default)\b)|(\bcase\b)|\bbefore-each\b)/g,
     )
       .filter((d) => d)
       .filter((d, i, arr) =>

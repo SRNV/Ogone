@@ -45,7 +45,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2})(operator\d+)(§{2})\s*(§{2})(string\d+)(§{2})/,
+    reg: /(\+|\-)\s*(§{2})(string\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§concatString${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -133,17 +133,6 @@ const computed: ProtocolScriptRegExpList = [
     reg: /(§{2})(keywordDeclare\d+)(§{2})\s*(§{2})(optionDiviser\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§Declaration${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: false,
-  },
-  // before(§§operator\d+§§)each
-  {
-    open: false,
-    reg: /(before(§§operator\d+§§)each)/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordBeforeEach${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
       return id;
     },

@@ -313,6 +313,7 @@ export default class ScriptBuilder extends Utils {
           (type as "component" | "async" | "store" | "router" | "controller");
         bundle.types[component.type] = true;
         if (type === "controller") {
+          console.warn(component.scripts.runtime)
           const run = eval(component.scripts.runtime);
           const namespace = proto.attributes.namespace;
           if (namespace && /[^\w]/gi.test(namespace as string)) {

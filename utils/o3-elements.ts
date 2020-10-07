@@ -188,7 +188,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((https|http)(§{2}optionDiviser\d+§{2}\/{2})([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((https|http)(\:\/{2})([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -245,7 +245,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(require)\s+([^\§\(]*)+(as)\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /(require)\s+([^\§\(]*)+(as)\s+(.*?)(;|\n+)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
@@ -293,7 +293,7 @@ not supported in this version of Ogone
     name: "linkCases",
     open: false,
     reg:
-      /\s*(\*){0,1}execute\s+(\b(default)\b)\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /\s*(\*){0,1}execute\s+(\b(default)\b)\s*(;|\n+)/,
     id: (value, match, typedExpressions, expressions) => {
       if (!expressions || !match) {
         throw new Error("expressions or matches are missing");

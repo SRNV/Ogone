@@ -15,9 +15,9 @@ import ObviousOutput from './ObviousOutput.ts';
 export default class ObviousMemory extends ObviousOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
-    const parts = result.split(/(?:§{2}(?:endPonctuation|endLine)\d+§{2})/);
-    const regExpVarsExported = /(@export)\s+(const\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
-    const regExpVars = /(@const\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
+    const parts = result.split(/(?:(;|\n+))/);
+    const regExpVarsExported = /(@export)\s+(const\*{0,1})\s+(\w+)+\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+)(.*)/;
+    const regExpVars = /(@const\*{0,1})\s+(\w+)+\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+)(.*)/;
     result = parts
       .map((statement) => {
         if (statement.trim().match(this.regularAtRules)) {
@@ -61,7 +61,7 @@ export default class ObviousMemory extends ObviousOutput {
           }
           return '';
         }
-        if (statement === "endPonctuation" || statement === "endLine") {
+        if (statement.match(/(;|\n+)/)) {
           return '';
         }
         return statement;
@@ -122,7 +122,7 @@ export default class ObviousMemory extends ObviousOutput {
   }
   protected setUse(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
     let result = styleBundle.value;
-    const regexp = /(\@use)\s+(§{2}string\d+§{2})\s+(as)\s+(\w*)+\s*(§{2}(endPonctuation|endLine)\d+§{2})/;
+    const regexp = /(\@use)\s+(§{2}string\d+§{2})\s+(as)\s+(\w*)+\s*(;|\n+)/;
     while (result.match(regexp)) {
       const m = result.match(regexp);
       if (m) {

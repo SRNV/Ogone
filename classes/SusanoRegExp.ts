@@ -10,9 +10,9 @@ export default class SusanoRegularExpressions {
       /(\bimport\b)(.*?)(?:§{2}(endPonctuation|endLine|endExpression)\d+§{2})/i;
 
     protected readonly blockFunctionRegExp =
-      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i;
+      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:\:)(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i;
     protected readonly blockFunctionRegExpGI =
-      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi;
+      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:\:)(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi;
 
     protected readonly classRegExp =
       /(\bclass)(.*?)\s*(?:extends\b(.*?)){0,1}(§{2}block\w*\d+§{2})\s*(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i;
@@ -20,9 +20,9 @@ export default class SusanoRegularExpressions {
       /(\bclass)(.*?)\s*(?:extends\b(.*?)){0,1}(§{2}block\w*\d+§{2})\s*(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi;
 
     protected readonly constLetVarRegExp =
-      /(const|let|var)(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i;
+      /(const|let|var)(.*?)((?:\:)(.*?)){0,1}(?:\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+))(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i;
     protected readonly constLetVarRegExpGI =
-      /(const|let|var)(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi;
+      /(const|let|var)(.*?)((?:\:)(.*?)){0,1}(?:\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+))(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi;
 
     protected readonly ifStatementRegExp =
       /(\bif\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(§{2}block\d+§{2})/i;
@@ -40,9 +40,9 @@ export default class SusanoRegularExpressions {
       /(\belse\b)(.*?)(§{2}block\d+§{2})/gi;
 
     protected readonly labelRegExp =
-      /([\w\d]*)+\s+(§{2}optionDiviser\d+§{2})\s*(§{2}block\d+§{2})/i;
+      /([\w\d]*)+\s+(\:)\s*(§{2}block\d+§{2})/i;
     protected readonly labelRegExpGI =
-      /([\w\d]*)+\s+(§{2}optionDiviser\d+§{2})\s*(§{2}block\d+§{2})/gi;
+      /([\w\d]*)+\s+(\:)\s*(§{2}block\d+§{2})/gi;
 
     protected readonly forStatementRegExp =
       /(\bfor\b)(.*?)(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(§{2}block\d+§{2})/i;

@@ -106,10 +106,10 @@ export default class ObviousParser extends Utils {
       props: {},
     };
     const { expressions } = styleBundle.tokens;
-    const endExp = /(?:(§{2}(endPonctuation|endLine)\d+§{2}))/;
+    const endExp = /(?:(;|\n+))/;
     const parts = css.split(endExp)
     parts
-      .filter(rule => !["endPonctuation", "endLine"].includes(rule)
+      .filter(rule => !rule.match(/(;|\n+)/)
         && !endExp.test(rule) && rule.trim().length)
       .forEach((rule) => {
         const isChild = rule.match(/(§{2}block\d+§{2})/);
@@ -133,7 +133,7 @@ export default class ObviousParser extends Utils {
             styleBundle.mapVars.get(variable.replace(/^\$/, ''))
           );
         } else {
-          const item = rule.split(/§{2}optionDiviser\d+§{2}/);
+          const item = rule.split(/\:/);
           if (item) {
             let [prop, value] = item;
             if (value) {
