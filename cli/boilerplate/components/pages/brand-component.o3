@@ -44,6 +44,7 @@ use ../atoms/button.o3 as 'o-btn';
     Ogone - Web Components Compiler for Deno
   </marquee>
 </template>
+
 <proto type="async">
   declare:
     public visible: boolean = true;
