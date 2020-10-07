@@ -1,4 +1,14 @@
 use ../tests/testdirectives.o3 as 'test-d'
+
+<template>
+  <test-d :text="'test'">
+    <h1>Test des flags</h1>
+    <div --for="array.map((a, i) => i) as (o)">
+      ${o} t
+    </div>
+  </test-d>
+</template>
+
 <proto>
   def:
     array:
@@ -13,15 +23,6 @@ use ../tests/testdirectives.o3 as 'test-d'
       this.array.push("t");
     }, 1000)
 </proto>
-
-<template>
-  <test-d :text="'test'">
-    <h1>Test des flags</h1>
-    <div --for="array.map((a, i) => i) as (o)">
-      ${o} t
-    </div>
-  </test-d>
-</template>
 
 <style>
 @media screen and (max-width:200px) {

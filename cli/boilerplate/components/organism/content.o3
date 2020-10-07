@@ -1,10 +1,6 @@
 use ./nav.o3 as 'nav-component';
 use ../stores/doc.store.o3 as 'store-doc-component';
 
-<proto>
-  declare:
-    public page: string = '';
-</proto>
 
 <template>
   <store-doc-component namespace="pages"/>
@@ -13,6 +9,10 @@ use ../stores/doc.store.o3 as 'store-doc-component';
     <nav-component />
   </div>
 </template>
+<proto>
+  declare:
+    public page: string = '';
+</proto>
 
 <style>
   iframe {

@@ -1,13 +1,5 @@
 use ./shader1.o3 as 'shader-component'
 
-<proto type="renderer">
-  declare:
-    public obj: string = "/robot.obj"
-    private background: number = 0xFF3423;
-  default:
-    const { scene, cube, prism, mesh } = Refs;
-    return scene.add(cube, prism, mesh);
-</proto>
 <template>
   <shader-component />
   <scene ref="scene">
@@ -22,3 +14,12 @@ use ./shader1.o3 as 'shader-component'
     <mesh ref="robot" --load="obj" />
   </scene>
 </template>
+
+<proto type="renderer">
+  declare:
+    public obj: string = "/robot.obj"
+    private background: number = 0xFF3423;
+  default:
+    const { scene, cube, prism, mesh } = Refs;
+    return scene.add(cube, prism, mesh);
+</proto>

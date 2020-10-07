@@ -12,14 +12,6 @@ require item as {
   })[];
 };
 
-<proto>
-  declare:
-    public openTree: boolean = false;
-  case 'click:toggle':
-    this.openTree = !this.openTree
-  break;
-</proto>
-
 <template>
   <div class="container">
     <div class="title" --click:toggle --router-go="item.route">
@@ -44,6 +36,14 @@ require item as {
     </div>
   </div>
 </template>
+
+<proto>
+  declare:
+    public openTree: boolean = false;
+  case 'click:toggle':
+    this.openTree = !this.openTree
+  break;
+</proto>
 
 <style>
   .container {

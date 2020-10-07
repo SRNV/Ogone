@@ -1,48 +1,6 @@
 use ../atoms/github-badges.o3 as 'github-badges';
 use ../atoms/button.o3 as 'o-btn';
 
-<proto type="async">
-  declare:
-    public visible: boolean = true;
-    public display: boolean = true;
-    public message: string = 'Welcome to your first Ogone application.';
-    public links: { label: string; href: string }[] = [
-      {
-        label: 'Repository',
-        href: 'https://github.com/SRNV/Ogone',
-      },
-      {
-        label: 'Introduction',
-        href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md',
-      },
-      {
-        label: 'Examples',
-        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md',
-      },
-      {
-        label: 'Learn How to use Ogone',
-        href: 'https://dev.to/srnv/deno-learn-how-to-use-ogone-486c',
-      },
-      {
-        label: 'Ogone\'s JSX',
-        href: 'https://dev.to/srnv/deno-ogone-s-jsx-output-1k8l',
-      },
-    ];
-  case 'event:animationend:fade-out-bottom':
-    Refs.marquee.classList.add('fade-out');
-  break;
-  case 'event:animationend:fade-out':
-    this.display = false;
-    Ogone.router.go('/ogone');
-  break;
-  case 'click:fade-out:exit':
-    this.visible = false;
-  break;
-  default:
-    this.display = true;
-    Async.resolve();
-</proto>
-
 <template>
   <div
     ref="container"
@@ -86,6 +44,48 @@ use ../atoms/button.o3 as 'o-btn';
     Ogone - Web Components Compiler for Deno
   </marquee>
 </template>
+<proto type="async">
+  declare:
+    public visible: boolean = true;
+    public display: boolean = true;
+    public message: string = 'Welcome to your first Ogone application.';
+    public links: { label: string; href: string }[] = [
+      {
+        label: 'Repository',
+        href: 'https://github.com/SRNV/Ogone',
+      },
+      {
+        label: 'Introduction',
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md',
+      },
+      {
+        label: 'Examples',
+        href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md',
+      },
+      {
+        label: 'Learn How to use Ogone',
+        href: 'https://dev.to/srnv/deno-learn-how-to-use-ogone-486c',
+      },
+      {
+        label: 'Ogone\'s JSX',
+        href: 'https://dev.to/srnv/deno-ogone-s-jsx-output-1k8l',
+      },
+    ];
+  case 'event:animationend:fade-out-bottom':
+    Refs.marquee.classList.add('fade-out');
+  break;
+  case 'event:animationend:fade-out':
+    this.display = false;
+    Ogone.router.go('/ogone');
+  break;
+  case 'click:fade-out:exit':
+    this.visible = false;
+  break;
+  default:
+    this.display = true;
+    Async.resolve();
+</proto>
+
 
 <!-- style is by default scoped, use the attribute global if you want to make the style general -->
 <style --keyframes="[

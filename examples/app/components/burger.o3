@@ -1,5 +1,14 @@
 use @/examples/app/stores/menu.store.o3 as 'store-menu'
 
+<template>
+  <store-menu namespace="menu" />
+  <div class="container" --click:openMenu>
+    <div class="line"></div>
+    <div class="line"></div>
+    <div class="line"></div>
+  </div>
+</template>
+
 <proto>
   declare:
     public isOpen: boolean = false;
@@ -11,14 +20,7 @@ use @/examples/app/stores/menu.store.o3 as 'store-menu'
       });
   break;
 </proto>
-<template>
-  <store-menu namespace="menu" />
-  <div class="container" --click:openMenu>
-    <div class="line"></div>
-    <div class="line"></div>
-    <div class="line"></div>
-  </div>
-</template>
+
 <style>
   @const shadowColor = #00000045;
   @const lineBackground = #848181;

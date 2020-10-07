@@ -1,16 +1,5 @@
 use ../atoms/li-menu.o3 as 'async-li-menu';
 
-<proto type="async">
-  declare:
-    public readonly links: ({label: string; route: string; children: any[] })[] = [
-      { label: 'Ogone', route: '/ogone', children: [
-        { label: 'Examples', route: '/ogone/examples'},
-      ]},
-    ];
-  default:
-    Async.resolve();
-</proto>
-
 <template>
   <div class="container fade-in-slide-in-left">
     <div
@@ -28,6 +17,17 @@ use ../atoms/li-menu.o3 as 'async-li-menu';
     </ul>
   </div>
 </template>
+<proto type="async">
+  declare:
+    public readonly links: ({label: string; route: string; children: any[] })[] = [
+      { label: 'Ogone', route: '/ogone', children: [
+        { label: 'Examples', route: '/ogone/examples'},
+      ]},
+    ];
+  default:
+    Async.resolve();
+</proto>
+
 
 <style>
   hr {

@@ -1,12 +1,12 @@
 <template>
   <div>
-  <div class="title">
+    <div class="title">
       target component
-  </div>
-  <div>
+    </div>
+    <div>
       <slot />
+    </div>
   </div>
-</div>
 </template>
 <style>
 .title {

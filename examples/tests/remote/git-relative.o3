@@ -1,10 +1,11 @@
 use ../denolus/index.o3 as 'relative-remote-comp';
 
-<proto def="./test.yml" >
-  default:
-    console.warn(this.type);
-</proto>
 <template>
   <h1>relative</h1>
   <relative-remote-comp />
 </template>
+
+<proto def="./test.yml" >
+  default:
+    console.warn(this.type);
+</proto>

@@ -1,7 +1,6 @@
 use @/examples/app/components/burger.o3 as 'burger-el';
 use @/examples/app/components/menu/menu-button.o3 as 'menu-button';
 
-<proto def="examples/app/defs/source.yml" />
 <template>
   <div id="test" class="menu">
     <div class="displayButtons">
@@ -12,6 +11,9 @@ use @/examples/app/components/menu/menu-button.o3 as 'menu-button';
     </div>
   </div>
 </template>
+
+<proto def="examples/app/defs/source.yml" />
+
 <style>
   .menu {
     flex: 8;

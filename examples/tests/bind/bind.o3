@@ -1,10 +1,10 @@
-<proto>
-  def:
-    count: 5
-  default:
-</proto>
 <template>
   <p>${count}</p>
   <input --bind="count" />
   <textarea --bind="count"></textarea>
 </template>
+
+<proto>
+  def:
+    count: 5
+</proto>

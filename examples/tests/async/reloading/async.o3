@@ -3,6 +3,12 @@ require id as number;
 // use statement tells to Ogone to use the file as store-component
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
+<template>
+  <store-component namespace="user"/>
+  <div> Welcome ${user ? user.username : ''}</div>
+  <img src="public/ogone.svg"  --await />
+</template>
+
 <proto type="async">
   def:
     user: null
@@ -23,8 +29,3 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
   default:
     getUser();
 </proto>
-<template>
-  <store-component namespace="user"/>
-  <div> Welcome ${user ? user.username : ''}</div>
-  <img src="public/ogone.svg"  --await />
-</template>

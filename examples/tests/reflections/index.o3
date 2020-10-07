@@ -1,3 +1,10 @@
+<template>
+  ${position.name} ${position.origin}
+  <p --for="position.test as (item)">
+    ${item}
+  </p>
+</template>
+
 <proto>
   declare:
     x: number =  0;
@@ -24,9 +31,3 @@
     }, 500);
     break;
 </proto>
-<template>
-  ${position.name} ${position.origin}
-  <p --for="position.test as (item)">
-    ${item}
-  </p>
-</template>
