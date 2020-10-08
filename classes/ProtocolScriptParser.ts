@@ -205,7 +205,7 @@ export default class ProtocolScriptParser extends Utils {
       "$1§§endExpression0§§$2",
     )
       .replace(/(§{2})(\})/gi, "$1§§endExpression0§§$2");
-    result.split(/(?:§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/gi)
+    result.split(/(?:(?:§{2}(?:endExpression)\d+§{2})|(?:;|\n+))/gi)
       .filter((exp) => {
         return exp.length && exp.indexOf("endLine") < 0 && (
           exp.match(/\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+)/) ||
@@ -229,8 +229,8 @@ export default class ProtocolScriptParser extends Utils {
           ? key
           : `'${expressions[key].replace(/\./, "")}'` ||
           "";
-        let invalidationExpression = `${exp.replace(/(§§endPonctuation\d+§§)$/, "")}; ____(${name}, this)`;
-        const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)\s*(\=\>)\s*(?!§§block)(.+?)(\,|\)|§§(?:endPonctuation|endLine|endEpxression)\d+§§)/gi;
+        let invalidationExpression = `${exp.replace(/;$/, "")}; ____(${name}, this)`;
+        const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)\s*(\=\>)\s*(?!§§block)(.+?)(\,|\)|§§endExpression\d+§§|;|\n+)/gi;
         const invMatch = exp.match(InlineArrowFunctionRegExp);
         if (invMatch) {
           const varName = `__a${Math.random()}`.replace(/\./i, '').slice(0, 8)
@@ -610,16 +610,16 @@ export default class ProtocolScriptParser extends Utils {
       expressions,
     });
     const declarations: string[] = result.split(
-      /((§§Declaration\d+§§)|(\b(default)\b)|(\bcase\b)|\bbefore-each\b)/g,
+      /((\bdeclare\s*:)|(\b(default)\b)|(\bcase\b)|\bbefore-each\b)/g,
     )
       .filter((d) => d)
       .filter((d, i, arr) =>
-        d && arr[i - 1] && arr[i - 1].match(/(§§Declaration\d+§§)/i)
+        d && arr[i - 1] && arr[i - 1].match(/(\bdeclare\s*:)/i)
       );
     if (!declarations.length) return value;
     const values = declarations;
     const content = declarations.filter((d) =>
-      d && !d.match(/(§§Declaration\d+§§)/i)
+      d && !d.match(/(\bdeclare\s*:)/i)
     );
     const all = getDeepTranslation(values.join(""), expressions);
     typedExpressions.protocol = `class Protocol { ${getDeepTranslation(content.join(""), expressions)

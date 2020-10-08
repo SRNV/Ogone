@@ -103,7 +103,6 @@ export default class ScriptBuilder extends Utils {
         });
         const linePosition = lines.indexOf(sourceLine || "");
         const columnPosition = sourceLine?.indexOf(source.trim());
-        console.warn(d)
         this.error(
           `${component.file}:${linePosition + 1}:${columnPosition ? columnPosition + 1 : 0
           }\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
@@ -313,7 +312,6 @@ export default class ScriptBuilder extends Utils {
           (type as "component" | "async" | "store" | "router" | "controller");
         bundle.types[component.type] = true;
         if (type === "controller") {
-          console.warn(component.scripts.runtime)
           const run = eval(component.scripts.runtime);
           const namespace = proto.attributes.namespace;
           if (namespace && /[^\w]/gi.test(namespace as string)) {

@@ -79,7 +79,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(this)\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(=>)(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
+      /(this)\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(=>)(.*?)(§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -93,7 +93,7 @@ const items: ProtocolScriptRegExpList = [
       );
       if (expressions) expressions[id] = value;
       if (fnbody) {
-        let translate = fnbody.replace(/(§§endPonctuation\d+§§)/gi, "");
+        let translate = fnbody.replace(/;/gi, "");
         let translateIdentifier = identifier;
         function template() {
           translate = getDeepTranslation(translate, expressions as MapIndexable);
@@ -140,7 +140,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((\.)([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((\.)([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})\s*;*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -164,7 +164,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+(\@\/)((.*?)\s+as\s+)(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+(\@\/)((.*?)\s+as\s+)(§{2}string\d+§{2})\s*(;)*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -188,7 +188,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((https|http)(\:\/{2})([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((https|http)(\:\/{2})([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})\s*;*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
