@@ -112,7 +112,7 @@ export default class ObviousParser extends Utils {
       .filter(rule => !rule.match(/(;|\n+)/)
         && !endExp.test(rule) && rule.trim().length)
       .forEach((rule) => {
-        const isChild = rule.match(/(§{2}block\d+§{2})/);
+        const isChild = rule.match(/(<block\d+>)/);
         const isSpread = rule.match(/(\.{3})(.*)/);
         if (isChild) {
           const [block] = isChild;
@@ -195,7 +195,7 @@ export default class ObviousParser extends Utils {
       return;
     }
     const rules: any[] = [];
-    const regExp = /(§{2}block\d+§{2})/gi;
+    const regExp = /(<block\d+>)/gi;
     const matches = result.match(regExp);
     if (matches) {
       matches.forEach((block, i, arr) => {

@@ -66,7 +66,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(\bfunction\b)(\s)*([^§\s])+(\s)*(§{2})(parenthese\d+)(§{2})([\s\n])*(§{2})(block\d+)(§{2})/,
+      /(\bfunction\b)(\s)*([^§\s])+(\s)*(§{2})(parenthese\d+)(§{2})([\s\n])*(<block\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§functionDeclaration${gen.next().value}§§`;
       if (expressions) expressions[id] = value;

@@ -34,7 +34,7 @@ export default class ObviousMemory extends ObviousOutput {
             if (styleBundle.mapVars.get(name)) {
               this.error(`${name} already defined.`);
             }
-            const isSelector = !evaluated && !!value.match(/(§§block\d+§§)$/);
+            const isSelector = !evaluated && !!value.match(/(<block\d+>)$/);
             styleBundle.mapVars.set(name, {
               value: isSelector ? this.getRules(value, styleBundle, bundle, component, {
                 omitOutputSelector: true,
@@ -49,7 +49,7 @@ export default class ObviousMemory extends ObviousOutput {
             if (styleBundle.mapVars.get(name)) {
               this.error(`${name} already defined.`);
             }
-            const isSelector = !evaluated && !!value.match(/(§§block\d+§§)$/);
+            const isSelector = !evaluated && !!value.match(/(<block\d+>)$/);
             styleBundle.mapVars.set(name, {
               value: isSelector ? this.getRules(value, styleBundle, bundle, component, {
                 omitOutputSelector: true,
@@ -122,7 +122,7 @@ export default class ObviousMemory extends ObviousOutput {
   }
   protected setUse(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
     let result = styleBundle.value;
-    const regexp = /(\@use)\s+(§{2}string\d+§{2})\s+(as)\s+(\w*)+\s*(;|\n+)/;
+    const regexp = /(\@use)\s+(\<string\d+\>)\s+(as)\s+(\w*)+\s*(;|\n+)/;
     while (result.match(regexp)) {
       const m = result.match(regexp);
       if (m) {

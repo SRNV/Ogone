@@ -42,7 +42,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(this)\s*((§{2}(identifier|array)\d+§{2})+)\s*(=>)\s*(§{2}block\d+§{2})/,
+      /(this)\s*((§{2}(identifier|array)\d+§{2})+)\s*(=>)\s*(<block\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -140,7 +140,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((\.)([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})\s*;*/,
+      /(use)\s+((\.)([^\s]*)+)\s+(as)\s*(\<string\d+\>)\s*;*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -164,7 +164,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+(\@\/)((.*?)\s+as\s+)(§{2}string\d+§{2})\s*(;)*/,
+      /(use)\s+(\@\/)((.*?)\s+as\s+)(\<string\d+\>)\s*(;)*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -188,7 +188,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+((https|http)(\:\/{2})([^\s]*)+)\s+(as)\s*(§{2}string\d+§{2})\s*;*/,
+      /(use)\s+((https|http)(\:\/{2})([^\s]*)+)\s+(as)\s*(\<string\d+\>)\s*;*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");

@@ -133,7 +133,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export * from",
     open: false,
     reg:
-      /\s*(\bexport\b)(.*?)(\bfrom\b)\s*(§{2}string\d+§{2})\s*(?:§{2}endExpression\d+§{2}|;|\n+)/i,
+      /\s*(\bexport\b)(.*?)(\bfrom\b)\s*(\<string\d+\>)\s*(?:§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
