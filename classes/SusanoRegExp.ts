@@ -10,9 +10,9 @@ export default class SusanoRegularExpressions {
       /(\bimport\b)(.*?)(?:(§{2}endExpression\d+§{2}|(;|\n+)))/i;
 
     protected readonly blockFunctionRegExp =
-      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:\:)(.*?)){0,1}(.*?)(§{2}endExpression\d+§{2}|(;|\n+))/i;
+      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(<parenthese\d+>)((?:\:)(.*?)){0,1}(.*?)(§{2}endExpression\d+§{2}|(;|\n+))/i;
     protected readonly blockFunctionRegExpGI =
-      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:\:)(.*?)){0,1}(.*?)(§{2}endExpression\d+§{2}|(;|\n+))/gi;
+      /(\bfunction\b)(.*?)(\<(.*?)\>){0,1}(<parenthese\d+>)((?:\:)(.*?)){0,1}(.*?)(§{2}endExpression\d+§{2}|(;|\n+))/gi;
 
     protected readonly classRegExp =
       /(\bclass)(.*?)\s*(?:extends\b(.*?)){0,1}(<block\w*\d+>)\s*(§{2}endExpression\d+§{2}|(;|\n+))/i;
@@ -25,14 +25,14 @@ export default class SusanoRegularExpressions {
       /(const|let|var)(.*?)((?:\:)(.*?)){0,1}(?:\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+))(.*?)(§{2}endExpression\d+§{2}|(;|\n+))/gi;
 
     protected readonly ifStatementRegExp =
-      /(\bif\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\bif\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly ifStatementRegExpGI =
-      /(\bif\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\bif\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
 
     protected readonly elseifStatementRegExp =
-      /(\belse\s+if\b)(.*?)(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\belse\s+if\b)(.*?)(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly elseifStatementRegExpGI =
-      /(\belse\s+if\b)(.*?)(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\belse\s+if\b)(.*?)(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
 
     protected readonly elseStatementRegExp =
       /(\belse\b)(.*?)(<block\d+>)/i;
@@ -45,27 +45,27 @@ export default class SusanoRegularExpressions {
       /([\w\d]*)+\s+(\:)\s*(<block\d+>)/gi;
 
     protected readonly forStatementRegExp =
-      /(\bfor\b)(.*?)(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\bfor\b)(.*?)(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly forStatementRegExpGI =
-      /(\bfor\b)(.*?)(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\bfor\b)(.*?)(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
 
     protected readonly whileStatementRegExp =
-      /(\bwhile\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\bwhile\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly whileStatementRegExpGI =
-      /(\bwhile\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\bwhile\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
 
     protected readonly withStatementRegExp =
-      /(\bwith\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\bwith\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly withStatementRegExpGI =
-      /(\bwith\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\bwith\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
 
     protected readonly doWhileStatementRegExp =
-      /(\bdo\b)([\s\n\r\t]*)*(<block\d+>)([\s\n\r\t]*)*(\bwhile\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\bdo\b)([\s\n\r\t]*)*(<block\d+>)([\s\n\r\t]*)*(\bwhile\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly doWhileStatementRegExpGI =
-      /(\bdo\b)([\s\n\r\t]*)*(<block\d+>)([\s\n\r\t]*)*(\bwhile\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\bdo\b)([\s\n\r\t]*)*(<block\d+>)([\s\n\r\t]*)*(\bwhile\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
 
     protected readonly swhitchStatementRegExp =
-      /(\bswitch\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/i;
+      /(\bswitch\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/i;
     protected readonly switchStatementRegExpGI =
-      /(\bswitch\b)([\s\n\r\t]*)*(§{2}parenthese\d+§{2})([\s\n\r\t]*)*(<block\d+>)/gi;
+      /(\bswitch\b)([\s\n\r\t]*)*(<parenthese\d+>)([\s\n\r\t]*)*(<block\d+>)/gi;
   }

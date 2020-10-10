@@ -3,21 +3,11 @@ import type { ProtocolScriptRegExpList } from "../.d.ts";
 
 const tokens: ProtocolScriptRegExpList = [
   {
-    open: "?",
-    reg: /\?/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§option1§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: "?",
-  },
-  {
     name: "block",
     open: "[",
     reg: /\[([^\[\]])+\]/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§array${gen.next().value}§§`;
+      const id = `<array${gen.next().value}>`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -29,7 +19,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "(",
     reg: /\(([^\(\)])*\)/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§parenthese${gen.next().value}§§`;
+      const id = `<parenthese${gen.next().value}>`;
       if (expressions) expressions[id] = value;
       if (typedExpressions && typedExpressions.parentheses) typedExpressions.parentheses[id] = value;
       return id;

@@ -172,7 +172,6 @@ export default class ProtocolLabelGetter extends Utils {
 
 const instance = new ProtocolLabelGetter();
 instance.registerLabelProviders(`
-  mental: ii;
   before-each:
     const s = {};
   def:
@@ -196,6 +195,7 @@ instance.registerLabelProviders(`
   });
   break;
   case 'test': break;
+  case 'test2': break;
 `, [
   {
     token: 'def',

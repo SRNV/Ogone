@@ -214,7 +214,7 @@ export default class ProtocolScriptParser extends Utils {
             /(this)\s*(§{2}identifier\d*§{2})\s*(§{2}chainedLine\d*§{2})+/,
           ) ||
           exp.match(
-            /(this)\s*(§{2}identifier\d*§{2})\s*(§{2}arrayModifier\d*§{2})+/,
+            /(this)\s*(§{2}identifier\d*§{2})\s*(<arrayModifier\d*>)+/,
           ) ||
           (exp.indexOf("arrayModifier") > -1 && exp.indexOf("this") > -1)
         );
@@ -225,12 +225,12 @@ export default class ProtocolScriptParser extends Utils {
           exp.indexOf(key) > -1
         );
         if (!key) return;
-        const name = key && key.startsWith("§§array")
+        const name = key && key.startsWith("<array")
           ? key
           : `'${expressions[key].replace(/\./, "")}'` ||
           "";
         let invalidationExpression = `${exp.replace(/;$/, "")}; ____(${name}, this)`;
-        const InlineArrowFunctionRegExp = /(§§parenthese\d+§§)\s*(\=\>)\s*(?!<block)(.+?)(\,|\)|§§endExpression\d+§§|;|\n+)/gi;
+        const InlineArrowFunctionRegExp = /(<parenthese\d+>)\s*(\=\>)\s*(?!<block)(.+?)(\,|\)|§§endExpression\d+§§|;|\n+)/gi;
         const invMatch = exp.match(InlineArrowFunctionRegExp);
         if (invMatch) {
           const varName = `__a${Math.random()}`.replace(/\./i, '').slice(0, 8)

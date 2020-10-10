@@ -15,9 +15,9 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(\.)(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(§{2})(parenthese\d+)(§{2})/,
+      /(\.)(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§arrayModifier${gen.next().value}§§`;
+      const id = `<arrayModifier${gen.next().value}>`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -35,7 +35,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2})(identifier\d+)(§{2})\s*(§{2})(parenthese\d+)(§{2})/,
+    reg: /(§{2})(identifier\d+)(§{2})\s*(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§method${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -55,7 +55,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2})(identifier\d+)(§{2})\s*(§{2})(parenthese\d+)(§{2})/,
+    reg: /(§{2})(identifier\d+)(§{2})\s*(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§method${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -66,7 +66,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(\bfunction\b)(\s)*([^§\s])+(\s)*(§{2})(parenthese\d+)(§{2})([\s\n])*(<block\d+>)/,
+      /(\bfunction\b)(\s)*([^§\s])+(\s)*(<parenthese\d+>)([\s\n])*(<block\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§functionDeclaration${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -76,7 +76,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /([^§\s\(])+\s*(§{2})(parenthese\d+)(§{2})/,
+    reg: /([^§\s\(])+\s*(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§functionCall${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
