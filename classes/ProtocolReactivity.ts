@@ -5,6 +5,7 @@ import elements from "../utils/elements.ts";
 import esmElements from "../utils/esm-imports.ts";
 import notParsedElements from "../utils/not-parsed.ts";
 import computedExp from "../utils/computed.ts";
+import forceInlineElements from "../utils/forceInlineElements.ts";
 import cjsElements from "../utils/cjsElements.ts";
 import O3Elements from "../utils/o3-elements.ts";
 import getDeepTranslation from "../utils/template-recursive.ts";
@@ -72,8 +73,14 @@ export default class ProtocolReactivity extends Utils {
     return result;
   }
   private renderInvalidations(text: string): string {
-    console.warn(text);
-    return text;
+    let result = read({
+      value: text,
+      array: forceInlineElements,
+      typedExpressions: this.typedExpressions,
+      expressions: this.expressions,
+    })
+    console.warn(result);
+    return result;
   }
 }
 
@@ -94,10 +101,11 @@ instance.registerReactivityProviders(`
         .push(fgfds)
       this.l;
       this.array
-      .push(fgfds)
+      . push(fgfds)
       if () {}
       this.array
       .push(fgfds)
+      a a = 10
       const o = 10;
     });
   (() => this.scrollY++)();

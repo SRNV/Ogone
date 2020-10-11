@@ -25,7 +25,7 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     const { expressions } = tokens;
     const keys = Object.keys(expressions);
     const presentInScope = keys.filter((key) =>
-      parentScope.value.indexOf(key) > -1 && key.match(/^(§{2}(block)\d+§{2})/)
+      parentScope.value.indexOf(key) > -1 && key.match(/^(<block\d+>)/)
     );
     presentInScope.forEach((key) => {
       const value = expressions[key];
