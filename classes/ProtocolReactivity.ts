@@ -18,19 +18,6 @@ import type {
   ProtocolScriptParserReturnType,
 } from "../.d.ts";
 
-export interface ProtocolReactivityContext {
-  /** the line that should trigger a reaction */
-  setter: string;
-  /** the property that changed */
-  property: string;
-  /** the new value */
-  value: string;
-  /** start index of the reaction  */
-  startIndex: number;
-  /** the index of the end of the reaction  */
-  endIndex: number;
-};
-export type ProtocolReactivityCallback = (ctx: ProtocolReactivityContext) => string;
 /**
  * @name ProtocolReactivity
  * @code OPR
@@ -43,10 +30,8 @@ export type ProtocolReactivityCallback = (ctx: ProtocolReactivityContext) => str
 export default class ProtocolReactivity extends Utils {
   private expressions: {[k: string]: string} = {};
   private typedExpressions?: TypedExpressions;
-  private callback?: ProtocolReactivityCallback;
-  registerReactivityProviders(text: string, callback: ProtocolReactivityCallback): string {
+  registerReactivityProviders(text: string): string {
     let result = '';
-    this.callback = callback;
     this.typedExpressions = getTypedExpression();
     this.expressions = {};
     result = read({
@@ -73,7 +58,7 @@ export default class ProtocolReactivity extends Utils {
       }
     });
     console.warn('result', getDeepTranslation(result, this.expressions))
-    return result;
+    return getDeepTranslation(result, this.expressions);
   }
   private renderInvalidations(text: string): string {
     let result = read({
@@ -82,11 +67,12 @@ export default class ProtocolReactivity extends Utils {
       typedExpressions: this.typedExpressions,
       expressions: this.expressions,
     })
-    const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(.+?)(?:\n|;|\)$|$)/gi;
+    const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(.+?)(\n|;|\)$|$)/gi;
     const invalidatationShortOperationRegExp = /(this\.)(.+?\b)(.*?)([\+\-\*]+)(\n|;|\)$|$)/gi;
-    result = result.replace(invalidatationRegExp, '$1$2$3$4$5; ___("$2", this);');
-    result = result.replace(invalidatationShortOperationRegExp, '___2("$2", $1$2$3$4)$5');
-    console.warn(result);
+    const arrayModifier = /(this\.)(.+?\b)(.*?)(\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:<parenthese\d+>))+(.*?)(\n|;|\)$|$)/gi;
+    result = result.replace(invalidatationRegExp, '___("$2", this, $1$2$3$4$5)$6');
+    result = result.replace(invalidatationShortOperationRegExp, '___("$2", this, $1$2$3$4)$5');
+    result = result.replace(arrayModifier, '$&;___("$2", this)');
     return result;
   }
 }
@@ -109,6 +95,7 @@ instance.registerReactivityProviders(`
       this.l;
       this.array
       . push(fgfds)
+      .pop().pam()
       if () {}
       this.array
       .push(fgfds)
@@ -122,4 +109,4 @@ instance.registerReactivityProviders(`
     return this.scrollY++;
   });
   break;
-`, (ctx) => ``);
+`);
