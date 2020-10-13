@@ -16,7 +16,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(\&|\+|\<|\>|\||\=|\?|\:|\.)+\s*\n+/,
+    reg: /(\&|\+|\<(?!\w+\d+>)|(?<!\<\w+\d+)\>|\||\=|\?|\:|\.)+\s*\n+/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `<sign${gen.next().value}>`;
       if (expressions) expressions[id] = value;

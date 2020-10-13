@@ -43,8 +43,10 @@ export type ProtocolReactivityCallback = (ctx: ProtocolReactivityContext) => str
 export default class ProtocolReactivity extends Utils {
   private expressions: {[k: string]: string} = {};
   private typedExpressions?: TypedExpressions;
+  private callback?: ProtocolReactivityCallback;
   registerReactivityProviders(text: string, callback: ProtocolReactivityCallback): string {
     let result = '';
+    this.callback = callback;
     this.typedExpressions = getTypedExpression();
     this.expressions = {};
     result = read({
@@ -70,6 +72,7 @@ export default class ProtocolReactivity extends Utils {
         this.expressions[key] = result2;
       }
     });
+    console.warn('result', getDeepTranslation(result, this.expressions))
     return result;
   }
   private renderInvalidations(text: string): string {
@@ -79,6 +82,10 @@ export default class ProtocolReactivity extends Utils {
       typedExpressions: this.typedExpressions,
       expressions: this.expressions,
     })
+    const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(.+?)(?:\n|;|\)$|$)/gi;
+    const invalidatationShortOperationRegExp = /(this\.)(.+?\b)(.*?)([\+\-\*]+)(\n|;|\)$|$)/gi;
+    result = result.replace(invalidatationRegExp, '$1$2$3$4$5; ___("$2", this);');
+    result = result.replace(invalidatationShortOperationRegExp, '___2("$2", $1$2$3$4)$5');
     console.warn(result);
     return result;
   }
