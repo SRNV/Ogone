@@ -6,10 +6,10 @@ const computed: ProtocolScriptRegExpList = [
     open: false,
     reg: /\n+\s*(\&|\+|\<|\>|\||\=|\?|\:|\.)+/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `<sign${gen.next().value}>`;
-      if (expressions) expressions[id] = value;
-      if (!matches) return id;
+      if (!matches) return '';
       const [, sign] = matches;
+      const id = `<sign${gen.next().value}> ${sign} `;
+      if (expressions) expressions[id] = value;
       return `${sign}`;
     },
     close: false,
@@ -18,11 +18,11 @@ const computed: ProtocolScriptRegExpList = [
     open: false,
     reg: /(\&|\+|\<(?!\w+\d+>)|(?<!\<\w+\d+)\>|\||\=|\?|\:|\.)+\s*\n+/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `<sign${gen.next().value}>`;
-      if (expressions) expressions[id] = value;
-      if (!matches) return id;
+      if (!matches) return '';
       const [, sign] = matches;
-      return `${sign}`;
+      const id = `<sign${gen.next().value}> ${sign} `;
+      if (expressions) expressions[id] = value;
+      return id;
     },
     close: false,
   },

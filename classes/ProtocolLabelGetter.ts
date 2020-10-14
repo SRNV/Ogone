@@ -10,6 +10,7 @@ import O3Elements from "../utils/o3-elements.ts";
 import getDeepTranslation from "../utils/template-recursive.ts";
 import read from '../utils/agnostic-transformer.ts';
 import { Utils } from "./Utils.ts";
+import ProtocolReactivity from './ProtocolReactivity.ts';
 import type {
   TypedExpressions,
   ProtocolScriptRegExpList,
@@ -33,11 +34,17 @@ export interface LabelProvider {
   /** the label should be the unique one */
   unique: boolean;
   /** set the argument's type following the label: case <string>, default <null> */
-  argumentType?: null | 'string';
+  argumentType?: null | string;
   /** when the label is parsed, first argument is the context of the label */
   onParse(ctx: LabelContext): void;
   /** whenever a label should consider its indentation */
   indentStyle?: boolean;
+  /** fs the code should get reactive */
+  isReactive?: boolean;
+}
+export interface LabelProviderOptions {
+  labels: LabelProvider[];
+  onError(error: Error): void;
 }
 /**
  * @name ProtocolLabelGetter
@@ -49,13 +56,16 @@ export interface LabelProvider {
  * a better class to only provide the content of the labels like: def, default, declare, before-each, cases etc
  */
 export default class ProtocolLabelGetter extends Utils {
+  private ProtocolReactivity: ProtocolReactivity = new ProtocolReactivity();
   private expressions: {[k: string]: string} = {};
   private typedExpressions?: TypedExpressions;
   private labels?: LabelProvider[];
-  registerLabelProviders(text: string, labels: LabelProvider[]): void {
+  private onError?: LabelProviderOptions['onError'];
+  registerLabelProviders(text: string, { labels, onError }: LabelProviderOptions): void {
     this.typedExpressions = getTypedExpression();
     this.expressions = {};
     this.labels = labels;
+    this.onError = onError;
     const allTokens = this.getUncatchableLabels();
     const globalRegExp: RegExp = new RegExp(`(${allTokens.join('|')})`, 'gi');
     const transformedText = read({
@@ -66,10 +76,11 @@ export default class ProtocolLabelGetter extends Utils {
     });
     // split labels
     // now we got all the content following the token
-    const contents = transformedText.split(globalRegExp).filter((s: string) => s.length);
+    const contents = transformedText.split(globalRegExp).filter((s: string) => s && s.length);
     const result = this.getLabelContents(contents);
+    this.hasBadArgument(result);
+    this.hasDuplicateLabelImplementation(transformedText, result);
     this.triggerParsedLabels(result, labels)
-    console.warn(globalRegExp)
   }
   triggerParsedLabels(savedLabels: { [k: string]: string[] }, labels: LabelProvider[]): void {
     labels.forEach((label) => {
@@ -77,12 +88,17 @@ export default class ProtocolLabelGetter extends Utils {
         const entries = Object.entries(savedLabels);
         entries.forEach(([key, values]) => {
           const value = values.reverse().join('');
-          const token = key.split(' ')[0].replace(/\:$/, '');
+          const token = key.trim().split(' ')[0].replace(/\:$/, '');
           if (label.token === token) {
+            const newValue =
+            label.isReactive ?
+              this.ProtocolReactivity.getReactivity({
+                text: getDeepTranslation(value, this.expressions),
+              }) : getDeepTranslation(value, this.expressions);
             label.onParse({
-              argument: getDeepTranslation(key.split(' ')[1], this.expressions).replace(/\:$/, ''),
+              argument: getDeepTranslation(key.trim().split(' ')[1], this.expressions).replace(/\:$/, ''),
               token,
-              value: getDeepTranslation(value, this.expressions),
+              value: newValue,
               endsWithBreak: !!value.trim().match(/\bbreak[\n\s]*;{0,1}$/)
             });
           }
@@ -100,12 +116,49 @@ export default class ProtocolLabelGetter extends Utils {
       }
     });
   }
+  /** should throw an error if one label's argument is not using a good type */
+  hasBadArgument(savedLabels: { [k: string]: string[] }): void {
+    if (this.labels ) {
+      this.labels.map((labelProvider) =>  {
+        if (labelProvider.argumentType && labelProvider.argumentType === 'string') {
+          const regExp = new RegExp(`(?:(?:\\s*)${labelProvider.token}\\s+(\\<string\\d+\\>)\\s*\\:)`, 'i')
+          const entries = Object.entries(savedLabels);
+          entries.forEach(([key, value]) => {
+            const match = regExp.test(key.trim());
+            if (key.startsWith(`${labelProvider.token} `) && !match && this.onError) {
+              this.onError(new Error(`label ${labelProvider.token} is only waiting for a ${labelProvider.argumentType} as argument. concatenations are not supported, please use template litteral`));
+            }
+          });
+        }
+      });
+    }
+  }
+  /** should throw an error if one label is used multiple time */
+  hasDuplicateLabelImplementation(text: string, savedLabels: { [k: string]: string[] }): void {
+    if (!this.onError) return;
+    const allTokens = this.getCatchableLabels();
+    const globalRegExp: RegExp = new RegExp(`(${allTokens.join('|')})`, 'gi');
+    const match = text.match(globalRegExp);
+    const store: string[] = [];
+    match?.forEach((m) => {
+      if (this.labels) {
+        const token = m.trim();
+        const name = token.split(/(?:\s|\:$)/)[0];
+        const labelProvider = this.labels.find((label: LabelProvider) => label.token === name && label.unique);
+        if (store.includes(m) && savedLabels[m] && this.onError && labelProvider) {
+          this.onError(new Error(`[Protocol] - Duplicate label implementation: ${labelProvider.token}`));
+        } else {
+          store.push(m);
+        }
+      }
+    });
+  }
   /** returns strings with regexp that should just be used for testing regexp of labels */
   getUncatchableLabels(): string[] {
     if (!this.labels) return [];
     return this.labels.map((labelProvider) =>  {
       // we add the space for indentations
-      if (labelProvider.argumentType && labelProvider.argumentType === 'string') return `(?:(?:\\s*)${labelProvider.token}\\s*\\<string\\d+\\>\\s*\\:)`;
+      if (labelProvider.argumentType && labelProvider.argumentType === 'string') return `(?:(?:\\s*)${labelProvider.token}\\s*(?:.+?)\\s*\\:)`;
       return `(?:\\s*)${labelProvider.token}\\s*\\:`;
     });
   }
@@ -114,7 +167,7 @@ export default class ProtocolLabelGetter extends Utils {
     if (!this.labels) return [];
     return this.labels.map((labelProvider) =>  {
       // we add the space for indentations
-      if (labelProvider.argumentType && labelProvider.argumentType === 'string') return `\\n((?:\\s*)${labelProvider.token}\\s*\\<string\\d+\\>\\s*\\:)`;
+      if (labelProvider.argumentType && labelProvider.argumentType === 'string') return `\\n((?:\\s*)${labelProvider.token}\\s*(.+?)\\s*\\:)`;
       return `\\n(\\s*)${labelProvider.token}\\s*\\:`;
     });
   }
@@ -146,7 +199,7 @@ export default class ProtocolLabelGetter extends Utils {
           }
         })
         if (parent) {
-          const name = parent.trim();
+          const name = parent;
           result[name] = result[name] || [];
           result[name].push(content);
         }
@@ -156,7 +209,7 @@ export default class ProtocolLabelGetter extends Utils {
             const [input] =  match;
             const value = content.replace(input, '');
             if (value.length) {
-              const name = input.trim()
+              const name = input;
               result[name] = result[name] || [];
               result[name].push(value);
             }
@@ -164,13 +217,63 @@ export default class ProtocolLabelGetter extends Utils {
         }
       }
     })
-    console.warn(contents);
-    console.warn(result);
     return result;
   }
 }
 
 const instance = new ProtocolLabelGetter();
+const labels = [
+  {
+    token: 'def',
+    unique: true,
+    indentStyle: true,
+    onParse: (ctx: LabelContext) => {
+      console.warn("def", ctx)
+    }
+  },
+  {
+    token: 'declare',
+    unique: true,
+    indentStyle: true,
+    isReactive: true,
+    onParse: (ctx: LabelContext) => {
+      console.warn("declare", ctx)
+      console.warn(ctx.value)
+    }
+  },
+  {
+    token: 'default',
+    unique: true,
+    isReactive: true,
+    onParse: (ctx: LabelContext) => {
+      console.warn("default", ctx)
+      console.warn(ctx.value);
+    }
+  },
+  {
+    token: 'before-each',
+    unique: true,
+    onParse: (ctx: LabelContext) => {
+      console.warn("before-each", ctx)
+    }
+  },
+  {
+    token: 'mental',
+    unique: true,
+    onParse: (ctx: LabelContext) => {
+      console.warn("mental", ctx)
+    }
+  },
+  {
+    token: 'case',
+    argumentType: 'string',
+    unique: false,
+    isReactive: true,
+    onParse: (ctx: LabelContext) => {
+      console.warn("case", ctx)
+    }
+  },
+];
 instance.registerLabelProviders(`
   before-each:
     const s = {};
@@ -181,6 +284,9 @@ instance.registerLabelProviders(`
   declare:
     public scrollY: number = 0
     case: lll = 10
+    getCase() {
+      return this.case++;
+    }
   default:
     const { header } = Refs;
   window.addEventListener('scroll', (ev) => {
@@ -192,54 +298,13 @@ instance.registerLabelProviders(`
       }
     }
     this.scrollY = window.scrollY
+    this.a.push();
   });
   break;
   case 'test': break;
   case 'test2': break;
-`, [
-  {
-    token: 'def',
-    unique: true,
-    indentStyle: true,
-    onParse: (ctx) => {
-      console.warn("def", ctx)
-    }
-  },
-  {
-    token: 'declare',
-    unique: true,
-    indentStyle: true,
-    onParse: (ctx) => {
-      console.warn("declare", ctx)
-    }
-  },
-  {
-    token: 'default',
-    unique: true,
-    onParse: (ctx) => {
-      console.warn("default", ctx)
-    }
-  },
-  {
-    token: 'before-each',
-    unique: true,
-    onParse: (ctx) => {
-      console.warn("before-each", ctx)
-    }
-  },
-  {
-    token: 'mental',
-    unique: true,
-    onParse: (ctx) => {
-      console.warn("mental", ctx)
-    }
-  },
-  {
-    token: 'case',
-    argumentType: 'string',
-    unique: false,
-    onParse: (ctx) => {
-      console.warn("case", ctx)
-    }
-  },
-]);
+  case \`\${gfdsg}\`: break;
+`, {
+  labels,
+  onError(err) { throw err; },
+});

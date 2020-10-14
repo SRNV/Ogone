@@ -18,6 +18,12 @@ import type {
   ProtocolScriptParserReturnType,
 } from "../.d.ts";
 
+export interface GetReactivityOptions {
+  /** the code to transform */
+  text: string;
+  /** the name of the function used for reactions, default is ___ (tripple underscore) */
+  reactWith?: string;
+}
 /**
  * @name ProtocolReactivity
  * @code OPR
@@ -30,8 +36,10 @@ import type {
 export default class ProtocolReactivity extends Utils {
   private expressions: {[k: string]: string} = {};
   private typedExpressions?: TypedExpressions;
-  registerReactivityProviders(text: string): string {
+  private reactWith?: string;
+  getReactivity({ text, reactWith = '___', }: GetReactivityOptions): string {
     let result = '';
+    this.reactWith = reactWith;
     this.typedExpressions = getTypedExpression();
     this.expressions = {};
     result = read({
@@ -57,10 +65,10 @@ export default class ProtocolReactivity extends Utils {
         this.expressions[key] = result2;
       }
     });
-    console.warn('result', getDeepTranslation(result, this.expressions))
     return getDeepTranslation(result, this.expressions);
   }
   private renderInvalidations(text: string): string {
+    // force inline, erase break words next to + < > - && ||
     let result = read({
       value: text,
       array: forceInlineElements,
@@ -69,44 +77,10 @@ export default class ProtocolReactivity extends Utils {
     })
     const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(.+?)(\n|;|\)$|$)/gi;
     const invalidatationShortOperationRegExp = /(this\.)(.+?\b)(.*?)([\+\-\*]+)(\n|;|\)$|$)/gi;
-    const arrayModifier = /(this\.)(.+?\b)(.*?)(\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:<parenthese\d+>))+(.*?)(\n|;|\)$|$)/gi;
-    result = result.replace(invalidatationRegExp, '___("$2", this, $1$2$3$4$5)$6');
-    result = result.replace(invalidatationShortOperationRegExp, '___("$2", this, $1$2$3$4)$5');
-    result = result.replace(arrayModifier, '$&;___("$2", this)');
+    const arrayModifier = /(this\.)(.+?\b)((.*?)\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:<parenthese\d+>))+/gi;
+    result = result.replace(invalidatationRegExp, `${this.reactWith || '___'}("$2", this, $1$2$3$4$5)$6`);
+    result = result.replace(invalidatationShortOperationRegExp, `${this.reactWith || '___'}("$2", this, $1$2$3$4)$5`);
+    result = result.replace(arrayModifier, `${this.reactWith || '___'}("$2", this, $&)`);
     return result;
   }
 }
-
-const instance = new ProtocolReactivity();
-instance.registerReactivityProviders(`
-  const { header } = Refs;
-  window
-    .addEventListener('scroll', (ev) => {
-      if (header) {
-        if (window.scrollY > this.scrollY) {
-          header.style.top = '-100px';
-        } else {
-          header.style.top = '0px';
-        }
-      }
-      this.scrollY = window.scrollY
-      this.array
-        .push(fgfds)
-      this.l;
-      this.array
-      . push(fgfds)
-      .pop().pam()
-      if () {}
-      this.array
-      .push(fgfds)
-      a a = 10
-      const o = 10;
-    });
-  (() => this.scrollY++)();
-  (() => this.scrollY = 10)();
-  (() => this.scrollY +=+ 10)();
-  (() => {
-    return this.scrollY++;
-  });
-  break;
-`);
