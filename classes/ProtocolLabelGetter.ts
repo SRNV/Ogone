@@ -2,8 +2,8 @@ import gen from "../utils/generator.ts";
 import { YAML } from "../deps.ts";
 import getTypedExpression from "../utils/typedExpressions.ts";
 import elements from "../utils/elements.ts";
-import esmElements from "../utils/esm-imports.ts";
 import notParsedElements from "../utils/not-parsed.ts";
+import esmElements from "../utils/esm-imports.ts";
 import computedExp from "../utils/computed.ts";
 import cjsElements from "../utils/cjsElements.ts";
 import O3Elements from "../utils/o3-elements.ts";
@@ -220,9 +220,9 @@ export default class ProtocolLabelGetter extends Utils {
     return result;
   }
 }
-
+/*
 const instance = new ProtocolLabelGetter();
-const labels = [
+const labels: LabelProvider[] = [
   {
     token: 'def',
     unique: true,
@@ -308,3 +308,4 @@ instance.registerLabelProviders(`
   labels,
   onError(err) { throw err; },
 });
+*/

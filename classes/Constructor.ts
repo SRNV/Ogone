@@ -8,6 +8,7 @@ import StoreArgumentReader from "./StoreArgumentReader.ts";
 import RuntimeCompiler from "./RuntimeCompiler.ts";
 import type { Bundle } from "../.d.ts";
 import { Utils } from "./Utils.ts";
+import ProtocolDataProvider from './ProtocolDataProvider.ts';
 
 /**
  * @name Constructor
@@ -30,6 +31,7 @@ export default class Constructor extends Utils {
   private StoreArgumentReader: StoreArgumentReader =
     new StoreArgumentReader();
   private RuntimeCompiler: RuntimeCompiler = new RuntimeCompiler();
+  private ProtocolDataProvider: ProtocolDataProvider = new ProtocolDataProvider();
   private ComponentTopLevelAnalyzer: ComponentTopLevelAnalyzer = new ComponentTopLevelAnalyzer();
   private StylesheetBuilder: StylesheetBuilder = new StylesheetBuilder();
   private ScriptBuilder: ScriptBuilder = new ScriptBuilder();
@@ -81,6 +83,8 @@ export default class Constructor extends Utils {
     await this.ComponentBuilder.read(bundle);
     // @code OIA3
     await this.ImportsAnalyzer.inspect(bundle);
+    // @code OPDP
+    this.ProtocolDataProvider.read(bundle);
     // @code OSB4
     if (this.ScriptBuilder) await this.ScriptBuilder.read(bundle);
     if (this.ComponentTopLevelAnalyzer) {

@@ -1,7 +1,11 @@
 import { existsSync } from "../utils/exists.ts";
 import type { Bundle } from "../.d.ts";
 import { Utils } from "./Utils.ts";
-import ProtocolScriptParser from "./ProtocolScriptParser.ts";
+import AssetsParser from "./AssetsParser.ts";
+import elements from "../utils/elements.ts";
+import notParsedElements from "../utils/not-parsed.ts";
+import getDeepTranslation from "../utils/template-recursive.ts";
+import read from '../utils/agnostic-transformer.ts';
 import {
   absolute,
   fetchRemoteRessource,
@@ -26,14 +30,11 @@ import {
  * use http:/ /ogone.dev/components/index.o3 as 'remote-component'; // remote
  * ```
  *
- * @dependency ProtocolScriptParser
- *    ```ts
- *      ProtocolScriptParser.parse(str: string, opts: ProtocolScriptParserOptions): ProtocolScriptParserReturnType
- *    ```
+ * @dependency AssetsParser
  */
 export default class ComponentsSubscriber extends Utils {
-  private ProtocolScriptParser: ProtocolScriptParser =
-    new ProtocolScriptParser();
+  private AssetsParser: AssetsParser =
+    new AssetsParser();
   async startRecursiveInspectionOfComponent(
     textFile: string,
     p: string,
@@ -45,11 +46,14 @@ export default class ComponentsSubscriber extends Utils {
       item: null,
     },
   ): Promise<void> {
-    const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
-    const tokens = this.ProtocolScriptParser.parse(
-      splitTextUseFirstPart,
-      { onlyDeclarations: true },
-    );
+    const expressions = {};
+    const splitTextUseFirstPart = read({
+      value: textFile,
+      array: [...notParsedElements, ...elements],
+      expressions,
+      typedExpressions: {},
+    }).split(/\<([a-zA-Z0-9]*)+/i)[0];
+    const tokens = this.AssetsParser.parseUseStatement(getDeepTranslation(splitTextUseFirstPart, expressions));
     if (opts && opts.remote) {
       bundle.remotes.push({
         file: textFile,
