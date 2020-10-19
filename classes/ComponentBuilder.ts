@@ -70,6 +70,12 @@ export default class ComponentBuilder {
         template: opts.rootNode.childNodes.find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template"),
         proto: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto"),
       },
+      context: {
+        data: '',
+        props: '',
+        beforeEach: '',
+        reflections: '',
+      },
     };
   }
   /**

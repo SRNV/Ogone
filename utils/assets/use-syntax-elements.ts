@@ -33,7 +33,7 @@ const items: ProtocolScriptRegExpList = [
     name: "declarations",
     open: false,
     reg:
-      /(use)\s+(\@\/)((.*?)\s+as\s+)(\<string\d+\>)\s*(;)*/,
+      /(use)\s+((\@\/)(.*?))\s+(as)\s*(\<string\d+\>)\s*(;){0,1}/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -44,7 +44,7 @@ const items: ProtocolScriptRegExpList = [
       if (typedExpressions) {
         typedExpressions.use[id] = {
           path,
-          as: expressions[matches[5]],
+          as: expressions[matches[6]],
           type: "absolute",
         };
       }

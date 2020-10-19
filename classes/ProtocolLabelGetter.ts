@@ -1,21 +1,12 @@
-import gen from "../utils/generator.ts";
-import { YAML } from "../deps.ts";
 import getTypedExpression from "../utils/typedExpressions.ts";
 import elements from "../utils/elements.ts";
 import notParsedElements from "../utils/not-parsed.ts";
-import esmElements from "../utils/esm-imports.ts";
-import computedExp from "../utils/computed.ts";
-import cjsElements from "../utils/cjsElements.ts";
-import O3Elements from "../utils/o3-elements.ts";
 import getDeepTranslation from "../utils/template-recursive.ts";
 import read from '../utils/agnostic-transformer.ts';
 import { Utils } from "./Utils.ts";
 import ProtocolReactivity from './ProtocolReactivity.ts';
 import type {
   TypedExpressions,
-  ProtocolScriptRegExpList,
-  ProtocolScriptParserOptions,
-  ProtocolScriptParserReturnType,
 } from "../.d.ts";
 
 export type LabelContext = {
@@ -220,92 +211,3 @@ export default class ProtocolLabelGetter extends Utils {
     return result;
   }
 }
-/*
-const instance = new ProtocolLabelGetter();
-const labels: LabelProvider[] = [
-  {
-    token: 'def',
-    unique: true,
-    indentStyle: true,
-    onParse: (ctx: LabelContext) => {
-      console.warn("def", ctx)
-    }
-  },
-  {
-    token: 'declare',
-    unique: true,
-    indentStyle: true,
-    isReactive: true,
-    onParse: (ctx: LabelContext) => {
-      console.warn("declare", ctx)
-      console.warn(ctx.value)
-    }
-  },
-  {
-    token: 'default',
-    unique: true,
-    isReactive: true,
-    onParse: (ctx: LabelContext) => {
-      console.warn("default", ctx)
-      console.warn(ctx.value);
-    }
-  },
-  {
-    token: 'before-each',
-    unique: true,
-    onParse: (ctx: LabelContext) => {
-      console.warn("before-each", ctx)
-    }
-  },
-  {
-    token: 'mental',
-    unique: true,
-    onParse: (ctx: LabelContext) => {
-      console.warn("mental", ctx)
-    }
-  },
-  {
-    token: 'case',
-    argumentType: 'string',
-    unique: false,
-    isReactive: true,
-    onParse: (ctx: LabelContext) => {
-      console.warn("case", ctx)
-    }
-  },
-];
-instance.registerLabelProviders(`
-  before-each:
-    const s = {};
-  def:
-    name: World
-    declare: declare
-    case '': test
-  declare:
-    public scrollY: number = 0
-    case: lll = 10
-    getCase() {
-      return this.case++;
-    }
-  default:
-    const { header } = Refs;
-  window.addEventListener('scroll', (ev) => {
-    if (header) {
-      if (window.scrollY > this.scrollY) {
-        header.style.top = '-100px';
-      } else {
-        header.style.top = '0px';
-      }
-    }
-    this.scrollY = window.scrollY
-    this.a.push();
-  });
-  break;
-  case 'test': break;
-  case 'test2': break;
-  case \`\${gfdsg}\`: break;
-`, {
-  labels,
-  onError(err) { throw err; },
-});
-*/

@@ -25,7 +25,13 @@ arrayAliasIterator.next().value
  * this is only a build made through a string composition
  */
 export default class ForFlagBuilder extends Utils {
-  public read(
+  public startAnalyze(bundle: Bundle) {
+    const entries = bundle.components.entries();
+    for (let [path, component] of entries) {
+      this.read(bundle, path, component.rootNode);
+    }
+  }
+  private read(
     bundle: Bundle,
     keyComponent: string,
     node: XMLNodeDescription,
@@ -185,7 +191,7 @@ export default class ForFlagBuilder extends Utils {
         }
       }
     } catch (oRenderDOMException) {
-      console.error(oRenderDOMException);
+      this.error(oRenderDOMException);
     }
   }
   getForFlagDescription(

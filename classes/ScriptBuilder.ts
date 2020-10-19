@@ -13,6 +13,7 @@ import Ogone from "./Ogone.ts";
 import { Utils } from "./Utils.ts";
 import { Configuration } from "./Configuration.ts";
 import RouterAnalyzer from './RouterAnalyzer.ts';
+import { Context } from '../enums/templateContext.ts';
 /**
  * @name ScriptBuilder
  * @code OSB4
@@ -103,9 +104,10 @@ export default class ScriptBuilder extends Utils {
         });
         const linePosition = lines.indexOf(sourceLine || "");
         const columnPosition = sourceLine?.indexOf(source.trim());
+        console.table(d);
         this.error(
           `${component.file}:${linePosition + 1}:${columnPosition ? columnPosition + 1 : 0
-          }\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
+          }\n\t${d.messageText}\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
         );
       }
       Deno.exit(1);
@@ -130,57 +132,6 @@ export default class ScriptBuilder extends Utils {
       const proto = component.elements.proto[0];
       // @ts-ignore
       const moduleScript = proto?.getInnerHTML();
-      let defData: any;
-      if (proto && "def" in proto.attributes) {
-        // allowing <proto def="..."
-        // absolute <proto def="http://..."
-        // absolute <proto def="path/to/folder"
-        // relative <proto def="../"
-        // relative <proto def="./"
-        const defPath = (proto.attributes.def as string).trim();
-        const relativePath = join(component.file, defPath);
-        const remoteRelativePath = absolute(component.file, defPath);
-        const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
-          defPath.split("://")[0],
-        );
-        if (!defPath.endsWith(".yml") && !defPath.endsWith(".yaml")) {
-          this.error(
-            `definition files require YAML extensions.\ncomponent: ${component.file}\ninput: ${defPath}`,
-          );
-        }
-        if (isAbsoluteRemote) {
-          this.warn(`Def: ${defPath}`);
-          const def = await fetchRemoteRessource(defPath);
-          if (!def) {
-            this.error(
-              `definition file ${defPath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
-            );
-          } else {
-            defData = YAML.parse(def, {});
-          }
-        } else if (!!component.remote) {
-          this.warn(`Def: ${remoteRelativePath}`);
-          const def = await fetchRemoteRessource(remoteRelativePath);
-          if (!def) {
-            this.error(
-              `definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
-            );
-          } else {
-            defData = YAML.parse(def, {});
-          }
-        } else if (existsSync(defPath)) {
-          this.warn(`Def: ${defPath}`);
-          const def = Deno.readTextFileSync(defPath);
-          defData = YAML.parse(def, {});
-        } else if (!component.remote && existsSync(relativePath)) {
-          const def = Deno.readTextFileSync(relativePath);
-          defData = YAML.parse(def, {});
-        } else {
-          this.error(
-            `can't find the definition file of proto: ${defPath}`,
-          );
-        }
-      }
 
       if (moduleScript && proto) {
         const { type } = proto?.attributes;
@@ -202,28 +153,24 @@ export default class ScriptBuilder extends Utils {
         const { cases: declaredCases, default: declaredDefault } =
           cases.body.switch;
         let caseGate = declaredCases.length || declaredDefault
-          ? `
-              // @ts-ignore
-            if (typeof _state === "string" && ![${declaredCases}].includes(_state)) {
-              return;
-            }
-            `
+          ? this.template(Context.CASE_GATE, {
+              declaredCases
+            })
           : null;
         // @ts-ignore
-        const isTyped: boolean = !!ogoneScript.body.protocol &&
-          ogoneScript.body.protocol.length;
+        const isTyped: boolean = !!component.protocol &&
+          component.protocol.length;
         let protocol: string = "", prototype = {};
         // @ts-ignore
         if (isTyped) {
           const resultProto = this.getProtocol(
-            { declarations: ogoneScript.body.protocol },
+            { declarations: component.protocol as string },
           );
           prototype = (await resultProto).instance;
           protocol = (await resultProto).source;
         }
         component.data = {
-          ...ogoneScript.body.data, // #REL1
-          ...defData,
+          ...component.data,
           // allows dev to define the values
           ...prototype,
         };
@@ -233,25 +180,11 @@ export default class ScriptBuilder extends Utils {
         const declarations = isTyped ? ogoneScript.body.protocol : null;
         // get the types of the component
         const { value } = ogoneScript;
-        let sc = `
-            {{ beforeEach }}
-            {{ reflections }}
-            {{ caseGate }}
-            switch(_state) { {{ switchBody }} }`;
         // transpile ts
         // @ts-ignore
-        let script: string = this.template(
-          `({{ async }} function ({{ protocolAmbientType }} _state: _state, ctx: ctx, event: event, _once: number = 0) {
-                try {
-                  {{ body }}
-                } catch(err) {
-                  // @ts-ignore
-                  Ogone.error('Error in the component: \\n\\t {{ file }}' ,err.message, err);
-                  throw err;
-                }
-              });`,
+        let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME,
           {
-            body: sc,
+            body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
             switchBody: value,
             file: component.file,
             protocolAmbientType: isTyped ? "this: Protocol," : "",
@@ -277,8 +210,6 @@ export default class ScriptBuilder extends Utils {
         }, {
           sourceMap: false,
         }))["proto.ts"].source;
-      } else if (defData) {
-        component.data = defData;
       }
 
       if (proto) {
@@ -460,12 +391,7 @@ export default class ScriptBuilder extends Utils {
             classProps: `class Props {
               {{ props }}
             }`,
-            props: component.requirements
-              ? component.requirements.map(
-                ([name, constructors]) =>
-                  `\ndeclare public ${name}: ${constructors.join(" | ")};`,
-              )
-              : "",
+            props: component.context.props,
           },
         );
         await this.renderTS(bundle, component, compiledAnalyzer, {

@@ -46,14 +46,8 @@ export default class ComponentsSubscriber extends Utils {
       item: null,
     },
   ): Promise<void> {
-    const expressions = {};
-    const splitTextUseFirstPart = read({
-      value: textFile,
-      array: [...notParsedElements, ...elements],
-      expressions,
-      typedExpressions: {},
-    }).split(/\<([a-zA-Z0-9]*)+/i)[0];
-    const tokens = this.AssetsParser.parseUseStatement(getDeepTranslation(splitTextUseFirstPart, expressions));
+    const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
+    const tokens = this.AssetsParser.parseUseStatement(splitTextUseFirstPart);
     if (opts && opts.remote) {
       bundle.remotes.push({
         file: textFile,

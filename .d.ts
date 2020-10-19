@@ -131,6 +131,12 @@ export interface Component {
     proto: XMLNodeDescription[];
     template?: XMLNodeDescription;
   };
+  context: {
+    data: string;
+    props: string;
+    beforeEach: string;
+    reflections: string;
+  };
 }
 
 interface ComponentScript {

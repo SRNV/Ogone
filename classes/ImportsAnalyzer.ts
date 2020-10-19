@@ -38,7 +38,6 @@ export default class ImportsAnalyzer extends Utils {
             component.esmExpressions = Object.entries(imports).map(
               ([key, imp]: [string, any]) => {
                 // TODO fix examples/tests/modules/index.ts
-                console.warn(imp)
                 const hmrModule = {
                   registry: 'Ogone.mod',
                   variable: '',

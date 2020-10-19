@@ -133,11 +133,7 @@ export default class SwitchContextBuilder extends Utils {
             : `Ogone.contexts['{{ context.id }}'] = Ogone.contexts['{{ context.parentId }}'];`;
         const result = this.template(contextScript, {
           component,
-          data: component.data instanceof Object
-            ? Object.keys(component.data).map((prop) =>
-              `const ${prop} = this.${prop};`
-            ).join("\n")
-            : "",
+          data: component.context.data,
           value: script.value || "",
           context: {
             id: `${component.uuid}-${nId}`,

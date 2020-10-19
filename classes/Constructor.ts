@@ -9,6 +9,8 @@ import RuntimeCompiler from "./RuntimeCompiler.ts";
 import type { Bundle } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import ProtocolDataProvider from './ProtocolDataProvider.ts';
+import ComponentTypeGetter from './ComponentTypeGetter.ts';
+import ForFlagBuilder from './ForFlagBuilder.ts';
 
 /**
  * @name Constructor
@@ -31,10 +33,12 @@ export default class Constructor extends Utils {
   private StoreArgumentReader: StoreArgumentReader =
     new StoreArgumentReader();
   private RuntimeCompiler: RuntimeCompiler = new RuntimeCompiler();
+  private ComponentTypeGetter: ComponentTypeGetter = new ComponentTypeGetter();
   private ProtocolDataProvider: ProtocolDataProvider = new ProtocolDataProvider();
   private ComponentTopLevelAnalyzer: ComponentTopLevelAnalyzer = new ComponentTopLevelAnalyzer();
   private StylesheetBuilder: StylesheetBuilder = new StylesheetBuilder();
   private ScriptBuilder: ScriptBuilder = new ScriptBuilder();
+  private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   /**
    * saves modules and imported components inside component.imports[index]: string;
    */
@@ -81,27 +85,24 @@ export default class Constructor extends Utils {
     await this.ComponentsSubscriber.inspect(entrypoint, bundle);
     // @code OCB2
     await this.ComponentBuilder.read(bundle);
+    // get the type for all the components
+    this.ComponentTypeGetter.setTypeOfComponents(bundle);
     // @code OIA3
     await this.ImportsAnalyzer.inspect(bundle);
+    // @code OCTLA5
+    await this.ComponentTopLevelAnalyzer.switchRootNodeToTemplateNode(bundle);
+    // --for creates sub context
+    this.ForFlagBuilder.startAnalyze(bundle);
     // @code OPDP
     this.ProtocolDataProvider.read(bundle);
     // @code OSB4
-    if (this.ScriptBuilder) await this.ScriptBuilder.read(bundle);
-    if (this.ComponentTopLevelAnalyzer) {
-      // @code OCTLA5
-      await this.ComponentTopLevelAnalyzer.switchRootNodeToTemplateNode(bundle);
-    }
-    if (this.StoreArgumentReader) {
-      // @code OSAR6
-      this.StoreArgumentReader.read(bundle);
-    }
+    await this.ScriptBuilder.read(bundle);
+    // @code OSAR6
+    this.StoreArgumentReader.read(bundle);
     // @code OSB7
-    if (this.StylesheetBuilder) await this.StylesheetBuilder.read(bundle);
-
-    if (this.ComponentTopLevelAnalyzer) {
-      // @code OCTLA5
-      await this.ComponentTopLevelAnalyzer.cleanRoot(bundle);
-    }
+    await this.StylesheetBuilder.read(bundle);
+    // @code OCTLA5
+    await this.ComponentTopLevelAnalyzer.cleanRoot(bundle);
     // @code ORC8
     await this.RuntimeCompiler.read(bundle);
     // @code OSB4

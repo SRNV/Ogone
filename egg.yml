@@ -7,6 +7,7 @@ stable: true
 files:
   - ./docs/**/*
   - ./classes/**/*
+  - ./enums/**/*
   - ./examples/**/*
   - ./lib/**/*
   - ./public/**/*
