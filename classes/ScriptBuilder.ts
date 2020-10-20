@@ -8,7 +8,7 @@ import {
   fetchRemoteRessource,
 } from "../deps.ts";
 import { existsSync } from "../utils/exists.ts";
-import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
+import type { Bundle, XMLNodeDescription, Component, ModifierContext } from "../.d.ts";
 import Ogone from "./Ogone.ts";
 import { Utils } from "./Utils.ts";
 import { Configuration } from "./Configuration.ts";
@@ -128,33 +128,16 @@ export default class ScriptBuilder extends Utils {
         );
       }
     }
-    for await (let [, component] of entries) {
+    for await (let [, component] of entries as [string, Component][]) {
       const proto = component.elements.proto[0];
       // @ts-ignore
       const moduleScript = proto?.getInnerHTML();
 
       if (moduleScript && proto) {
-        const { type } = proto?.attributes;
-        const ogoneScript = this.ProtocolScriptParser.parse(
-          moduleScript as string,
-          {
-            data: true,
-            reactivity: !["controller"].includes(type as string),
-            casesAreLinkables: true,
-            beforeCases: true,
-          },
-        );
-        const cases = this.ProtocolScriptParser.parse(
-          moduleScript as string,
-          { parseCases: true },
-        );
-        const { each } = ogoneScript.body.switch.before;
         // here set the cases and if the default is present in the script
-        const { cases: declaredCases, default: declaredDefault } =
-          cases.body.switch;
-        let caseGate = declaredCases.length || declaredDefault
+        let caseGate = component.modifiers.cases.length || component.modifiers.default.length
           ? this.template(Context.CASE_GATE, {
-              declaredCases
+              declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
             })
           : null;
         // @ts-ignore
@@ -179,21 +162,23 @@ export default class ScriptBuilder extends Utils {
           : null;
         const declarations = isTyped ? ogoneScript.body.protocol : null;
         // get the types of the component
-        const { value } = ogoneScript;
         // transpile ts
         // @ts-ignore
         let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME,
           {
             body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
-            switchBody: value,
+            switchBody: component.modifiers.runtime,
             file: component.file,
             protocolAmbientType: isTyped ? "this: Protocol," : "",
-            caseGate: caseGate ? caseGate : "",
-            reflections: ogoneScript.body.reflections.join("\n"),
-            beforeEach: each ? each : "",
-            async: proto && proto.attributes &&
-              ["async", "store", "controller"].includes(
-                proto.attributes.type as string,
+            caseGate: component.modifiers.cases.length || component.modifiers.default.length
+            ? this.template(Context.CASE_GATE, {
+                declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
+              })
+            : null,
+            reflections: component.modifiers.compute,
+            beforeEach: component.modifiers.beforeEach,
+            async: ["async", "store", "controller"].includes(
+                component.type as string,
               )
               ? "async"
               : "",

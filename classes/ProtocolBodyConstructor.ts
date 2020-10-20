@@ -1,6 +1,5 @@
 import { Utils } from './Utils.ts';
-import { Component } from '../.d.ts';
-import { ModifierContext } from './ProtocolModifierGetter.ts';
+import { Component, ModifierContext } from '../.d.ts';
 import read from '../utils/agnostic-transformer.ts';
 import notParsedElements from '../utils/not-parsed.ts';
 import elements from '../utils/elements.ts';
@@ -24,6 +23,11 @@ export default class ProtocolBodyConstructor extends Utils {
         expressions
       });
       component.modifiers.compute = typedExpressions.reflections.join('\n');
+    }
+  }
+  public setCaseContext(component: Component, ctx: ModifierContext) {
+    if (ctx.token === 'case') {
+      component.modifiers.cases.push(ctx);
     }
   }
 }

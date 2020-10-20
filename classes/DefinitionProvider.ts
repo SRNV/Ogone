@@ -1,6 +1,5 @@
-import type { Component } from '../.d.ts';
+import type { Component, ModifierContext } from '../.d.ts';
 import { join, absolute, existsSync, fetchRemoteRessource, YAML } from '../deps.ts';
-import { ModifierContext } from './ProtocolModifierGetter.ts';
 import { Utils } from './Utils.ts';
 
 export default class DefinitionProvider extends Utils {

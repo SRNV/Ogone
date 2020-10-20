@@ -1,6 +1,5 @@
-import type { Bundle, Component } from '../.d.ts';
+import type { Bundle, Component, ModifierContext } from '../.d.ts';
 import ProtocolModifierGetter from './ProtocolModifierGetter.ts';
-import { ModifierContext } from './ProtocolModifierGetter.ts';
 import { Utils } from './Utils.ts';
 import DefinitionProvider from './DefinitionProvider.ts';
 import ProtocolClassConstructor from './ProtocolClassConstructor.ts';
@@ -38,7 +37,7 @@ export default class ProtocolDataProvider extends Utils {
             token: 'declare',
             unique: true,
             indentStyle: true,
-            isReactive: true,
+            isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
               this.ProtocolClassConstructor.saveProtocol(component, ctx);
               this.ProtocolClassConstructor.setProps(component);
@@ -47,16 +46,15 @@ export default class ProtocolDataProvider extends Utils {
           {
             token: 'default',
             unique: true,
-            isReactive: true,
+            isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
-              console.warn("default", ctx)
-              // console.warn(ctx.value);
+              component.modifiers.default = ctx.value;
             }
           },
           {
             token: 'before-each',
             unique: true,
-            isReactive: true,
+            isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
               this.ProtocolBodyConstructor.setBeforeEachContext(component, ctx);
             }
@@ -64,7 +62,7 @@ export default class ProtocolDataProvider extends Utils {
           {
             token: 'compute',
             unique: true,
-            isReactive: true,
+            isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
               this.ProtocolBodyConstructor.setComputeContext(component, ctx);
             }
@@ -73,10 +71,9 @@ export default class ProtocolDataProvider extends Utils {
             token: 'case',
             argumentType: 'string',
             unique: false,
-            isReactive: true,
+            isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
-              console.warn("case", ctx)
-              this.ProtocolBodyConstructor.setComputeContext(component, ctx);
+              this.ProtocolBodyConstructor.setCaseContext(component, ctx);
             }
           },
         ],
@@ -87,6 +84,7 @@ export default class ProtocolDataProvider extends Utils {
     });
     for await (const [, component] of entries) {
       await this.DefinitionProvider.setDataToComponentFromFile(component);
+      console.warn(component.modifiers.cases);
     }
   }
 }

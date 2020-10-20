@@ -1,6 +1,5 @@
 import { Utils } from './Utils.ts';
-import { Component } from '../.d.ts';
-import { ModifierContext } from './ProtocolModifierGetter.ts';
+import { Component, ModifierContext } from '../.d.ts';
 
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */

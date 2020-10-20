@@ -1,5 +1,6 @@
 import type Obvious from "./classes/Obvious.ts";
 
+
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };
 export interface OgoneConfiguration {
@@ -138,11 +139,21 @@ export interface Component {
   modifiers: {
     beforeEach: string;
     compute: string;
-    cases: string[];
+    cases: ModifierContext[];
     default: string;
+    runtime?: string;
   };
 }
-
+export type ModifierContext = {
+  /** the code following the token */
+  value: string;
+  /** the current token */
+  token: string;
+  /** the argument following the token */
+  argument: null | string;
+  /** if the modifier ends with a break statement */
+  endsWithBreak: boolean;
+}
 interface ComponentScript {
   runtime: string;
 }

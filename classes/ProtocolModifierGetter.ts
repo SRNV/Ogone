@@ -7,18 +7,9 @@ import { Utils } from "./Utils.ts";
 import ProtocolReactivity from './ProtocolReactivity.ts';
 import type {
   TypedExpressions,
+  ModifierContext
 } from "../.d.ts";
 
-export type ModifierContext = {
-  /** the code following the token */
-  value: string;
-  /** the current token */
-  token: string;
-  /** the argument following the token */
-  argument: null | string;
-  /** if the modifier ends with a break statement */
-  endsWithBreak: boolean;
-}
 export interface ModifierProvider {
   /** token used to split the protocol */
   token: string;
