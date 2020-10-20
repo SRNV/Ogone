@@ -14,7 +14,10 @@
       origin: 0,
       test: [],
     };
-  before-each:
+  case 'fdsqf':
+    break;
+  case 'gfdsgdsg': break;
+  compute:
     //  this is a reflection
     this.position.origin => this.x;
     // you can reflect any property of your data

@@ -126,7 +126,7 @@ body {
     user-select: none;
     cursor: pointer;
   }
-  .devtool-label {
+  .devtool-modifier {
     position: fixed;
     z-index: 2000;
     background: #333333d6;

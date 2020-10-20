@@ -14,7 +14,7 @@ export abstract class Utils {
     const m: string = this.message(
       `${bgRed("  ERROR  ")} ${red(message)}\n${
       yellow(
-        `\n\t\tfeeling like it's an issue ?\n\t\tplease report on https://github.com/SRNV/Ogone/issues/new?assignees=&labels=&template=bug_report.md&title=`,
+        `\n\t\tfeeling like it's an issue ?\n\t\tplease report on https://github.com/SRNV/Ogone/issues/new?assignees=&modifiers=&template=bug_report.md&title=`,
       )
       }`,
       { returns: true },

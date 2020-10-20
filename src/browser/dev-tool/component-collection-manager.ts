@@ -39,21 +39,21 @@ Ogone.ComponentCollectionManager = new (class {
           href: '#component',
           position: infos.position,
           className: infos.type,
-          label: infos.name || 'Root-Component',
+          modifier: infos.name || 'Root-Component',
         });
       } else if (infos.type !== 'element') {
         node = createSVGComponent({
           href: '#component',
           position: infos.position,
           className: infos.type,
-          label: infos.name || 'Root-Component',
+          modifier: infos.name || 'Root-Component',
         });
       } else {
         node = createSVGComponent({
           href: '#element',
           position: infos.position,
           className: infos.type,
-          label: infos.name,
+          modifier: infos.name,
         });
       }
       const item = {
@@ -67,18 +67,18 @@ Ogone.ComponentCollectionManager = new (class {
       }
       this.saveReaction(item.key);
     }
-    setLabels() {
+    setModifiers() {
       this.collection.forEach((item) => {
-        this.setLabel(item.key);
+        this.setModifier(item.key);
       })
     }
-    setLabel(key) {
+    setModifier(key) {
       if (!Ogone.DevTool) return;
-      const label = Ogone.DevTool.document.createElement('div');
-      label.classList.add('devtool-label');
+      const modifier = Ogone.DevTool.document.createElement('div');
+      modifier.classList.add('devtool-modifier');
       const text = new Text(' ');
-      label.append(text);
-      Ogone.DevTool.document.body.append(label);
+      modifier.append(text);
+      Ogone.DevTool.document.body.append(modifier);
       Ogone.DevTool.updateView = Ogone.DevTool.updateView || [];
       Ogone.DevTool.updateView.push((ev) => {
         const item = this.getItem(key);
@@ -88,9 +88,9 @@ Ogone.ComponentCollectionManager = new (class {
         if (!figure.getBoundingClientRect) return;
         const { sqrt, round } = Math;
         const bcr = figure.getBoundingClientRect();
-        const lbcr = label.getBoundingClientRect();
-        label.style.left = \`$\{round(bcr.x - (lbcr.width/2) + (bcr.width / 2))}px\`;
-        label.style.top = \`$\{round(bcr.y - (bcr.height * 1.7))}px\`;
+        const lbcr = modifier.getBoundingClientRect();
+        modifier.style.left = \`$\{round(bcr.x - (lbcr.width/2) + (bcr.width / 2))}px\`;
+        modifier.style.top = \`$\{round(bcr.y - (bcr.height * 1.7))}px\`;
         const a = ev.clientX - bcr.x;
         const b = ev.clientY - bcr.y;
         const hyp = sqrt(a**2 + b**2);
@@ -99,9 +99,9 @@ Ogone.ComponentCollectionManager = new (class {
           text.data = name;
         }
         if (hyp < bcr.height * 2) {
-          label.style.display  = 'block';
+          modifier.style.display  = 'block';
         } else {
-          label.style.display = '';
+          modifier.style.display = '';
         }
         return !!figure && figure.isConnected;
       });

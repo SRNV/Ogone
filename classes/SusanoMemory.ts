@@ -7,7 +7,7 @@ import {
 declare type ScopeType =
   | "function"
   | "object"
-  | "label"
+  | "modifier"
   | "class"
   | "namespace"
   | "interface";
@@ -76,8 +76,8 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     const isIfMatch = parent.value.match(this.ifStatementRegExpGI);
     const isIf = !!isIfMatch?.find((a) => a.indexOf(key) > -1);
 
-    const isLabelMatch = parent.value.match(this.labelRegExpGI);
-    const isLabel = !!isLabelMatch?.find((a) => a.indexOf(key) > -1);
+    const isModifierMatch = parent.value.match(this.modifierRegExpGI);
+    const isModifier = !!isModifierMatch?.find((a) => a.indexOf(key) > -1);
 
     const isDoMatch = parent.value.match(this.doWhileStatementRegExp);
     const isDo = !!isDoMatch?.find((a) => a.indexOf(key) > -1);

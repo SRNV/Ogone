@@ -1,11 +1,6 @@
 import { Utils } from './Utils.ts';
 import { Component } from '../.d.ts';
-import { LabelContext } from './ProtocolLabelGetter.ts';
-import read from '../utils/agnostic-transformer.ts';
-import reflectionsElements from '../utils/assets/reflection-syntax-elements.ts';
-import getDeepTranslation from '../utils/template-recursive.ts';
-import getTypedExpressions from '../utils/typedExpressions.ts';
-
+import { ModifierContext } from './ProtocolModifierGetter.ts';
 
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
@@ -24,7 +19,7 @@ export default class ProtocolClassConstructor extends Utils {
       types: [],
     });
   }
-  public saveProtocol(component: Component, ctx: LabelContext) {
+  public saveProtocol(component: Component, ctx: ModifierContext) {
      if (ctx.token === 'declare') {
        const item = this.mapProtocols.get(component.uuid);
        if (item) {
@@ -32,7 +27,6 @@ export default class ProtocolClassConstructor extends Utils {
          class Protocol {
            ${ctx.value.trim()}
          }`.trim();
-         console.warn(item.value);
        }
      }
   }
@@ -43,22 +37,6 @@ export default class ProtocolClassConstructor extends Utils {
         ([name, constructors]) =>
           `\ndeclare public ${name}: ${constructors.join(" | ")};`,
       ).join('');
-    }
-  }
-  public setBeforeEachContext(component: Component, ctx: LabelContext) {
-    if (ctx.token === 'before-each') {
-      const item = this.mapProtocols.get(component.uuid);
-      if (item) {
-        const expressions = {};
-        const typedExpressions = getTypedExpressions();
-        const transformedValue = read({
-          array: reflectionsElements,
-          value: ctx.value,
-          typedExpressions,
-          expressions
-        });
-        component.context.beforeEach = getDeepTranslation(transformedValue, expressions)
-      }
     }
   }
 }

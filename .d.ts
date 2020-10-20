@@ -134,8 +134,12 @@ export interface Component {
   context: {
     data: string;
     props: string;
+  };
+  modifiers: {
     beforeEach: string;
-    reflections: string;
+    compute: string;
+    cases: string[];
+    default: string;
   };
 }
 

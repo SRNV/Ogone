@@ -39,9 +39,9 @@ export default class SusanoRegularExpressions {
     protected readonly elseStatementRegExpGI =
       /(\belse\b)(.*?)(<block\d+>)/gi;
 
-    protected readonly labelRegExp =
+    protected readonly modifierRegExp =
       /([\w\d]*)+\s+(\:)\s*(<block\d+>)/i;
-    protected readonly labelRegExpGI =
+    protected readonly modifierRegExpGI =
       /([\w\d]*)+\s+(\:)\s*(<block\d+>)/gi;
 
     protected readonly forStatementRegExp =

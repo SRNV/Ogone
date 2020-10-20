@@ -1,11 +1,11 @@
 import type { Component } from '../.d.ts';
 import { join, absolute, existsSync, fetchRemoteRessource, YAML } from '../deps.ts';
-import { LabelContext } from './ProtocolLabelGetter.ts';
+import { ModifierContext } from './ProtocolModifierGetter.ts';
 import { Utils } from './Utils.ts';
 
 export default class DefinitionProvider extends Utils {
   public mapData: Map<string, { [key: string]: any }> = new Map();
-  public saveDataOfComponent(component: Component, ctx: LabelContext): void {
+  public saveDataOfComponent(component: Component, ctx: ModifierContext): void {
     const { value } = ctx;
     const data = YAML.parse(value);
     this.mapData.set(component.uuid, { data });

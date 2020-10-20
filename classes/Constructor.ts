@@ -106,7 +106,7 @@ export default class Constructor extends Utils {
     // @code ORC8
     await this.RuntimeCompiler.read(bundle);
     // @code OSB4
-    await this.ScriptBuilder.inspectContexts(bundle);
+    // await this.ScriptBuilder.inspectContexts(bundle);
     return bundle;
   }
 }

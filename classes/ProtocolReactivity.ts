@@ -75,7 +75,7 @@ export default class ProtocolReactivity extends Utils {
       typedExpressions: this.typedExpressions,
       expressions: this.expressions,
     })
-    const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(.+?)(\n|;|\)$|$)/gi;
+    const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(?!\>|\<)(.+?)(\n|;|\)$|$)/gi;
     const invalidatationShortOperationRegExp = /(this\.)(.+?\b)(.*?)([\+\-\*]+)(\n|;|\)$|$)/gi;
     const arrayModifier = /(this\.)(.+?\b)((.*?)\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:<parenthese\d+>))+/gi;
     result = result.replace(invalidatationRegExp, `${this.reactWith || '___'}("$2", this, $1$2$3$4$5)$6`);

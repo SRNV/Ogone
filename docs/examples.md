@@ -9,6 +9,11 @@ require id as number;
 // use statement tells to Ogone to use the file as store-component
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
+<template>
+  <store-component namespace="user"/>
+  <div> Welcome ${user ? user.username : ''}</div>
+  <img src="public/ogone.svg"  --await />
+</template>
 <proto type="async">
   def:
     user: null
@@ -24,11 +29,6 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
   default:
     getUser().then(user => Async.resolve(user));
 </proto>
-<template>
-  <store-component namespace="user"/>
-  <div> Welcome ${user ? user.username : ''}</div>
-  <img src="public/ogone.svg"  --await />
-</template>
 
 ```
 
@@ -38,6 +38,10 @@ let's see what we can do inside the parent component
 use @/examples/tests/async/reloading/async.o3 as 'async-component';
 use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
+<template>
+  <store-component namespace="user" />
+  <async-component :id="id" --await --then:user-loaded />
+</template>
 <proto type="async">
   def:
     id: 1
@@ -48,10 +52,6 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
       });
     break;
 </proto>
-<template>
-  <store-component namespace="user" />
-  <async-component :id="id" --await --then:user-loaded />
-</template>
 ```
 
 [for more informations on async components readme](https://github.com/SRNV/Ogone/blob/master/docs/async.README.md).
@@ -65,7 +65,7 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
   def:
     name: SRNV
     fullname: ''
-  before-each:
+  compute:
     this.fullname => this.name + Math.random();
   default:
     setTimeout(() => {
@@ -79,6 +79,12 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
 more on reflected datas
 
 ```typescript
+<template>
+  ${position.name} ${position.origin}
+  <p --for="position.test as (item)">
+    ${item}
+  </p>
+</template>
 <proto>
   def:
     x: 0
@@ -87,7 +93,7 @@ more on reflected datas
       name: Test
       origin: 0
       test: []
-  before-each:
+  compute:
     //  this is a reflection
     this.position.origin => this.x;
     // you can reflect any property of your data
@@ -104,12 +110,6 @@ more on reflected datas
     }, 500);
     break;
 </proto>
-<template>
-  ${position.name} ${position.origin}
-  <p --for="position.test as (item)">
-    ${item}
-  </p>
-</template>
 
 ```
 
