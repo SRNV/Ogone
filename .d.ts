@@ -135,13 +135,17 @@ export interface Component {
   context: {
     data: string;
     props: string;
+    protocol: string;
   };
   modifiers: {
     beforeEach: string;
     compute: string;
+    /** all cases of the protocol compiled */
     cases: ModifierContext[];
+    /** initial part of the script */
     default: string;
-    runtime?: string;
+    /** all modifiers compiled */
+    build?: string;
   };
 }
 export type ModifierContext = {

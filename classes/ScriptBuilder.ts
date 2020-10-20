@@ -119,7 +119,7 @@ export default class ScriptBuilder extends Utils {
     return (Object.values(emit)[0] as string).split("// ogone-sep")[1];
   }
   async read(bundle: Bundle): Promise<void> {
-    const entries = Array.from(bundle.components.entries());
+    const entries = bundle.components.entries();
     for await (let [, component] of entries) {
       const protos = component.elements.proto;
       if (protos.length > 1) {
@@ -128,26 +128,20 @@ export default class ScriptBuilder extends Utils {
         );
       }
     }
-    for await (let [, component] of entries as [string, Component][]) {
+    for await (let [, component] of entries) {
       const proto = component.elements.proto[0];
       // @ts-ignore
       const moduleScript = proto?.getInnerHTML();
 
       if (moduleScript && proto) {
-        // here set the cases and if the default is present in the script
-        let caseGate = component.modifiers.cases.length || component.modifiers.default.length
-          ? this.template(Context.CASE_GATE, {
-              declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
-            })
-          : null;
         // @ts-ignore
-        const isTyped: boolean = !!component.protocol &&
-          component.protocol.length;
+        const isTyped: boolean = !!component.context.protocol &&
+          component.context.protocol.length;
         let protocol: string = "", prototype = {};
         // @ts-ignore
         if (isTyped) {
           const resultProto = this.getProtocol(
-            { declarations: component.protocol as string },
+            { declarations: component.context.protocol as string },
           );
           prototype = (await resultProto).instance;
           protocol = (await resultProto).source;
@@ -157,24 +151,24 @@ export default class ScriptBuilder extends Utils {
           // allows dev to define the values
           ...prototype,
         };
-        component.protocol = protocol.toString().startsWith("let ")
+        component.protocol = component.context.protocol.toString().startsWith("let ")
           ? protocol
           : null;
-        const declarations = isTyped ? ogoneScript.body.protocol : null;
+        const declarations = isTyped ? component.context.protocol : null;
         // get the types of the component
         // transpile ts
         // @ts-ignore
         let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME,
           {
             body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
-            switchBody: component.modifiers.runtime,
+            switchBody: component.modifiers.build,
             file: component.file,
             protocolAmbientType: isTyped ? "this: Protocol," : "",
             caseGate: component.modifiers.cases.length || component.modifiers.default.length
-            ? this.template(Context.CASE_GATE, {
-                declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
-              })
-            : null,
+              ? this.template(Context.CASE_GATE, {
+                  declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
+                })
+              : '',
             reflections: component.modifiers.compute,
             beforeEach: component.modifiers.beforeEach,
             async: ["async", "store", "controller"].includes(
@@ -195,11 +189,6 @@ export default class ScriptBuilder extends Utils {
         }, {
           sourceMap: false,
         }))["proto.ts"].source;
-      }
-
-      if (proto) {
-        const indexofProto = component.rootNode.childNodes.indexOf(proto);
-        delete component.rootNode.childNodes[indexofProto];
       }
       if (
         component.requirements && component.data &&

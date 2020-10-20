@@ -73,12 +73,14 @@ export default class ComponentBuilder {
       context: {
         data: '',
         props: '',
+        protocol: '',
       },
       modifiers: {
         beforeEach: '',
         compute: '',
         cases: [],
         default: '',
+        build: '',
       },
     };
   }
