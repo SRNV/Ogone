@@ -1,5 +1,6 @@
 import { Utils } from './Utils.ts';
 import { Component, ModifierContext } from '../.d.ts';
+import ProtocolEnum from '../enums/templateProtocol.ts';
 
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
@@ -22,10 +23,9 @@ export default class ProtocolClassConstructor extends Utils {
      if (ctx.token === 'declare') {
        const item = this.mapProtocols.get(component.uuid);
        if (item) {
-         item.value = `
-         class Protocol {
-           ${ctx.value.trim()}
-         }`.trim();
+         item.value = this.template(ProtocolEnum.PROTOCOL_TEMPLATE.trim(), {
+           data: ctx.value.trim(),
+         });
        }
      }
   }
@@ -36,6 +36,22 @@ export default class ProtocolClassConstructor extends Utils {
         ([name, constructors]) =>
           `\ndeclare public ${name}: ${constructors.join(" | ")};`,
       ).join('');
+    }
+  }
+  public buildProtocol(component: Component) {
+    const item = this.mapProtocols.get(component.uuid);
+    if (item) {
+      Object.defineProperty(component.context, 'protocol', {
+        get: () => {
+          return this.template(ProtocolEnum.BUILD, {
+            types: this.template(ProtocolEnum.TYPES_TEMPLATE, {
+              props: item.props,
+            }),
+            protocol: item.value,
+            allUsedComponents: '',
+          })
+        }
+      })
     }
   }
 }

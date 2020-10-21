@@ -3,9 +3,11 @@ import StylesheetBuilder from "./StylesheetBuilder.ts";
 import ComponentBuilder from "./ComponentBuilder.ts";
 import ImportsAnalyzer from "./ImportsAnalyzer.ts";
 import ScriptBuilder from "./ScriptBuilder.ts";
+import SwitchContextBuilder from "./SwitchContextBuilder.ts";
+import ComponentCompiler from "./ComponentCompiler.ts";
+import NodeAnalyzerCompiler from "./NodeAnalyzerCompiler.ts";
 import ComponentTopLevelAnalyzer from "./ComponentTopLevelAnalyzer.ts";
 import StoreArgumentReader from "./StoreArgumentReader.ts";
-import RuntimeCompiler from "./RuntimeCompiler.ts";
 import type { Bundle } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import ProtocolDataProvider from './ProtocolDataProvider.ts';
@@ -32,10 +34,12 @@ import ForFlagBuilder from './ForFlagBuilder.ts';
 export default class Constructor extends Utils {
   private StoreArgumentReader: StoreArgumentReader =
     new StoreArgumentReader();
-  private RuntimeCompiler: RuntimeCompiler = new RuntimeCompiler();
   private ComponentTypeGetter: ComponentTypeGetter = new ComponentTypeGetter();
   private ProtocolDataProvider: ProtocolDataProvider = new ProtocolDataProvider();
   private ComponentTopLevelAnalyzer: ComponentTopLevelAnalyzer = new ComponentTopLevelAnalyzer();
+  private ComponentCompiler: ComponentCompiler = new ComponentCompiler();
+  private SwitchContextBuilder: SwitchContextBuilder = new SwitchContextBuilder();
+  private NodeAnalyzerCompiler: NodeAnalyzerCompiler = new NodeAnalyzerCompiler();
   private StylesheetBuilder: StylesheetBuilder = new StylesheetBuilder();
   private ScriptBuilder: ScriptBuilder = new ScriptBuilder();
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
@@ -91,7 +95,7 @@ export default class Constructor extends Utils {
     await this.ImportsAnalyzer.inspect(bundle);
     // @code OCTLA5
     await this.ComponentTopLevelAnalyzer.switchRootNodeToTemplateNode(bundle);
-    // --for creates sub context
+    // --for flag - creates sub context
     this.ForFlagBuilder.startAnalyze(bundle);
     // @code OPDP
     this.ProtocolDataProvider.read(bundle);
@@ -103,8 +107,10 @@ export default class Constructor extends Utils {
     await this.StylesheetBuilder.read(bundle);
     // @code OCTLA5
     await this.ComponentTopLevelAnalyzer.cleanRoot(bundle);
-    // @code ORC8
-    await this.RuntimeCompiler.read(bundle);
+    // runtime
+    await this.ComponentCompiler.startAnalyze(bundle);
+    await this.SwitchContextBuilder.startAnalyze(bundle);
+    await this.NodeAnalyzerCompiler.startAnalyze(bundle);
     // @code OSB4
     // await this.ScriptBuilder.inspectContexts(bundle);
     return bundle;

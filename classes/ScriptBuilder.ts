@@ -205,7 +205,7 @@ export default class ScriptBuilder extends Utils {
       }
 
       if (proto && "type" in proto.attributes) {
-        const { type } = proto.attributes;
+        const { type } = component as Component;
         if (!Ogone.allowedTypes.includes(type as string)) {
           this.error(
             `${type} is not supported, in this version.
@@ -213,8 +213,6 @@ export default class ScriptBuilder extends Utils {
                 error in: ${component.file}`,
           );
         }
-        component.type =
-          (type as "component" | "async" | "store" | "router" | "controller");
         bundle.types[component.type] = true;
         if (type === "controller") {
           const run = eval(component.scripts.runtime);

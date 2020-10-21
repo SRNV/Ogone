@@ -29,6 +29,7 @@ export default class ProtocolDataProvider extends Utils {
             token: 'def',
             unique: true,
             indentStyle: true,
+            exclude: ['declare'],
             onParse: (ctx: ModifierContext) => {
               this.DefinitionProvider.saveDataOfComponent(component, ctx);
             }
@@ -37,6 +38,7 @@ export default class ProtocolDataProvider extends Utils {
             token: 'declare',
             unique: true,
             indentStyle: true,
+            exclude: ['def'],
             isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
               this.ProtocolClassConstructor.saveProtocol(component, ctx);
@@ -78,13 +80,14 @@ export default class ProtocolDataProvider extends Utils {
           },
         ],
         onError: (err) => {
-          this.error(err.message);
+          this.error(`Error in component: ${component.file} \n\t${err.message}`);
         }
       });
     });
     for await (const [, component] of entries) {
       await this.DefinitionProvider.setDataToComponentFromFile(component);
-      console.warn(component.modifiers.cases);
+      this.ProtocolClassConstructor.buildProtocol(component);
+      console.warn(component.context.protocol)
     }
   }
 }

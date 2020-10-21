@@ -23,6 +23,8 @@ export interface ModifierProvider {
   indentStyle?: boolean;
   /** fs the code should get reactive */
   isReactive?: boolean;
+  /** the modifier is excluding other modifier */
+  exclude?: string[];
 }
 export interface ModifierProviderOptions {
   modifiers: ModifierProvider[];
@@ -64,14 +66,30 @@ export default class ProtocolModifierGetter extends Utils {
     this.hasDuplicateModifierImplementation(transformedText, result);
     this.triggerParsedModifiers(result, modifiers)
   }
+  triggerExclusion(modifier: ModifierProvider, savedModifiers: { [k: string]: string[] }) {
+    const keys = Object.keys(savedModifiers);
+      if (modifier.exclude) {
+        modifier.exclude.forEach((token2) => {
+          const reg = new RegExp(`${token2}\b`, 'i')
+          const modifierRegExp = new RegExp(modifier.token, 'i')
+          const excludedModifier = keys.find((token3) => reg.test(token3));
+          const hasModifier = keys.find((token3) => modifierRegExp.test(token3));
+          if (excludedModifier && this.onError && hasModifier) {
+            const token3 = excludedModifier.trim().split(' ')[0].replace(/\:$/, '');
+            this.onError(new Error(`can't use ${modifier.token} and ${token3} inside the same component.`));
+          }
+        });
+      }
+  }
   triggerParsedModifiers(savedModifiers: { [k: string]: string[] }, modifiers: ModifierProvider[]): void {
     modifiers.forEach((modifier) => {
       if (modifier.onParse && typeof modifier.onParse === 'function') {
         const entries = Object.entries(savedModifiers);
         entries.reverse().forEach(([key, values]) => {
-          const value = values.reverse().join('');
           const token = key.trim().split(' ')[0].replace(/\:$/, '');
+          const value = values.reverse().join('');
           if (modifier.token === token) {
+            this.triggerExclusion(modifier, savedModifiers);
             const newValue =
             modifier.isReactive ?
               this.ProtocolReactivity.getReactivity({

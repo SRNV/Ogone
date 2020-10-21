@@ -7,6 +7,12 @@ import { Utils } from "./Utils.ts";
  * @description this class will build the context part. context part helps for loop rendering
  */
 export default class SwitchContextBuilder extends Utils {
+  public async startAnalyze(bundle: Bundle): Promise<void> {
+    const entries = Array.from(bundle.components);
+    for await (let [path] of entries) {
+      await this.read(bundle, path);
+    }
+  }
   read(bundle: Bundle, keyComponent: string) {
     const component = bundle.components.get(keyComponent);
     if (component) {
@@ -122,7 +128,7 @@ export default class SwitchContextBuilder extends Utils {
               try {
                 return eval('('+GET_TEXT+')');
               } catch(err) {
-                if (!${itemName}) { return undefined }
+                if (!{{ itemName }}) { return undefined }
                 Ogone.error('Error in component:\\n\\t {{component.file}} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }
@@ -135,6 +141,7 @@ export default class SwitchContextBuilder extends Utils {
           component,
           data: component.context.data,
           value: script.value || "",
+          itemName,
           context: {
             id: `${component.uuid}-${nId}`,
             if: contextIf ? contextIf : "",

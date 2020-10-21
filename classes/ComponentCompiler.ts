@@ -7,6 +7,12 @@ import Env from './Env.ts';
  * @description this will build Components and add access to APIs like: Async, Refs, Controllers, Store
  */
 export default class ComponentCompiler extends Utils {
+  public async startAnalyze(bundle: Bundle): Promise<void> {
+    const entries = Array.from(bundle.components);
+    for await (let [, component] of entries) {
+      await this.read(bundle, component);
+    }
+  }
   private getControllers(
     bundle: Bundle,
     component: Component,
