@@ -1,5 +1,5 @@
 import { Utils } from './Utils.ts';
-import { Component, ModifierContext } from '../.d.ts';
+import { Bundle, Component, ModifierContext, XMLNodeDescription } from '../.d.ts';
 import ProtocolEnum from '../enums/templateProtocol.ts';
 
 interface ProtocolClassConstructorItem {
@@ -9,6 +9,8 @@ interface ProtocolClassConstructorItem {
   types: string[];
   /** ambient props declarations */
   props: string;
+  /** all the imported components types */
+  importedComponentsTypes: string[];
 }
 export default class ProtocolClassConstructor extends Utils {
   private mapProtocols: Map<string, ProtocolClassConstructorItem> = new Map();
@@ -17,6 +19,7 @@ export default class ProtocolClassConstructor extends Utils {
       value: '',
       props: '',
       types: [],
+      importedComponentsTypes: [],
     });
   }
   public saveProtocol(component: Component, ctx: ModifierContext) {
@@ -30,12 +33,88 @@ export default class ProtocolClassConstructor extends Utils {
      }
   }
   public setProps(component: Component) {
-    const item = this.mapProtocols.get(component.uuid);
-    if (item && component.requirements) {
-      item.props = component.requirements.map(
+    if (component.requirements) {
+      component.context.props = component.requirements.map(
         ([name, constructors]) =>
           `\ndeclare public ${name}: ${constructors.join(" | ")};`,
       ).join('');
+    }
+  }
+  private recursiveInspectionOfNodes(bundle: Bundle, component: Component, opts: { importedComponent: Component, tagName: string, n: XMLNodeDescription }) {
+    const {
+      importedComponent,
+      tagName,
+      n,
+    } = opts;
+    console.warn(n.tagName);
+    const item = this.mapProtocols.get(component.uuid);
+    const { requirements } = importedComponent;
+    let propsTypes: string = "";
+    if (n.tagName === tagName) {
+      if (requirements && requirements.length) {
+        propsTypes = this.template(`: { {{ props }} }`, {
+          props: requirements.map(
+            ([name, constructors]) =>
+              `\n${name}: ${constructors.map(
+                (c) => `${c}`,
+              ).join(" | ")
+              };`,
+          ),
+        });
+      }
+      const ctx = bundle.mapContexts.get(`${component.uuid}-${n.id}`);
+      if (ctx) {
+        let result = this.template(
+          ProtocolEnum.USED_COMPONENT_TEMPLATE,
+          {
+            tagName,
+            interfaceConstructors: Object.entries(component.data).map((
+              [key, v],
+            ) =>
+              v !== null
+                ? v.constructor.name === "Array"
+                  ? `${key} : any[]`
+                  : `${key}: typeof ${v.constructor.name}`
+                : ``
+            ).join(";\n"),
+            tagNameFormatted: tagName.replace(/(\-)([a-z])/gi, "_$2"),
+            propsTypes,
+            position: ctx.position,
+            data: ctx.data,
+            modules: ctx.modules,
+            value: ctx.value,
+            props: Object.entries(n.attributes).filter(([key]) =>
+              key.startsWith(":")
+            ).map(([key, value]) =>
+              `\n${key.slice(1)}: ${value === '=""' ? null : value}`
+            ).join("\n,"),
+          },
+        );
+        if(item) {
+          item.importedComponentsTypes.push(result);
+        }
+      }
+    }
+    if (n.childNodes) {
+      for (let nc of n.childNodes) {
+        this.recursiveInspectionOfNodes(bundle, component, {
+          importedComponent,
+          tagName,
+          n: nc
+        });
+      }
+    }
+  };
+  getAllUsedComponents(bundle: Bundle, component: Component): void {
+    for (let [tagName, imp] of Object.entries(component.imports)) {
+      const subc = bundle.components.get(imp);
+      if (subc) {
+        this.recursiveInspectionOfNodes(bundle, component, {
+          tagName,
+          importedComponent: subc,
+          n: component.rootNode
+        });
+      }
     }
   }
   public buildProtocol(component: Component) {
@@ -45,11 +124,11 @@ export default class ProtocolClassConstructor extends Utils {
         get: () => {
           return this.template(ProtocolEnum.BUILD, {
             types: this.template(ProtocolEnum.TYPES_TEMPLATE, {
-              props: item.props,
+              props: component.context.props,
             }),
             protocol: item.value,
-            allUsedComponents: '',
-          })
+            allUsedComponents: item.importedComponentsTypes.join('\n'),
+          });
         }
       })
     }
