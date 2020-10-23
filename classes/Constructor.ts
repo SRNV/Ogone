@@ -97,6 +97,8 @@ export default class Constructor extends Utils {
     await this.ComponentTopLevelAnalyzer.switchRootNodeToTemplateNode(bundle);
     // --for flag - creates sub context
     this.ForFlagBuilder.startAnalyze(bundle);
+    // move back after second runtime
+    await this.SwitchContextBuilder.startAnalyze(bundle);
     // @code OPDP
     await this.ProtocolDataProvider.read(bundle);
     // @code OSB4
@@ -109,7 +111,6 @@ export default class Constructor extends Utils {
     await this.ComponentTopLevelAnalyzer.cleanRoot(bundle);
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
-    await this.SwitchContextBuilder.startAnalyze(bundle);
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
     // @code OSB4
     // await this.ScriptBuilder.inspectContexts(bundle);

@@ -15,9 +15,7 @@ enum Protocol {
     }
   `,
   USED_COMPONENT_TEMPLATE = `
-  /** component: {{ tagName }} */
   declare interface $_component_{{ tagNameFormatted }} {
-    /** values of {{ tagName }} */
     {{ interfaceConstructors }}
   };
   function {{ tagNameFormatted }}Component (this: $_component_{{ tagNameFormatted }} & Protocol & Props) {

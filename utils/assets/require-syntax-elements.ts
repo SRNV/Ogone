@@ -9,7 +9,7 @@ const items: ProtocolScriptRegExpList = [
     name: "declarations",
     open: false,
     reg:
-      /(require)\s+([^\§\(]*)+(as)\s+(.*?)(;|\n+)/,
+      /(require)\s+(.*?)(as)\s+(.*?)(;|\n+)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");

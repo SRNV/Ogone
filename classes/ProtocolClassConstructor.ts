@@ -35,14 +35,19 @@ export default class ProtocolClassConstructor extends Utils {
   public async renderProtocol(component: Component): Promise<any | null>{
     const item = this.mapProtocols.get(component.uuid);
     if (item && item.value.trim().length) {
-      const file = `export default ${item.value}`;
-      const tmp = Deno.makeTempFileSync({ prefix: 'protocol_temp_file' });
-      const path = `${tmp}.ts`;
+      const file = `
+      ${component.context.protocol}
+      export default Protocol;`;
+      console.warn(file);
+      const path = Deno.makeTempFileSync({ prefix: 'ogone_tmp_', suffix: '.ts' });
       Deno.writeTextFileSync(path, file);
       const promise = import(path);
       promise.then((module) => {
         Deno.removeSync(path);
         return module
+      }).catch((err) => {
+        Deno.removeSync(path);
+        this.error(err.message);
       });
       return promise;
     }

@@ -95,12 +95,3 @@ export default class AssetsParser {
     return result;
   }
 }
-const instance = new AssetsParser();
-instance.parseUseStatement(`
-use @/examples/app/pages/body.o3 as 'body-og';
-use @/examples/app/components/left-menu.o3 as 'left-menu';
-use @/examples/app/asyncs/logo.async.o3 as 'async-logo-el';
-use @/examples/app/components/menu/menu-content.o3 as 'menu-content';
-use @/examples/app/routers/.router.o3 as 'router-component';
-use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
-`);
