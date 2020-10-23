@@ -23,14 +23,30 @@ export default class ProtocolClassConstructor extends Utils {
     });
   }
   public saveProtocol(component: Component, ctx: ModifierContext) {
-     if (ctx.token === 'declare') {
-       const item = this.mapProtocols.get(component.uuid);
-       if (item) {
-         item.value = this.template(ProtocolEnum.PROTOCOL_TEMPLATE.trim(), {
-           data: ctx.value.trim(),
-         });
-       }
-     }
+    if (ctx.token === 'declare') {
+      const item = this.mapProtocols.get(component.uuid);
+      if (item) {
+        item.value = this.template(ProtocolEnum.PROTOCOL_TEMPLATE.trim(), {
+          data: ctx.value.trim(),
+        });
+      }
+    }
+  }
+  public async renderProtocol(component: Component): Promise<any | null>{
+    const item = this.mapProtocols.get(component.uuid);
+    if (item && item.value.trim().length) {
+      const file = `export default ${item.value}`;
+      const tmp = Deno.makeTempFileSync({ prefix: 'protocol_temp_file' });
+      const path = `${tmp}.ts`;
+      Deno.writeTextFileSync(path, file);
+      const promise = import(path);
+      promise.then((module) => {
+        Deno.removeSync(path);
+        return module
+      });
+      return promise;
+    }
+    return null;
   }
   public setProps(component: Component) {
     if (component.requirements) {
@@ -46,7 +62,6 @@ export default class ProtocolClassConstructor extends Utils {
       tagName,
       n,
     } = opts;
-    console.warn(n.tagName);
     const item = this.mapProtocols.get(component.uuid);
     const { requirements } = importedComponent;
     let propsTypes: string = "";
@@ -90,7 +105,7 @@ export default class ProtocolClassConstructor extends Utils {
             ).join("\n,"),
           },
         );
-        if(item) {
+        if (item) {
           item.importedComponentsTypes.push(result);
         }
       }

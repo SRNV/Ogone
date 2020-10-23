@@ -98,7 +98,7 @@ export default class Constructor extends Utils {
     // --for flag - creates sub context
     this.ForFlagBuilder.startAnalyze(bundle);
     // @code OPDP
-    this.ProtocolDataProvider.read(bundle);
+    await this.ProtocolDataProvider.read(bundle);
     // @code OSB4
     await this.ScriptBuilder.read(bundle);
     // @code OSAR6

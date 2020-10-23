@@ -148,7 +148,7 @@ export default class SwitchContextBuilder extends Utils {
             parentId: node.parentNode
               ? `${component.uuid}-${node.parentNode.id}`
               : "",
-            result: [...Object.keys(ctx), ...Object.keys(component.data)],
+            result: component.data ? [...Object.keys(ctx), ...Object.keys(component.data)] : '',
             getNodeDynamicLength: isNodeDynamic ? `
             if (GET_LENGTH) {
               return 1;

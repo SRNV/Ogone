@@ -7,18 +7,19 @@ use ../stores/doc.store.o3 as 'store-doc-component';
 </template>
 <proto type="router" namespace="global">
   def:
-    - path: /ogone
-      name: main
-      component: main-page
-      children:
-        - path: /examples
-          name: examples
-          component: main-page
+    routes:
+      - path: /ogone
+        name: main
+        component: main-page
+        children:
+          - path: /examples
+            name: examples
+            component: main-page
 
-    - path: 404
-      name: brand
-      component: brand-component
-      title: Page not found
+      - path: 404
+        name: brand
+        component: brand-component
+        title: Page not found
   case 'router:main':
     Store.dispatch('pages/getPage', {
       route: 'main',
