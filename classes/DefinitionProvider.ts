@@ -14,6 +14,9 @@ export default class DefinitionProvider extends Utils {
     let defData: any;
     const item = this.mapData.get(component.uuid);
     if (proto && "def" in proto.attributes) {
+      if (component.isTyped) {
+        this.error(`${component.file} : can't use def attribute with a component using declare modifier.`);
+      }
       // allowing <proto def="..."
       // absolute <proto def="http://..."
       // absolute <proto def="path/to/folder"

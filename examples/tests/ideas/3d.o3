@@ -11,11 +11,11 @@ use ./shader1.o3 as 'shader-component'
     <cube ref="cube" />
     <sphere />
     <prism />
-    <mesh ref="robot" --load="obj" />
+    <mesh ref="robot" --load="this.obj" />
   </scene>
 </template>
 
-<proto type="renderer">
+<proto type="gl">
   declare:
     public obj: string = "/robot.obj"
     private background: number = 0xFF3423;

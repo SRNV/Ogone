@@ -3,7 +3,7 @@
 use ./style-component.o3 as 'style-component';
 
 <template>
-  Hello, <span>${name}</span>
+  Hello, <span>${this.name}</span>
 </template>
 
 <proto>

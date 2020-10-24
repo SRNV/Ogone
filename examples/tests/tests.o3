@@ -3,8 +3,8 @@ use ../tests/testdirectives.o3 as 'test-d'
 <template>
   <test-d :text="'test'">
     <h1>Test des flags</h1>
-    <div --for="array.map((a, i) => i) as (o)">
-      ${o} t
+    <div --for="this.array.map((a, i) => i) as (o)">
+      ${this.o} t
     </div>
   </test-d>
 </template>

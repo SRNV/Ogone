@@ -106,6 +106,7 @@ export interface Bundle {
 
 export interface Component {
   remote: Remote | null;
+  isTyped: boolean;
   for: any;
   refs: {};
   flags: [];

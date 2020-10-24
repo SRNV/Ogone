@@ -1,31 +1,26 @@
 enum Protocol {
-  BUILD = `
-    {{ types }}
-    {{ protocol }}
-    {{ allUsedComponents }}
-  `,
   PROTOCOL_TEMPLATE = `
     class Protocol {
+      {{ props }}
       {{ data }}
     }
   `,
-  TYPES_TEMPLATE = `
-    class Props {
-        {{ props }}
+  BUILD = `
+    {{ protocol }}
+    class Template extends Protocol {
+      {{ allUsedComponents }}
+      {{ runtime }}
     }
   `,
   USED_COMPONENT_TEMPLATE = `
-  declare interface $_component_{{ tagNameFormatted }} {
-    {{ interfaceConstructors }}
-  };
-  function {{ tagNameFormatted }}Component (this: $_component_{{ tagNameFormatted }} & Protocol & Props) {
-    {{ position }}
-    {{ data }}
-    {{ modules }}
-    {{ value }}
-    const {{ tagNameFormatted }} {{ propsTypes }} = {
-    {{ props }}
-    };
-  }`,
+    private ['{{ tagName }}'](): {{ propsTypes.length ? propsTypes : 'Object' }} {
+      {{ position }}
+      {{ data }}
+      {{ modules }}
+      {{ value }}
+      return {
+        {{ props }}
+      };
+    }`,
 }
 export default Protocol;

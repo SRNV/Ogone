@@ -15,7 +15,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
   </div>
   <router-component name="new" />
   <menu-main />
-  <left-menu :test="scrollY"/>
+  <left-menu :test="this.scrollY"/>
 </template>
 
 <proto>

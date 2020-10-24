@@ -14,23 +14,23 @@ require item as {
 
 <template>
   <div class="container">
-    <div class="title" --click:toggle --router-go="item.route">
+    <div class="title" --click:toggle --router-go="this.item.route">
       <span>
-      ${item.name}
+      ${this.item.name}
       </span>
-      <span --class="!item.children && item.status ? `status ${item.status}` : ''">
-        ${!item.children && item.status ? item.status : ''}
+      <span --class="!this.item.children && this.item.status ? `status ${this.item.status}` : ''">
+        ${!this.item.children && this.item.status ? this.item.status : ''}
       </span>
-      <span --if="item.children && !openTree"> > </span>
-      <span --else-if="item.children && openTree"> < </span>
+      <span --if="this.item.children && !this.openTree"> > </span>
+      <span --else-if="this.item.children && this.openTree"> < </span>
     </div>
     <div
       class="child"
-      --if="item.children"
-      --class="{ 'child-open': openTree }">
+      --if="this.item.children"
+      --class="{ 'child-open': this.openTree }">
       <scroll-component>
         <tree-recursive
-          --for="item.children as (child)"
+          --for="this.item.children as (child)"
           :item="child"></tree-recursive>
       </scroll-component>
     </div>

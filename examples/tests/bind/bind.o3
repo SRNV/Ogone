@@ -1,7 +1,7 @@
 <template>
-  <p>${count}</p>
-  <input --bind="count" />
-  <textarea --bind="count"></textarea>
+  <p>${this.count}</p>
+  <input --bind="this.count" />
+  <textarea --bind="this.count"></textarea>
 </template>
 
 <proto>

@@ -29,6 +29,17 @@ export enum Context {
     {{ beforeEach }}
     {{ reflections }}
     {{ caseGate }}
-    switch(_state) { {{ switchBody }} }`
-
+    switch(_state) { {{ switchBody }} }`,
+  /**
+   * template for the runtime of the protocol
+   */
+  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL = `{{ async }} runtime (_state: string, ctx: any, event: any, _once: number = 0) {
+    try {
+      {{ body }}
+    } catch(err) {
+      // @ts-ignore
+      Ogone.error('Error in the component: \\n\\t {{ file }}' ,err.message, err);
+      throw err;
+    }
+  }`,
 }

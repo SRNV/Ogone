@@ -4,12 +4,12 @@ use ../atoms/button.o3 as 'o-btn';
 <template>
   <div
     ref="container"
-    --if="display"
+    --if="this.display"
     --event:animationend:fade-out-bottom
     --class="{
       container: true,
-      ['fade-in-bottom']: visible,
-      ['fade-out-bottom']: !visible, }">
+      ['fade-in-bottom']: this.visible,
+      ['fade-out-bottom']: !this.visible, }">
     <div class="brand">
       <img
         --for="[1,2] as (e)"
@@ -18,7 +18,7 @@ use ../atoms/button.o3 as 'o-btn';
         src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
     </div>
     <div class="brand__message fade-in-down">
-      ${message}
+      ${this.message}
     </div>
     <p align="center">
       <o-btn
@@ -28,14 +28,14 @@ use ../atoms/button.o3 as 'o-btn';
     <github-badges />
     <div class="links">
       <ul>
-        <li --for="links as (item)">
-          <a :href="item.href">${item.label}</a>
+        <li --for="this.links as (item)">
+          <a :href="this.item.href">${this.item.label}</a>
         </li>
       </ul>
     </div>
   </div>
   <marquee
-    --if="display"
+    --if="this.display"
     --event:animationend:fade-out
     ref="marquee"
     truespeed

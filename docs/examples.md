@@ -134,7 +134,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
 <template>
   <store-component namespace="menu" />
   <div class="left-menu"
-    --class="{ close: !isOpen }">
+    --class="{ close: !this.isOpen }">
     <div class="header">
       <logo-el --click:toggle-menu></logo-el>
       <div>0.1.0</div>
@@ -144,7 +144,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
       </tree-recursive>
     </div>
   </div>
-  <div --class="{ darken: isOpen }" --click:toggle-menu></div>
+  <div --class="{ darken: this.isOpen }" --click:toggle-menu></div>
 </template>
 ```
 

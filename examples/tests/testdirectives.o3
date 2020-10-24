@@ -3,6 +3,6 @@ require text as string;
     <div>
         <slot></slot>
         <slot name="test"></slot>
-        ${text}
+        ${this.text}
     </div>
 </template>

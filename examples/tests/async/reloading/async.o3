@@ -5,7 +5,7 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <template>
   <store-component namespace="user"/>
-  <div> Welcome ${user ? user.username : ''}</div>
+  <div> Welcome ${this.user ? this.user.username : ''}</div>
   <img src="public/ogone.svg"  --await />
 </template>
 

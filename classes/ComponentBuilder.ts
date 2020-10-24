@@ -42,6 +42,7 @@ export default class ComponentBuilder {
   ): Component {
     return {
       uuid: `data-${uuid.randomUUID()}`,
+      isTyped: false,
       esmExpressions: "",
       exportsExpressions: "",
       data: {},

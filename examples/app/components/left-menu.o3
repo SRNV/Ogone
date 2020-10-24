@@ -1,7 +1,7 @@
 require test as number;
 
 <template>
-  <div class="container">${test}</div>
+  <div class="container">${this.test}</div>
 </template>
 <style>
   .container {

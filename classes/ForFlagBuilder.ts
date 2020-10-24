@@ -127,7 +127,9 @@ export default class ForFlagBuilder extends Utils {
           // @ts-ignore
           legacy.item = item;
           if (contextLegacy) {
-            const declarationScript = [`const ${arrayAlias} = !!${array.split('.')[0]} && ${array} || [];`, `
+            const declarationScript = [`const ${arrayAlias} =
+              !!${array.split(/(?<!\bthis)(\.)/)[0]}
+              && ${array} || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`];
             if (contextLegacy && contextLegacy.declarationScript) {
