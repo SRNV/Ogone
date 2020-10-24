@@ -131,7 +131,7 @@ export default class ProtocolClassConstructor extends Utils {
     let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL,
       {
         body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
-        switchBody: component.modifiers.build,
+        switchBody: `${component.modifiers.cases.map((modifier: ModifierContext) => modifier.value).join('\n')}\ndefault:\n${component.modifiers.default}`,
         file: component.file,
         caseGate: component.modifiers.cases.length || component.modifiers.default.length
           ? this.template(Context.CASE_GATE, {
