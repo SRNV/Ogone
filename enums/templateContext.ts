@@ -33,7 +33,7 @@ export enum Context {
   /**
    * template for the runtime of the protocol
    */
-  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL = `{{ async }} runtime (_state: string, ctx: any, event: any, _once: number = 0) {
+  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL = `{{ async }} runtime (_state: string | number, ctx: any, event: any, _once: number = 0) {
     try {
       {{ body }}
     } catch(err) {

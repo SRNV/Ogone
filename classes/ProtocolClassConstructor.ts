@@ -121,7 +121,7 @@ export default class ProtocolClassConstructor extends Utils {
           return this.template(ProtocolEnum.BUILD, {
             protocol: item.value,
             allUsedComponents: item.importedComponentsTypes.join('\n'),
-            runtime: '',
+            runtime: this.getComponentRuntime(component),
           });
         }
       })
