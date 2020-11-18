@@ -1,8 +1,0 @@
-<template>
-  <p>Hello ${this.name}</p>
-</template>
-
-<proto>
-    def:
-        name: Rudy
-</proto>
