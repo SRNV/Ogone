@@ -22,10 +22,6 @@ const uuid: SUI = new SUI({
  * ```ts
  *   const { childNodes } = component.rootNode
  * ```
- * @dependency ProtocolScriptParser
- *    ```ts
- *      ProtocolScriptParser.parse(str: string, opts: ProtocolScriptParserOptions): ProtocolScriptParserReturnType
- *    ```
  */
 export default class ComponentBuilder {
   /**

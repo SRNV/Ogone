@@ -1,3 +1,5 @@
+// TODO use Proxies instead of reactive code
+
 import gen from "../utils/generator.ts";
 import { YAML } from "../deps.ts";
 import getTypedExpression from "../utils/typedExpressions.ts";

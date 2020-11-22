@@ -113,7 +113,7 @@ export default class Constructor extends Utils {
     await this.ComponentCompiler.startAnalyze(bundle);
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
     // @code OSB4
-    // await this.ScriptBuilder.inspectContexts(bundle);
+    // this.ScriptBuilder.inspectContexts(bundle);
     return bundle;
   }
 }

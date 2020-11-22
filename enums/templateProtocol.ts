@@ -1,3 +1,4 @@
+// TODO use TSX transformation
 enum Protocol {
   PROTOCOL_TEMPLATE = `
     class Protocol {

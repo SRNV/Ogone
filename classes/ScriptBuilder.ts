@@ -1,5 +1,4 @@
 // TODO split this file
-import ProtocolScriptParser from "./ProtocolScriptParser.ts";
 import OgoneNS from "../types/ogone/namespaces.ts";
 import {
   YAML,
@@ -27,11 +26,8 @@ import { Context } from '../enums/templateContext.ts';
  * it exposes Ogone Namespace, and let the developer use Ogone on Client side
  * this is done by using the function OgoneNS that will parse which names are used in the developer code
  *
- * @dependency ProtocolScriptParser
  */
 export default class ScriptBuilder extends Utils {
-  private ProtocolScriptParser: ProtocolScriptParser =
-    new ProtocolScriptParser();
   private RouterAnalyzer: RouterAnalyzer = new RouterAnalyzer();
   private mapScript: Map<string, { script: string; declarations: any }> =
     new Map();
