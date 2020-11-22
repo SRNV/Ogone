@@ -72,7 +72,6 @@ export default class ScriptBuilder extends Utils {
       noFallthroughCasesInSwitch: false,
       allowJs: false,
       removeComments: false,
-      resolveJsonModule: false,
       experimentalDecorators: true,
       noImplicitAny: true,
       allowUnreachableCode: false,
@@ -85,7 +84,6 @@ export default class ScriptBuilder extends Utils {
       strictFunctionTypes: true,
       types: Configuration.types || [],
     }));
-
     if (diag) {
       for (const d of diag) {
         // @ts-ignore
@@ -162,14 +160,14 @@ export default class ScriptBuilder extends Utils {
             protocolAmbientType: isTyped ? "this: Protocol," : "",
             caseGate: component.modifiers.cases.length || component.modifiers.default.length
               ? this.template(Context.CASE_GATE, {
-                  declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
-                })
+                declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
+              })
               : '',
             reflections: component.modifiers.compute,
             beforeEach: component.modifiers.beforeEach,
             async: ["async", "store", "controller"].includes(
-                component.type as string,
-              )
+              component.type as string,
+            )
               ? "async"
               : "",
           },

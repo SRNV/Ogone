@@ -8,20 +8,25 @@ enum Protocol {
   `,
   BUILD = `
     {{ protocol }}
+    declare function h(...args: unknown[]): unknown;
+    declare function hf(...args: unknown[]): unknown;
+    declare namespace h.JSX {
+      export interface IntrinsicElements {
+        {{ allUsedComponents }}
+        [k: string]: any;
+      }
+    }
     class Template extends Protocol {
-      {{ allUsedComponents }}
+      render() {
+        return ({{ tsx }});
+      }
       {{ runtime }}
     }
   `,
   USED_COMPONENT_TEMPLATE = `
-    private ['{{ tagName }}'](): {{ propsTypes.length ? propsTypes : 'Object' }} {
-      {{ position }}
-      {{ data }}
-      {{ modules }}
-      {{ value }}
-      return {
-        {{ props }}
-      };
-    }`,
+    ['{{ tagName }}']: {
+      children: any;
+      {{ propsTypes || '' }}
+    };`,
 }
 export default Protocol;

@@ -42,6 +42,38 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   ): void {
     const { nodeList } = rootnode;
     nodeList.forEach((node: XMLNodeDescription) => {
+      node.getOuterTSX = () => {
+        if (node.nodeType === 1) {
+          let result = this.template(
+            `<{{tagname}} {{attrs}}>{{outers}}</{{tagname}}>`,
+            {
+              outers: node.childNodes.map((c) => {
+                if (c.getOuterTSX) {
+                  return c.getOuterTSX();
+                } else {
+                  return "";
+                }
+              }).join(""),
+              tagname: node.tagName,
+              attrs: Object.entries(node.attributes)
+                .map(([key, value]) => {
+                  if (value === true) {
+                    return `${key} `
+                  }
+                  if (key.startsWith(`:`)) {
+                    return `${key.slice(1)}={${value}} `
+                  }
+                  if (key.startsWith(`--`)) {
+                    return `${key.slice(2)}={${value}} `
+                  }
+                  return `${key}="${value}"`;
+                }).join(' '),
+            },
+          );
+          return getDeepTranslation(result, expressions as { [k: string]: any });
+        }
+        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
+      }
       node.getOuterHTML = () => {
         if (node.nodeType === 1) {
           let result = this.template(
@@ -58,9 +90,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               attrs: node.rawAttrs,
             },
           );
-          return result;
+          return getDeepTranslation(result, expressions as { [k: string]: any });
         }
-        return node.rawText || "";
+        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
       };
       node.getInnerHTML = () => {
         if (node.nodeType === 1) {
@@ -73,9 +105,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               }
             }).join(""),
           });
-          return result;
+          return getDeepTranslation(result, expressions as { [k: string]: any });
         }
-        return node.rawText || "";
+        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
       };
     });
   }

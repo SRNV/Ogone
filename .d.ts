@@ -189,6 +189,7 @@ export interface XMLNodeDescription {
   };
   getInnerHTML?: () => string;
   getOuterHTML?: () => string;
+  getOuterTSX?: () => string;
 }
 
 /**

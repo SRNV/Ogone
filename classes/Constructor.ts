@@ -13,6 +13,7 @@ import { Utils } from "./Utils.ts";
 import ProtocolDataProvider from './ProtocolDataProvider.ts';
 import ComponentTypeGetter from './ComponentTypeGetter.ts';
 import ForFlagBuilder from './ForFlagBuilder.ts';
+import TSXContextCreator from './TSXContextCreator.ts';
 
 /**
  * @name Constructor
@@ -42,6 +43,7 @@ export default class Constructor extends Utils {
   private NodeAnalyzerCompiler: NodeAnalyzerCompiler = new NodeAnalyzerCompiler();
   private StylesheetBuilder: StylesheetBuilder = new StylesheetBuilder();
   private ScriptBuilder: ScriptBuilder = new ScriptBuilder();
+  private TSXContextCreator: TSXContextCreator = new TSXContextCreator();
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   /**
    * saves modules and imported components inside component.imports[index]: string;
@@ -102,7 +104,7 @@ export default class Constructor extends Utils {
     // @code OPDP
     await this.ProtocolDataProvider.read(bundle);
     // @code OSB4
-    await this.ScriptBuilder.read(bundle);
+    // await this.ScriptBuilder.read(bundle);
     // @code OSAR6
     this.StoreArgumentReader.read(bundle);
     // @code OSB7
@@ -114,6 +116,8 @@ export default class Constructor extends Utils {
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
     // @code OSB4
     // this.ScriptBuilder.inspectContexts(bundle);
+    // TODO create the class tsx transformer
+    await this.TSXContextCreator.read(bundle);
     return bundle;
   }
 }

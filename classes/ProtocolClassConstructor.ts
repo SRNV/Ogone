@@ -67,12 +67,13 @@ export default class ProtocolClassConstructor extends Utils {
     let propsTypes: string = "";
     if (n.tagName === tagName) {
       if (requirements && requirements.length) {
-        propsTypes = this.template(`{ {{ props }} }`, {
+        propsTypes = this.template(`{{ props }}`, {
           props: ProtocolClassConstructor.getInterfaceProps(component),
         });
       }
       const ctx = bundle.mapContexts.get(`${component.uuid}-${n.id}`);
       if (ctx) {
+        console.warn(3, propsTypes);
         let result = this.template(
           ProtocolEnum.USED_COMPONENT_TEMPLATE,
           {
@@ -116,22 +117,35 @@ export default class ProtocolClassConstructor extends Utils {
   public buildProtocol(component: Component) {
     const item = this.mapProtocols.get(component.uuid);
     if (item) {
+      console.warn(1,item.value, 2);
       Object.defineProperty(component.context, 'protocol', {
         get: () => {
           return this.template(ProtocolEnum.BUILD, {
             protocol: item.value,
             allUsedComponents: item.importedComponentsTypes.join('\n'),
             runtime: this.getComponentRuntime(component),
+            tsx: this.getComponentTSX(component),
           });
         }
       })
     }
   }
+  public getComponentTSX(component: Component): string {
+    let result = '';
+    const { template } = component.elements;
+    if (template && template.getOuterTSX) {
+      result = template.getOuterTSX();
+    }
+    return result;
+  }
   public getComponentRuntime(component: Component): string {
+    let casesValue = component.modifiers.cases
+      .map((modifier: ModifierContext) => `${modifier.token} ${modifier.argument}: ${modifier.value}`)
+      .join('\n');
     let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL,
       {
         body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
-        switchBody: `${component.modifiers.cases.map((modifier: ModifierContext) => modifier.value).join('\n')}\ndefault:\n${component.modifiers.default}`,
+        switchBody: `${casesValue}\ndefault:\n${component.modifiers.default}`,
         file: component.file,
         caseGate: component.modifiers.cases.length || component.modifiers.default.length
           ? this.template(Context.CASE_GATE, {
@@ -153,17 +167,17 @@ export default class ProtocolClassConstructor extends Utils {
     const item = this.mapProtocols.get(component.uuid);
     if (item && item.value.trim().length) {
       const file = `
+      // @ts-nocheck
       ${component.context.protocol}
       export default Protocol;`;
-      const path = `${Deno.cwd()}/${component.file}.${component.uuid}.ts`;
-      console.warn(file)
+      const path = `${Deno.cwd()}/${component.file}.${component.uuid}.tsx`;
       Deno.writeTextFileSync(path, file);
+      console.warn(file);
       const promise = import(path);
       promise.then((module) => {
         Deno.removeSync(path);
         return module
       }).catch((err) => {
-        console.warn(file);
         Deno.removeSync(path);
         this.error(`${component.file}\n${err.message.replace(path, component.file)}`);
       });
