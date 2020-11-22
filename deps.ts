@@ -1,50 +1,9 @@
-export { existsSync } from "https://deno.land/std@0.61.0/fs/exists.ts";
-export { serve } from "https://deno.land/std@0.61.0/http/server.ts";
+export * as path from "https://deno.land/std@0.75.0/path/mod.ts";
+export { v4 } from "https://deno.land/std@0.67.0/uuid/mod.ts";
+export * as fs from "https://deno.land/std@0.67.0/fs/mod.ts";
 export * as colors from "https://deno.land/std@0.61.0/fmt/colors.ts";
 export {
-  join,
-  relative,
-} from "https://deno.land/std@0.61.0/path/mod.ts";
-export { Server } from "https://deno.land/std@0.61.0/http/server.ts";
-/*
-// TODO fix HMR
-export {
-  WebSocket,
-  WebSocketServer,
-} from "https://deno.land/x/websocket@v0.0.3/mod.ts";
-*/
-export * as YAML from "https://deno.land/std@0.66.0/encoding/yaml.ts";
-export * as SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
-export {
   assertEquals,
-  assertThrows,
-  assertStringContains,
-  assertArrayContains,
-  fail,
-} from "https://deno.land/std@0.61.0/testing/asserts.ts";
-export function absolute(base: string, relative: string) {
-  const stack = base.split("/"),
-    parts = relative.split("/");
-  stack.pop();
-  for (let i = 0; i < parts.length; i++) {
-    if (parts[i] == ".") {
-      continue;
-    }
-    if (parts[i] == "..") {
-      stack.pop();
-    } else {
-      stack.push(parts[i]);
-    }
-  }
-  return stack.join("/");
-}
-export async function fetchRemoteRessource(p: string): Promise<string | null> {
-  const a = await fetch(p);
-  if (a.status < 400) {
-    const b = await a.blob();
-    const c = await b.text();
-    return c;
-  } else {
-    return null;
-  }
-}
+} from "https://deno.land/std@0.76.0/testing/asserts.ts";
+export { serve } from "https://deno.land/std@0.76.0/http/server.ts";
+export { parse, print } from "https://x.nest.land/swc@0.0.6/mod.ts";

@@ -3,3 +3,5 @@ dist/
 .github/
 null/
 .susano/
+.vscode
+tsconfig.json

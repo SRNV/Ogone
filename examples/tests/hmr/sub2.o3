@@ -1,4 +1,0 @@
-use @/examples/tests/events.o3 as 'click-c';
-<template>
-  <p>this one is nesteda</p>
-</template>

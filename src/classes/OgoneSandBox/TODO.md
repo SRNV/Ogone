@@ -1,0 +1,2 @@
+- [ ] support `--watch` argument, all the restarts should be handled by the sandbox
+- [ ] watch changes in tsx/jsx files

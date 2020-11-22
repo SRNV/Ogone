@@ -1,8 +1,0 @@
-require text as string;
-<template>
-    <div>
-        <slot></slot>
-        <slot name="test"></slot>
-        ${this.text}
-    </div>
-</template>
