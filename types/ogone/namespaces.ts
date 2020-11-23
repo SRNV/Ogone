@@ -195,9 +195,9 @@ export const members: Analysis[] = [
     value: `declare type _once = number;`,
   },
   {
-    reg: /\b____\b/,
+    reg: /\b___\b/,
     value:
-      "declare function ____(key: string, ctx: { [k: string]: any }): void;",
+      "declare function ___(key: string, ctx: { [k: string]: any }, value?: any): void;",
   },
 ];
 export default (text: string): string => {

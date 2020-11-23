@@ -89,10 +89,6 @@ export default class ProtocolDataProvider extends Utils {
       this.ProtocolClassConstructor.getAllUsedComponents(bundle, component);
       this.ProtocolClassConstructor.buildProtocol(component);
       await this.DefinitionProvider.setDataToComponentFromFile(component);
-
-      const Protocol = await this.ProtocolClassConstructor.renderProtocol(component);
-      component.data = Protocol && Protocol.default ? new Protocol.default() : component.data;
-
     }
   }
 }

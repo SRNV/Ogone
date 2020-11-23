@@ -6,6 +6,7 @@ import type {
   DOMParserExp,
   DOMParserExpressions,
 } from "../.d.ts";
+import ForFlagBuilder from "./ForFlagBuilder.ts";
 
 const openComment = "<!--";
 const closeComment = "-->";
@@ -21,6 +22,7 @@ const closeComment = "-->";
  * ```
  */
 export default class XMLParser extends XMLJSXOutputBuilder {
+  private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   private getUniquekey(id = "", iterator: DOMParserIterator): string {
     iterator.value++;
     // critical all regexp are based on this line
@@ -44,8 +46,22 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     nodeList.forEach((node: XMLNodeDescription) => {
       node.getOuterTSX = () => {
         if (node.nodeType === 1) {
+          let templateOuterTSX = `<{{tagname}} {{attrs}}>{{outers}}</{{tagname}}>`;
+          if (node.attributes['--for']) {
+            const value = node.attributes['--for'];
+            const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
+            const { array, item, index } = flagDescript;
+            templateOuterTSX = `{
+              ${array}
+            .map((
+              ${item},
+              ${index}: number
+            ) =>
+              ${templateOuterTSX}
+            )}`;
+          }
           let result = this.template(
-            `<{{tagname}} {{attrs}}>{{outers}}</{{tagname}}>`,
+            templateOuterTSX,
             {
               outers: node.childNodes.map((c) => {
                 if (c.getOuterTSX) {
@@ -57,16 +73,16 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               tagname: node.tagName,
               attrs: Object.entries(node.attributes)
                 .map(([key, value]) => {
+                  if (key.startsWith(`--`)) {
+                    return '';
+                  }
                   if (value === true) {
-                    return `${key} `
+                    return `\n${key} `
                   }
                   if (key.startsWith(`:`)) {
-                    return `${key.slice(1)}={${value}} `
+                    return `\n${key.slice(1)}={\n${value}\n} `
                   }
-                  if (key.startsWith(`--`)) {
-                    return `${key.slice(2)}={${value}} `
-                  }
-                  return `${key}="${value}"`;
+                  return `\n${key}="${value}"`;
                 }).join(' '),
             },
           );

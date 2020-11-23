@@ -1,6 +1,7 @@
 import { Context } from './../enums/templateContext.ts';
 import { Utils } from './Utils.ts';
 import { Bundle, Component, ModifierContext, XMLNodeDescription } from '../.d.ts';
+import OgoneNS from "../types/ogone/namespaces.ts";
 import ProtocolEnum from '../enums/templateProtocol.ts';
 
 interface ProtocolClassConstructorItem {
@@ -68,12 +69,11 @@ export default class ProtocolClassConstructor extends Utils {
     if (n.tagName === tagName) {
       if (requirements && requirements.length) {
         propsTypes = this.template(`{{ props }}`, {
-          props: ProtocolClassConstructor.getInterfaceProps(component),
+          props: ProtocolClassConstructor.getInterfaceProps(importedComponent),
         });
       }
       const ctx = bundle.mapContexts.get(`${component.uuid}-${n.id}`);
       if (ctx) {
-        console.warn(3, propsTypes);
         let result = this.template(
           ProtocolEnum.USED_COMPONENT_TEMPLATE,
           {
@@ -117,13 +117,17 @@ export default class ProtocolClassConstructor extends Utils {
   public buildProtocol(component: Component) {
     const item = this.mapProtocols.get(component.uuid);
     if (item) {
-      console.warn(1,item.value, 2);
       Object.defineProperty(component.context, 'protocol', {
         get: () => {
+          const runtime = this.getComponentRuntime(component);
+          const namespaces = OgoneNS(runtime);
           return this.template(ProtocolEnum.BUILD, {
-            protocol: item.value,
+            runtime,
+            namespaces,
+            protocol: item.value.length ? item.value : `class Protocol {
+              ${Object.entries(component.data).map(([key, value]) => `\n${key} = (${JSON.stringify(value)});\n`)}
+            }`,
             allUsedComponents: item.importedComponentsTypes.join('\n'),
-            runtime: this.getComponentRuntime(component),
             tsx: this.getComponentTSX(component),
           });
         }
@@ -145,7 +149,7 @@ export default class ProtocolClassConstructor extends Utils {
     let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL,
       {
         body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
-        switchBody: `${casesValue}\ndefault:\n${component.modifiers.default}`,
+        switchBody: `\n${casesValue}\ndefault:\n${component.modifiers.default}`,
         file: component.file,
         caseGate: component.modifiers.cases.length || component.modifiers.default.length
           ? this.template(Context.CASE_GATE, {
@@ -162,27 +166,5 @@ export default class ProtocolClassConstructor extends Utils {
       },
     );
     return script;
-  }
-  public async renderProtocol(component: Component): Promise<any | null>{
-    const item = this.mapProtocols.get(component.uuid);
-    if (item && item.value.trim().length) {
-      const file = `
-      // @ts-nocheck
-      ${component.context.protocol}
-      export default Protocol;`;
-      const path = `${Deno.cwd()}/${component.file}.${component.uuid}.tsx`;
-      Deno.writeTextFileSync(path, file);
-      console.warn(file);
-      const promise = import(path);
-      promise.then((module) => {
-        Deno.removeSync(path);
-        return module
-      }).catch((err) => {
-        Deno.removeSync(path);
-        this.error(`${component.file}\n${err.message.replace(path, component.file)}`);
-      });
-      return promise;
-    }
-    return null;
   }
 }

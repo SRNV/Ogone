@@ -7,6 +7,7 @@ enum Protocol {
     }
   `,
   BUILD = `
+    {{ namespaces }}
     {{ protocol }}
     declare function h(...args: unknown[]): unknown;
     declare function hf(...args: unknown[]): unknown;
@@ -16,7 +17,7 @@ enum Protocol {
         [k: string]: any;
       }
     }
-    class Template extends Protocol {
+    class Component extends Protocol {
       render() {
         return ({{ tsx }});
       }
@@ -25,7 +26,7 @@ enum Protocol {
   `,
   USED_COMPONENT_TEMPLATE = `
     ['{{ tagName }}']: {
-      children: any;
+      children?: any;
       {{ propsTypes || '' }}
     };`,
 }

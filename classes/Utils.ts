@@ -35,6 +35,16 @@ export abstract class Utils {
       return;
     }
   }
+  public static message(message: string, opts?: { [k: string]: any }): void | string {
+    const { cyan, bold, white } = colors;
+    const name = bold(cyan(" [Ogone] "));
+    if (opts && opts.returns) {
+      return `${name} ${message}`;
+    } else {
+      console.log(name, message);
+      return;
+    }
+  }
   protected template(tmpl: string, data: any): string {
     let result = tmpl;
     const fn = new Function(

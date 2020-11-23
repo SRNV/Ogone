@@ -137,7 +137,7 @@ export default class ComponentCompiler extends Utils {
             OComponent.call(this);
             {{ controllerDef }}
             {{ hasStore }}
-            const ____ = (prop, inst) => {
+            const ___ = (prop, inst) => {
               this.update(prop);
             };
             const ____r = (name, use, once) => {
