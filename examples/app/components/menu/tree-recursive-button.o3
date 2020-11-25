@@ -31,7 +31,7 @@ require item as {
       --class="{ 'child-open': this.openTree }">
       <scroll-component>
         <tree-recursive
-          --for="this.item.children as (child)"
+          --for="child of this.item.children"
           :item="child"></tree-recursive>
       </scroll-component>
     </div>

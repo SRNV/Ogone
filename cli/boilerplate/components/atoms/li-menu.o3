@@ -15,9 +15,9 @@ use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component'
   </li>
   <ul>
     <async-recursive-component
-      --for="this.item.children as (child, i)"
+      --for="({ label, route, children }, i) of this.item.children"
       --defer="new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))"
-      :item="child"/>
+      :item="{ label, route, children }"/>
   </ul>
 </template>
 

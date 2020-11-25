@@ -4,7 +4,7 @@ use @/examples/app/components/menu/menu-button.o3 as 'menu-button';
 <template>
   <div id="test" class="menu">
     <div class="displayButtons">
-      <menu-button --for="this.menu as (t)" :item="t" />
+      <menu-button --for="t of this.menu" :item="t" />
     </div>
     <div>
       <burger-el />

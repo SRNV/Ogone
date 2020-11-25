@@ -128,7 +128,7 @@ export default class SwitchContextBuilder extends Utils {
               try {
                 return eval('('+GET_TEXT+')');
               } catch(err) {
-                if (!{{ itemName }}) { return undefined }
+                if (!({{ itemName }})) { return undefined }
                 Ogone.error('Error in component:\\n\\t {{component.file}} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }
@@ -148,7 +148,9 @@ export default class SwitchContextBuilder extends Utils {
             parentId: node.parentNode
               ? `${component.uuid}-${node.parentNode.id}`
               : "",
-            result: component.data ? [...Object.keys(ctx), ...Object.keys(component.data)] : '',
+            result: component.data ? [...Object.keys(ctx), ...Object.keys(component.data)]
+              .join(',')
+              .replace(/[\{\}\[\]]/gi, '') : '',
             getNodeDynamicLength: isNodeDynamic ? `
             if (GET_LENGTH) {
               return 1;

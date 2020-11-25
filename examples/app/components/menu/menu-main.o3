@@ -13,7 +13,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
       <div>0.1.0</div>
     </div>
     <div class="tree">
-      <tree-recursive --for="this.menu as (item)" :item="item" />
+      <tree-recursive --for="item of this.menu" :item="item" />
     </div>
   </div>
   <div --class="{ darken: this.isOpen }" --click:toggle-menu></div>

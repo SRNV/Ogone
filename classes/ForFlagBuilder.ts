@@ -199,25 +199,31 @@ export default class ForFlagBuilder extends Utils {
   getForFlagDescription(
     flagValue: string,
   ): ForCtxDescription<string> {
-    if (flagValue.indexOf("as") === -1) {
-      throw this.error(
-        `Syntax Error: ${flagValue}, no (as) found \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,
-      );
+    const itemAndIndexRegExp = /^\((.+?),\s*(\w+?)\)\s+of\s+(.+?)$/gi;
+    const itemRegExp = /^(.+?)\s+of\s+(.+?)$/gi;
+    let oForRegExp = itemAndIndexRegExp.exec(flagValue.trim())
+    if (oForRegExp) {
+      itemAndIndexRegExp.exec(flagValue.trim());
+      let [input, item, index, arrayName] = oForRegExp;
+      arrayName = flagValue.split("of")[1].trim();
+      return {
+        index: index ? index : `i${iterator.next().value}`,
+        item,
+        array: arrayName,
+        content: flagValue,
+      };
     }
-    const oForRegExp =
-      /(.*?)\sas\s\(([^,\s\n\t]*)+,{0,1}\s{0,1}(([^,\s\n\t]*)+){0,1}\)/gi
-        .exec(
-          flagValue,
-        );
+    oForRegExp = itemRegExp.exec(flagValue.trim());
     if (!oForRegExp) {
       throw this.error(
-        `Syntax Error: ${flagValue} \n\tPlease follow this --for syntax. arrayName as (item [, i]) `,
+        `Syntax Error: ${flagValue} \n\tPlease follow this --for syntax. (item [, i]) of array `,
       );
     }
-    let [, arrayName, item, index] = oForRegExp;
-    arrayName = flagValue.split("as")[0].trim();
+    itemAndIndexRegExp.exec(flagValue.trim());
+    let [input, item, arrayName] = oForRegExp;
+    arrayName = flagValue.split("of")[1].trim();
     return {
-      index: index ? index : `i${iterator.next().value}`,
+      index: `i${iterator.next().value}`,
       item,
       array: arrayName,
       content: flagValue,

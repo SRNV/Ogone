@@ -3,7 +3,7 @@ use ../tests/testdirectives.o3 as 'test-d'
 <template>
   <test-d :text="'test'">
     <h1>Test des flags</h1>
-    <div --for="this.array.map((a, i) => i) as (o)">
+    <div --for="o of this.array.map((a, i) => i)">
       ${this.o} t
     </div>
   </test-d>

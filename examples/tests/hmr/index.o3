@@ -25,8 +25,8 @@ use @/examples/tests/hmr/sub.o3 as 'sub-1';
   <div>aaa</div>
   <div>aaa</div>
   <div>aaa</div>
-    <li --for="[1, 2, 3] as (n)">add one dynamic node after ${this.n}a</li>
-    <div --for="[1, 2, 3] as (n)">add one dynamic node after ${this.n}</div>
+    <li --for="n of [1, 2, 3]">add one dynamic node after ${this.n}a</li>
+    <div --for="n of [1, 2, 3]">add one dynamic node after ${this.n}</div>
   </ul>
 
   <h3> update components</h3>

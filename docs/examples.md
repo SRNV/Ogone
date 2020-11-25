@@ -81,7 +81,7 @@ more on reflected datas
 ```typescript
 <template>
   ${position.name} ${position.origin}
-  <p --for="position.test as (item)">
+  <p --for="item of position.test">
     ${item}
   </p>
 </template>
@@ -140,7 +140,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
       <div>0.1.0</div>
     </div>
     <div class="tree">
-      <tree-recursive --for="menu as (item)" :item="item">
+      <tree-recursive --for="item of menu" :item="item">
       </tree-recursive>
     </div>
   </div>
@@ -180,7 +180,7 @@ use @/examples/app/components/scroll.o3 as 'scroll'
       <scroll>
         <tree-recursive
           --if="!!item.children"
-          --for="item.children as (child)"
+          --for="child of item.children"
           :item="child ? child : {}"></tree-recursive>
       </scroll>
     </div>

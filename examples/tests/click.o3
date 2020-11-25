@@ -1,6 +1,6 @@
 <template>
   <div
-    --for="this.counts as (c, i)"
+    --for="(c, i) of this.counts"
     --click:increase> click ${this.c}</div>
 </template>
 

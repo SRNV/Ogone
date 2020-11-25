@@ -12,7 +12,6 @@ use ../atoms/button.o3 as 'o-btn';
       ['fade-out-bottom']: !this.visible, }">
     <div class="brand">
       <img
-        --for="[1,2] as (e)"
         --await
         class="logo"
         src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
@@ -28,7 +27,7 @@ use ../atoms/button.o3 as 'o-btn';
     <github-badges />
     <div class="links">
       <ul>
-        <li --for="this.links as (item)">
+        <li --for="item of this.links">
           <a :href="item.href">${item.label}</a>
         </li>
       </ul>

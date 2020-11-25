@@ -10,7 +10,7 @@ use ../atoms/li-menu.o3 as 'async-li-menu';
     <hr />
     <ul>
       <async-li-menu
-        --for="this.links as (item, i)"
+        --for="(item, i) of this.links"
         --defer="new Promise((resolve) => setTimeout(resolve, 500 * (i+1)))"
         :item="item">
       </async-li-menu>
