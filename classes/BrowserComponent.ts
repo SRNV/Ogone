@@ -732,7 +732,7 @@ const getClassComponent = (
             });
             const values = Object.values(ctx);
             const keys = Object.keys(ctx);
-            const fn = new Function(...keys, "n", `this.${k} = n.value;`);
+            const fn = new Function(...keys, "n", `${k} = n.value;`);
             fn.bind(oc.data)(...values, n);
             oc.update(k, ev);
           }
@@ -749,7 +749,7 @@ const getClassComponent = (
             });
             const values = Object.values(ctx);
             const keys = Object.keys(ctx);
-            const fn = new Function(...keys, "n", `this.${k} = n.value;`);
+            const fn = new Function(...keys, "n", `${k} = n.value;`);
             fn.bind(oc.data)(...values, n);
             oc.update(k, ev);
           }
@@ -766,7 +766,7 @@ const getClassComponent = (
             });
             const values = Object.values(ctx);
             const keys = Object.keys(ctx);
-            const fn = new Function(...keys, "n", `this.${k} = n.value;`);
+            const fn = new Function(...keys, "n", `${k} = n.value;`);
             fn.bind(oc.data)(...values, n);
             oc.update(k, ev);
           }

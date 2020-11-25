@@ -21,6 +21,9 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
 <proto>
   declare:
     public scrollY: number = 0
+    public setScrollY(n: number) {
+      this.scrollY = n;
+    }
   default:
     const { header } = Refs;
     window.addEventListener('scroll', (ev) => {
@@ -31,7 +34,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
           header.style.top = '0px';
         }
       }
-      this.scrollY = window.scrollY
+      this.setScrollY(window.scrollY);
     });
     break;
 </proto>
