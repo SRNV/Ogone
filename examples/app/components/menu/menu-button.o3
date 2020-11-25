@@ -1,7 +1,7 @@
 require item as {
   name: string;
   route: string;
-  status: "ok" | "todo" | "in-progress";
+  status: string;
 };
 
 <template>

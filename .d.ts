@@ -137,6 +137,7 @@ export interface Component {
     data: string;
     props: string;
     protocol: string;
+    protocolClass: string;
   };
   modifiers: {
     beforeEach: string;

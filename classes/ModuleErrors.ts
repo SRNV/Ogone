@@ -1,5 +1,6 @@
 import { colors } from "../deps.ts";
 import { Utils } from "./Utils.ts";
+import { Component } from '../.d.ts';
 /**
  * a class to display the errors inside the module
  */
@@ -25,7 +26,7 @@ interface ModuleErrorsDiagnostic {
   code: number;
 }
 export abstract class ModuleErrors extends Utils {
-  static checkDiagnostics(diagnostics: unknown[]) {
+  static checkDiagnostics(component: Component, diagnostics: unknown[]) {
     const { blue, red,  gray, } = colors;
     function renderChainedDiags(chainedDiags: typeof diagnostics): string{
       let result = ``;
@@ -57,7 +58,7 @@ export abstract class ModuleErrors extends Utils {
         at ${blue(diag && diag.fileName || '')}:${diag.start && diag.start.line + 1 || ''}:${diag.start && diag.start.character || ''}`;
       }
       this.error(
-        errors,
+        `${component.file}\n${errors}`,
       );
       Deno.exit(1);
     } else {

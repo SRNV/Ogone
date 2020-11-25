@@ -90,11 +90,7 @@ export default class ProtocolModifierGetter extends Utils {
           const value = values.reverse().join('');
           if (modifier.token === token) {
             this.triggerExclusion(modifier, savedModifiers);
-            const newValue =
-            modifier.isReactive ?
-              this.ProtocolReactivity.getReactivity({
-                text: getDeepTranslation(value, this.expressions),
-              }) : getDeepTranslation(value, this.expressions);
+            const newValue = getDeepTranslation(value, this.expressions);
             modifier.onParse({
               argument: getDeepTranslation(key.trim().split(' ')[1], this.expressions).replace(/\:$/, ''),
               token,

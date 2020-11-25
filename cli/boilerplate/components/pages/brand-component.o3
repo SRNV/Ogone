@@ -29,7 +29,7 @@ use ../atoms/button.o3 as 'o-btn';
     <div class="links">
       <ul>
         <li --for="this.links as (item)">
-          <a :href="this.item.href">${this.item.label}</a>
+          <a :href="item.href">${item.label}</a>
         </li>
       </ul>
     </div>

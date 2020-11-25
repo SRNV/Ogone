@@ -61,17 +61,17 @@ export default class DefinitionProvider extends Utils {
         const def = Deno.readTextFileSync(relativePath);
         defData = YAML.parse(def, {});
       } else {
-        this.error(`can't find the definition file of proto: ${defPath}`);
+        this.error(`${component.file}\n\tcan't find the definition file: ${defPath}`);
       }
     }
     // save data into the component
     if (defData) {
       switch (true) {
         case item && Array.isArray(defData) && !Array.isArray(item.data):
-          this.error(`${proto.attributes} doesn't match def type of ${component.file}`);
+          this.error(`${proto.attributes.def} doesn't match def type of ${component.file}`);
           break;
         case item && !Array.isArray(defData) && Array.isArray(item.data):
-          this.error(`${proto.attributes} doesn't match def type of ${component.file}`);
+          this.error(`${proto.attributes.def} doesn't match def type of ${component.file}`);
           break;
         case item && Array.isArray(defData) && Array.isArray(item.data):
           if (item) {
@@ -92,8 +92,7 @@ export default class DefinitionProvider extends Utils {
         default:
           component.data = defData;
       }
-    }
-    if (item) {
+    } else if (item) {
       component.data = item.data;
     }
     this.saveContextToComponent(component);

@@ -44,7 +44,7 @@ export default class ComponentBuilder {
       data: {},
       style: [],
       scripts: {
-        runtime: "function(){};",
+        runtime: "function run(){};",
       },
       imports: {},
       flags: [],
@@ -71,6 +71,7 @@ export default class ComponentBuilder {
         data: '',
         props: '',
         protocol: '',
+        protocolClass: '',
       },
       modifiers: {
         beforeEach: '',

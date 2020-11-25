@@ -88,7 +88,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           );
           return getDeepTranslation(result, expressions as { [k: string]: any });
         }
-        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
+        const value = node.rawText?.replace(/\</gi, "&lt;").replace(/\>/gi, "&rt;");
+        return getDeepTranslation(`\n${value}\n`|| "", expressions as { [k: string]: any });
       }
       node.getOuterHTML = () => {
         if (node.nodeType === 1) {

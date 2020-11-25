@@ -2,8 +2,43 @@
 import type { OgoneBrowser } from "../../types/ogone.ts";
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {
+  function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
+    const proxies: { [k: string]: Object } = {};
+    return new Proxy(target, {
+      get(obj: { [k: string]: unknown }, key: string, ...args: unknown[]) {
+        let v;
+        const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
+        if (key === 'prototype') {
+          v = Reflect.get(obj, key, ...args)
+        } else if (obj[key] instanceof Object && !proxies[id]) {
+          v = setReactivity(obj[key] as Object, updateFunction, id);
+          proxies[id] = v;
+        } else if (proxies[id]) {
+          return proxies[id];
+        } else {
+          v = Reflect.get(obj, key, ...args);
+        }
+        return v;
+      },
+      set(obj: { [k: string]: unknown }, key: string, value: unknown, ...args: unknown[]) {
+        if (obj[key] === value) return true;
+        const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
+        const v = Reflect.set(obj, key, value, ...args);
+        updateFunction(id);
+        return v;
+      },
+      deleteProperty(obj, key) {
+        const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
+        const v = Reflect.deleteProperty(obj, key)
+        delete proxies[id];
+        updateFunction(id);
+        return v;
+      }
+    });
+  }
   // @ts-ignore
   const Ogone: OgoneBrowser = {
+    setReactivity,
     // store
     stores: {},
     clients: [],

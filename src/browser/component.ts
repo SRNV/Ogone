@@ -43,7 +43,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     if (this.type === "store") {
       this.initStore();
     }
-    Object.seal(this.data);
     this.runtime(0, params, event);
   };
   this.update = (dependency?: string) => {

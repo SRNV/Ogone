@@ -205,8 +205,6 @@ const getClassComponent = (
       const o = this.ogone, oc = o.component;
       // use the jsx renderer only for templates
       this.setNodes();
-      // render DevTools
-      // {{ render.devTool }}
       // set Async context for Async nodes
       if (o.isAsyncNode) {
         this.setNodeAsyncContext();

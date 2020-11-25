@@ -3,7 +3,7 @@ import { Utils } from './Utils.ts';
 import { Bundle, Component, ModifierContext, XMLNodeDescription } from '../.d.ts';
 import OgoneNS from "../types/ogone/namespaces.ts";
 import ProtocolEnum from '../enums/templateProtocol.ts';
-
+import ProtocolReactivity from './ProtocolReactivity.ts';
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
   value: string;
@@ -14,8 +14,9 @@ interface ProtocolClassConstructorItem {
   /** all the imported components types */
   importedComponentsTypes: string[];
 }
-export default class ProtocolClassConstructor extends Utils {
+export default class ProtocolClassConstructor extends ProtocolReactivity {
   private mapProtocols: Map<string, ProtocolClassConstructorItem> = new Map();
+  private ProtocolReactivity: ProtocolReactivity = new ProtocolReactivity();
   public setItem(component: Component) {
     this.mapProtocols.set(component.uuid, {
       value: '',
@@ -32,7 +33,7 @@ export default class ProtocolClassConstructor extends Utils {
   }
   static getInterfaceProps(component: Component): string {
     return component.requirements ? component.requirements.map(
-      ([name, constructors]) => `\n${name}: ${constructors.map((c) => `${c}`,).join(" | ")};`).join() : ''
+      ([name, constructors]) => `\n${name}: ${constructors.map((c) => `${c}`,).join(" | ")};`).join('') : ''
   }
   static getPropsFromNode(node: XMLNodeDescription): string {
     return Object.entries(node.attributes).filter(([key]) =>
@@ -80,6 +81,7 @@ export default class ProtocolClassConstructor extends Utils {
             tagName,
             tagNameFormatted: tagName.replace(/(\-)([a-z])/gi, "_$2"),
             propsTypes,
+            genericType: `Ogone${importedComponent.type.toUpperCase()}Component`,
             position: ctx.position,
             data: ctx.data,
             modules: ctx.modules,
@@ -125,13 +127,16 @@ export default class ProtocolClassConstructor extends Utils {
             runtime,
             namespaces,
             protocol: item.value.length ? item.value : `class Protocol {
-              ${Object.entries(component.data).map(([key, value]) => `\n${key} = (${JSON.stringify(value)});\n`)}
+              ${component.data ? Object.entries(component.data).map(([key, value]) => `\n${key} = (${JSON.stringify(value)});\n`) : ''}
             }`,
             allUsedComponents: item.importedComponentsTypes.join('\n'),
             tsx: this.getComponentTSX(component),
           });
         }
       })
+      Object.defineProperty(component.context, 'protocolClass', {
+        get: () => item.value,
+      });
     }
   }
   public getComponentTSX(component: Component): string {
@@ -166,5 +171,34 @@ export default class ProtocolClassConstructor extends Utils {
       },
     );
     return script;
+  }
+  public async setComponentRuntime(component: Component) {
+    let casesValue = component.modifiers.cases
+      .map((modifier: ModifierContext) => `${modifier.token} ${modifier.argument}: ${modifier.value}`)
+      .join('\n');
+    let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_FUNCTION,
+      {
+        body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
+        switchBody: `\n${casesValue}\ndefault:\n${component.modifiers.default}`,
+        file: component.file,
+        caseGate: component.modifiers.cases.length || component.modifiers.default.length
+          ? this.template(Context.CASE_GATE, {
+              declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
+            })
+          : '',
+        reflections: component.modifiers.compute,
+        beforeEach: component.modifiers.beforeEach,
+        async: ["async", "store", "controller"].includes(
+            component.type as string,
+          )
+          ? "async"
+          : "",
+      },
+    );
+    const runtime = (await Deno.transpileOnly({
+      "/transpiled.ts": script
+    }, { sourceMap: false }))["/transpiled.ts"].source
+    // save the runtime
+    component.scripts.runtime = component.isTyped ? runtime : this.getReactivity({ text: runtime });
   }
 }

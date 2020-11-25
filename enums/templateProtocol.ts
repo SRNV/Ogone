@@ -9,6 +9,13 @@ enum Protocol {
   BUILD = `
     {{ namespaces }}
     {{ protocol }}
+
+    type OgoneCOMPONENTComponent<T> = { children?: any; } & T;
+    type OgoneASYNCComponent<T> = OgoneCOMPONENTComponent<T>;
+    type OgoneSTOREComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;
+    type OgoneROUTERComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;
+    type OgoneCONTROLLERComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;
+
     declare function h(...args: unknown[]): unknown;
     declare function hf(...args: unknown[]): unknown;
     declare namespace h.JSX {
@@ -19,15 +26,14 @@ enum Protocol {
     }
     class Component extends Protocol {
       render() {
-        return ({{ tsx }});
+        return {{ tsx.length ? \`(\${tsx})\` : '' }};
       }
       {{ runtime }}
     }
   `,
   USED_COMPONENT_TEMPLATE = `
-    ['{{ tagName }}']: {
-      children?: any;
+    ['{{ tagName }}']: {{ genericType }}<{
       {{ propsTypes || '' }}
-    };`,
+    }>;`,
 }
 export default Protocol;

@@ -133,12 +133,13 @@ export default class ComponentCompiler extends Utils {
           // freeze Async Object;
           Object.freeze(Async);
           `;
-      let result: string = `function () {
+      let result: string = `function __component () {
             OComponent.call(this);
             {{ controllerDef }}
             {{ hasStore }}
-            const ___ = (prop, inst) => {
+            const ___ = (prop, inst, value) => {
               this.update(prop);
+              return value;
             };
             const ____r = (name, use, once) => {
               this.runtime(name, use[0], use[1], once);
@@ -160,8 +161,12 @@ export default class ComponentCompiler extends Utils {
         modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
         asyncResolve: component.type === "async" ? asyncResolve : "",
         protocol: component.protocol ? component.protocol : "",
-        data: JSON.stringify(component.data),
-        runtime: runtime,
+        data: component.isTyped ?
+          // setReactivity will transform the instance to a proxy
+          `Ogone.setReactivity(new (${component.context.protocolClass}), (prop) => this.update(prop))`
+          // if the end user uses def modifier, the reactivity is inline
+          : JSON.stringify(component.data),
+        runtime,
         controllerDef: component.type === "store" ? controllerDef : "",
         refs: Object.entries(component.refs).length
           ? Object.entries(component.refs).map(([key, value]) =>
@@ -170,7 +175,9 @@ export default class ComponentCompiler extends Utils {
           : "",
         hasStore: !!component.hasStore ? store : "",
       };
-      result = this.template(result, d);
+      result = (await Deno.transpileOnly({
+        "/transpiled.ts": `  ${this.template(result, d)}`,
+      }, { sourceMap: false, }))["/transpiled.ts"].source;
       if (mapRender.has(result)) {
         const item = mapRender.get(result);
         result = this.template(

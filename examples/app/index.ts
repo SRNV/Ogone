@@ -1,3 +1,4 @@
+
 import o3 from "../../mod.ts";
 
 // ogone use the root component
@@ -5,7 +6,7 @@ o3.run({
   entrypoint: "examples/app/index.o3",
   devtool: false,
   static: "./public",
-  port: 8014,
+  port: 8013,
   modules: "/examples/modules",
   head: `
   <link href="/style.css" rel="stylesheet"/>

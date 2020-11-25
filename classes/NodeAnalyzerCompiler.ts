@@ -70,12 +70,13 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
             );
           }
       }
+      const nodeIsDynamic = node.nodeType === 1  && Object.keys(node.attributes).find((key: string) => key.startsWith(':'))
       if (node.nodeType === 1 && node.childNodes && node.childNodes.length) {
         for await (const child of node.childNodes) {
           await this.read(bundle, keyComponent, child);
         }
       }
-      if (node.tagName === null || (node.hasFlag && node.tagName)) {
+      if (node.tagName === null || (node.hasFlag && node.tagName) || nodeIsDynamic) {
         this.render(bundle, component, node);
       }
     }

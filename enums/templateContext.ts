@@ -42,4 +42,16 @@ export enum Context {
       throw err;
     }
   }`,
+    /**
+   * template for the runtime of the component
+   */
+  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_FUNCTION = `{{ async }} function runtime (_state: string | number, ctx: any, event: any, _once: number = 0) {
+    try {
+      {{ body }}
+    } catch(err) {
+      // @ts-ignore
+      Ogone.error('Error in the component: \\n\\t {{ file }}' ,err.message, err);
+      throw err;
+    }
+  }`,
 }

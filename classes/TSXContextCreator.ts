@@ -1,4 +1,5 @@
 import { Bundle, Component } from '../.d.ts';
+import { colors } from '../deps.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";
 /**
@@ -7,18 +8,21 @@ import { Utils } from "./Utils.ts";
  */
 export default class TSXContextCreator extends Utils {
   async read(bundle: Bundle) {
+    this.warn(`Type checking.`);
     const entries = Array.from(bundle.components.entries());
-    await setTimeout(async () => {
-      entries.forEach(async ([key, component]) => {
+    for await (const [key, component] of entries) {
+      if (component.isTyped) {
         await this.createContext(bundle, component);
-      })
-    }, 0);
+      }
+    }
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
+    const { green, gray } = colors;
     const newpath = '/comp.tsx';
     const startPerf = performance.now();
-    const [diags, emit] = await Deno.compile(newpath, {
-      [newpath]: component.context.protocol,
+    const { protocol } = component.context;
+    const [diags] = await Deno.compile(newpath, {
+      [newpath]: protocol,
     }, {
       module: "esnext",
       target: "esnext",
@@ -40,10 +44,9 @@ export default class TSXContextCreator extends Utils {
       sourceMap: false,
       strictFunctionTypes: true,
     });
-    this.warn(
-      `TSC: ${component.file} - ${Math.round(performance.now() - startPerf)
-      } ms`,
+    ModuleErrors.checkDiagnostics(component, diags as unknown[]);
+    this.success(
+      `${green(component.file)} - ${gray(Math.round(performance.now() - startPerf) + ' ms')}`,
     );
-    ModuleErrors.checkDiagnostics(diags as unknown[]);
   }
 }

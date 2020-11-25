@@ -13,7 +13,7 @@ use @/examples/app/components/menu/menu-main.o3 as 'menu-main';
     <div --router-dev-tool class="open-dev-tool"> Dev </div>
     <menu-content />
   </div>
-  <router-component name="new" />
+  <router-component namespace="new" />
   <menu-main />
   <left-menu :test="this.scrollY"/>
 </template>

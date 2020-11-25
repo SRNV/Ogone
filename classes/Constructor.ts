@@ -42,7 +42,6 @@ export default class Constructor extends Utils {
   private SwitchContextBuilder: SwitchContextBuilder = new SwitchContextBuilder();
   private NodeAnalyzerCompiler: NodeAnalyzerCompiler = new NodeAnalyzerCompiler();
   private StylesheetBuilder: StylesheetBuilder = new StylesheetBuilder();
-  private ScriptBuilder: ScriptBuilder = new ScriptBuilder();
   private TSXContextCreator: TSXContextCreator = new TSXContextCreator();
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   /**
@@ -103,8 +102,7 @@ export default class Constructor extends Utils {
     await this.SwitchContextBuilder.startAnalyze(bundle);
     // @code OPDP
     await this.ProtocolDataProvider.read(bundle);
-    // @code OSB4
-    // await this.ScriptBuilder.read(bundle);
+    this.ComponentTypeGetter.assignTypeConfguration(bundle);
     // @code OSAR6
     this.StoreArgumentReader.read(bundle);
     // @code OSB7
@@ -117,7 +115,9 @@ export default class Constructor extends Utils {
     // @code OSB4
     // this.ScriptBuilder.inspectContexts(bundle);
     // TODO create the class tsx transformer
-    await this.TSXContextCreator.read(bundle);
+    setTimeout(() => {
+      this.TSXContextCreator.read(bundle);
+    }, 0);
     return bundle;
   }
 }

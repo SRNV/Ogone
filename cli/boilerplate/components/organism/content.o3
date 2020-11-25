@@ -4,7 +4,7 @@ use ../stores/doc.store.o3 as 'store-doc-component';
 
 <template>
   <store-doc-component namespace="pages"/>
-  <iframe :src="page"></iframe>
+  <iframe :src="this.page"></iframe>
   <div class="nav">
     <nav-component />
   </div>

@@ -3,9 +3,10 @@ use @/examples/app/components/scroll.o3 as 'scroll-component'
 
 require item as {
   route: string;
-  status: string;
+  status?: string;
+  name?: string;
   children: ({
-    status: "ok" | "todo" | "in-progress";
+    status?: string;
     name: string;
     route: string;
     children: any[]

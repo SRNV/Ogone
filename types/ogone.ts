@@ -8,10 +8,11 @@ export interface RouterBrowser {
   go: (url: string, state: any) => void;
   openDevTool?: (opts: any) => void;
 }
-export type BranchConstructor<T> = (
+export type ComponentClassExtender<T> = (
   klass: typeof HTMLElement | typeof HTMLTemplateElement,
 ) => T;
 export interface OgoneBrowser {
+  setReactivity(target: Object, updateFunction: Function, parentKey?: string): Object;
   run: {
     [k: string]: OnodeComponent[];
   };
@@ -33,13 +34,13 @@ export interface OgoneBrowser {
   contexts: { [k: string]: Function };
   components: { [k: string]: FunctionConstructor };
   classes: {
-    extends?: BranchConstructor<
+    extends?: ComponentClassExtender<
       (typeof HTMLElement | typeof HTMLTemplateElement) & BCE
     >;
-    component?: BranchConstructor<OgoneBrowser["classes"]["extends"]>;
-    async?: BranchConstructor<OgoneBrowser["classes"]["component"]>;
-    store?: BranchConstructor<OgoneBrowser["classes"]["component"]>;
-    router?: BranchConstructor<OgoneBrowser["classes"]["component"]>;
+    component?: ComponentClassExtender<OgoneBrowser["classes"]["extends"]>;
+    async?: ComponentClassExtender<OgoneBrowser["classes"]["component"]>;
+    store?: ComponentClassExtender<OgoneBrowser["classes"]["component"]>;
+    router?: ComponentClassExtender<OgoneBrowser["classes"]["component"]>;
   };
   errorPanel: any;
   warnPanel: any;

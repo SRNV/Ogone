@@ -4,6 +4,7 @@ import { Utils } from './Utils.ts';
 import DefinitionProvider from './DefinitionProvider.ts';
 import ProtocolClassConstructor from './ProtocolClassConstructor.ts';
 import ProtocolBodyConstructor from './ProtocolBodyConstructor.ts';
+import ProtocolReactivity from './ProtocolReactivity.ts';
 
 /**
  * @name ProtocolDataProvider
@@ -16,6 +17,7 @@ export default class ProtocolDataProvider extends Utils {
   private ProtocolBodyConstructor: ProtocolBodyConstructor = new ProtocolBodyConstructor();
   private ProtocolClassConstructor: ProtocolClassConstructor = new ProtocolClassConstructor();
   private ProtocolModifierGetter: ProtocolModifierGetter = new ProtocolModifierGetter();
+  private ProtocolReactivity: ProtocolReactivity = new ProtocolReactivity();
   public async read(bundle: Bundle): Promise<void> {
     const entries = Array.from(bundle.components.entries());
     entries.forEach(([, component]: [string, Component]) => {
@@ -88,7 +90,13 @@ export default class ProtocolDataProvider extends Utils {
     for await (const [, component] of entries) {
       this.ProtocolClassConstructor.getAllUsedComponents(bundle, component);
       this.ProtocolClassConstructor.buildProtocol(component);
+      await this.ProtocolClassConstructor.setComponentRuntime(component);
       await this.DefinitionProvider.setDataToComponentFromFile(component);
     }
+  }
+    // set the automatic reactivity helper
+  // protocolReactivity will add a function after all AssignmentPattern
+  setReactivity(text: string) {
+    return this.ProtocolReactivity.getReactivity({ text });
   }
 }
