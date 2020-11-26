@@ -1,4 +1,4 @@
-import getDeepTranslation from "../utils/template-recursive.ts";
+import getDeepTranslation from "../../utils/template-recursive.ts";
 
 let i = 0;
 function getId(type: string): string {
