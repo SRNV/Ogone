@@ -1,4 +1,4 @@
-import CSSScoper from "./CSSScoper.ts";
+import CSSScoper from "./css/CSSScoper.ts";
 import {
   absolute,
   join,
@@ -8,7 +8,7 @@ import type { Bundle } from "../.d.ts";
 import { existsSync } from "../utils/exists.ts";
 import { Utils } from "./Utils.ts";
 import keyframes from "../utils/keyframes.ts";
-import Obvious from './Obvious.ts';
+import Style from './css/Style.ts';
 
 /**
  * @name StylesheetBuilder
@@ -16,7 +16,7 @@ import Obvious from './Obvious.ts';
  * @code OSB7-OC0
  * @description style step of the components
  * this class will use the style elements of the component
- * pass the textnode to the Obvious module and scope all the rules after it with the CSSScoper
+ * pass the textnode to the Style module and scope all the rules after it with the CSSScoper
  * then the style is saved like following:
  * ```ts
  *   component.style.push(css);
@@ -24,11 +24,11 @@ import Obvious from './Obvious.ts';
  * all style are scoped to the component's uuid
  * excepted if the style tag has a global attribute
  * @dependency CSSScoper
- * @dependency Obvious
+ * @dependency Style
  */
 export default class StylesheetBuilder extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
-  private Obvious: Obvious = new Obvious();
+  private Style: Style = new Style();
   private readKeyframes(keyframesEvaluated: string) {
     const fn = new Function('get', `return (${keyframesEvaluated});`)
     const get = (name: string, opts: any) => {
@@ -115,8 +115,8 @@ export default class StylesheetBuilder extends Utils {
           if (element.attributes['--keyframes']) {
             compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
           }
-          compiledCss = await this.Obvious.read(compiledCss, bundle, component);
-          component.mapStyleBundle = this.Obvious.mapStyleBundle;
+          compiledCss = await this.Style.read(compiledCss, bundle, component);
+          component.mapStyleBundle = this.Style.mapStyleBundle;
           const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
           component.style.push(css);
         }

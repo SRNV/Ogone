@@ -1,4 +1,4 @@
-import type Obvious from "./classes/Obvious.ts";
+import type Style from "./classes/Style";
 
 
 export type Environment = "development" | "production" | "staging";
@@ -127,7 +127,7 @@ export interface Component {
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
-  mapStyleBundle?: Obvious["mapStyleBundle"];
+  mapStyleBundle?: Style["mapStyleBundle"];
   elements: {
     styles: XMLNodeDescription[];
     proto: XMLNodeDescription[];

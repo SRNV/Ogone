@@ -1,17 +1,17 @@
-import type { Bundle, Component, StyleBundle } from '../.d.ts';
-import read from '../utils/agnostic-transformer.ts';
-import { Utils } from './Utils.ts';
-import elements from "../utils/elements.ts";
-import notParsed from "../utils/not-parsed.ts";
-import obviousElements from '../utils/elements.ts';
+import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import read from '../../utils/agnostic-transformer.ts';
+import { Utils } from '../Utils.ts';
+import elements from "../../utils/elements.ts";
+import notParsed from "../../utils/not-parsed.ts";
+import styleElements from '../../utils/elements.ts';
 
 // TODO needs more explications on the process
 /**
- * @name ObviousParser
+ * @name StyleParser
  * @code OOP1-OSB7-OC0
  * @description this class will help parsing tokens and apply regexp
  */
-export default class ObviousParser extends Utils {
+export default class StyleParser extends Utils {
   protected regularAtRules: RegExp = /^(\@(import|namespace|charset))/i;
   protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
   public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
@@ -226,7 +226,7 @@ export default class ObviousParser extends Utils {
             .trim()
             .slice(1)
             .slice(0, -1),
-          array: obviousElements,
+          array: styleElements,
         });
         styleBundle.mapSelectors.set(keySelector, {
           id: keySelector,
@@ -300,7 +300,7 @@ export default class ObviousParser extends Utils {
       expressions,
       typedExpressions,
       value: result,
-      array: notParsed.concat(elements).concat(obviousElements),
+      array: notParsed.concat(elements).concat(styleElements),
     });
     styleBundle.value = result;
     return result;

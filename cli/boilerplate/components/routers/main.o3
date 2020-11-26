@@ -5,7 +5,7 @@ use ../stores/doc.store.o3 as 'store-doc-component';
 <template>
   <store-doc-component namespace="pages"/>
 </template>
-<proto type="router" namespace="global">
+<proto type="router">
   def:
     routes:
       - path: /ogone

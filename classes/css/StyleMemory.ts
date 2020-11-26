@@ -1,18 +1,18 @@
-import type { Bundle, Component, StyleBundle } from '../.d.ts';
-import ObviousOutput from './ObviousOutput.ts';
+import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import StyleOutput from './StyleOutput.ts';
 // TODO needs more explications on the process
 /**
- * @name ObviousMemory
+ * @name StyleMemory
  * @code OOM1-OSB7-OC0
  * @description saves vars, use statements, imported components and styleBundle
  * you can add a new var syntax by editing the getVars method, the method getVars will at the end save the variable
  * inside the styleBundle's mapVars (Map)
  * the use statement is parsed by the method setUse, this method will save the dependency inside styleBundle's mapImport
  * after this the async method getImports will bundle all dependencies asynchronously
- * @dependency ObviousOutput
- * @dependency ObviousParser
+ * @dependency StyleOutput
+ * @dependency StyleParser
  */
-export default class ObviousMemory extends ObviousOutput {
+export default class StyleMemory extends StyleOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
     const parts = result.split(/(?:(;|\n+))/);

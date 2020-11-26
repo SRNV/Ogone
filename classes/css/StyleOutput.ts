@@ -1,9 +1,9 @@
-import type { Bundle, Component, StyleBundle } from '../.d.ts';
-import ObviousParser from './ObviousParser.ts';
+import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import StyleParser from './StyleParser.ts';
 
 // TODO needs more explications on the process
 /**
- * @name ObviousOutput
+ * @name StyleOutput
  * @code OOO1-OSB7-OC0
  * @description this is the class that will help rendering the new CSS
  * the first method used is getOutput that returns a string
@@ -19,9 +19,9 @@ import ObviousParser from './ObviousParser.ts';
  *  result += this.render(styleBundle, bundle, component);
     styleBundle.value += result;
  * ```
- * @dependency ObviousParser
+ * @dependency StyleParser
  */
-export default class ObviousOutput extends ObviousParser {
+export default class StyleOutput extends StyleParser {
   protected getOutput(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = '';
     styleBundle.mapSelectors.forEach((item) => {

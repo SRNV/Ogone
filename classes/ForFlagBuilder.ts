@@ -5,6 +5,12 @@ import type {
   LegacyDescription,
   ForCtxDescription,
 } from "../.d.ts";
+import notParsedElements from '../utils/not-parsed.ts';
+import elements from '../utils/elements.ts';
+import read from '../utils/agnostic-transformer.ts';
+import getTypedExpressions from '../utils/typedExpressions.ts';
+import getDeepTranslation from '../utils/template-recursive.ts';
+
 function* gen(i: number): Generator {
   yield i;
   while (true) {
@@ -197,23 +203,41 @@ export default class ForFlagBuilder extends Utils {
     }
   }
   getForFlagDescription(
-    flagValue: string,
+    value: string,
   ): ForCtxDescription<string> {
+    const expressions = {};
+    const typedExpressions = getTypedExpressions();
+    const flagValue = read({
+      expressions,
+      value,
+      typedExpressions,
+      array: [
+        ...notParsedElements,
+        ...elements.filter((el) => el.name === 'block'),
+      ],
+    });
+    // create a function to return the real value
+    // the value is transformed by the read function
+    function deepTranslate(txt: string): string {
+      return getDeepTranslation(txt, expressions);
+    }
     const itemAndIndexRegExp = /^\((.+?),\s*(\w+?)\)\s+of\s+(.+?)$/gi;
     const itemRegExp = /^(.+?)\s+of\s+(.+?)$/gi;
     let oForRegExp = itemAndIndexRegExp.exec(flagValue.trim())
+    // if the end user uses: (item, index) of array syntax
     if (oForRegExp) {
       itemAndIndexRegExp.exec(flagValue.trim());
       let [input, item, index, arrayName] = oForRegExp;
       arrayName = flagValue.split("of")[1].trim();
       return {
         index: index ? index : `i${iterator.next().value}`,
-        item,
-        array: arrayName,
-        content: flagValue,
+        item: deepTranslate(item),
+        array: deepTranslate(arrayName),
+        content: deepTranslate(flagValue),
       };
     }
     oForRegExp = itemRegExp.exec(flagValue.trim());
+    // if the end user uses: item of array syntax
     if (!oForRegExp) {
       throw this.error(
         `Syntax Error: ${flagValue} \n\tPlease follow this --for syntax. (item [, i]) of array `,
@@ -224,9 +248,9 @@ export default class ForFlagBuilder extends Utils {
     arrayName = flagValue.split("of")[1].trim();
     return {
       index: `i${iterator.next().value}`,
-      item,
-      array: arrayName,
-      content: flagValue,
+      item: deepTranslate(item),
+      array: deepTranslate(arrayName),
+      content: deepTranslate(flagValue),
     };
   }
 }
