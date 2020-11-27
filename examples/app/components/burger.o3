@@ -18,7 +18,7 @@ use @/examples/app/stores/menu.store.o3 as 'store-menu'
       .then((res: any) => {
         console.warn(res);
       });
-  break;
+    break;
 </proto>
 
 <style>

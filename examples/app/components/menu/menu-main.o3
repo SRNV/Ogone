@@ -24,7 +24,7 @@ use @/examples/app/components/logo.o3 as 'logo-el'
     isOpen: false
   case 'click:toggle-menu':
     Store.dispatch('menu/toggle');
-  break;
+    break;
 </proto>
 
 <style>

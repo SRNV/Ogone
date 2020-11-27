@@ -15,6 +15,7 @@ export default class StyleParser extends Utils {
   protected regularAtRules: RegExp = /^(\@(import|namespace|charset))/i;
   protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
   public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
+
   protected getContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {
     let result = opts && opts.imported ? `(() => {` : '';
     const { expressions } = styleBundle.tokens;
@@ -106,11 +107,10 @@ export default class StyleParser extends Utils {
       props: {},
     };
     const { expressions } = styleBundle.tokens;
-    const endExp = /(?:(;|\n+))/;
+    const endExp = /(?:;\n*(?=(?:\s+(?:.+?)\s*\:)|(?=(?:.+?)\<block\d+\>)))/;
     const parts = css.split(endExp)
     parts
-      .filter(rule => !rule.match(/(;|\n+)/)
-        && !endExp.test(rule) && rule.trim().length)
+      .filter(rule => rule && rule.trim().length)
       .forEach((rule) => {
         const isChild = rule.match(/(<block\d+>)/);
         const isSpread = rule.match(/(\.{3})(.*)/);
@@ -175,7 +175,7 @@ export default class StyleParser extends Utils {
     styleBundle.mapSelectors.get(opts.selector).properties = result;
     return result;
   }
-  protected isNotSpecial(selector: string): boolean {
+  static isNotSpecial(selector: string): boolean {
     const special = [
       "@media",
       "@keyframes",
@@ -235,7 +235,7 @@ export default class StyleParser extends Utils {
           properties: null,
           parent: opts.parent ? opts.parent : null,
           children: [],
-          isSpecial: !this.isNotSpecial(rule.trim()),
+          isSpecial: !StyleParser.isNotSpecial(rule.trim()),
           omitOutputSelector: opts.omitOutputSelector,
           isMedia: opts.isMedia ? opts.isMedia : false,
           isDocument: isDocument ? selector : opts.isDocument ? opts.isDocument : false,

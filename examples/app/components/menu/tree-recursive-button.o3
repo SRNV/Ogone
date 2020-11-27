@@ -43,7 +43,7 @@ require item as {
     public openTree: boolean = false;
   case 'click:toggle':
     this.openTree = !this.openTree
-  break;
+    break;
 </proto>
 
 <style>

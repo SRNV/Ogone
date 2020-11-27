@@ -9,8 +9,8 @@
 
 <proto type="async">
   default:
-   Async.resolve();
-  break;
+    Async.resolve();
+    break;
 </proto>
 
 <style>

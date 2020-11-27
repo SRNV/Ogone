@@ -20,7 +20,7 @@ export default class SwitchContextBuilder extends Utils {
         // @ts-ignore
         const { script } = flag;
         const { modules } = component;
-        const { node, ctx, getLength, array, item: itemName } = script;
+        const { node, ctx, getLength, array, item: itemName, aliasItem, destructured } = script;
         let contextIf = null;
         if (node.attributes && node.attributes["--if"]) {
           let nxt = node.nextElementSibling;
@@ -141,16 +141,21 @@ export default class SwitchContextBuilder extends Utils {
           component,
           data: component.context.data,
           value: script.value || "",
-          itemName,
+          itemName: aliasItem || itemName,
           context: {
             id: `${component.uuid}-${nId}`,
             if: contextIf ? contextIf : "",
             parentId: node.parentNode
               ? `${component.uuid}-${node.parentNode.id}`
               : "",
-            result: component.data ? [...Object.keys(ctx), ...Object.keys(component.data)]
-              .join(',')
-              .replace(/[\{\}\[\]]/gi, '') : '',
+            result: component.data ? [
+              // the key can start with a bracket or a brace
+              // if the element is destructured
+              ...Object.keys(ctx).filter((key) => !key.match(/^(\{|\[)/)),
+              ...(destructured ? destructured : []),
+              ...Object.keys(component.data)
+            ]
+                .join(',') : '',
             getNodeDynamicLength: isNodeDynamic ? `
             if (GET_LENGTH) {
               return 1;
@@ -175,10 +180,7 @@ export default class SwitchContextBuilder extends Utils {
           value: script.value || "",
           modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
         });
-        bundle.contexts.push(
-          result.replace(/\n/gi, "")
-            .replace(/\s+/gi, " "),
-        );
+        bundle.contexts.push(result);
       });
     }
   }

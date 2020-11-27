@@ -29,28 +29,6 @@ import Style from './css/Style.ts';
 export default class StylesheetBuilder extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
   private Style: Style = new Style();
-  private readKeyframes(keyframesEvaluated: string) {
-    const fn = new Function('get', `return (${keyframesEvaluated});`)
-    const get = (name: string, opts: any) => {
-      switch (true) {
-        case typeof name !== 'string':
-          this.error('using keyframes fade: argument one has to be a string.')
-          break;
-      }
-      return `
-        .${name} {
-          animation-name: ${name};
-          animation-duration: ${opts.time || 1}s;
-          animation-iteration-count: ${opts.iteration || 1};
-          animation-fill-mode: ${opts.iteration || 'forwards'};
-          animation-timing-function: ${opts.style || 'linear'};
-        }
-        ${keyframes[name]}
-      `;
-    };
-    const k = fn(get);
-    return Array.isArray(k) ? k.join('\n') : k;
-  }
   async read(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
     for await (const [, component] of entries) {
@@ -122,5 +100,27 @@ export default class StylesheetBuilder extends Utils {
         }
       }
     }
+  }
+  private readKeyframes(keyframesEvaluated: string) {
+    const fn = new Function('get', `return (${keyframesEvaluated});`)
+    const get = (name: string, opts: any) => {
+      switch (true) {
+        case typeof name !== 'string':
+          this.error('using keyframes fade: argument one has to be a string.')
+          break;
+      }
+      return `
+        .${name} {
+          animation-name: ${name};
+          animation-duration: ${opts.time || 1}s;
+          animation-iteration-count: ${opts.iteration || 1};
+          animation-fill-mode: ${opts.iteration || 'forwards'};
+          animation-timing-function: ${opts.style || 'linear'};
+        }
+        ${keyframes[name]}
+      `;
+    };
+    const k = fn(get);
+    return Array.isArray(k) ? k.join('\n') : k;
   }
 }

@@ -6,7 +6,7 @@ o3.run({
   entrypoint: "examples/app/index.o3",
   devtool: false,
   static: "./public",
-  port: 8013,
+  port: 8010,
   modules: "/examples/modules",
   head: `
   <link href="/style.css" rel="stylesheet"/>

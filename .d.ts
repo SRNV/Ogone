@@ -1,4 +1,4 @@
-import type Style from "./classes/Style";
+import type Style from "./classes/css/Style.ts";
 
 
 export type Environment = "development" | "production" | "staging";
@@ -400,6 +400,7 @@ export interface ForCtxDescription<T> {
   item: string;
   array: string;
   content: T;
+  destructured?: string[];
 }
 export type StyleBundle = {
   value: string;
