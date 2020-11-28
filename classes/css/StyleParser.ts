@@ -1,20 +1,21 @@
-import type { Bundle, Component, StyleBundle } from '../.d.ts';
-import read from '../utils/agnostic-transformer.ts';
-import { Utils } from './Utils.ts';
-import elements from "../utils/elements.ts";
-import notParsed from "../utils/not-parsed.ts";
-import obviousElements from '../utils/elements.ts';
+import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import read from '../../utils/agnostic-transformer.ts';
+import { Utils } from '../Utils.ts';
+import elements from "../../utils/elements.ts";
+import notParsed from "../../utils/not-parsed.ts";
+import styleElements from '../../utils/elements.ts';
 
 // TODO needs more explications on the process
 /**
- * @name ObviousParser
+ * @name StyleParser
  * @code OOP1-OSB7-OC0
  * @description this class will help parsing tokens and apply regexp
  */
-export default class ObviousParser extends Utils {
-  protected regularAtRules: RegExp = /^(\@((§{2}keywordImport\d+§{2})|namespace|charset))/i;
+export default class StyleParser extends Utils {
+  protected regularAtRules: RegExp = /^(\@(import|namespace|charset))/i;
   protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
   public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
+
   protected getContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {
     let result = opts && opts.imported ? `(() => {` : '';
     const { expressions } = styleBundle.tokens;
@@ -106,14 +107,13 @@ export default class ObviousParser extends Utils {
       props: {},
     };
     const { expressions } = styleBundle.tokens;
-    const endExp = /(?:(§{2}(endPonctuation|endLine)\d+§{2}))/;
+    const endExp = /(?:;\n*(?=(?:\s+(?:.+?)\s*\:)|(?=(?:.+?)\<block\d+\>)))/;
     const parts = css.split(endExp)
     parts
-      .filter(rule => !["endPonctuation", "endLine"].includes(rule)
-        && !endExp.test(rule) && rule.trim().length)
+      .filter(rule => rule && rule.trim().length)
       .forEach((rule) => {
-        const isChild = rule.match(/(§{2}block\d+§{2})/);
-        const isSpread = rule.match(/(§{2}spread\d+§{2})(.*)/);
+        const isChild = rule.match(/(<block\d+>)/);
+        const isSpread = rule.match(/(\.{3})(.*)/);
         if (isChild) {
           const [block] = isChild;
           result.children.push(rule);
@@ -133,7 +133,7 @@ export default class ObviousParser extends Utils {
             styleBundle.mapVars.get(variable.replace(/^\$/, ''))
           );
         } else {
-          const item = rule.split(/§{2}optionDiviser\d+§{2}/);
+          const item = rule.split(/\:/);
           if (item) {
             let [prop, value] = item;
             if (value) {
@@ -175,7 +175,7 @@ export default class ObviousParser extends Utils {
     styleBundle.mapSelectors.get(opts.selector).properties = result;
     return result;
   }
-  protected isNotSpecial(selector: string): boolean {
+  static isNotSpecial(selector: string): boolean {
     const special = [
       "@media",
       "@keyframes",
@@ -195,7 +195,7 @@ export default class ObviousParser extends Utils {
       return;
     }
     const rules: any[] = [];
-    const regExp = /(§{2}block\d+§{2})/gi;
+    const regExp = /(<block\d+>)/gi;
     const matches = result.match(regExp);
     if (matches) {
       matches.forEach((block, i, arr) => {
@@ -226,7 +226,7 @@ export default class ObviousParser extends Utils {
             .trim()
             .slice(1)
             .slice(0, -1),
-          array: obviousElements,
+          array: styleElements,
         });
         styleBundle.mapSelectors.set(keySelector, {
           id: keySelector,
@@ -235,7 +235,7 @@ export default class ObviousParser extends Utils {
           properties: null,
           parent: opts.parent ? opts.parent : null,
           children: [],
-          isSpecial: !this.isNotSpecial(rule.trim()),
+          isSpecial: !StyleParser.isNotSpecial(rule.trim()),
           omitOutputSelector: opts.omitOutputSelector,
           isMedia: opts.isMedia ? opts.isMedia : false,
           isDocument: isDocument ? selector : opts.isDocument ? opts.isDocument : false,
@@ -300,7 +300,7 @@ export default class ObviousParser extends Utils {
       expressions,
       typedExpressions,
       value: result,
-      array: notParsed.concat(elements).concat(obviousElements),
+      array: notParsed.concat(elements).concat(styleElements),
     });
     styleBundle.value = result;
     return result;

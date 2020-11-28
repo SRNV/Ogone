@@ -1,16 +1,16 @@
-import type { Bundle, Component, StyleBundle } from '../.d.ts';
-import ObviousMemory from './ObviousMemory.ts';
-// TODO needs more explications on the process and how to add things to Obvious
+import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import StyleMemory from './StyleMemory.ts';
+// TODO needs more explications on the process and how to add things to Style
 /**
- * @name Obvious
+ * @name Style
  * @code OO2-OSB7-OC0
  * @description CSS preprocessor for Ogone, run by default.
  * allows nested rules, variables, exported variables, parent rule ref with &, keyframes compression, css minification
- * @dependency ObviousMemory
- * @dependency ObviousOutput
- * @dependency ObviousParser
+ * @dependency StyleMemory
+ * @dependency StyleOutput
+ * @dependency StyleParser
  */
-export default class Obvious extends ObviousMemory {
+export default class Style extends StyleMemory {
   public async read(css: string, bundle: Bundle, component: Component): Promise<string> {
     const styleBundle: StyleBundle = await this.getNewStyleBundle(css, bundle, component);
     this.mapStyleBundle.set("k" + Math.random(), styleBundle);

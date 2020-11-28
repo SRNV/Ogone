@@ -1,6 +1,6 @@
 import type { Bundle } from "../.d.ts";
-import ProtocolScriptParser from "./ProtocolScriptParser.ts";
 import { Utils } from "./Utils.ts";
+import AssetsParser from './AssetsParser.ts';
 /**
  * @name ImportsAnalyzer
  * @code OIA3
@@ -9,14 +9,11 @@ import { Utils } from "./Utils.ts";
  * ```ts
  *   ImportsAnalyzer.inspect(bundle as Bundle);
  * ```
- * @dependency ProtocolScriptParser
- *    ```ts
- *      ProtocolScriptParser.parse(str: string, opts: ProtocolScriptParserOptions): ProtocolScriptParserReturnType
- *    ```
+ * @dependency AssetsParser
  */
 export default class ImportsAnalyzer extends Utils {
-  private ProtocolScriptParser: ProtocolScriptParser =
-    new ProtocolScriptParser();
+  private AssetsParser: AssetsParser =
+    new AssetsParser();
   public inspect(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
     for (const [, component] of entries) {
@@ -33,19 +30,14 @@ export default class ImportsAnalyzer extends Utils {
           declarations += node.rawText;
         });
         if (declarations.length) {
-          const tokens = this.ProtocolScriptParser.parse(declarations, {
-            onlyDeclarations: true,
-          });
+          const tokens = this.AssetsParser.parseUseStatement(declarations);
           // performance here
-          const importBody = this.ProtocolScriptParser.parse(declarations, {
-            esm: true,
-          });
+          const importBody = this.AssetsParser.parseImportStatement(declarations);
           if (importBody.body && importBody.body.imports) {
             const { imports } = importBody.body;
             component.esmExpressions = Object.entries(imports).map(
               ([key, imp]: [string, any]) => {
                 // TODO fix examples/tests/modules/index.ts
-                console.warn(imp)
                 const hmrModule = {
                   registry: 'Ogone.mod',
                   variable: '',
@@ -141,7 +133,7 @@ export default class ImportsAnalyzer extends Utils {
           textNodes.forEach((node) => {
             node.rawText = "";
           });
-          component.requirements = tokens.body.properties;
+          component.requirements = this.AssetsParser.parseRequireStatement(declarations).body.properties;
         }
       }
     }

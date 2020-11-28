@@ -42,7 +42,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*((§{2}(identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})\s*(§{2}block\d+§{2})/,
+      /(this)\s*((§{2}(identifier|array)\d+§{2})+)\s*(=>)\s*(<block\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -52,7 +52,7 @@ const items: ProtocolScriptRegExpList = [
       const id = `§§reflection${gen.next().value}§§`;
       const [input, keywordThis, identifier] = matches;
       const fnbody = matches.find(
-        (k, i, arr) => arr[i - 1] && arr[i - 1].startsWith("§§arrowFunction"),
+        (k, i, arr) => arr[i - 1] && arr[i - 1].trim() === "=>",
       );
       if (expressions) expressions[id] = value;
       let translate = fnbody;
@@ -79,7 +79,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(§{2}arrowFunction\d+§{2})(.*?)(§{2}(endExpression|endPonctuation)\d+§{2})/i,
+      /(this)\s*((§{2}(?:identifier|array)\d+§{2})+)\s*(=>)(.*?)(§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
@@ -89,11 +89,11 @@ const items: ProtocolScriptRegExpList = [
       const id = `§§reflection${gen.next().value}§§`;
       const [input, keywordThis, identifier] = matches;
       const fnbody = matches.find(
-        (k, i, arr) => arr[i - 1] && arr[i - 1].startsWith("§§arrowFunction"),
+        (k, i, arr) => arr[i - 1] && arr[i - 1].trim() === "=>",
       );
       if (expressions) expressions[id] = value;
       if (fnbody) {
-        let translate = fnbody.replace(/(§§endPonctuation\d+§§)/gi, "");
+        let translate = fnbody.replace(/;/gi, "");
         let translateIdentifier = identifier;
         function template() {
           translate = getDeepTranslation(translate, expressions as MapIndexable);
@@ -118,7 +118,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(§{2}keywordThis\d+§{2})\s*(§{2}identifier\d+§{2})\s*(§{2}arrowFunction\d+§{2})\s*([^\s]+)+/,
+      /(this)\s*(§{2}identifier\d+§{2})\s*(=>)\s*([^\s]+)+/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -135,33 +135,17 @@ not supported in this version of Ogone
   },
   // use syntax
   // use @/path/to/comp.o3 as element-name
-  {
-    // parse missing string
-    name: "declarations",
-    open: false,
-    reg:
-      /(§{2}keywordUse\d+§{2})\s*(§{2}path\d+§{2})\s*(§{2}keywordAs\d+§{2})\s+(?!(§§string))/,
-    id: (value, matches, typedExpressions, expressions) => {
-      if (!expressions || !matches) {
-        throw new Error("expressions or matches are missing");
-      }
-      throw new Error(
-        "please follow this pattern for use expression: use @/absolute/path.o3 as <string>\n\n",
-      );
-    },
-    close: false,
-  },
   // use relative path
   {
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s*((§{2}ponctuation)([^\s]*)+)\s*(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((\.)([^\s]*)+)\s+(as)\s*(\<string\d+\>)\s*;*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      const id = `§§use${gen.next().value}§§`;
+      const id = `use${gen.next().value}`;
       let path = getDeepTranslation(matches[2], expressions);
       path = getDeepTranslation(path, expressions).trim();
       if (typedExpressions) {
@@ -180,18 +164,18 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s+(§{2}path\d+§{2})\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+(\@\/)((.*?)\s+as\s+)(\<string\d+\>)\s*(;)*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
-      const id = `§§use${gen.next().value}§§`;
-      let path = expressions[matches[2]];
+      const id = `use${gen.next().value}`;
+      let path = matches[4];
       path = getDeepTranslation(path, expressions);
       if (typedExpressions) {
         typedExpressions.use[id] = {
           path,
-          as: expressions[matches[4]],
+          as: expressions[matches[5]],
           type: "absolute",
         };
       }
@@ -204,7 +188,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordUse\d+§{2})\s+((https|http)(§{2}optionDiviser\d+§{2}\/{2})([^\s]*)+)\s+(§{2}keywordAs\d+§{2})\s*(§{2}string\d+§{2})(\s*§{2}endPonctuation\d+§{2})*/,
+      /(use)\s+((https|http)(\:\/{2})([^\s]*)+)\s+(as)\s*(\<string\d+\>)\s*;*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -223,9 +207,26 @@ not supported in this version of Ogone
     close: false,
   },
   {
+    // parse missing string
     name: "declarations",
     open: false,
-    reg: /(§{2}keywordUse\d+§{2})(.*)(\s*§{2}endLine\d+§{2})*/,
+    reg:
+      /(use)\s+(\@\/)(.*?)(\s+as\s+)/,
+    id: (value, matches, typedExpressions, expressions) => {
+      if (!expressions || !matches) {
+        throw new Error("expressions or matches are missing");
+      }
+      console.warn(matches)
+      throw new Error(
+        "please follow this pattern for use expression: use <path> as <string>\n\n",
+      );
+    },
+    close: false,
+  },
+  {
+    name: "declarations",
+    open: false,
+    reg: /(use)(.*)(\s*§{2}endLine\d+§{2})*/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -244,7 +245,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s+([^\§\(]*)+(§{2}keywordAs\d+§{2})\s+(.*?)(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /(require)\s+([^\§\(]*)+(as)\s+(.*?)(;|\n+)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
@@ -275,7 +276,7 @@ not supported in this version of Ogone
     name: "declarations",
     open: false,
     reg:
-      /(§{2}keywordRequire\d+§{2})\s*([^\§]*)+(§{2}keywordAs\d+§{2})/,
+      /(require)\s*([^\§]*)+(as)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error("expressions or matches are missing");
@@ -292,7 +293,7 @@ not supported in this version of Ogone
     name: "linkCases",
     open: false,
     reg:
-      /\s*(\*){0,1}execute\s+(§{2}keywordDefault\d+§{2})\s*(§{2}(endLine|endPonctuation)\d+§{2})/,
+      /\s*(\*){0,1}execute\s+(\b(default)\b)\s*(;|\n+)/,
     id: (value, match, typedExpressions, expressions) => {
       if (!expressions || !match) {
         throw new Error("expressions or matches are missing");
@@ -309,7 +310,7 @@ not supported in this version of Ogone
   {
     name: "linkCases",
     open: false,
-    reg: /\s*(\*){0,1}execute\s+(§{2}(keywordDefault|keywordCase)\d+§{2})\s*/,
+    reg: /\s*(\*){0,1}execute\s+(case|default)\s*/,
     id: (value, match, typedExpressions, expressions) => {
       if (!expressions || !match) {
         throw new Error("expressions or matches are missing");

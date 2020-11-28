@@ -58,6 +58,7 @@ case 'update:y':
 ## use Reflections syntax instead
 
 Reflections are custom features only supported by Ogone
+these are available in the compute modifier
 
 ```typescript
 <template>${position}</template>
@@ -65,7 +66,7 @@ Reflections are custom features only supported by Ogone
     def:
         x: 0
         y: 0
-    before-each:
+    compute:
         //  this is a reflection
         this.position => ´${this.x},${this.y}´;
         // or

@@ -7,6 +7,12 @@ import { Utils } from "./Utils.ts";
  * @description this class will build the context part. context part helps for loop rendering
  */
 export default class SwitchContextBuilder extends Utils {
+  public async startAnalyze(bundle: Bundle): Promise<void> {
+    const entries = Array.from(bundle.components);
+    for await (let [path] of entries) {
+      await this.read(bundle, path);
+    }
+  }
   read(bundle: Bundle, keyComponent: string) {
     const component = bundle.components.get(keyComponent);
     if (component) {
@@ -14,7 +20,7 @@ export default class SwitchContextBuilder extends Utils {
         // @ts-ignore
         const { script } = flag;
         const { modules } = component;
-        const { node, ctx, getLength, array, item: itemName } = script;
+        const { node, ctx, getLength, array, item: itemName, aliasItem, destructured } = script;
         let contextIf = null;
         if (node.attributes && node.attributes["--if"]) {
           let nxt = node.nextElementSibling;
@@ -122,7 +128,7 @@ export default class SwitchContextBuilder extends Utils {
               try {
                 return eval('('+GET_TEXT+')');
               } catch(err) {
-                if (!${itemName}) { return undefined }
+                if (!({{ itemName }})) { return undefined }
                 Ogone.error('Error in component:\\n\\t {{component.file}} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }
@@ -133,19 +139,23 @@ export default class SwitchContextBuilder extends Utils {
             : `Ogone.contexts['{{ context.id }}'] = Ogone.contexts['{{ context.parentId }}'];`;
         const result = this.template(contextScript, {
           component,
-          data: component.data instanceof Object
-            ? Object.keys(component.data).map((prop) =>
-              `const ${prop} = this.${prop};`
-            ).join("\n")
-            : "",
+          data: component.context.data,
           value: script.value || "",
+          itemName: aliasItem || itemName,
           context: {
             id: `${component.uuid}-${nId}`,
             if: contextIf ? contextIf : "",
             parentId: node.parentNode
               ? `${component.uuid}-${node.parentNode.id}`
               : "",
-            result: [...Object.keys(ctx), ...Object.keys(component.data)],
+            result: component.data ? [
+              // the key can start with a bracket or a brace
+              // if the element is destructured
+              ...Object.keys(ctx).filter((key) => !key.match(/^(\{|\[)/)),
+              ...(destructured ? destructured : []),
+              ...Object.keys(component.data)
+            ]
+                .join(',') : '',
             getNodeDynamicLength: isNodeDynamic ? `
             if (GET_LENGTH) {
               return 1;
@@ -170,10 +180,7 @@ export default class SwitchContextBuilder extends Utils {
           value: script.value || "",
           modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
         });
-        bundle.contexts.push(
-          result.replace(/\n/gi, "")
-            .replace(/\s+/gi, " "),
-        );
+        bundle.contexts.push(result);
       });
     }
   }

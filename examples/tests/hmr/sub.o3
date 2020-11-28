@@ -1,10 +1,11 @@
 use @/examples/tests/hmr/sub2.o3 as 'sub-2';
 
-<proto>
-    def:
-        name: World
-</proto>
 <template>
-  <p>Hello ${name}</p>
+  <p>Hello ${this.name}</p>
   <sub-2/>
 </template>
+
+<proto>
+    def:
+      name: World
+</proto>

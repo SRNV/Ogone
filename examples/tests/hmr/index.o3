@@ -2,14 +2,6 @@ use @/examples/tests/click.o3 as 'click-c'
 use @/examples/tests/greeting.o3 as 'greeting-g'
 use @/examples/tests/hmr/sub.o3 as 'sub-1';
 
-<proto>
-  def:
-    content: change the content
-  default:
-    console.warn('change the default')
-</proto>
-
-
 <template>
   <h1>HMR tests</h1>
   <h3> update nodes </h3>
@@ -33,8 +25,8 @@ use @/examples/tests/hmr/sub.o3 as 'sub-1';
   <div>aaa</div>
   <div>aaa</div>
   <div>aaa</div>
-    <li --for="[1, 2, 3] as (n)">add one dynamic node after ${n}a</li>
-    <div --for="[1, 2, 3] as (n)">add one dynamic node after ${n}</div>
+    <li --for="n of [1, 2, 3]">add one dynamic node after ${this.n}a</li>
+    <div --for="n of [1, 2, 3]">add one dynamic node after ${this.n}</div>
   </ul>
 
   <h3> update components</h3>
@@ -45,6 +37,15 @@ use @/examples/tests/hmr/sub.o3 as 'sub-1';
   <greeting-g></greeting-g>
   <sub-1 />
 </template>
+
+<proto>
+  def:
+    content: change the content
+  default:
+    console.warn('change the default')
+</proto>
+
+
 <style>
   .hmr-update {
     background: blue;

@@ -6,6 +6,7 @@ import type {
   DOMParserExp,
   DOMParserExpressions,
 } from "../.d.ts";
+import ForFlagBuilder from "./ForFlagBuilder.ts";
 
 const openComment = "<!--";
 const closeComment = "-->";
@@ -21,6 +22,7 @@ const closeComment = "-->";
  * ```
  */
 export default class XMLParser extends XMLJSXOutputBuilder {
+  private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   private getUniquekey(id = "", iterator: DOMParserIterator): string {
     iterator.value++;
     // critical all regexp are based on this line
@@ -42,6 +44,53 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   ): void {
     const { nodeList } = rootnode;
     nodeList.forEach((node: XMLNodeDescription) => {
+      node.getOuterTSX = () => {
+        if (node.nodeType === 1) {
+          let templateOuterTSX = `<{{tagname}} {{attrs}}>{{outers}}</{{tagname}}>`;
+          if (node.attributes['--for']) {
+            const value = node.attributes['--for'];
+            const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
+            const { array, item, index } = flagDescript;
+            templateOuterTSX = `{
+              ${array}
+            .map((
+              ${item},
+              ${index}: number
+            ) =>
+              ${templateOuterTSX}
+            )}`;
+          }
+          let result = this.template(
+            templateOuterTSX,
+            {
+              outers: node.childNodes.map((c) => {
+                if (c.getOuterTSX) {
+                  return c.getOuterTSX();
+                } else {
+                  return "";
+                }
+              }).join(""),
+              tagname: node.tagName,
+              attrs: Object.entries(node.attributes)
+                .map(([key, value]) => {
+                  if (key.startsWith(`--`)) {
+                    return '';
+                  }
+                  if (value === true) {
+                    return `\n${key} `
+                  }
+                  if (key.startsWith(`:`)) {
+                    return `\n${key.slice(1)}={\n${value}\n} `
+                  }
+                  return `\n${key}="${value}"`;
+                }).join(' '),
+            },
+          );
+          return getDeepTranslation(result, expressions as { [k: string]: any });
+        }
+        const value = node.rawText?.replace(/\</gi, "&lt;").replace(/\>/gi, "&rt;");
+        return getDeepTranslation(`\n${value}\n`|| "", expressions as { [k: string]: any });
+      }
       node.getOuterHTML = () => {
         if (node.nodeType === 1) {
           let result = this.template(
@@ -58,9 +107,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               attrs: node.rawAttrs,
             },
           );
-          return result;
+          return getDeepTranslation(result, expressions as { [k: string]: any });
         }
-        return node.rawText || "";
+        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
       };
       node.getInnerHTML = () => {
         if (node.nodeType === 1) {
@@ -73,9 +122,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               }
             }).join(""),
           });
-          return result;
+          return getDeepTranslation(result, expressions as { [k: string]: any });
         }
-        return node.rawText || "";
+        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
       };
     });
   }

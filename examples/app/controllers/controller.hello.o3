@@ -1,4 +1,4 @@
-<proto type="controller">
+<proto type="controller" namespace="hello">
   declare:
     public name: string = "SRNV";
   case 'GET:/':

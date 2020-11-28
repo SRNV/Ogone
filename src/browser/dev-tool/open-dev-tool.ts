@@ -10,6 +10,6 @@ function openOgoneDevTool() {
       });
     }
   ${factory(opts)}
-  Ogone.ComponentCollectionManager.setLabels();
+  Ogone.ComponentCollectionManager.setModifiers();
 }
 `;

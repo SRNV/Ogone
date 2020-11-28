@@ -15,9 +15,9 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(§{2})(ponctuation\d+)(§{2})(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(§{2})(parenthese\d+)(§{2})/,
+      /(\.)(push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§arrayModifier${gen.next().value}§§`;
+      const id = `<arrayModifier${gen.next().value}>`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -25,7 +25,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2}ponctuation\d+§{2})([^§\s])+/,
+    reg: /\.\s*([\w\d]+)+/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§identifier${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -33,10 +33,9 @@ const computed: ProtocolScriptRegExpList = [
     },
     close: false,
   },
-
   {
     open: false,
-    reg: /(§{2})(identifier\d+)(§{2})\s*(§{2})(parenthese\d+)(§{2})/,
+    reg: /(§{2})(identifier\d+)(§{2})\s*(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§method${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -46,7 +45,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2})(operator\d+)(§{2})\s*(§{2})(string\d+)(§{2})/,
+    reg: /(\+|\-)\s*(§{2})(string\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§concatString${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -56,7 +55,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2})(identifier\d+)(§{2})\s*(§{2})(parenthese\d+)(§{2})/,
+    reg: /(§{2})(identifier\d+)(§{2})\s*(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§method${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -67,7 +66,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(§{2})(keywordFunction\d+)(§{2})(\s)*([^§\s])+(\s)*(§{2})(parenthese\d+)(§{2})([\s\n])*(§{2})(block\d+)(§{2})/,
+      /(\bfunction\b)(\s)*([^§\s])+(\s)*(<parenthese\d+>)([\s\n])*(<block\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§functionDeclaration${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -77,7 +76,7 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /([^§\s\(])+\s*(§{2})(parenthese\d+)(§{2})/,
+    reg: /([^§\s\(])+\s*(<parenthese\d+>)/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§functionCall${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -88,7 +87,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(§{2})(endLine\d+)(§{2})\s*(§{2})((operator|arrayModifier|method)\d+)(§{2})/,
+      /\n+\s*(§{2})((operator|arrayModifier|method)\d+)(§{2})/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§chainedLine${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -99,7 +98,7 @@ const computed: ProtocolScriptRegExpList = [
   {
     open: false,
     reg:
-      /(§{2})((operator|arrayModifier|method)\d+)(§{2})\s*(§{2})(endLine\d+)(§{2})/,
+      /(§{2})((operator|arrayModifier|method)\d+)(§{2})\s*\n+/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§chainedLine${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
@@ -109,42 +108,9 @@ const computed: ProtocolScriptRegExpList = [
   },
   {
     open: false,
-    reg: /(§{2})(chainedLine\d+)(§{2})\s*(§{2})(endLine\d+)(§{2})/,
+    reg: /(§{2})(chainedLine\d+)(§{2})\s*\n+/,
     id: (value, matches, typedExpressions, expressions) => {
       const id = `§§chainedLine${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: false,
-  },
-  {
-    open: false,
-    name: "declare",
-    reg: /\bdeclare\b/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordDeclare${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: false,
-  },
-  {
-    open: false,
-    name: "declare",
-    reg: /(§{2})(keywordDeclare\d+)(§{2})\s*(§{2})(optionDiviser\d+)(§{2})/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§Declaration${gen.next().value}§§`;
-      if (expressions) expressions[id] = value;
-      return id;
-    },
-    close: false,
-  },
-  // before(§§operator\d+§§)each
-  {
-    open: false,
-    reg: /(before(§§operator\d+§§)each)/,
-    id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§keywordBeforeEach${gen.next().value}§§`;
       if (expressions) expressions[id] = value;
       return id;
     },

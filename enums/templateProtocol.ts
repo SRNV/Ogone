@@ -1,0 +1,39 @@
+// TODO use TSX transformation
+enum Protocol {
+  PROTOCOL_TEMPLATE = `
+    class Protocol {
+      {{ props }}
+      {{ data }}
+    }
+  `,
+  BUILD = `
+    {{ namespaces }}
+    {{ protocol }}
+
+    type OgoneCOMPONENTComponent<T> = { children?: any; } & T;
+    type OgoneASYNCComponent<T> = OgoneCOMPONENTComponent<T>;
+    type OgoneSTOREComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;
+    type OgoneROUTERComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;
+    type OgoneCONTROLLERComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;
+
+    declare function h(...args: unknown[]): unknown;
+    declare function hf(...args: unknown[]): unknown;
+    declare namespace h.JSX {
+      export interface IntrinsicElements {
+        {{ allUsedComponents }}
+        [k: string]: any;
+      }
+    }
+    class Component extends Protocol {
+      render() {
+        return {{ tsx.length ? \`(\${tsx})\` : '' }};
+      }
+      {{ runtime }}
+    }
+  `,
+  USED_COMPONENT_TEMPLATE = `
+    ['{{ tagName }}']: {{ genericType }}<{
+      {{ propsTypes || '' }}
+    }>;`,
+}
+export default Protocol;

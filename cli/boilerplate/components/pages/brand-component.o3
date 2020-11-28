@@ -1,6 +1,49 @@
 use ../atoms/github-badges.o3 as 'github-badges';
 use ../atoms/button.o3 as 'o-btn';
 
+<template>
+  <div
+    ref="container"
+    --if="this.display"
+    --event:animationend:fade-out-bottom
+    --class="{
+      container: true,
+      ['fade-in-bottom']: this.visible,
+      ['fade-out-bottom']: !this.visible, }">
+    <div class="brand">
+      <img
+        --await
+        class="logo"
+        src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
+    </div>
+    <div class="brand__message fade-in-down">
+      ${this.message}
+    </div>
+    <p align="center">
+      <o-btn
+        --click:fade-out:exit
+        :text="'Getting Started'"/>
+    </p>
+    <github-badges />
+    <div class="links">
+      <ul>
+        <li --for="item of this.links">
+          <a :href="item.href">${item.label}</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <marquee
+    --if="this.display"
+    --event:animationend:fade-out
+    ref="marquee"
+    truespeed
+    scrolldelay="23"
+    class="brand_big">
+    Ogone - Web Components Compiler for Deno
+  </marquee>
+</template>
+
 <proto type="async">
   declare:
     public visible: boolean = true;
@@ -43,49 +86,6 @@ use ../atoms/button.o3 as 'o-btn';
     Async.resolve();
 </proto>
 
-<template>
-  <div
-    ref="container"
-    --if="display"
-    --event:animationend:fade-out-bottom
-    --class="{
-      container: true,
-      ['fade-in-bottom']: visible,
-      ['fade-out-bottom']: !visible, }">
-    <div class="brand">
-      <img
-        --for="[1,2] as (e)"
-        --await
-        class="logo"
-        src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
-    </div>
-    <div class="brand__message fade-in-down">
-      ${message}
-    </div>
-    <p align="center">
-      <o-btn
-        --click:fade-out:exit
-        :text="'Getting Started'"/>
-    </p>
-    <github-badges />
-    <div class="links">
-      <ul>
-        <li --for="links as (item)">
-          <a :href="item.href">${item.label}</a>
-        </li>
-      </ul>
-    </div>
-  </div>
-  <marquee
-    --if="display"
-    --event:animationend:fade-out
-    ref="marquee"
-    truespeed
-    scrolldelay="23"
-    class="brand_big">
-    Ogone - Web Components Compiler for Deno
-  </marquee>
-</template>
 
 <!-- style is by default scoped, use the attribute global if you want to make the style general -->
 <style --keyframes="[

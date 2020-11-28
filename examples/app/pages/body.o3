@@ -1,14 +1,17 @@
 use @/examples/app/components/content.o3 as "content-page";
-<proto def="examples/app/defs/body.proto.yml" />
+
 <template>
   <div class="container">
     <content-page
-      --for="articles as (article)"
+      --for="article of this.articles"
       :text="article.text"
       :title="article.title"
       :code="article.code"></content-page>
   </div>
 </template>
+
+<proto def="examples/app/defs/body.proto.yml" />
+
 <style>
   .container {
     height: auto;

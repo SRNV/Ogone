@@ -1,4 +1,5 @@
-import type Obvious from "./classes/Obvious.ts";
+import type Style from "./classes/css/Style.ts";
+
 
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };
@@ -105,6 +106,7 @@ export interface Bundle {
 
 export interface Component {
   remote: Remote | null;
+  isTyped: boolean;
   for: any;
   refs: {};
   flags: [];
@@ -125,14 +127,39 @@ export interface Component {
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
-  mapStyleBundle?: Obvious["mapStyleBundle"];
+  mapStyleBundle?: Style["mapStyleBundle"];
   elements: {
     styles: XMLNodeDescription[];
     proto: XMLNodeDescription[];
     template?: XMLNodeDescription;
   };
+  context: {
+    data: string;
+    props: string;
+    protocol: string;
+    protocolClass: string;
+  };
+  modifiers: {
+    beforeEach: string;
+    compute: string;
+    /** all cases of the protocol compiled */
+    cases: ModifierContext[];
+    /** initial part of the script */
+    default: string;
+    /** all modifiers compiled */
+    build?: string;
+  };
 }
-
+export type ModifierContext = {
+  /** the code following the token */
+  value: string;
+  /** the current token */
+  token: string;
+  /** the argument following the token */
+  argument: null | string;
+  /** if the modifier ends with a break statement */
+  endsWithBreak: boolean;
+}
 interface ComponentScript {
   runtime: string;
 }
@@ -163,6 +190,7 @@ export interface XMLNodeDescription {
   };
   getInnerHTML?: () => string;
   getOuterHTML?: () => string;
+  getOuterTSX?: () => string;
 }
 
 /**
@@ -372,6 +400,7 @@ export interface ForCtxDescription<T> {
   item: string;
   array: string;
   content: T;
+  destructured?: string[];
 }
 export type StyleBundle = {
   value: string;

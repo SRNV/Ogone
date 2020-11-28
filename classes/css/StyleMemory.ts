@@ -1,23 +1,23 @@
-import type { Bundle, Component, StyleBundle } from '../.d.ts';
-import ObviousOutput from './ObviousOutput.ts';
+import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import StyleOutput from './StyleOutput.ts';
 // TODO needs more explications on the process
 /**
- * @name ObviousMemory
+ * @name StyleMemory
  * @code OOM1-OSB7-OC0
  * @description saves vars, use statements, imported components and styleBundle
  * you can add a new var syntax by editing the getVars method, the method getVars will at the end save the variable
  * inside the styleBundle's mapVars (Map)
  * the use statement is parsed by the method setUse, this method will save the dependency inside styleBundle's mapImport
  * after this the async method getImports will bundle all dependencies asynchronously
- * @dependency ObviousOutput
- * @dependency ObviousParser
+ * @dependency StyleOutput
+ * @dependency StyleParser
  */
-export default class ObviousMemory extends ObviousOutput {
+export default class StyleMemory extends StyleOutput {
   protected getVars(styleBundle: StyleBundle, bundle: Bundle, component: Component): string {
     let result = styleBundle.value;
-    const parts = result.split(/(?:§{2}(?:endPonctuation|endLine)\d+§{2})/);
-    const regExpVarsExported = /(@§{2}keywordExport\d+§{2})\s+(§{2}keywordConst\d+§{2}\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
-    const regExpVars = /(@§{2}keywordConst\d+§{2}\*{0,1})\s+(\w+)+\s*(§{2}operatorsetter\d+§{2})(.*)/;
+    const parts = result.split(/(?:(;|\n+))/);
+    const regExpVarsExported = /(@export)\s+(const\*{0,1})\s+(\w+)+\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+)(.*)/;
+    const regExpVars = /(@const\*{0,1})\s+(\w+)+\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+)(.*)/;
     result = parts
       .map((statement) => {
         if (statement.trim().match(this.regularAtRules)) {
@@ -25,7 +25,7 @@ export default class ObviousMemory extends ObviousOutput {
           return;
         }
         if (statement.trim().length
-          && statement.trim().match('@§§keyword')) {
+          && statement.trim().match(/(\@(const|export))/)) {
           const isConstant = statement.match(regExpVars);
           const isExportable = statement.match(regExpVarsExported);
           if (isExportable) {
@@ -34,7 +34,7 @@ export default class ObviousMemory extends ObviousOutput {
             if (styleBundle.mapVars.get(name)) {
               this.error(`${name} already defined.`);
             }
-            const isSelector = !evaluated && !!value.match(/(§§block\d+§§)$/);
+            const isSelector = !evaluated && !!value.match(/(<block\d+>)$/);
             styleBundle.mapVars.set(name, {
               value: isSelector ? this.getRules(value, styleBundle, bundle, component, {
                 omitOutputSelector: true,
@@ -49,7 +49,7 @@ export default class ObviousMemory extends ObviousOutput {
             if (styleBundle.mapVars.get(name)) {
               this.error(`${name} already defined.`);
             }
-            const isSelector = !evaluated && !!value.match(/(§§block\d+§§)$/);
+            const isSelector = !evaluated && !!value.match(/(<block\d+>)$/);
             styleBundle.mapVars.set(name, {
               value: isSelector ? this.getRules(value, styleBundle, bundle, component, {
                 omitOutputSelector: true,
@@ -61,7 +61,7 @@ export default class ObviousMemory extends ObviousOutput {
           }
           return '';
         }
-        if (statement === "endPonctuation" || statement === "endLine") {
+        if (statement.match(/(;|\n+)/)) {
           return '';
         }
         return statement;
@@ -122,7 +122,7 @@ export default class ObviousMemory extends ObviousOutput {
   }
   protected setUse(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
     let result = styleBundle.value;
-    const regexp = /(\@§{2}keywordUse\d+§{2})\s+(§{2}string\d+§{2})\s+(§{2}keywordAs\d+§{2})\s+(\w*)+\s*(§{2}(endPonctuation|endLine)\d+§{2})/;
+    const regexp = /(\@use)\s+(\<string\d+\>)\s+(as)\s+(\w*)+\s*(;|\n+)/;
     while (result.match(regexp)) {
       const m = result.match(regexp);
       if (m) {

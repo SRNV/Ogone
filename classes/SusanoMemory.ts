@@ -7,7 +7,7 @@ import {
 declare type ScopeType =
   | "function"
   | "object"
-  | "label"
+  | "modifier"
   | "class"
   | "namespace"
   | "interface";
@@ -25,7 +25,7 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     const { expressions } = tokens;
     const keys = Object.keys(expressions);
     const presentInScope = keys.filter((key) =>
-      parentScope.value.indexOf(key) > -1 && key.match(/^(§{2}(block)\d+§{2})/)
+      parentScope.value.indexOf(key) > -1 && key.match(/^(<block\d+>)/)
     );
     presentInScope.forEach((key) => {
       const value = expressions[key];
@@ -76,8 +76,8 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     const isIfMatch = parent.value.match(this.ifStatementRegExpGI);
     const isIf = !!isIfMatch?.find((a) => a.indexOf(key) > -1);
 
-    const isLabelMatch = parent.value.match(this.labelRegExpGI);
-    const isLabel = !!isLabelMatch?.find((a) => a.indexOf(key) > -1);
+    const isModifierMatch = parent.value.match(this.modifierRegExpGI);
+    const isModifier = !!isModifierMatch?.find((a) => a.indexOf(key) > -1);
 
     const isDoMatch = parent.value.match(this.doWhileStatementRegExp);
     const isDo = !!isDoMatch?.find((a) => a.indexOf(key) > -1);

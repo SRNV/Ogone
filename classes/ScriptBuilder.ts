@@ -1,5 +1,4 @@
 // TODO split this file
-import ProtocolScriptParser from "./ProtocolScriptParser.ts";
 import OgoneNS from "../types/ogone/namespaces.ts";
 import {
   YAML,
@@ -8,11 +7,12 @@ import {
   fetchRemoteRessource,
 } from "../deps.ts";
 import { existsSync } from "../utils/exists.ts";
-import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
+import type { Bundle, XMLNodeDescription, Component, ModifierContext } from "../.d.ts";
 import Ogone from "./Ogone.ts";
 import { Utils } from "./Utils.ts";
 import { Configuration } from "./Configuration.ts";
 import RouterAnalyzer from './RouterAnalyzer.ts';
+import { Context } from '../enums/templateContext.ts';
 /**
  * @name ScriptBuilder
  * @code OSB4
@@ -26,11 +26,8 @@ import RouterAnalyzer from './RouterAnalyzer.ts';
  * it exposes Ogone Namespace, and let the developer use Ogone on Client side
  * this is done by using the function OgoneNS that will parse which names are used in the developer code
  *
- * @dependency ProtocolScriptParser
  */
 export default class ScriptBuilder extends Utils {
-  private ProtocolScriptParser: ProtocolScriptParser =
-    new ProtocolScriptParser();
   private RouterAnalyzer: RouterAnalyzer = new RouterAnalyzer();
   private mapScript: Map<string, { script: string; declarations: any }> =
     new Map();
@@ -75,7 +72,6 @@ export default class ScriptBuilder extends Utils {
       noFallthroughCasesInSwitch: false,
       allowJs: false,
       removeComments: false,
-      resolveJsonModule: false,
       experimentalDecorators: true,
       noImplicitAny: true,
       allowUnreachableCode: false,
@@ -88,7 +84,6 @@ export default class ScriptBuilder extends Utils {
       strictFunctionTypes: true,
       types: Configuration.types || [],
     }));
-
     if (diag) {
       for (const d of diag) {
         // @ts-ignore
@@ -103,9 +98,10 @@ export default class ScriptBuilder extends Utils {
         });
         const linePosition = lines.indexOf(sourceLine || "");
         const columnPosition = sourceLine?.indexOf(source.trim());
+        console.table(d);
         this.error(
           `${component.file}:${linePosition + 1}:${columnPosition ? columnPosition + 1 : 0
-          }\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
+          }\n\t${d.messageText}\n\t${m}\n\t${sourceLine ? sourceLine : ""}\n\t`,
         );
       }
       Deno.exit(1);
@@ -117,7 +113,7 @@ export default class ScriptBuilder extends Utils {
     return (Object.values(emit)[0] as string).split("// ogone-sep")[1];
   }
   async read(bundle: Bundle): Promise<void> {
-    const entries = Array.from(bundle.components.entries());
+    const entries = bundle.components.entries();
     for await (let [, component] of entries) {
       const protos = component.elements.proto;
       if (protos.length > 1) {
@@ -130,138 +126,48 @@ export default class ScriptBuilder extends Utils {
       const proto = component.elements.proto[0];
       // @ts-ignore
       const moduleScript = proto?.getInnerHTML();
-      let defData: any;
-      if (proto && "def" in proto.attributes) {
-        // allowing <proto def="..."
-        // absolute <proto def="http://..."
-        // absolute <proto def="path/to/folder"
-        // relative <proto def="../"
-        // relative <proto def="./"
-        const defPath = (proto.attributes.def as string).trim();
-        const relativePath = join(component.file, defPath);
-        const remoteRelativePath = absolute(component.file, defPath);
-        const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
-          defPath.split("://")[0],
-        );
-        if (!defPath.endsWith(".yml") && !defPath.endsWith(".yaml")) {
-          this.error(
-            `definition files require YAML extensions.\ncomponent: ${component.file}\ninput: ${defPath}`,
-          );
-        }
-        if (isAbsoluteRemote) {
-          this.warn(`Def: ${defPath}`);
-          const def = await fetchRemoteRessource(defPath);
-          if (!def) {
-            this.error(
-              `definition file ${defPath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
-            );
-          } else {
-            defData = YAML.parse(def, {});
-          }
-        } else if (!!component.remote) {
-          this.warn(`Def: ${remoteRelativePath}`);
-          const def = await fetchRemoteRessource(remoteRelativePath);
-          if (!def) {
-            this.error(
-              `definition file ${remoteRelativePath} is not reachable. \ncomponent: ${component.file}\ninput: ${defPath}`,
-            );
-          } else {
-            defData = YAML.parse(def, {});
-          }
-        } else if (existsSync(defPath)) {
-          this.warn(`Def: ${defPath}`);
-          const def = Deno.readTextFileSync(defPath);
-          defData = YAML.parse(def, {});
-        } else if (!component.remote && existsSync(relativePath)) {
-          const def = Deno.readTextFileSync(relativePath);
-          defData = YAML.parse(def, {});
-        } else {
-          this.error(
-            `can't find the definition file of proto: ${defPath}`,
-          );
-        }
-      }
 
       if (moduleScript && proto) {
-        const { type } = proto?.attributes;
-        const ogoneScript = this.ProtocolScriptParser.parse(
-          moduleScript as string,
-          {
-            data: true,
-            reactivity: !["controller"].includes(type as string),
-            casesAreLinkables: true,
-            beforeCases: true,
-          },
-        );
-        const cases = this.ProtocolScriptParser.parse(
-          moduleScript as string,
-          { parseCases: true },
-        );
-        const { each } = ogoneScript.body.switch.before;
-        // here set the cases and if the default is present in the script
-        const { cases: declaredCases, default: declaredDefault } =
-          cases.body.switch;
-        let caseGate = declaredCases.length || declaredDefault
-          ? `
-              // @ts-ignore
-            if (typeof _state === "string" && ![${declaredCases}].includes(_state)) {
-              return;
-            }
-            `
-          : null;
         // @ts-ignore
-        const isTyped: boolean = !!ogoneScript.body.protocol &&
-          ogoneScript.body.protocol.length;
+        const isTyped: boolean = !!component.context.protocol &&
+          component.context.protocol.length;
         let protocol: string = "", prototype = {};
         // @ts-ignore
         if (isTyped) {
           const resultProto = this.getProtocol(
-            { declarations: ogoneScript.body.protocol },
+            { declarations: component.context.protocol as string },
           );
           prototype = (await resultProto).instance;
           protocol = (await resultProto).source;
         }
         component.data = {
-          ...ogoneScript.body.data, // #REL1
-          ...defData,
+          ...component.data,
           // allows dev to define the values
           ...prototype,
         };
-        component.protocol = protocol.toString().startsWith("let ")
+        component.protocol = component.context.protocol.toString().startsWith("let ")
           ? protocol
           : null;
-        const declarations = isTyped ? ogoneScript.body.protocol : null;
+        const declarations = isTyped ? component.context.protocol : null;
         // get the types of the component
-        const { value } = ogoneScript;
-        let sc = `
-            {{ beforeEach }}
-            {{ reflections }}
-            {{ caseGate }}
-            switch(_state) { {{ switchBody }} }`;
         // transpile ts
         // @ts-ignore
-        let script: string = this.template(
-          `({{ async }} function ({{ protocolAmbientType }} _state: _state, ctx: ctx, event: event, _once: number = 0) {
-                try {
-                  {{ body }}
-                } catch(err) {
-                  // @ts-ignore
-                  Ogone.error('Error in the component: \\n\\t {{ file }}' ,err.message, err);
-                  throw err;
-                }
-              });`,
+        let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME,
           {
-            body: sc,
-            switchBody: value,
+            body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
+            switchBody: component.modifiers.build,
             file: component.file,
             protocolAmbientType: isTyped ? "this: Protocol," : "",
-            caseGate: caseGate ? caseGate : "",
-            reflections: ogoneScript.body.reflections.join("\n"),
-            beforeEach: each ? each : "",
-            async: proto && proto.attributes &&
-              ["async", "store", "controller"].includes(
-                proto.attributes.type as string,
-              )
+            caseGate: component.modifiers.cases.length || component.modifiers.default.length
+              ? this.template(Context.CASE_GATE, {
+                declaredCases: component.modifiers.cases.map((modifier: ModifierContext) => modifier.argument).join(','),
+              })
+              : '',
+            reflections: component.modifiers.compute,
+            beforeEach: component.modifiers.beforeEach,
+            async: ["async", "store", "controller"].includes(
+              component.type as string,
+            )
               ? "async"
               : "",
           },
@@ -277,13 +183,6 @@ export default class ScriptBuilder extends Utils {
         }, {
           sourceMap: false,
         }))["proto.ts"].source;
-      } else if (defData) {
-        component.data = defData;
-      }
-
-      if (proto) {
-        const indexofProto = component.rootNode.childNodes.indexOf(proto);
-        delete component.rootNode.childNodes[indexofProto];
       }
       if (
         component.requirements && component.data &&
@@ -300,7 +199,7 @@ export default class ScriptBuilder extends Utils {
       }
 
       if (proto && "type" in proto.attributes) {
-        const { type } = proto.attributes;
+        const { type } = component as Component;
         if (!Ogone.allowedTypes.includes(type as string)) {
           this.error(
             `${type} is not supported, in this version.
@@ -308,8 +207,6 @@ export default class ScriptBuilder extends Utils {
                 error in: ${component.file}`,
           );
         }
-        component.type =
-          (type as "component" | "async" | "store" | "router" | "controller");
         bundle.types[component.type] = true;
         if (type === "controller") {
           const run = eval(component.scripts.runtime);
@@ -460,12 +357,7 @@ export default class ScriptBuilder extends Utils {
             classProps: `class Props {
               {{ props }}
             }`,
-            props: component.requirements
-              ? component.requirements.map(
-                ([name, constructors]) =>
-                  `\ndeclare public ${name}: ${constructors.join(" | ")};`,
-              )
-              : "",
+            props: component.context.props,
           },
         );
         await this.renderTS(bundle, component, compiledAnalyzer, {

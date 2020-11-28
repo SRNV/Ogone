@@ -250,7 +250,6 @@ export default class Env extends Constructor {
       }, {
         module: "esnext",
         target: "esnext",
-        resolveJsonModule: false,
         experimentalDecorators: true,
         allowUnreachableCode: false,
         jsx: "preserve",

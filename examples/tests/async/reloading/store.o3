@@ -10,7 +10,7 @@
         - name: 2020
   case 'action:getUser':
     // code for getting user
-    const b = await fetch(`https://jsonplaceholder.typicode.com/users/${ctx}`);
+    const b = await fetch(`https://jsonplaceholder.typicode.com/users/${this.ctx}`);
     const a = await b.blob();
     const user = await a.text();
     return JSON.parse(user);

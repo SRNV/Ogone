@@ -32,7 +32,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
   // this.events = {};
   // all nodes that's are dynamics will save a function into this property
   // like if we have
-  //  <node --for="array as (el, i)" />
+  //  <node --for="(el, i) of array" />
   // this node will register a function() { ... } that will be triggered each time there is an update
   //this.rerenderAsync = null;
   this.react = [];
@@ -43,7 +43,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     if (this.type === "store") {
       this.initStore();
     }
-    Object.seal(this.data);
     this.runtime(0, params, event);
   };
   this.update = (dependency?: string) => {

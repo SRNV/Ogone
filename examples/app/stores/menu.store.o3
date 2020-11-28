@@ -7,7 +7,7 @@ use @/examples/app/controllers/controller.user.o3 as 'controller-c';
     const controllerC = Controllers['controller-c'];
   case 'action:toggle':
     this.isOpen = !this.isOpen;
-  break;
+    break;
   case 'action:checkController':
     const res = await controllerC.get('/');
     return res;

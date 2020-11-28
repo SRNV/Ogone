@@ -13,7 +13,7 @@ interface Analysis {
 export const members: Analysis[] = [
   {
     reg: /\bOgone\b/,
-    start: "declare namespace Ogone {",
+    start: "\ndeclare namespace Ogone {",
     children: [
       {
         reg: /\bOgone.error\b/,
@@ -103,11 +103,11 @@ export const members: Analysis[] = [
   },
   {
     reg: /\bOComponent\b/,
-    value: "declare function OComponent(): any;",
+    value: "\ndeclare function OComponent(): any;",
   },
   {
     reg: /\bRouterBrowser|Ogone.router\b/,
-    start: "declare interface RouterBrowser {",
+    start: "\ndeclare interface RouterBrowser {",
     children: [
       {
         reg: /\b(Ogone.router.react)\b/,
@@ -130,7 +130,7 @@ export const members: Analysis[] = [
   },
   {
     reg: /\bAsync\b/,
-    start: "declare namespace Async {",
+    start: "\ndeclare namespace Async {",
     children: [
       {
         reg: /\bAsync.resolve\b/,
@@ -141,7 +141,7 @@ export const members: Analysis[] = [
   },
   {
     reg: /\bStore\b/,
-    start: "declare abstract class Store {",
+    start: "\ndeclare abstract class Store {",
     children: [
       {
         reg: /\bdispatch\b/,
@@ -180,24 +180,24 @@ export const members: Analysis[] = [
   },
   {
     reg: /\b_state\b/,
-    value: `declare type _state = string | number;`,
+    value: `\ndeclare type _state = string | number;`,
   },
   {
     reg: /\bctx\b/,
-    value: `declare type ctx = {[k: string]: any};`,
+    value: `\ndeclare type ctx = {[k: string]: any};`,
   },
   {
     reg: /\bevent\b/,
-    value: `declare type event = Event;`,
+    value: `\ndeclare type event = Event;`,
   },
   {
     reg: /\b_once\b/,
-    value: `declare type _once = number;`,
+    value: `\ndeclare type _once = number;`,
   },
   {
-    reg: /\b____\b/,
+    reg: /\b___\b/,
     value:
-      "declare function ____(key: string, ctx: { [k: string]: any }): void;",
+      "\ndeclare function ___(key: string, ctx: { [k: string]: any }, value?: any): void;",
   },
 ];
 export default (text: string): string => {

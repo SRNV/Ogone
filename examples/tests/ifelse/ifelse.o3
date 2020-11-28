@@ -1,5 +1,13 @@
 use @/examples/tests/click.o3 as 'test-el';
 
+<template>
+  <p>${this.count}</p>
+  <div --for="t of [1,2,4]" --if="this.count < 3 && t !== 1">div 1 ${this.t}</div>
+  <test-el
+    --else-if="this.count >= 3"
+    --for="t of [1, 3]">3eme doit remplacer la test-el 1</test-el>
+</template>
+
 <proto>
   def:
     count: 5
@@ -15,10 +23,3 @@ use @/examples/tests/click.o3 as 'test-el';
         }
     }, 500);
 </proto>
-<template>
-  <p>${count}</p>
-  <div --for="[1,2,4] as (t)" --if="count < 3 && t !== 1">div 1 ${t}</div>
-  <test-el
-    --else-if="count >= 3"
-    --for="[1, 3] as (t)">3eme doit remplacer la test-el 1</test-el>
-</template>

@@ -10,7 +10,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export default",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordDefault\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/,
+      /(\bexport\b)\s*(\b(default)\b)(.*?)(§{2}endExpression\d+§{2}|;|\n+)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -38,7 +38,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export vars",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}(?:keywordConst|keywordLet|keywordVar)\d+§{2})(.*?)((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(?:§{2}operatorsetter\d+§{2})(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(\bexport\b)\s*(const|let|var)(.*?)((?:\:)(.*?)){0,1}(?:\s*((?:\-|\+){0,1}\s*\=(?:[\s\n]*)+))(.*?)(§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -69,7 +69,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export function",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s*(§{2}keywordFunction\d+§{2})(.*?)(\<(?:.*?)\>){0,1}(§{2}parenthese\d+§{2})((?:§{2}optionDiviser\d+§{2})(.*?)){0,1}(.*?)(§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(\bexport\b)\s*(\bfunction\b)(.*?)(\<(?:.*?)\>){0,1}(<parenthese\d+>)((?:\:)(.*?)){0,1}(.*?)(§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -101,7 +101,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export class",
     open: false,
     reg:
-      /(§{2}keywordExport\d+§{2})\s+(§{2}keywordClass\d+§{2})(.*?)(§{2}keywordExtends\d+§{2}(.*?)){0,1}(§{2}block\w*\d+§{2})\s*(?:§{2}(?:endLine|endPonctuation|endExpression)\d+§{2})/i,
+      /(\bexport\b)\s+(\bclass\b)(.*?)(\bextends\b(.*?)){0,1}(§{2}block\w*\d+§{2})\s*(?:§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
@@ -133,7 +133,7 @@ const exports: ProtocolScriptRegExpList = [
     name: "export * from",
     open: false,
     reg:
-      /\s*(§{2}keywordExport\d+§{2})(.*?)(§{2}keywordFrom\d+§{2})\s*(§{2}string\d+§{2})\s*(§{2}(?:endLine|endExpression|endPonctuation)\d+§{2})/i,
+      /\s*(\bexport\b)(.*?)(\bfrom\b)\s*(\<string\d+\>)\s*(?:§{2}endExpression\d+§{2}|;|\n+)/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");

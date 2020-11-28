@@ -1,3 +1,9 @@
+<template>
+  <div
+    --for="(c, i) of this.counts"
+    --click:increase> click ${this.c}</div>
+</template>
+
 <proto>
   def:
     count: 0
@@ -10,11 +16,7 @@
     console.warn(ctx);
     this.counts[i] = c+1;
 </proto>
-<template>
-  <div
-    --for="counts as (c, i)"
-    --click:increase> click ${c}</div>
-</template>
+
 <style>
   div {
     cursor: pointer;

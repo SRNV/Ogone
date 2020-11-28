@@ -22,10 +22,6 @@ const uuid: SUI = new SUI({
  * ```ts
  *   const { childNodes } = component.rootNode
  * ```
- * @dependency ProtocolScriptParser
- *    ```ts
- *      ProtocolScriptParser.parse(str: string, opts: ProtocolScriptParserOptions): ProtocolScriptParserReturnType
- *    ```
  */
 export default class ComponentBuilder {
   /**
@@ -42,12 +38,13 @@ export default class ComponentBuilder {
   ): Component {
     return {
       uuid: `data-${uuid.randomUUID()}`,
+      isTyped: false,
       esmExpressions: "",
       exportsExpressions: "",
       data: {},
       style: [],
       scripts: {
-        runtime: "function(){};",
+        runtime: "function run(){};",
       },
       imports: {},
       flags: [],
@@ -69,6 +66,19 @@ export default class ComponentBuilder {
         styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
         template: opts.rootNode.childNodes.find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template"),
         proto: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto"),
+      },
+      context: {
+        data: '',
+        props: '',
+        protocol: '',
+        protocolClass: '',
+      },
+      modifiers: {
+        beforeEach: '',
+        compute: '',
+        cases: [],
+        default: '',
+        build: '',
       },
     };
   }

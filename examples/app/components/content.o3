@@ -2,13 +2,13 @@ require title, text, code as string;
 <template>
   <div class="container">
     <div class="left">
-      <h2 class="title">${title}</h2>
-      <p class="text">${text}</p>
+      <h2 class="title">${this.title}</h2>
+      <p class="text">${this.text}</p>
     </div>
     <div class="right">
       <pre>
         <code>
-          ${code}
+          ${this.code}
         </code>
       </pre>
     </div>

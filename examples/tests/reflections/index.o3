@@ -1,3 +1,10 @@
+<template>
+  ${this.position.name} ${this.position.origin}
+  <p --for="item of this.position.test">
+    ${this.item}
+  </p>
+</template>
+
 <proto>
   declare:
     x: number =  0;
@@ -7,7 +14,10 @@
       origin: 0,
       test: [],
     };
-  before-each:
+  case 'fdsqf':
+    break;
+  case 'gfdsgdsg': break;
+  compute:
     //  this is a reflection
     this.position.origin => this.x;
     // you can reflect any property of your data
@@ -24,9 +34,3 @@
     }, 500);
     break;
 </proto>
-<template>
-  ${position.name} ${position.origin}
-  <p --for="position.test as (item)">
-    ${item}
-  </p>
-</template>

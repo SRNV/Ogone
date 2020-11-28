@@ -1,10 +1,4 @@
 
-<proto type="async">
-  default:
-   Async.resolve();
-  break;
-</proto>
-
 <template>
   <div class="container">
     <div class="logo-back">
@@ -12,6 +6,12 @@
     </div>
   </div>
 </template>
+
+<proto type="async">
+  default:
+    Async.resolve();
+    break;
+</proto>
 
 <style>
   .img {

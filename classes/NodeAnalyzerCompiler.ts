@@ -8,6 +8,12 @@ import WebComponentDefinition from "./WebComponentDefinition.ts";
  * if all is good, it will use an inherited method (render) to get the WebComponent definition.
  */
 export default class NodeAnalyzerCompiler extends WebComponentDefinition {
+  public async startAnalyze(bundle: Bundle): Promise<void> {
+    const entries = Array.from(bundle.components);
+    for await (let [path, component] of entries) {
+      await this.read(bundle, path, component.rootNode);
+    }
+  }
   async read(
     bundle: Bundle,
     keyComponent: string,
@@ -64,12 +70,13 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
             );
           }
       }
+      const nodeIsDynamic = node.nodeType === 1  && Object.keys(node.attributes).find((key: string) => key.startsWith(':'))
       if (node.nodeType === 1 && node.childNodes && node.childNodes.length) {
         for await (const child of node.childNodes) {
           await this.read(bundle, keyComponent, child);
         }
       }
-      if (node.tagName === null || (node.hasFlag && node.tagName)) {
+      if (node.tagName === null || (node.hasFlag && node.tagName) || nodeIsDynamic) {
         this.render(bundle, component, node);
       }
     }

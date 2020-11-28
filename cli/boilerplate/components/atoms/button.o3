@@ -2,7 +2,7 @@ require text as string;
 
 <template>
   <div class="container">
-    ${text}
+    ${this.text}
   </div>
 </template>
 
