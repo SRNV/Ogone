@@ -38,7 +38,6 @@
 use Ogone to compile web-components for your applications. it's based on Deno.
 Actually Ogone is under an experimental phase. avoid using it for production.
 Ogone has it own extension `*.o3` which allow some new features.
-No Proxies, no getters, no setters used for the reactivity, just code...
 
 # Installation
 
