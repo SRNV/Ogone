@@ -74,13 +74,13 @@ const esm: ProtocolScriptRegExpList = [
   {
     name: "all imports",
     open: false,
-    reg: /(\bimport\b)(.*?)(\bfrom\b)(.*?)(?=(§{2}endExpression\d+§{2}|;|\n+))/i,
+    reg: /(\bimport\b)(\s+component\s+){0,1}(.+?)(\bfrom\b)(.*?)(?=(§{2}endExpression\d+§{2}|;|\n+))/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
       const id = `§§import${gen.next().value}§§`;
-      const [input, imp, tokens, f, str] = matches;
+      const [input, imp, isComponent, tokens, f, str] = matches;
       expressions[id] = value;
       if (typedExpressions) {
         const importDescription = getMembers(
@@ -93,6 +93,7 @@ const esm: ProtocolScriptRegExpList = [
         typedExpressions.imports[id] = {
           key: id,
           type,
+          isComponent: !!isComponent,
           ambient: false,
           allAs: importDescription.hasAllAs,
           object: importDescription.hasMembers,

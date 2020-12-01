@@ -1,6 +1,6 @@
 <style>
   @charset 'utf8';
-  @import url('fdsfdsqfdsqf') ;
+  @import component url('fdsfdsqfdsqf') ;
   @use 'el-comp' as Component;
   @export const* test = purple;
   @const* test2 = purple;

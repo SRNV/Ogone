@@ -20,10 +20,10 @@ enum Protocol {
     declare function hf(...args: unknown[]): unknown;
     declare namespace h.JSX {
       export interface IntrinsicElements {
-        {{ allUsedComponents }}
         [k: string]: any;
       }
     }
+    {{ allUsedComponents }}
     class Component extends Protocol {
       render() {
         return {{ tsx.length ? \`(\${tsx})\` : '' }};
@@ -32,8 +32,8 @@ enum Protocol {
     }
   `,
   USED_COMPONENT_TEMPLATE = `
-    ['{{ tagName }}']: {{ genericType }}<{
+    declare function {{ tagName }} (props: {{ genericType }}<{
       {{ propsTypes || '' }}
-    }>;`,
+    }>): h.JSX.IntrinsicElements;`,
 }
 export default Protocol;

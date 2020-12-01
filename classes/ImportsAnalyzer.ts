@@ -30,42 +30,43 @@ export default class ImportsAnalyzer extends Utils {
           declarations += node.rawText;
         });
         if (declarations.length) {
-          const tokens = this.AssetsParser.parseUseStatement(declarations);
           // performance here
           const importBody = this.AssetsParser.parseImportStatement(declarations);
           if (importBody.body && importBody.body.imports) {
             const { imports } = importBody.body;
-            component.esmExpressions = Object.entries(imports).map(
-              ([key, imp]: [string, any]) => {
-                // TODO fix examples/tests/modules/index.ts
-                const hmrModule = {
-                  registry: 'Ogone.mod',
-                  variable: '',
-                  path: imp.path,
-                  isDefault: false,
-                  isAllAs: false,
-                  isMember: false,
-                };
-                if (imp.default) {
-                  hmrModule.variable = imp.defaultName;
-                  hmrModule.isDefault = true;
-                  component.modules.push(imp.getHmrModuleSystem(hmrModule));
-                }
-                if (imp.allAs) {
-                  hmrModule.variable = imp.allAsName;
-                  hmrModule.isAllAs = true;
-                  component.modules.push(imp.getHmrModuleSystem(hmrModule));
-                }
-                if (imp.object) {
-                  hmrModule.isMember = true;
-                  imp.members.forEach((element: any) => {
-                    hmrModule.variable = element.alias || element.name;
+            component.esmExpressions = Object.entries(imports)
+              .filter(([key, imp]: [string, any]) => !imp.path.endsWith('.o3'))
+              .map(
+                ([key, imp]: [string, any]) => {
+                  // TODO fix examples/tests/modules/index.ts
+                  const hmrModule = {
+                    registry: 'Ogone.mod',
+                    variable: '',
+                    path: imp.path,
+                    isDefault: false,
+                    isAllAs: false,
+                    isMember: false,
+                  };
+                  if (imp.default) {
+                    hmrModule.variable = imp.defaultName;
+                    hmrModule.isDefault = true;
                     component.modules.push(imp.getHmrModuleSystem(hmrModule));
-                  });
-                }
-                return imp.dynamic();
-              },
-            ).join("\n");
+                  }
+                  if (imp.allAs) {
+                    hmrModule.variable = imp.allAsName;
+                    hmrModule.isAllAs = true;
+                    component.modules.push(imp.getHmrModuleSystem(hmrModule));
+                  }
+                  if (imp.object) {
+                    hmrModule.isMember = true;
+                    imp.members.forEach((element: any) => {
+                      hmrModule.variable = element.alias || element.name;
+                      component.modules.push(imp.getHmrModuleSystem(hmrModule));
+                    });
+                  }
+                  return imp.dynamic();
+                },
+              ).join("\n");
             // @ts-ignore
             // save esm tokens for production
             component.esmExpressionsProd = Object.entries(imports).map(
@@ -74,9 +75,9 @@ export default class ImportsAnalyzer extends Utils {
               },
             ).join("\n");
           }
-          if (tokens.body && tokens.body.imports) {
+          if (importBody.body && importBody.body.imports) {
             // @ts-ignore
-            Object.values(tokens.body.imports).forEach((item: any) => {
+            Object.values(importBody.body.imports).forEach((item: any) => {
               if (!item.path.endsWith('.o3')) return;
               const pathComponent =
                 bundle.repository[component.uuid][item.path];
@@ -96,7 +97,7 @@ export default class ImportsAnalyzer extends Utils {
                       component: ${component.file}
                     `,
                   );
-                case !tagName.match(/^([A-Z])(([\w]*)+(\w+)+)$/):
+                case !tagName.match(/^([A-Z])((\w+))+$/):
                   this.error(
                     `'${tagName}' is not a valid component name. Must be PascalCase. please use the following syntax:
 

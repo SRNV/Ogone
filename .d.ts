@@ -286,6 +286,7 @@ export interface TypedExpressions {
     [k: string]: {
       key: string;
       default: boolean;
+      isComponent?: boolean;
       defaultName: string | null;
       ambient: boolean;
       allAs: boolean;

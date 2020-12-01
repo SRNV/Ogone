@@ -1,5 +1,5 @@
-import ScrollComponent from '@/examples/app/components/scroll.o3';
-import TreeRecursive from '@/examples/app/components/menu/tree-recursive-button.o3';
+import component ScrollComponent from '@/examples/app/components/scroll.o3';
+import component TreeRecursive from '@/examples/app/components/menu/tree-recursive-button.o3';
 
 require item as {
   route: string;

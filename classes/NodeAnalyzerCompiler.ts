@@ -58,13 +58,11 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
         case subcomp &&
           ["async", "store", "router"].includes(subcomp.type) &&
           node.tagName &&
-          !node.tagName.startsWith(`${subcomp.type}-`):
+          !node.tagName.startsWith(`${subcomp.type[0].toUpperCase()}${subcomp.type.slice(1)}`):
           if (subcomp) {
             this.error(
               `'${node.tagName}' is not a valid selector of ${subcomp.type} component. please use the following syntax:
-                use @/${isImported} as '${subcomp.type}-${node.tagName}'
-
-                input: use @/${isImported} as '${node.tagName}'
+                import ${subcomp.type[0].toUpperCase()}${subcomp.type.slice(1)}${node.tagName} from '${isImported}';
                 component: ${component.file}
               `,
             );

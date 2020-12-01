@@ -1,4 +1,4 @@
-import ContentPage from '@/examples/app/components/content.o3';
+import component ContentPage from '@/examples/app/components/content.o3';
 
 <template>
   <div class="container">

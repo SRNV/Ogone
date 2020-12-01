@@ -1,14 +1,14 @@
-import ControllerC from '@/examples/app/controllers/controller.user.o3'
+import component ControllerC from '@/examples/app/controllers/controller.user.o3'
 
 <proto type="store" namespace="menu">
   declare:
     public isOpen: boolean = false;
   before-each:
-    const controllerC = Controllers['controller-c'];
+    const { ControllerC } = Controllers;
   case 'action:toggle':
     this.isOpen = !this.isOpen;
     break;
   case 'action:checkController':
-    const res = await controllerC.get('/');
+    const res = await ControllerC.get('/');
     return res;
 </proto>

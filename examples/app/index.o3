@@ -1,8 +1,8 @@
-import LeftMenu from '@/examples/app/components/left-menu.o3';
-import AsyncLogoEl from '@/examples/app/asyncs/logo.async.o3';
-import MenuContent from '@/examples/app/components/menu/menu-content.o3';
-import MenuMain from '@/examples/app/components/menu/menu-main.o3';
-import RouterComponent from '@/examples/app/routers/.router.o3';
+import component LeftMenu from '@/examples/app/components/left-menu.o3';
+import component AsyncLogoEl from '@/examples/app/asyncs/logo.async.o3';
+import component MenuContent from '@/examples/app/components/menu/menu-content.o3';
+import component MenuMain from '@/examples/app/components/menu/menu-main.o3';
+import component RouterComponent from '@/examples/app/routers/.router.o3';
 
 <template>
   <div ref="header" class="header">
