@@ -291,6 +291,7 @@ export interface TypedExpressions {
       allAs: boolean;
       allAsName: string | null;
       path: string;
+      type?: string;
       object: boolean;
       members: ({ name: string, alias: string })[];
       value: string;

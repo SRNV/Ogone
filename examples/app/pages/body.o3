@@ -1,12 +1,12 @@
-use @/examples/app/components/content.o3 as "content-page";
+import ContentPage from '@/examples/app/components/content.o3';
 
 <template>
   <div class="container">
-    <content-page
+    <ContentPage
       --for="article of this.articles"
       :text="article.text"
       :title="article.title"
-      :code="article.code"></content-page>
+      :code="article.code"></ContentPage>
   </div>
 </template>
 

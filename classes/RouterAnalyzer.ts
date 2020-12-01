@@ -55,6 +55,7 @@ export default class RouterAnalyzer extends Utils {
           route.uuid = newcomp.uuid;
         }
       } else {
+        console.log(component.imports, c)
         this.error(
           `${route.component} is not imported in the component.
               please use this syntaxe to import a component: use @/... as '${route.component}'

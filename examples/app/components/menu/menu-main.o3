@@ -1,19 +1,18 @@
-use @/examples/app/stores/menu.store.o3 as 'store-component'
-use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/examples/app/components/logo.o3 as 'logo-el'
-
+import StoreComponent from '@/examples/app/stores/menu.store.o3';
+import TreeRecursive from '@/examples/app/components/menu/tree-recursive-button.o3';
+import LogoEl from '@/examples/app/components/logo.o3';
 
 <template>
-  <store-component namespace="menu" />
+  <StoreComponent namespace="menu" />
   <div
     class="left-menu"
     --class="{ close: !this.isOpen }">
     <div class="header">
-      <logo-el --click:toggle-menu></logo-el>
+      <LogoEl --click:toggle-menu></LogoEl>
       <div>0.1.0</div>
     </div>
     <div class="tree">
-      <tree-recursive --for="item of this.menu" :item="item" />
+      <TreeRecursive --for="item of this.menu" :item="item" />
     </div>
   </div>
   <div --class="{ darken: this.isOpen }" --click:toggle-menu></div>

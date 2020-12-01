@@ -25,9 +25,9 @@ import {
  * a file is mentioned as local, if the path is not an url or the parent is not remote (absolute import)
  * ```
  * // local file
- * use ../relative-component.o3 as 'relative-component'; // local
- * use /absolute.o3 as 'absolute-component'; // local
- * use http:/ /ogone.dev/components/index.o3 as 'remote-component'; // remote
+ * import RelativeComponent from '../relative-component.o3'; // local
+ * import AbsoluteComponent from '/absolute.o3'; // local
+ * import RemoteComponent from 'http:/ /ogone.dev/components/index.o3'; // remote
  * ```
  *
  * @dependency AssetsParser
@@ -47,7 +47,7 @@ export default class ComponentsSubscriber extends Utils {
     },
   ): Promise<void> {
     const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
-    const tokens = this.AssetsParser.parseUseStatement(splitTextUseFirstPart);
+    const tokens = this.AssetsParser.parseImportStatement(splitTextUseFirstPart);
     if (opts && opts.remote) {
       bundle.remotes.push({
         file: textFile,
@@ -65,9 +65,10 @@ export default class ComponentsSubscriber extends Utils {
         parent: opts.parent,
       });
     }
-    if (tokens.body && tokens.body.use) {
-      for await (let item of Object.values(tokens.body.use)) {
-        const { path, type }: any = item;
+    if (tokens.body && tokens.body.imports) {
+      for await (let item of Object.values(tokens.body.imports)) {
+        const { path: inputPath, type }: any = item;
+        const path = inputPath.replace(/^@\//, '');
         if (path === p) {
           if (opts.recursive) {
             continue;

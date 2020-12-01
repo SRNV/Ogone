@@ -1,5 +1,5 @@
-use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/examples/app/components/scroll.o3 as 'scroll-component'
+import ScrollComponent from '@/examples/app/components/scroll.o3';
+import TreeRecursive from '@/examples/app/components/menu/tree-recursive-button.o3';
 
 require item as {
   route: string;
@@ -29,11 +29,11 @@ require item as {
       class="child"
       --if="this.item.children"
       --class="{ 'child-open': this.openTree }">
-      <scroll-component>
-        <tree-recursive
+      <ScrollComponent>
+        <TreeRecursive
           --for="child of this.item.children"
-          :item="child"></tree-recursive>
-      </scroll-component>
+          :item="child"></TreeRecursive>
+      </ScrollComponent>
     </div>
   </div>
 </template>

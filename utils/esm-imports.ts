@@ -46,10 +46,15 @@ const esm: ProtocolScriptRegExpList = [
       const [input, imp, id2] = matches;
       expressions[id] = value;
       if (typedExpressions) {
+        const path = getDeepTranslation(id2, expressions).replace(/['"`]/gi, "");
+        const type = path.startsWith('.') ? 'relative' :
+          path.startsWith('@') ? 'absolute':
+          'remote';
         typedExpressions.imports[id] = {
           key: id,
           value,
-          path: getDeepTranslation(id2, expressions).replace(/['"`]/gi, ""),
+          path,
+          type,
           ambient: true,
           allAs: false,
           object: false,
@@ -81,15 +86,20 @@ const esm: ProtocolScriptRegExpList = [
         const importDescription = getMembers(
           getDeepTranslation(tokens, expressions)
         );
+        const path = getDeepTranslation(str, expressions).replace(/['"\s`]/gi, "");
+        const type = path.startsWith('.') ? 'relative' :
+          path.startsWith('@') ? 'absolute':
+          'remote';
         typedExpressions.imports[id] = {
           key: id,
+          type,
           ambient: false,
           allAs: importDescription.hasAllAs,
           object: importDescription.hasMembers,
           default: importDescription.hasDefault,
           defaultName: importDescription.default.alias || importDescription.default.name || null,
           allAsName: importDescription.allAs || null,
-          path: getDeepTranslation(str, expressions).replace(/['"\s`]/gi, ""),
+          path,
           dynamic: (importFn: string = 'Ogone.imp') => `${importFn}(${str}),`,
           value: getDeepTranslation(value, expressions),
           members: importDescription.members,

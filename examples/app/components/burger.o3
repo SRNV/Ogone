@@ -1,7 +1,7 @@
-use @/examples/app/stores/menu.store.o3 as 'store-menu'
+import StoreMenu from '@/examples/app/stores/menu.store.o3';
 
 <template>
-  <store-menu namespace="menu" />
+  <StoreMenu namespace="menu" />
   <div class="container" --click:openMenu>
     <div class="line"></div>
     <div class="line"></div>

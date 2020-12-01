@@ -74,53 +74,47 @@ export default class ImportsAnalyzer extends Utils {
               },
             ).join("\n");
           }
-          if (tokens.body && tokens.body.use) {
+          if (tokens.body && tokens.body.imports) {
             // @ts-ignore
-            Object.values(tokens.body.use).forEach((item: any) => {
+            Object.values(tokens.body.imports).forEach((item: any) => {
+              if (!item.path.endsWith('.o3')) return;
               const pathComponent =
                 bundle.repository[component.uuid][item.path];
-              const tagName = item.as.replace(/['"`]/gi, "");
+              const tagName = item.defaultName;
               switch (true) {
+                case !tagName:
+                  this.error(
+                    `this Ogone version only supports default exports.
+                      input: import ... from ${item.path}
+                      component: ${component.file}
+                    `,
+                  );
                 case tagName === "proto":
                   this.error(
                     `proto is a reserved tagname, don\'t use it as selector of your component.
-                      input: use @/${item.path} as ${item.as}
+                      input: import ${item.defaultName} from ${item.path}
                       component: ${component.file}
                     `,
                   );
-                case !tagName.match(/^([a-z])(([\w]*)+(\-[\w]+)+)$/):
+                case !tagName.match(/^([A-Z])(([\w]*)+(\w+)+)$/):
                   this.error(
-                    `'${tagName}' is not a valid selector of component. Must be kebab-case. please use the following syntax:
+                    `'${tagName}' is not a valid component name. Must be PascalCase. please use the following syntax:
 
-                      use @/${item.path} as 'your-component-name'
+                      import YourComponentName from '${item.path}'
 
-                      input: use @/${item.path} as ${item.as}
-                      regular expression: /^([a-z])(([\w]*)+(\-[\w]+)+)$/
-                        - starts with lowercase
-                        - can have multiple dash and letters and shouldn't contain anything else
-                        - ends with dash and letters
+                      input: import ${item.defaultName} from ${item.path}
                       component: ${component.file}
 
                       note: if the component is typed you must provide the name into the tagName
-                    `,
-                  );
-                case !tagName.length:
-                  this.error(
-                    `empty component name. please use the following syntax:
-
-                      use @/${item.path} as 'your-component-name'
-
-                      input: use @/${item.path} as ${item.as}
-                      component: ${component.file}
                     `,
                   );
                 case !!component.imports[tagName]:
                   this.error(
                     `component name already in use. please use the following syntax:
 
-                      use @/${item.path} as '${tagName}-c2'
+                      import ${tagName}2 from '${item.path}'
 
-                      input: use @/${item.path} as ${item.as}
+                      input: import ${item.defaultName} from ${item.path}
                       component: ${component.file}
                     `,
                   );

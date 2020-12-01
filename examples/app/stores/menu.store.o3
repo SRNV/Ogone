@@ -1,4 +1,4 @@
-use @/examples/app/controllers/controller.user.o3 as 'controller-c';
+import ControllerC from '@/examples/app/controllers/controller.user.o3'
 
 <proto type="store" namespace="menu">
   declare:
