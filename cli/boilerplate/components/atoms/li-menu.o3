@@ -1,10 +1,5 @@
+import component AsyncRecursiveComponent from '@/cli/boilerplate/components/atoms/li-menu.o3';
 require item as { label: string; route: string; children: any[]; };
-use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component';
-
-<proto type="async">
-  default:
-    Async.resolve();
-</proto>
 
 <template>
   <li
@@ -14,12 +9,17 @@ use @/cli/boilerplate/components/atoms/li-menu.o3 as 'async-recursive-component'
     ${this.item.label}
   </li>
   <ul>
-    <async-recursive-component
+    <AsyncRecursiveComponent
       --for="(item, i) of this.item.children"
       --defer="new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))"
       :item="item"/>
   </ul>
 </template>
+
+<proto type="async">
+  default:
+    Async.resolve();
+</proto>
 
 <style --keyframes="get('fade-in-bottom', { time: 1, style: 'ease-in-out', })">
   li {

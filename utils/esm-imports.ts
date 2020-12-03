@@ -67,7 +67,7 @@ const esm: ProtocolScriptRegExpList = [
             }),`,
         };
       }
-      return ``;
+      return id;
     },
     close: false,
   },
@@ -107,7 +107,7 @@ const esm: ProtocolScriptRegExpList = [
           getHmrModuleSystem,
         };
       }
-      return ``;
+      return !!isComponent ? '' : id;
     },
     close: false,
   },

@@ -1,5 +1,5 @@
-use ../atoms/github-badges.o3 as 'github-badges';
-use ../atoms/button.o3 as 'o-btn';
+import component GithubBadges from '../atoms/github-badges.o3';
+import component OBtn from '../atoms/button.o3';
 
 <template>
   <div
@@ -20,11 +20,11 @@ use ../atoms/button.o3 as 'o-btn';
       ${this.message}
     </div>
     <p align="center">
-      <o-btn
+      <OBtn
         --click:fade-out:exit
         :text="'Getting Started'"/>
     </p>
-    <github-badges />
+    <GithubBadges />
     <div class="links">
       <ul>
         <li --for="item of this.links">

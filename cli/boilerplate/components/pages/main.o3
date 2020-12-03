@@ -1,13 +1,13 @@
-use ../organism/left-menu.o3 as 'async-left-menu-component';
-use ../organism/content.o3 as 'content-component';
+import component AsyncLeftMenuComponent from './organism/left-menu.o3';
+import component ContentComponent from '../organism/content.o3';
 
 <template>
   <div class="container">
     <div class="menu">
-      <async-left-menu-component />
+      <AsyncLeftMenuComponent />
     </div>
     <div class="content">
-      <content-component />
+      <ContentComponent />
     </div>
   </div>
 </template>
