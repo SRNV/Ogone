@@ -115,9 +115,10 @@ export default class Constructor extends Utils {
     // @code OSB4
     // this.ScriptBuilder.inspectContexts(bundle);
     // TODO create the class tsx transformer
-    setTimeout(() => {
+    new Promise((resolve) => {
       this.TSXContextCreator.read(bundle);
-    }, 0);
+      resolve();
+    });
     return bundle;
   }
 }

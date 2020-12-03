@@ -1,7 +1,7 @@
-use ./routers/main.o3 as 'router-main';
+import component RouterMain from './routers/main.o3';
 
 <template>
-  <router-main namespace="global"/>
+  <RouterMain namespace="global"/>
 </template>
 
 <style global>
