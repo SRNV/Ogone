@@ -5,5 +5,6 @@ export default {
     Thank you for your interest, and your participation in this project.
     a problem, a question or an idea ? please open an issue on the Ogone github repo: https://github.com/SRNV/Ogone/issues`,
     "0.25.0": `Ogone's internal architecture has changed. for readability, all files under classes/ are now in PascalCases.
-    no more nested file inside folders to prevent complex architecture`
+    no more nested file inside folders to prevent complex architecture`,
+    "0.27.0": 'BREAKING: use statement is no more supported, please use instead the syntax `import component ComponentName from \'...\'`'
 }
