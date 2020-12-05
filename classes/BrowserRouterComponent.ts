@@ -102,7 +102,7 @@ const getClassRouter = (klass) =>
           name: rendered.name || rendered.component,
           parentNodeKey: o.key,
         };
-        co.setOgone(ogoneOpts);
+        Ogone.setOgone(co, ogoneOpts);
         ogoneOpts = null;
         // if the route provide any title
         // we change the title of the document

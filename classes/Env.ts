@@ -128,6 +128,7 @@ export default class Env extends Constructor {
             })
           );`,
           render: {},
+          root: this.bundle.components.get(Configuration.entrypoint),
           destroy: {},
           nodes: {},
           debugg: `

@@ -46,7 +46,7 @@ const getClassComponent = (
           uuid: '{{ root.uuid }}',
           extends: '-nt',
         };
-        (this as BCE & this).setOgone(opts);
+        Ogone.setOgone(this, opts);
         opts = null;
         Ogone.root = true;
       }
@@ -404,88 +404,6 @@ const getClassComponent = (
           }
         }
       }
-    }
-    setOgone(this: BCE & this, def: NestedOgoneParameters) {
-      this.ogone = {
-        isRemote: false,
-        isRoot: false,
-        isImported: false,
-        position: [0],
-        index: 0,
-        level: 0,
-        uuid: '{{ root.uuid }}',
-        extends: '-nt',
-        // int[]
-        positionInParentComponent: [0],
-
-        // int
-        levelInParentComponent: 0,
-
-        // define component
-        component: null,
-
-        // define parentComponent
-        parentComponent: null,
-
-        // jsx function
-        render: null,
-
-        // register all nodes of template or custom element
-        nodes: [],
-
-        // replacer is used for --ifElse flag
-        replacer: null,
-
-        // critical function
-        getContext: null,
-
-        // promise for await flag
-        promise: null,
-
-        // set routes if component is a router
-        routes: null,
-
-        // set the location
-        locationPath: null,
-
-        // set the actualTemplate of the router
-        actualTemplate: null,
-
-        // save the route
-        actualRouteName: null,
-        actualRoute: null,
-        key: `n${Math.random()}`,
-
-        // whenever the route change
-        routeChanged: null,
-
-        // set state to pass it through the history.state
-        historyState: null,
-
-        // usefull to delay actions on nodes
-        methodsCandidate: [],
-        // overwrite properties
-        ...def,
-      };
-      // use the jsx function and save it into o.render
-      // this function generates all the childNodes or the template
-      this.ogone.render = Ogone.render[this.extends];
-      if (!this.ogone.isTemplate) {
-        this.type = `${this.type}-node`;
-      }
-      this.ogone.type = this.type as NestedOgoneParameters["type"];
-      if (this.type === "router" && def.routes) {
-        this.ogone.locationPath = location.pathname;
-        this.ogone.routes = def.routes;
-        this.ogone.routeChanged = true;
-        this.ogone.historyState = (() => {
-          const url = new URL(location.href);
-          // @ts-ignore
-          const query = new Map(url.searchParams.entries());
-          return { query };
-        })();
-      }
-      this.construct();
     }
 
     saveUntilRender(this: BCE & this, f: Function): void {

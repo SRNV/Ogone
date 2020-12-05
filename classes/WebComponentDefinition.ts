@@ -69,7 +69,6 @@ export default class WebComponentDefinition extends Utils {
     if (["controller"].includes(component.type)) {
       return `class extends HTMLTemplateElement {
         constructor(){super();}
-        setOgone() {}
         connectedCallBack(){this.remove()} };`;
     }
     return this.template(componentExtension, templateSlots);

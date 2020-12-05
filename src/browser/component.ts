@@ -209,7 +209,8 @@ function OComponent(this: OnodeComponent, node: any): OnodeComponent {
             levelInParentComponent: Onode.ogone.levelInParentComponent,
           }),
       };
-      node.setOgone(ogoneOpts);
+      // @ts-ignore
+      Ogone.setOgone(node, ogoneOpts);
       ogoneOpts = null;
       let previous = node;
       if (i === 0) {

@@ -10,7 +10,7 @@ import component Reuse from './reuse.o3';
         super();
         console.warn(opts);
       }
-      attributeChangedCallback(prop, value) {
+      attributeChangedCallback(prop: any, value: any) {
         console.warn(prop, value);
       }
     }

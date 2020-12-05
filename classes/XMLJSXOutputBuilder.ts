@@ -179,7 +179,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               {{setOgone.positionInParentComponent}}
               {{ setOgone.nodeProps }}
             };
-              {{nId}}.setOgone(o); o = null;`
+              Ogone.setOgone({{nId}}, o); o = null;`
             : "",
           inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
           flags: `flags: ${flags}`,

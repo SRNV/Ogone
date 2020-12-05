@@ -1,5 +1,6 @@
 
 import type { OgoneBrowser } from "../../types/ogone.ts";
+import { NestedOgoneParameters } from '../../types/template.ts';
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {
   function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
@@ -186,6 +187,96 @@ function _OGONE_BROWSER_CONTEXT() {
         : [];
     },
   };
+  // @ts-ignore
+  Ogone.setOgone = function (node: any, def: NestedOgoneParameters) {
+    node.ogone = {
+      isRemote: false,
+      isRoot: false,
+      isImported: false,
+      // @ts-ignore
+      position: [0],
+      // @ts-ignore
+      index: 0,
+      // @ts-ignore
+      level: 0,
+      // @ts-ignore
+      uuid: '{{ root.uuid }}',
+      // @ts-ignore
+      extends: '-nt',
+      // int[]
+      positionInParentComponent: [0],
+
+      // int
+      levelInParentComponent: 0,
+
+      // define component
+      component: null,
+
+      // define parentComponent
+      parentComponent: null,
+
+      // jsx function
+      render: null,
+
+      // register all nodes of template or custom element
+      nodes: [],
+
+      // replacer is used for --ifElse flag
+      replacer: null,
+
+      // critical function
+      getContext: null,
+
+      // promise for await flag
+      promise: null,
+
+      // set routes if component is a router
+      routes: null,
+
+      // set the location
+      locationPath: null,
+
+      // set the actualTemplate of the router
+      actualTemplate: null,
+
+      // save the route
+      actualRouteName: null,
+      actualRoute: null,
+      key: `n${Math.random()}`,
+
+      // whenever the route change
+      routeChanged: null,
+
+      // set state to pass it through the history.state
+      historyState: null,
+
+      // usefull to delay actions on nodes
+      methodsCandidate: [],
+      // overwrite properties
+      ...def,
+    };
+    // use the jsx function and save it into o.render
+    // node function generates all the childNodes or the template
+    node.ogone.render = Ogone.render[node.extends];
+    if (!node.ogone.isTemplate) {
+      node.type = `${node.type}-node`;
+    }
+    node.ogone.type = node.type as NestedOgoneParameters["type"];
+    if (node.type === "router" && def.routes) {
+      // @ts-ignore
+      node.ogone.locationPath = location.pathname;
+      node.ogone.routes = def.routes;
+      node.ogone.routeChanged = true;
+      node.ogone.historyState = (() => {
+        // @ts-ignore
+        const url = new URL(location.href);
+        // @ts-ignore
+        const query = new Map(url.searchParams.entries());
+        return { query };
+      })();
+    }
+    node.construct && node.construct();
+  }
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
   .replace("function _OGONE_BROWSER_CONTEXT() {", "")
