@@ -1,0 +1,8 @@
+<template is="other-component" />
+<proto type="component">
+  declare:
+    public test() {
+      console.warn('teeeest');
+    }
+  default: this.test();
+</proto>

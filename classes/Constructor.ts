@@ -2,7 +2,6 @@ import ComponentsSubscriber from "./ComponentsSubscriber.ts";
 import StylesheetBuilder from "./StylesheetBuilder.ts";
 import ComponentBuilder from "./ComponentBuilder.ts";
 import ImportsAnalyzer from "./ImportsAnalyzer.ts";
-import ScriptBuilder from "./ScriptBuilder.ts";
 import SwitchContextBuilder from "./SwitchContextBuilder.ts";
 import ComponentCompiler from "./ComponentCompiler.ts";
 import NodeAnalyzerCompiler from "./NodeAnalyzerCompiler.ts";
@@ -26,7 +25,6 @@ import TSXContextCreator from './TSXContextCreator.ts';
  * @dependency ComponentsSubscriber
  * @dependency ComponentBuilder
  * @dependency ImportsAnalyzer
- * @dependency ScriptBuilder
  * @dependency ComponentTopLevelAnalyzer
  * @dependency StoreArgumentReader
  * @dependency StylesheetBuilder
@@ -112,9 +110,6 @@ export default class Constructor extends Utils {
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
-    // @code OSB4
-    // this.ScriptBuilder.inspectContexts(bundle);
-    // TODO create the class tsx transformer
     new Promise((resolve) => {
       this.TSXContextCreator.read(bundle);
       resolve();

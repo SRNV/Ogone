@@ -138,6 +138,10 @@ export interface Component {
     props: string;
     protocol: string;
     protocolClass: string;
+    /**
+     * the tagName of the component that the component is extending
+     */
+    reuse: string | null;
   };
   modifiers: {
     beforeEach: string;

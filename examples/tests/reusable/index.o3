@@ -1,0 +1,15 @@
+import component Reuse from './reuse.o3';
+<template>
+  <other-component />
+</template>
+<proto type="component">
+  declare:
+    reusable = class extends HTMLElement {
+      constructor(opts: any) {
+        super();
+      }
+    }
+  default:
+    customElements.define('other-component', this.reusable);
+    break;
+</proto>

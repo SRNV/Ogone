@@ -36,6 +36,8 @@ export default class ComponentBuilder {
   getComponent(
     opts: Pick<Component, "rootNode" | "file" | "remote">,
   ): Component {
+    const template = opts.rootNode.childNodes
+      .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
     return {
       uuid: `data-${uuid.randomUUID()}`,
       isTyped: false,
@@ -64,7 +66,7 @@ export default class ComponentBuilder {
       mapStyleBundle: undefined,
       elements: {
         styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
-        template: opts.rootNode.childNodes.find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template"),
+        template,
         proto: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto"),
       },
       context: {
@@ -72,6 +74,7 @@ export default class ComponentBuilder {
         props: '',
         protocol: '',
         protocolClass: '',
+        reuse: template?.attributes?.is as string || null,
       },
       modifiers: {
         beforeEach: '',
