@@ -58,6 +58,9 @@ export default class Ogone extends EnvServer {
         "please provide a port for the server. it has to be a number.",
       );
     }
+    // message for contributions, ideas, issues and any help.
+    Object.entries(this.contributorMessage)
+      .map(([version, message]: any) => this.message(`[${version}] ${message}`))
     if (opts.build) {
       if (!existsSync(opts.build)) {
         Deno.mkdirSync(opts.build);
@@ -80,9 +83,6 @@ export default class Ogone extends EnvServer {
           this.success(
             `your application successfully rendered. ${application}`,
           );
-          // message for contributions, ideas, issues and any help.
-          Object.entries(this.contributorMessage)
-            .map(([version, message]: any) => this.message(`[${version}] ${message}`))
           if (opts.serve) {
             this.runService(application, server, opts.port);
           } else {
@@ -95,9 +95,7 @@ export default class Ogone extends EnvServer {
       this.setDevTool(Configuration.devtool as boolean);
       this.compile(Configuration.entrypoint, true)
         .then(() => {
-          // message for contributions, ideas, issues and any help.
-          Object.entries(this.contributorMessage)
-            .map(([version, message]: any) => this.message(`[${version}] ${message}`))
+
           // Ogone is now ready to serve
           this.use(server, port);
         });
