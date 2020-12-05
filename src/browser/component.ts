@@ -7,7 +7,7 @@ import type { Template } from "../../types/template.ts";
 
 let Ogone: OgoneBrowser;
 
-function OComponent(this: OnodeComponent): OnodeComponent {
+function OComponent(this: OnodeComponent, node: any): OnodeComponent {
   this.key = null;
   this.data = null;
   this.dependencies = null;
@@ -132,6 +132,9 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         position: this.positionInParentComponent,
       });
       if (this.data && value !== this.data[key]) {
+        if (typeof node.attributeChangedCallback === 'string') {
+          node.attributeChangedCallback(key, this.data[key], value);
+        }
         this.data[key] = value;
         this.update(key);
         if (this.type === "async") {

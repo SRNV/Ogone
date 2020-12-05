@@ -134,12 +134,11 @@ export default class ComponentCompiler extends Utils {
           Object.freeze(Async);
           `;
       let result: string = `function __component (__NODE) {
-            OComponent.call(this);
+            OComponent.call(this, __NODE);
             {{ controllerDef }}
             {{ hasStore }}
             const ___ = (prop, inst, value) => {
               this.update(prop);
-              {{ attributeChangedCallback }}
               return value;
             };
             const ____r = (name, use, once) => {
@@ -157,12 +156,8 @@ export default class ComponentCompiler extends Utils {
             this.runtime = __run.bind(this.data);
           };
           `;
-      const attributeChangedCallback = component.context.reuse ? `if (__NODE.attributeChangedCallback) {
-        ___NODE.attributeChangedCallback(prop, value);
-      }` : '';
       const d = {
         component,
-        attributeChangedCallback,
         modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
         asyncResolve: component.type === "async" ? asyncResolve : "",
         protocol: component.protocol ? component.protocol : "",
