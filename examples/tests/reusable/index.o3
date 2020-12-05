@@ -1,15 +1,21 @@
 import component Reuse from './reuse.o3';
 <template>
-  <other-component />
+  <Reuse />
 </template>
 <proto type="component">
   declare:
+    count = 0;
     reusable = class extends HTMLElement {
       constructor(opts: any) {
         super();
+        console.warn(opts);
+      }
+      attributeChangedCallback(prop, value) {
+        console.warn(prop, value);
       }
     }
   default:
+    setInterval(() => this.count++, 100);
     customElements.define('other-component', this.reusable);
     break;
 </proto>

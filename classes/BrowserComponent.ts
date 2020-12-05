@@ -58,7 +58,7 @@ const getClassComponent = (
       if (o.isTemplate) {
         this.positionInParentComponent = [];
         o.component =
-          (new Ogone.components[o.uuid]() as unknown) as OnodeComponent;
+          (new Ogone.components[o.uuid](this) as unknown) as OnodeComponent;
         o.component.requirements = o.requirements;
         o.component.dependencies = o.dependencies;
         o.component.type = o.type;

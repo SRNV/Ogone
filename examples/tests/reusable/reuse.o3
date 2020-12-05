@@ -1,4 +1,6 @@
-<template is="other-component" />
+<template is="other-component">
+  Slot
+</template>
 <proto type="component">
   declare:
     public test() {
