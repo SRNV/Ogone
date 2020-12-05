@@ -188,6 +188,24 @@ function _OGONE_BROWSER_CONTEXT() {
     },
   };
   // @ts-ignore
+  Ogone.construct = function(node: any) {
+    const o = node.ogone;
+    if (!o.type) return;
+    node.dependencies = o.dependencies;
+    if (o.isTemplate) {
+      node.positionInParentComponent = [];
+      o.component =
+        (new Ogone.components[o.uuid](node) as unknown) as OnodeComponent;
+      o.component.requirements = o.requirements;
+      o.component.dependencies = o.dependencies;
+      o.component.type = o.type;
+      // define runtime for hmr
+      // Ogone.run[o.uuid] = Ogone.run[o.uuid] || [];
+    }
+    // define templates of hmr
+    // Ogone.mod[node.extends] = Ogone.mod[node.extends] || [];
+  }
+  // @ts-ignore
   Ogone.setOgone = function (node: any, def: NestedOgoneParameters) {
     node.ogone = {
       isRemote: false,
@@ -275,7 +293,8 @@ function _OGONE_BROWSER_CONTEXT() {
         return { query };
       })();
     }
-    node.construct && node.construct();
+    // @ts-ignore
+    Ogone.construct(node);
   }
 }
 export default _OGONE_BROWSER_CONTEXT.toString()

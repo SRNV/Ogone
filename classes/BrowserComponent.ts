@@ -51,23 +51,6 @@ const getClassComponent = (
         Ogone.root = true;
       }
     }
-    construct(this: BCE) {
-      const o = this.ogone;
-      if (!o.type) return;
-      this.dependencies = o.dependencies;
-      if (o.isTemplate) {
-        this.positionInParentComponent = [];
-        o.component =
-          (new Ogone.components[o.uuid](this) as unknown) as OnodeComponent;
-        o.component.requirements = o.requirements;
-        o.component.dependencies = o.dependencies;
-        o.component.type = o.type;
-        // define runtime for hmr
-        // Ogone.run[o.uuid] = Ogone.run[o.uuid] || [];
-      }
-      // define templates of hmr
-      // Ogone.mod[this.extends] = Ogone.mod[this.extends] || [];
-    }
     connectedCallback(this: BCE & this) {
       const o = this.ogone;
       // set position of the template/component
