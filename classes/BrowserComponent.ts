@@ -1,9 +1,6 @@
 // @ts-nocheck
-import type { NestedOgoneParameters } from "../types/template.ts";
 import type { OgoneBrowser } from "../types/ogone.ts";
 import type { BCE } from "../types/component.ts";
-import type { OnodeComponent } from "../types/component.ts";
-import type { Template } from "../types/template.ts";
 declare const Ogone: OgoneBrowser;
 declare type TextElements =
   | HTMLInputElement
@@ -48,10 +45,10 @@ const getClassComponent = (
     connectedCallback(this: BCE & this) {
       const o = this.ogone;
       // set position of the template/component
-      this.setPosition();
+      Ogone.setPosition(this);
 
       // set the context of the node
-      this.setContext();
+      Ogone.setContext(this);
       // this.setHMRContext();
 
       // parse the route that match with location.pathname
@@ -61,10 +58,10 @@ const getClassComponent = (
 
       // set the props required by the node
       if (o.isTemplate && o.component) {
-        this.setProps();
+        Ogone.setProps(this);
         o.component.updateProps();
       }
-      this.renderingProcess();
+      Ogone.renderingProcess(this);
 
       // now ... just render ftw!
       switch (true) {

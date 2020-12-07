@@ -300,7 +300,7 @@ function _OGONE_BROWSER_CONTEXT() {
     // @ts-ignore
     Ogone.construct(node);
   }
-  Ogone.setContext = function(Onode: any) {
+  Ogone.setContext = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc || !o.key) return;
     if (o.isTemplate) {
@@ -325,7 +325,7 @@ function _OGONE_BROWSER_CONTEXT() {
       oc.parent.store[oc.namespace as string] = oc;
     }
   }
-  Ogone.setHMRContext = function(Onode: any) {
+  Ogone.setHMRContext = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     // register to hmr
     if (o.isTemplate && oc) {
@@ -344,7 +344,7 @@ function _OGONE_BROWSER_CONTEXT() {
         invalidatedNodes.forEach((n, i) => {
           if (n.ogone) {
             if (i === 0) n.firstNode.replaceWith(...ns);
-            n.destroy();
+            Ogonr.destroy(n);
           } else {
             if (i === 0) n.replaceWith(...ns);
             (n as HTMLElement).remove();
@@ -355,7 +355,7 @@ function _OGONE_BROWSER_CONTEXT() {
       }
     });
   }
-  Ogone.setDevToolContext = function(Onode: any) {
+  Ogone.setDevToolContext = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc) return;
     const ocp = oc.parent as OnodeComponent;
@@ -378,7 +378,7 @@ function _OGONE_BROWSER_CONTEXT() {
       type: o.isTemplate ? o.isRoot ? "root" : oc.type : "element",
     });
   }
-  Ogone.setNodeProps = function(Onode: any) {
+  Ogone.setNodeProps = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o || !oc || !o.nodes || !o.nodeProps) return;
     function r(n: HTMLElement, p: [string, string]) {
@@ -396,7 +396,7 @@ function _OGONE_BROWSER_CONTEXT() {
       }
     }
   }
-  Ogone.renderingProcess = function(Onode: any) {
+  Ogone.renderingProcess = function (Onode: any) {
     const o = Onode.ogone;
     // use the jsx renderer only for templates
     Ogone.setNodes(Onode);
@@ -433,11 +433,11 @@ function _OGONE_BROWSER_CONTEXT() {
       Ogone.triggerLoad(Onode);
     }
   }
-  Ogone.setPosition = function(Onode: any) {
+  Ogone.setPosition = function (Onode: any) {
     const o = Onode.ogone;
     o.position[o.level] = o.index;
   }
-  Ogone.setProps = function(Onode: any) {
+  Ogone.setProps = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o || !oc) return;
     if (!o.index) {
@@ -452,7 +452,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     oc.updateProps();
   }
-  Ogone.setNodes = function(Onode: any) {
+  Ogone.setNodes = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc || !o.render) return;
     if (o.isTemplate) {
@@ -477,7 +477,7 @@ function _OGONE_BROWSER_CONTEXT() {
     // set parentKey to template
     // ogone: {{ nodes.devtool.parentKey }}
   }
-  Ogone.setDeps = function(Onode: any) {
+  Ogone.setDeps = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc) return;
     if (o.originalNode && o.getContext) {
@@ -487,7 +487,7 @@ function _OGONE_BROWSER_CONTEXT() {
       Ogone.renderContext(Onode);
     }
   }
-  Ogone.renderContext = function(Onode: any) {
+  Ogone.renderContext = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc || !o.getContext) return;
     const length = o.getContext(
@@ -499,7 +499,7 @@ function _OGONE_BROWSER_CONTEXT() {
     });
     return true;
   }
-  Ogone.removeNodes = function(Onode: any) {
+  Ogone.removeNodes = function (Onode: any) {
     const o = Onode.ogone;
     if (!o.nodes) return Onode;
     /* use it before removing template node */
@@ -522,7 +522,7 @@ function _OGONE_BROWSER_CONTEXT() {
     Onode.ogone.component.activated = false;
     return Onode;
   }
-  Onode.destroy = function(Onode: any) {
+  Ogone.destroy = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc) return;
     Onode.context.list.forEach((n) => {
@@ -538,7 +538,7 @@ function _OGONE_BROWSER_CONTEXT() {
     this.context.placeholder.remove();
     Onode.remove();
   }
-  Ogone.renderSlots = function(Onode: any) {
+  Ogone.renderSlots = function (Onode: any) {
     const o = Onode.ogone;
     if (!o.nodes) return;
     const slots = Array.from(Onode.querySelectorAll("[slot]"));
@@ -564,11 +564,11 @@ function _OGONE_BROWSER_CONTEXT() {
     }
   }
 
-  Ogone.saveUntilRender = function(Onode: any, f: Function): void {
+  Ogone.saveUntilRender = function (Onode: any, f: Function): void {
     Onode.ogone.methodsCandidate.push(f);
   }
 
-  Ogone.setEvents = function(Onode: any) {
+  Ogone.setEvents = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.getContext || !oc || !o.nodes) return;
     const position = Onode.isComponent
@@ -773,7 +773,7 @@ function _OGONE_BROWSER_CONTEXT() {
       }
     }
   }
-  Ogone.bindValue = function(Onode: any) {
+  Ogone.bindValue = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.bind || !oc || !o.nodes) return;
     function r(n: TextElements, dependency: boolean | string) {
@@ -853,7 +853,7 @@ function _OGONE_BROWSER_CONTEXT() {
       r((n as TextElements), true);
     }
   }
-  Ogone.bindClass = function(Onode: any) {
+  Ogone.bindClass = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.class || !oc || !o.nodes) return;
     function r(n: HTMLElement) {
@@ -877,7 +877,7 @@ function _OGONE_BROWSER_CONTEXT() {
       r(node as HTMLElement);
     }
   }
-  Ogone.bindHTML = function(Onode: any) {
+  Ogone.bindHTML = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.html || !oc || !o.nodes || o.isTemplate) return;
     function r(n: HTMLElement) {
@@ -896,7 +896,7 @@ function _OGONE_BROWSER_CONTEXT() {
       r(node as HTMLElement);
     }
   }
-  Ogone.bindStyle = function(Onode: any) {
+  Ogone.bindStyle = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.style || !oc || !o.nodes) return;
     function r(n: HTMLElement) {
@@ -919,7 +919,7 @@ function _OGONE_BROWSER_CONTEXT() {
       r(n as HTMLElement);
     }
   }
-  Ogone.insertElement = function(
+  Ogone.insertElement = function (
     Onode: any,
     p: "beforebegin" | "afterbegin" | "beforeend" | "afterend",
     el: HTMLElement,
@@ -944,12 +944,12 @@ function _OGONE_BROWSER_CONTEXT() {
         break;
     }
     return (!!(target as Template).ogone
-      ? ((target as Template).context.list[
+      ? Ogone.insertElement((target as Template).context.list[
         (target as Template).context.list.length - 1
-      ]).insertElement(p, el)
+      ], p, el)
       : (target as HTMLElement).insertAdjacentElement(p, el));
   }
-  Ogone.renderNode = function(Onode: any) {
+  Ogone.renderNode = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
     if (!oc) return;
     if (o.isTemplate) {
@@ -1235,6 +1235,7 @@ function _OGONE_BROWSER_CONTEXT() {
         };
 
         // force rendering of awaiting node
+        // TODO revert force async render
         // Ogone.forceAsyncRender(awaitingNode);
 
         const promise = new Promise((resolve) => {
@@ -1268,12 +1269,13 @@ function _OGONE_BROWSER_CONTEXT() {
       }
       for (let onode of components) {
         // force rendering of awaiting node
-        Ogone.renderNode(onode);
+        // TODO revert froce Async render
+        // Ogone.forceAsyncRender(onode);
       }
     }
   }
   // @ts-ignore
-  Ogone.renderAsync = function(Onode: any, shouldReportToParentComponent: boolean) {
+  Ogone.renderAsync = function (Onode: any, shouldReportToParentComponent: boolean) {
     const o = Onode.ogone, oc = o.component;
     // first render child stores component
     // @ts-ignore
@@ -1320,7 +1322,7 @@ function _OGONE_BROWSER_CONTEXT() {
         // for --defer flag
         setTimeout(() => {
           // set Async context for Async Components
-        // @ts-ignore
+          // @ts-ignore
           Ogone.setAsyncContext(Onode);
 
           // replace childnodes by template
@@ -1329,7 +1331,8 @@ function _OGONE_BROWSER_CONTEXT() {
             if (isConnected) {
               chs.slice(1).forEach((ch) => {
                 if (ch.ogone) {
-                  ch.removeNodes().remove();
+                  Ogone.removeNodes(ch)
+                  ch.remove();
                   return;
                 }
                 ch.remove();

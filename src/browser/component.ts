@@ -218,7 +218,8 @@ function OComponent(this: OnodeComponent, node: any): OnodeComponent {
       } else {
         let lastEl = context.list[i - 1];
         if (lastEl && lastEl.isConnected) {
-          lastEl.insertElement("afterend", node);
+          // @ts-ignore
+          Ogone.insertElement(lastEl, "afterend", node);
           // @ts-ignore
         } else if (Onode && Onode.parentNode && !Onode.renderedList) {
           Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
@@ -241,7 +242,8 @@ function OComponent(this: OnodeComponent, node: any): OnodeComponent {
         // get the first element of the webcomponent
         let firstEl = context.list[0];
         if (firstEl && firstEl.firstNode && firstEl.isConnected) {
-          firstEl.insertElement("beforebegin", context.placeholder);
+          // @ts-ignore
+          Ogone.insertElement(firstEl, "beforebegin", context.placeholder);
         } else if (Onode.parentNode) {
           const { parentNode } = context;
           parentNode.insertBefore(context.placeholder, Onode);
@@ -250,7 +252,9 @@ function OComponent(this: OnodeComponent, node: any): OnodeComponent {
       const rm = context.list.pop();
       // don't use destroy here
       // if rm.destroy is used, it will not allow empty list to rerender
-      rm.removeNodes().remove();
+      // @ts-ignore
+      Ogone.removeNodes(rm);
+      rm.remove();
     }
   };
   return this;
