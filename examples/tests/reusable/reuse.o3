@@ -1,10 +1,10 @@
-<template is="other-component">
+require count as number;
+<template
+  is="other-component"
+  engine="sync">
   Slot
+  <br/>
 </template>
 <proto type="component">
-  declare:
-    public test() {
-      console.warn('teeeest');
-    }
-  default: this.test();
+  default: console.warn(this.$template);
 </proto>

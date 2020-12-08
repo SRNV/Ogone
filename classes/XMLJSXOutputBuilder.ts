@@ -109,15 +109,16 @@ export default class XMLJSXOutputBuilder extends Utils {
     }
     return this.template(
       `
-              {{start}}
-              {{nodeSuperCreation}}
-              {{setAwait}}
-              {{setOgone.isOgone}}
-              {{setNodeAwait}}
-              at({{nId}},'${idComponent}', '');
-              {{setAttributes}}
-              {{nodesPragma}}
+              {{ start }}
+              {{ nodeSuperCreation }}
+              {{ setAwait }}
+              {{ setOgone.isOgone }}
+              {{ setNodeAwait }}
+              at({{ nId }},'${idComponent}', '');
+              {{ setAttributes }}
+              {{ nodesPragma }}
               {{ storeRender }}
+              {{ recycleWebcomponent }}
               {{end}}`,
       {
         nId,
@@ -125,15 +126,22 @@ export default class XMLJSXOutputBuilder extends Utils {
         start,
         idComponent,
         nodeSuperCreation,
-        isTemplate: isTemplate || !!isImported && !!subcomp,
-        isAsync: !!isImported && !!subcomp && subcomp.type === "async",
-        isRouter: !!isImported && !!subcomp && subcomp.type === "router",
-        isStore: !!isImported && !!subcomp && subcomp.type === "store",
         isAsyncNode,
         isImported,
         isRemote,
         component,
         subcomp,
+        isTemplate: isTemplate || !!isImported && !!subcomp,
+        isAsync: !!isImported && !!subcomp && subcomp.type === "async",
+        isRouter: !!isImported && !!subcomp && subcomp.type === "router",
+        isStore: !!isImported && !!subcomp && subcomp.type === "store",
+        recycleWebcomponent: isRoot && component.context.reuse ? `
+          Ogone.recycleWebComponent({{ nId }}, {
+            id: '${idComponent}',
+            name: '${component.context.reuse}',
+            component: ctx,
+          });
+          ` : '',
         setAwait: node.attributes && node.attributes.await
           ? `at({{nId}},'await', '');`
           : "",

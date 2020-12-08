@@ -133,8 +133,8 @@ export default class ComponentCompiler extends Utils {
           // freeze Async Object;
           Object.freeze(Async);
           `;
-      let result: string = `function __component (__NODE) {
-            OComponent.call(this, __NODE);
+      let result: string = `function __component () {
+            OComponent.call(this);
             {{ controllerDef }}
             {{ hasStore }}
             const ___ = (prop, inst, value) => {

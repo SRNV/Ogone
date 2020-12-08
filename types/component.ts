@@ -29,6 +29,7 @@ export interface OnodeComponent {
   requirements: any;
   positionInParentComponent: number[];
   props: [string, string, ...any[]][];
+  pluggedWebComponent?: any;
   startLifecycle: (params?: any, event?: Event) => any;
   initStore(): any;
   runtime(_state: number | string, ctx?: any, event?: Event): any;
@@ -42,6 +43,7 @@ export interface OnodeComponent {
   reactTo(dependency: string): void;
   renderTexts(dependency: string | boolean): void;
   parentContext(ctx: any): any;
+  plugWebComponent(webcomponent: any): any;
 }
 export interface ComponentItem {
   name: string;

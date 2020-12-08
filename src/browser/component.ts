@@ -7,7 +7,7 @@ import type { Template } from "../../types/template.ts";
 
 let Ogone: OgoneBrowser;
 
-function OComponent(this: OnodeComponent, node: any): OnodeComponent {
+function OComponent(this: OnodeComponent): OnodeComponent {
   this.key = null;
   this.data = null;
   this.dependencies = null;
@@ -132,10 +132,24 @@ function OComponent(this: OnodeComponent, node: any): OnodeComponent {
         position: this.positionInParentComponent,
       });
       if (this.data && value !== this.data[key]) {
-        if (typeof node.attributeChangedCallback === 'string') {
-          node.attributeChangedCallback(key, this.data[key], value);
+        if (this.pluggedWebComponent && typeof this.pluggedWebComponent.attributeChangedCallback === 'function') {
+          this.pluggedWebComponent.attributeChangedCallback(key, this.data[key], value);
+        }
+        /**
+         * for recycle Webcomponent feature
+         * pluggedWebComponent is a WebComponent that is used
+         * by the end user
+         */
+        if (this.pluggedWebComponent && typeof this.pluggedWebComponent.beforeUpdate === 'function') {
+          this.pluggedWebComponent.beforeUpdate(key, this.data[key], value)
         }
         this.data[key] = value;
+        /**
+         * update the webcomponent
+         */
+        if (this.pluggedWebComponent && value !== this.pluggedWebComponent[key]) {
+          this.pluggedWebComponent[key] = value;
+        }
         this.update(key);
         if (this.type === "async") {
           if (!this.dependencies) return;
@@ -151,6 +165,13 @@ function OComponent(this: OnodeComponent, node: any): OnodeComponent {
         }
       }
     });
+  };
+  /**
+   * this is used to update the attributes of the webcomponent
+   * when a prop is updated
+   */
+  this.plugWebComponent = (wc: any) => {
+    this.pluggedWebComponent = wc;
   };
   this.render = (
     Onode: Template, /** original node */

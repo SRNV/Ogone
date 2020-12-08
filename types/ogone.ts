@@ -50,6 +50,7 @@ export interface OgoneBrowser {
   errors: number;
   firstErrorPerf: any;
   oscillator?: any | null;
+  webcomponent?: any;
   sound: ((opts: any) => void) | null;
   router: RouterBrowser | null;
   DevTool?: any;

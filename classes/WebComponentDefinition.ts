@@ -42,15 +42,6 @@ export default class WebComponentDefinition extends Utils {
       definition =
         `customElements.define('{{ classId }}', Ogone.classes['{{ component.type }}']({{ extension }}));`;
     }
-    if (isTemplate && component.context.reuse) {
-      definition = `
-        customElements.whenDefined('${component.context.reuse}')
-          .then(() => {
-            const klass = customElements.get('${component.context.reuse}');
-            customElements.define('{{ classId }}', Ogone.classes['{{ component.type }}'](klass));
-          })
-      `;
-    }
     if (!isProduction) {
       // for HMR
       // asking if the customElement is already defined

@@ -1392,6 +1392,26 @@ function _OGONE_BROWSER_CONTEXT() {
       oc.promises.push(promise);
     }
   }
+  /**
+   * recycle feature utils
+   */
+  Ogone.recycleWebComponent = function(Onode: any, opts: {
+    injectionStyle: 'append' | 'preprend';
+    id: string;
+    name: string;
+    component: any;
+  } = { injectionStyle: 'append' }): boolean {
+    const { injectionStyle, id, name, component } = opts;
+    const webcomponent = document.createElement(name);
+    // webcomponent preparation
+    webcomponent.setAttribute(id, '');
+    // inject the webcomponent into the template
+    Onode[injectionStyle || 'append'](webcomponent);
+    // plug the webcomponent to the component
+    component.plugWebComponent(webcomponent);
+    console.warn(component);
+    return webcomponent;
+  }
 }
 export default _OGONE_BROWSER_CONTEXT.toString()
   .replace("function _OGONE_BROWSER_CONTEXT() {", "")

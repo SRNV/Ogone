@@ -1,17 +1,20 @@
 import component Reuse from './reuse.o3';
 <template>
-  <Reuse />
+  <Reuse :count="this.count" />
 </template>
 <proto type="component">
   declare:
     count = 0;
     reusable = class extends HTMLElement {
+      count: number = 10;
+      text: Text;
       constructor(opts: any) {
         super();
-        console.warn(opts);
+        this.text = new Text(`Count: ${this.count}`);
+        this.append(this.text);
       }
-      attributeChangedCallback(prop: any, value: any) {
-        console.warn(prop, value);
+      attributeChangedCallback(prop: string, value: any) {
+        this.text.data = `Count: ${this.count}`;
       }
     }
   default:
