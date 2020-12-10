@@ -52,8 +52,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       node.getOuterTSX = () => {
         if (node.nodeType === 1) {
           let templateOuterTSX = `<{%tagname%} {%attrs%}>{%outers%}</{%tagname%}>`;
-          if (node.attributes[':--for']) {
-            const value = node.attributes[':--for'];
+          if (node.attributes['--for']) {
+            const value = node.attributes['--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
             const { array, item, index } = flagDescript;
             templateOuterTSX = `{
@@ -78,7 +78,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               tagname: node.tagName,
               attrs: Object.entries(node.attributes)
                 .map(([key, value]) => {
-                  if (key.match(/^(:){0,1}(\-){2}/)) {
+                  if (key.match(/^(\-){2}/)) {
                     return '';
                   }
                   if (value === true) {
@@ -224,7 +224,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               const { value, isTSX } = expressions[id];
               // translate tsx to template
               // @ts-ignore
-              expressions[key].attributes[isTSX ? `:${attributeName}` : attributeName] = value;
+              expressions[key].attributes[isTSX && !attributeName.startsWith('--') ? `:${attributeName}` : attributeName] = value;
             }
           } else if (expressions[key] && !expressions[key].attributes[attr.trim()]) {
             // @ts-ignore
@@ -636,6 +636,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
 
     const rootNode = this.getRootnode(str, expressions);
     if (rootNode) {
+
       // get rootNode
       let result: XMLNodeDescription = rootNode;
       result.id = "t";
