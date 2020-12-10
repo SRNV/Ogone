@@ -28,7 +28,7 @@ function readDestructuration(destructured: string, opts: {
   } = opts;
   if (!typedExpressions.blocks[destructured]) return null;
   const content = typedExpressions.blocks[destructured];
-  const blocks = content.match(/(?<=([\:\=]\s*))\<block\d+\>/gi);
+  const blocks = content.match(/(?<=([\:\=]\s*))\d+_block/gi);
   const propertiesRegExp = /(([\w\d]+)+(?=\s*\}$)|(([\w\d]+)+(?=\s*,))|((?<=([\w\d]+)+\s*\:)([\w\d]+)+)|(([\w\d]+)+(?=\s*\=)))/gi;
   const properties = content.match(propertiesRegExp);
   if (properties) {

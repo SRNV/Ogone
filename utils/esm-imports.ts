@@ -37,7 +37,7 @@ const esm: ProtocolScriptRegExpList = [
     name: "ambient import",
     open: false,
     reg:
-      /\s*(\bimport\b)\s+(\<string\d+\>)\s*(§{2}endExpression\d+§{2}|;|\n+)?/,
+      /\s*(\bimport\b)\s+(\d+_string)\s*(§{2}endExpression\d+§{2}|;|\n+)?/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");

@@ -554,7 +554,6 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   }
 
   public parse(html: string): XMLNodeDescription | null {
-    const isTarget = html.indexOf('--event:animationend:') > -1;
     let expressions: DOMParserExpressions = {};
     let iterator: DOMParserIterator = {
       value: 0,

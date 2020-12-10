@@ -107,12 +107,12 @@ export default class StyleParser extends Utils {
       props: {},
     };
     const { expressions } = styleBundle.tokens;
-    const endExp = /(?:;\n*(?=(?:\s+(?:.+?)\s*\:)|(?=(?:.+?)\<block\d+\>)))/;
+    const endExp = /(?:;\n*(?=(?:\s+(?:.+?)\s*\:)|(?=(?:.+?)\d+_block)))/;
     const parts = css.split(endExp)
     parts
       .filter(rule => rule && rule.trim().length)
       .forEach((rule) => {
-        const isChild = rule.match(/(<block\d+>)/);
+        const isChild = rule.match(/(\d+_block)/);
         const isSpread = rule.match(/(\.{3})(.*)/);
         if (isChild) {
           const [block] = isChild;
@@ -195,7 +195,7 @@ export default class StyleParser extends Utils {
       return;
     }
     const rules: any[] = [];
-    const regExp = /(<block\d+>)/gi;
+    const regExp = /(\d+_block)/gi;
     const matches = result.match(regExp);
     if (matches) {
       matches.forEach((block, i, arr) => {

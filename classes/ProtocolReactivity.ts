@@ -1,23 +1,14 @@
 // TODO use Proxies instead of reactive code
 
-import gen from "../utils/generator.ts";
-import { YAML } from "../deps.ts";
 import getTypedExpression from "../utils/typedExpressions.ts";
 import elements from "../utils/elements.ts";
-import esmElements from "../utils/esm-imports.ts";
 import notParsedElements from "../utils/not-parsed.ts";
-import computedExp from "../utils/computed.ts";
 import forceInlineElements from "../utils/forceInlineElements.ts";
-import cjsElements from "../utils/cjsElements.ts";
-import O3Elements from "../utils/o3-elements.ts";
 import getDeepTranslation from "../utils/template-recursive.ts";
 import read from '../utils/agnostic-transformer.ts';
 import { Utils } from "./Utils.ts";
 import type {
   TypedExpressions,
-  ProtocolScriptRegExpList,
-  ProtocolScriptParserOptions,
-  ProtocolScriptParserReturnType,
 } from "../.d.ts";
 
 export interface GetReactivityOptions {
@@ -79,7 +70,7 @@ export default class ProtocolReactivity extends Utils {
     })
     const invalidatationRegExp = /(this\.)(.+?\b)(.*?)(\s*=\s*)(?!\>|\<)(.+?)(\n|;|\)$|$)/gi;
     const invalidatationShortOperationRegExp = /(this\.)(.+?\b)(.*?)([\+\-\*]+)(\n|;|\)$|$)/gi;
-    const arrayModifier = /(this\.)(.+?\b)((.*?)\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:<parenthese\d+>))+/gi;
+    const arrayModifier = /(this\.)(.+?\b)((.*?)\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:\d+_parenthese))+/gi;
     result = result.replace(invalidatationRegExp, `${this.reactWith || '___'}("$2", this,\n$1$2$3$4$5\n)$6`);
     result = result.replace(invalidatationShortOperationRegExp, `${this.reactWith || '___'}("$2", this,\n$1$2$3$4\n)$5`);
     result = result.replace(arrayModifier, `${this.reactWith || '___'}("$2", this, $&)`);

@@ -7,7 +7,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "[",
     reg: /\[([^\[\]])+\]/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `<array${gen.next().value}>`;
+      const id = `${gen.next().value}_array`;
       if (expressions) expressions[id] = value;
       return id;
     },
@@ -19,7 +19,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "(",
     reg: /\(([^\(\)])*\)/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `<parenthese${gen.next().value}>`;
+      const id = `${gen.next().value}_parenthese`;
       if (expressions) expressions[id] = value;
       if (typedExpressions && typedExpressions.parentheses) typedExpressions.parentheses[id] = value;
       return id;
@@ -31,7 +31,7 @@ const tokens: ProtocolScriptRegExpList = [
     open: "{",
     reg: /\{([^\{\}])*\}/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `<block${gen.next().value}>`;
+      const id = `${gen.next().value}_block`;
       if (expressions) expressions[id] = value;
       if (typedExpressions && typedExpressions.blocks) typedExpressions.blocks[id] = value;
       return id;

@@ -52,7 +52,7 @@ const items: ProtocolScriptRegExpList = [
     name: "reflection",
     open: false,
     reg:
-      /(this)\s*(.+?)\s*(=>)\s*(<block\d+>)/,
+      /(this)\s*(.+?)\s*(=>)\s*(\d+_block)/,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches || !typedExpressions) {
         throw new Error(
