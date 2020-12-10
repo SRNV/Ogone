@@ -30,8 +30,8 @@ export default abstract class StyleKeyframes extends Utils {
         } else {
           this.error(`${component.file}\n\t@keyframes requires a name\n\tplease follow this pattern: @keyframes <name> { ... }\n\tinput: ${item.selector} { ... }`);
         }
-        result += this.template(`{{ parentRule }} {{ keyframesSelector }} { {{ frames }} } `, {
-          parentRule: item.parent && !item.parent.isSpecial ? `{{ parent.selector }} { {{ animation }} }` : '',
+        result += this.template(`{% parentRule %} {% keyframesSelector %} { {% frames %} } `, {
+          parentRule: item.parent && !item.parent.isSpecial ? `{% parent.selector %} { {% animation %} }` : '',
           frames: keyframes.map((keyframe, i: number, arr: typeof keyframes) => {
             const total = arr.length - 1;
             let percent = Math.round((i / total) * 100);
@@ -40,7 +40,7 @@ export default abstract class StyleKeyframes extends Utils {
           }).join(''),
           parent,
           keyframesSelector: `@keyframes ${props["animation-name"]}`,
-          animation: `${animationKeys.map((key) => `${key}:${props[key]};`).join('')} {{ animationProp }}`,
+          animation: `${animationKeys.map((key) => `${key}:${props[key]};`).join('')} {% animationProp %}`,
           animationProp: !props["animation"] ? `animation-name: ${props["animation-name"]};` : '',
         });
       } else if (item.isKeyframes) {

@@ -26,11 +26,11 @@ export const browserBuild = (isProduction: boolean, opts?: any): string => {
 export const template: string = `
 <html>
   <head>
-      {{ head }}
-      {{ script }}
+      {% head %}
+      {% script %}
   </head>
   <body>
-      {{ dom }}
+      {% dom %}
   </body>
 </html>
 `;

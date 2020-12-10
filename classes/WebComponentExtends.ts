@@ -7,12 +7,12 @@ import getClassComponent from "./BrowserComponent.ts";
 import getClassStore from "./BrowserStoreComponent.ts";
 import getClassExtends from "./BrowserExtendsComponent.ts";
 import { Configuration } from "./Configuration.ts";
-const oce = `Ogone.classes.extends = {{ getClassExtends }}`;
-const occ = `Ogone.classes.component = {{ getClassComponent }}`;
-const ocs = `Ogone.classes.store = {{ getClassStore }}`;
-const oca = `Ogone.classes.async = {{ getClassAsync }}`;
-const ocr = `Ogone.classes.router = {{ getClassRouter }}`;
-const occo = `Ogone.classes.controller = {{ getClassController }}`;
+const oce = `Ogone.classes.extends = {% getClassExtends %}`;
+const occ = `Ogone.classes.component = {% getClassComponent %}`;
+const ocs = `Ogone.classes.store = {% getClassStore %}`;
+const oca = `Ogone.classes.async = {% getClassAsync %}`;
+const ocr = `Ogone.classes.router = {% getClassRouter %}`;
+const occo = `Ogone.classes.controller = {% getClassController %}`;
 export default class WebComponentExtends extends Utils {
   public getExtensions(bundle: Bundle) {
     const result: string[] = [];

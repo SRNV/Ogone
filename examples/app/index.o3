@@ -7,14 +7,14 @@ import component RouterComponent from '@/examples/app/routers/.router.o3';
 <template>
   <div ref="header" class="header">
     <div class="logo">
-      <AsyncLogoEl --router-go="'/'"></AsyncLogoEl>
+      <AsyncLogoEl --router-go={'/'}></AsyncLogoEl>
     </div>
     <div --router-dev-tool class="open-dev-tool"> Dev </div>
     <MenuContent />
   </div>
   <RouterComponent namespace="new" />
   <MenuMain />
-  <LeftMenu :test="this.scrollY"/>
+  <LeftMenu test={this.scrollY}/>
 </template>
 
 <proto>

@@ -69,7 +69,7 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
     let propsTypes: string = "";
     if (n.tagName === tagName) {
       if (requirements && requirements.length) {
-        propsTypes = this.template(`{{ props }}`, {
+        propsTypes = this.template(`{% props %}`, {
           props: ProtocolClassConstructor.getInterfaceProps(importedComponent),
         });
       }

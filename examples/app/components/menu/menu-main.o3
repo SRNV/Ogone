@@ -6,16 +6,16 @@ import component LogoEl from '@/examples/app/components/logo.o3';
   <StoreComponent namespace="menu" />
   <div
     class="left-menu"
-    --class="{ close: !this.isOpen }">
+    --class={{ close: !this.isOpen }}>
     <div class="header">
       <LogoEl --click:toggle-menu></LogoEl>
       <div>0.1.0</div>
     </div>
     <div class="tree">
-      <TreeRecursive --for="item of this.menu" :item="item" />
+      <TreeRecursive --for={item of this.menu} item={item} />
     </div>
   </div>
-  <div --class="{ darken: this.isOpen }" --click:toggle-menu></div>
+  <div --class={{ darken: this.isOpen }} --click:toggle-menu></div>
 </template>
 
 <proto def="examples/app/defs/menu-main.yml">

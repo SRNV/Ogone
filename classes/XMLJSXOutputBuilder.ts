@@ -80,7 +80,7 @@ export default class XMLJSXOutputBuilder extends Utils {
     const start = isRoot
       ? this.template(
         `
-      (function({{params}}) {
+      (function({%params%}) {
           let p = pos.slice();
           let o = null;
 `,
@@ -92,7 +92,7 @@ export default class XMLJSXOutputBuilder extends Utils {
     const end = isRoot
       ? this.template(
         `
-          return {{nId}};
+          return {%nId%};
           });
           `,
         {
@@ -109,17 +109,17 @@ export default class XMLJSXOutputBuilder extends Utils {
     }
     return this.template(
       `
-              {{ start }}
-              {{ nodeSuperCreation }}
-              {{ setAwait }}
-              {{ setOgone.isOgone }}
-              {{ setNodeAwait }}
-              at({{ nId }},'${idComponent}', '');
-              {{ setAttributes }}
-              {{ nodesPragma }}
-              {{ storeRender }}
-              {{ recycleWebcomponent }}
-              {{end}}`,
+              {% start %}
+              {% nodeSuperCreation %}
+              {% setAwait %}
+              {% setOgone.isOgone %}
+              {% setNodeAwait %}
+              at({% nId %},'${idComponent}', '');
+              {% setAttributes %}
+              {% nodesPragma %}
+              {% storeRender %}
+              {% recycleWebcomponent %}
+              {%end%}`,
       {
         nId,
         end,
@@ -136,21 +136,21 @@ export default class XMLJSXOutputBuilder extends Utils {
         isRouter: !!isImported && !!subcomp && subcomp.type === "router",
         isStore: !!isImported && !!subcomp && subcomp.type === "store",
         recycleWebcomponent: isRoot && component.context.reuse ? `
-          Ogone.recycleWebComponent({{ nId }}, {
+          Ogone.recycleWebComponent({% nId %}, {
             id: '${idComponent}',
             name: '${component.context.reuse}',
             component: ctx,
           });
           ` : '',
         setAwait: node.attributes && node.attributes.await
-          ? `at({{nId}},'await', '');`
+          ? `at({%nId%},'await', '');`
           : "",
         // force the component to wait for resolution
         setNodeAwait: isOgone && node.attributes && node.attributes.nodeAwait && !isRoot
           ? `ctx.promises.push(new Promise((rs) => {
             ${/*force render of the customElement*/ ''}
-            {{nId}}.connectedCallback();
-            for(let n of {{nId}}.ogone.nodes) {
+            {%nId%}.connectedCallback();
+            for(let n of {%nId%}.ogone.nodes) {
               n.addEventListener('load', () => {
                 rs();
               });
@@ -160,7 +160,7 @@ export default class XMLJSXOutputBuilder extends Utils {
         setAttributes: !(nodeIsDynamic && !isRoot && !isImported)
           ? setAttributes
           : "",
-        storeRender: !!isImported && !!subcomp && subcomp.type === "store" ? '{{nId}}.connectedCallback();' : '',
+        storeRender: !!isImported && !!subcomp && subcomp.type === "store" ? '{%nId%}.connectedCallback();' : '',
         nodesPragma: nodesPragma.length
           ? `l++; ${nodesPragma}  l--; ${appending}`
           : "",
@@ -170,24 +170,24 @@ export default class XMLJSXOutputBuilder extends Utils {
             o = {
               isRoot: false,
               originalNode: true,
-              {{setOgone.tagname}}
-              {{setOgone.tree}}
-              {{setOgone.positionLevelIndex}}
-              {{setOgone.inheritedCTX}}
-              {{setOgone.flags}},
-              isTemplate: {{ isTemplate }},
-              isAsync: {{ isAsync }},
-              isRouter: {{ isRouter }},
-              isStore: {{ isStore }},
-              isAsyncNode: {{ isAsyncNode }},
-              isImported: {{ isImported }},
-              isRemote: {{ isRemote }},
-              extends: '{{ setOgone.extends }}',
-              uuid: '{{ component.uuid }}',
-              {{setOgone.positionInParentComponent}}
-              {{ setOgone.nodeProps }}
+              {%setOgone.tagname%}
+              {%setOgone.tree%}
+              {%setOgone.positionLevelIndex%}
+              {%setOgone.inheritedCTX%}
+              {%setOgone.flags%},
+              isTemplate: {% isTemplate %},
+              isAsync: {% isAsync %},
+              isRouter: {% isRouter %},
+              isStore: {% isStore %},
+              isAsyncNode: {% isAsyncNode %},
+              isImported: {% isImported %},
+              isRemote: {% isRemote %},
+              extends: '{% setOgone.extends %}',
+              uuid: '{% component.uuid %}',
+              {%setOgone.positionInParentComponent%}
+              {% setOgone.nodeProps %}
             };
-              Ogone.setOgone({{nId}}, o); o = null;`
+              Ogone.setOgone({%nId%}, o); o = null;`
             : "",
           inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
           flags: `flags: ${flags}`,
@@ -385,19 +385,19 @@ export default class XMLJSXOutputBuilder extends Utils {
           const isEvaluated = node.rawText.indexOf("${") > -1;
           const saveText = isEvaluated
             ? `
-                  const {{getContextConstant}} = Ogone.contexts['{{contextId}}'] ? Ogone.contexts['{{contextId}}'].bind(ctx.data) : null; /* getContext function */
-                  const {{textConstant}} = '{{evaluatedString}}';
-                  const p{{textConstant}} = p.slice();
+                  const {%getContextConstant%} = Ogone.contexts['{%contextId%}'] ? Ogone.contexts['{%contextId%}'].bind(ctx.data) : null; /* getContext function */
+                  const {%textConstant%} = '{%evaluatedString%}';
+                  const p{%textConstant%} = p.slice();
                   /*removes txt position and root position*/
-                  p{{textConstant}}[l-2]=i;
+                  p{%textConstant%}[l-2]=i;
                   ctx.texts.push((k) => {
-                    if ({{ dependencies }} typeof k === 'string' && {{textConstant}}.indexOf(k) < 0) return true;
-                    if (!{{getContextConstant}}) return false;
-                    const v = {{getContextConstant}}({
-                      getText: {{textConstant}},
-                      position: p{{textConstant}},
+                    if ({% dependencies %} typeof k === 'string' && {%textConstant%}.indexOf(k) < 0) return true;
+                    if (!{%getContextConstant%}) return false;
+                    const v = {%getContextConstant%}({
+                      getText: {%textConstant%},
+                      position: p{%textConstant%},
                     });
-                    if ({{nId}}.data !== v && v) {{nId}}.data = v.length ? v : ' ';
+                    if ({%nId%}.data !== v && v) {%nId%}.data = v.length ? v : ' ';
                     return true
                   });
                 `
@@ -421,7 +421,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               ),
             value: this.template(
               `
-                  {{saveText}}`,
+                  {%saveText%}`,
               {
                 nId,
                 saveText,

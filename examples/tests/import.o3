@@ -1,5 +1,5 @@
 use ./nested.o3 as 'nested-el';
 
 <template>
-  <nested-el :name="'test'"/>
+  <nested-el name={'test'}/>
 </template>

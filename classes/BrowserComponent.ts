@@ -34,7 +34,7 @@ const getClassComponent = (
           position: [0],
           flags: null,
           originalNode: true,
-          uuid: '{{ root.uuid }}',
+          uuid: '{% root.uuid %}',
           extends: '-nt',
         };
         Ogone.setOgone(this, opts);

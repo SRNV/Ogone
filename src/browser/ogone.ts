@@ -222,7 +222,7 @@ function _OGONE_BROWSER_CONTEXT() {
       // @ts-ignore
       level: 0,
       // @ts-ignore
-      uuid: '{{ root.uuid }}',
+      uuid: '{% root.uuid %}',
       // @ts-ignore
       extends: '-nt',
       // int[]
@@ -475,7 +475,7 @@ function _OGONE_BROWSER_CONTEXT() {
       });
     }
     // set parentKey to template
-    // ogone: {{ nodes.devtool.parentKey }}
+    // ogone: {% nodes.devtool.parentKey %}
   }
   Ogone.setDeps = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
@@ -534,7 +534,7 @@ function _OGONE_BROWSER_CONTEXT() {
       oc.runtime("destroy");
       oc.activated = false;
     }
-    // ogone: {{ destroy.devTool }}
+    // ogone: {% destroy.devTool %}
     this.context.placeholder.remove();
     Onode.remove();
   }

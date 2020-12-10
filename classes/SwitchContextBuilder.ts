@@ -115,28 +115,28 @@ export default class SwitchContextBuilder extends Utils {
         const contextScript =
           node.hasFlag || !node.tagName && node.nodeType === 1 || isNodeDynamic
             ? `
-        Ogone.contexts['{{ context.id }}'] = function(opts) {
+        Ogone.contexts['{% context.id %}'] = function(opts) {
             const GET_TEXT = opts.getText;
             const GET_LENGTH = opts.getLength;
             const POSITION = opts.position;
-            {{ data }}
-            {{ modules }}
-            {{ value }}
-            {{ context.if }}
-            {{ context.getNodeDynamicLength || context.getLength }}
+            {% data %}
+            {% modules %}
+            {% value %}
+            {% context.if %}
+            {% context.getNodeDynamicLength || context.getLength %}
             if (GET_TEXT) {
               try {
                 return eval('('+GET_TEXT+')');
               } catch(err) {
-                if (!({{ itemName }})) { return undefined }
-                Ogone.error('Error in component:\\n\\t {{component.file}} '+\`$\{GET_TEXT}\`, err.message ,err);
+                if (!({% itemName %})) { return undefined }
+                Ogone.error('Error in component:\\n\\t {%component.file%} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }
             }
-            return { {{ context.result }} };
+            return { {% context.result %} };
           };
         `
-            : `Ogone.contexts['{{ context.id }}'] = Ogone.contexts['{{ context.parentId }}'];`;
+            : `Ogone.contexts['{% context.id %}'] = Ogone.contexts['{% context.parentId %}'];`;
         const result = this.template(contextScript, {
           component,
           data: component.context.data,

@@ -11,7 +11,7 @@ use ./shader1.o3 as 'shader-component'
     <cube ref="cube" />
     <sphere />
     <prism />
-    <mesh ref="robot" --load="this.obj" />
+    <mesh ref="robot" --load={this.obj} />
   </scene>
 </template>
 

@@ -72,7 +72,6 @@ export class Context implements ContextInterface {
       },
     };
     let newCode = code.substr(opts.position);
-    console.warn(newCode);
     if (this.capture.test(newCode)) {
       const [input] = this.capture.exec(newCode)!;
       shiftLength = input.length;

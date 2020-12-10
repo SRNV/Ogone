@@ -65,7 +65,7 @@ export default abstract class StyleRenderer extends StyleParser {
         const entries = Object.entries(item.properties.props);
         const props = entries.length ? entries.map(([name, value]) => `${name}: ${value};`).join('') : null;
         if (props) {
-          result += this.template(`${item.selector} { {{props}} } `, {
+          result += this.template(`${item.selector} { {%props%} } `, {
             props,
           });
         }

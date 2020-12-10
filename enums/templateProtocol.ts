@@ -2,13 +2,13 @@
 enum Protocol {
   PROTOCOL_TEMPLATE = `
     class Protocol {
-      {{ props }}
-      {{ data }}
+      {% props %}
+      {% data %}
     }
   `,
   BUILD = `
-    {{ namespaces }}
-    {{ protocol }}
+    {% namespaces %}
+    {% protocol %}
 
     type OgoneCOMPONENTComponent<T> = { children?: any; } & T;
     type OgoneASYNCComponent<T> = OgoneCOMPONENTComponent<T>;
@@ -23,17 +23,17 @@ enum Protocol {
         [k: string]: any;
       }
     }
-    {{ allUsedComponents }}
+    {% allUsedComponents %}
     class Component extends Protocol {
       render() {
-        return {{ tsx.length ? \`(\${tsx})\` : '' }};
+        return {% tsx.length ? \`(\${tsx})\` : '' %};
       }
-      {{ runtime }}
+      {% runtime %}
     }
   `,
   USED_COMPONENT_TEMPLATE = `
-    declare function {{ tagName }} (props: {{ genericType }}<{
-      {{ propsTypes || '' }}
+    declare function {% tagName %} (props: {% genericType %}<{
+      {% propsTypes || '' %}
     }>): h.JSX.IntrinsicElements;`,
 }
 export default Protocol;

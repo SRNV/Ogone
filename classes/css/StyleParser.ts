@@ -50,10 +50,10 @@ export default class StyleParser extends Utils {
       result += `\nreturn (${exported}); })()`;
     } else {
       result += `
-        if ('{{ context }}' === 'spread' && ($$target ? $$target : {{ subject }})) {
-          const _target = ($$target ? $$target : {{ subject }});
+        if ('{% context %}' === 'spread' && ($$target ? $$target : {% subject %})) {
+          const _target = ($$target ? $$target : {% subject %});
           if (!_target.value || !_target.value[0] || !_target.value[0].children) {
-            this.error(\`{{ component.file }}\n\tError in style of Component: {{ subject.trim() }} is not a rule.\n\tyou're getting this error cause you're trying to spread a non-rule value\n\tcant spread it inside another one\n\tinput: ...{{ subject.trim() }}\`);
+            this.error(\`{% component.file %}\n\tError in style of Component: {% subject.trim() %} is not a rule.\n\tyou're getting this error cause you're trying to spread a non-rule value\n\tcant spread it inside another one\n\tinput: ...{% subject.trim() %}\`);
           }
           $$item.children = [
               ...$$item.children,
@@ -64,8 +64,8 @@ export default class StyleParser extends Utils {
             ..._target.value[0].properties.props,
           };
         }
-        if ('{{ context }}' === 'value') {
-          return {{ subject }};
+        if ('{% context %}' === 'value') {
+          return {% subject %};
         }
       `;
     }

@@ -1,6 +1,6 @@
 import component Reuse from './reuse.o3';
 <template>
-  <Reuse :count="this.count" />
+  <Reuse count={this.count} {...this.prop} />
 </template>
 <proto type="component">
   declare:

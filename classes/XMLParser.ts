@@ -5,8 +5,13 @@ import type {
   DOMParserIterator,
   DOMParserExp,
   DOMParserExpressions,
+  TypedExpressions
 } from "../.d.ts";
 import ForFlagBuilder from "./ForFlagBuilder.ts";
+import elements from '../utils/elements.ts';
+import notParsed from '../utils/not-parsed.ts';
+import read from '../utils/agnostic-transformer.ts';
+import getTypedExpressions from '../utils/typedExpressions.ts';
 
 const openComment = "<!--";
 const closeComment = "-->";
@@ -46,9 +51,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     nodeList.forEach((node: XMLNodeDescription) => {
       node.getOuterTSX = () => {
         if (node.nodeType === 1) {
-          let templateOuterTSX = `<{{tagname}} {{attrs}}>{{outers}}</{{tagname}}>`;
-          if (node.attributes['--for']) {
-            const value = node.attributes['--for'];
+          let templateOuterTSX = `<{%tagname%} {%attrs%}>{%outers%}</{%tagname%}>`;
+          if (node.attributes[':--for']) {
+            const value = node.attributes[':--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
             const { array, item, index } = flagDescript;
             templateOuterTSX = `{
@@ -73,14 +78,14 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               tagname: node.tagName,
               attrs: Object.entries(node.attributes)
                 .map(([key, value]) => {
-                  if (key.startsWith(`--`)) {
+                  if (key.match(/^(:){0,1}(\-){2}/)) {
                     return '';
                   }
                   if (value === true) {
                     return `\n${key} `
                   }
                   if (key.startsWith(`:`)) {
-                    return `\n${key.slice(1)}={\n${value}\n} `
+                    return `\n${key.slice(1)}={${value}} `
                   }
                   return `\n${key}="${value}"`;
                 }).join(' '),
@@ -94,7 +99,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       node.getOuterHTML = () => {
         if (node.nodeType === 1) {
           let result = this.template(
-            `<{{tagname}} {{attrs}}>{{outers}}</{{tagname}}>`,
+            `<{%tagname%} {%attrs%}>{%outers%}</{%tagname%}>`,
             {
               outers: node.childNodes.map((c) => {
                 if (c.getOuterHTML) {
@@ -113,7 +118,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       };
       node.getInnerHTML = () => {
         if (node.nodeType === 1) {
-          let result = this.template("{{outers}}", {
+          let result = this.template("{%outers%}", {
             outers: node.childNodes.map((c) => {
               if (c.getOuterHTML) {
                 return c.getOuterHTML();
@@ -216,9 +221,10 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             const m = attr.match(attrIDRE);
             if (m && expressions[m[2]]) {
               let [input, attributeName, id] = m;
-              const { value } = expressions[id];
+              const { value, isTSX } = expressions[id];
+              // translate tsx to template
               // @ts-ignore
-              expressions[key].attributes[attributeName] = value;
+              expressions[key].attributes[isTSX ? `:${attributeName}` : attributeName] = value;
             }
           } else if (expressions[key] && !expressions[key].attributes[attr.trim()]) {
             // @ts-ignore
@@ -552,20 +558,71 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       }
     }
   }
+  private preserveBlocks(str: string, globalExpressions: { [k: string]: string }, typedExpressions: TypedExpressions): string {
+    let result = read({
+      value: str,
+      array: notParsed.concat(elements),
+      expressions: globalExpressions,
+      typedExpressions,
+    });
+    return result;
+  }
+  private preserveBlocksAttrs(
+    html: string,
+    globalExpressions: { [k: string]: string },
+    expression: DOMParserExpressions,
+    iterator: DOMParserIterator,
+  ): string {
+    let result = html;
+    const attrTSXBlockRegExp = /(?<=\=)\d+_block\b/gi;
 
+    let match = html.match(attrTSXBlockRegExp);
+    if (match) {
+      match.forEach((value) => {
+        const allblock = getDeepTranslation(value, globalExpressions);
+        const key = this.getUniquekey("attr", iterator);
+        expression[key] = {
+          expression: `=${allblock}`,
+          value: allblock.slice(1, -1),
+          type: "attr",
+          rawAttrs: "",
+          rawText: "",
+          childNodes: [],
+          parentNode: null,
+          pragma: null,
+          id: null,
+          tagName: undefined,
+          nodeType: 0,
+          isTSX: true,
+          attributes: {},
+          dependencies: [],
+          flags: null,
+        };
+        result = result.replace(`=${value}`, key);
+      })
+    }
+    return result;
+  }
   public parse(html: string): XMLNodeDescription | null {
     let expressions: DOMParserExpressions = {};
+    let globalExpressions: { [k: string]: string } = {}
+    const typedExpressions: TypedExpressions = getTypedExpressions();
     let iterator: DOMParserIterator = {
       value: 0,
       node: 0,
       text: 0,
     };
-    let str = this.template(`<template>{{html}}</template>`, {
+    let str = this.template(`<template>{%html%}</template>`, {
       html,
     });
     // preserve comments
     str = this.preserveComments(str, expressions, iterator);
+    // preserve blocks for TSX
+    str = this.preserveBlocks(str, globalExpressions, typedExpressions);
     // preserve strings of attrs and strings
+    str = this.preserveBlocksAttrs(str, globalExpressions, expressions, iterator);
+    // remove all blocks transformation
+    str = getDeepTranslation(str, globalExpressions);
     str = this.preserveStringsAttrs(str, expressions, iterator);
     str = this.preserveStrings(str, expressions, iterator);
     // preserve templates ${}

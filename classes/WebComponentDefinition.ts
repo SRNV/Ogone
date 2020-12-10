@@ -36,22 +36,22 @@ export default class WebComponentDefinition extends Utils {
     };
     let componentExtension = ``;
     let definition =
-      `customElements.define('{{ classId }}', Ogone.classes['{{ component.type }}']({{ extension }}), { extends: 'template' });`;
+      `customElements.define('{% classId %}', Ogone.classes['{% component.type %}']({% extension %}), { extends: 'template' });`;
 
     if (!isTemplate) {
       definition =
-        `customElements.define('{{ classId }}', Ogone.classes['{{ component.type }}']({{ extension }}));`;
+        `customElements.define('{% classId %}', Ogone.classes['{% component.type %}']({% extension %}));`;
     }
     if (!isProduction) {
       // for HMR
       // asking if the customElement is already defined
       definition = `
-        if (!customElements.get("{{ classId }}")) {
+        if (!customElements.get("{% classId %}")) {
           ${definition}
         }
       `;
     }
-    const render = `Ogone.render['{{ classId }}'] = ${componentPragma
+    const render = `Ogone.render['{% classId %}'] = ${componentPragma
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
       }`;

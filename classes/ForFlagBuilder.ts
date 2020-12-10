@@ -145,10 +145,10 @@ export default class ForFlagBuilder extends Utils {
             }
             return this.template(
               `
-                let {{ arrayAlias }}2 = ({{ arrayAlias }} || []).filter(({{item}}, {{index}}) => {{filter}});
-                {{item}} = ({{ arrayAlias }}2)[{{index}}];
+                let {% arrayAlias %}2 = ({% arrayAlias %} || []).filter(({%item%}, {%index%}) => {%filter%});
+                {%item%} = ({% arrayAlias %}2)[{%index%}];
                 if (GET_LENGTH) {
-                  return ({{ arrayAlias }}2).length;
+                  return ({% arrayAlias %}2).length;
                 }`,
               {
                 item,

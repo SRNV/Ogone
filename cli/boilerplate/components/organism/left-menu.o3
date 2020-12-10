@@ -4,15 +4,15 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
   <div class="container fade-in-slide-in-left">
     <div
       class="header"
-      --router-go="'/'">
-      <img --await class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
+      --router-go={'/'}>
+      <img --await class={logo} src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
     </div>
     <hr />
     <ul>
       <AsyncLiMenu
-        --for="(item, i) of this.links"
-        --defer="new Promise((resolve) => setTimeout(resolve, 500 * (i+1)))"
-        :item="item">
+        --for={(item, i) of this.links}
+        --defer={new Promise((resolve) => setTimeout(resolve, 500 * (i+1)))}
+        item={item}>
       </AsyncLiMenu>
     </ul>
   </div>

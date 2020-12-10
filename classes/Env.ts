@@ -106,9 +106,9 @@ export default class Env extends Constructor {
         ${this.bundle.contexts.slice().reverse().join("\n")}
         ${this.bundle.render.join("\n")}
         ${/*this.bundle.classes.reverse().join("\n")*/ ""}
-        {{ extension }}
+        {% extension %}
         ${this.bundle.customElements.join("\n")}
-        {{ promise }}
+        {% promise %}
         `,
         {
           extension: this.WebComponentExtends.getExtensions(this.bundle),
@@ -117,11 +117,11 @@ export default class Env extends Constructor {
             Promise.all([
               ${esm}
             ]).then(() => {
-              {{ start }}
-              {{ debugg }}
+              {% start %}
+              {% debugg %}
             });
           `
-            : "{{start}}",
+            : "{%start%}",
           start: `document.body.append(
             document.createElement("template", {
               is: "${rootComponent.uuid}-nt",

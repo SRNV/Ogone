@@ -381,6 +381,7 @@ interface DOMParserExp {
   attributes: XMLAttrsNodeDescription;
   parentNode: null | DOMParserExp;
   pragma: DOMParserPragmaDescription | null;
+  isTSX?: boolean;
 }
 interface DOMParserExpressions {
   [key: string]: DOMParserExp;

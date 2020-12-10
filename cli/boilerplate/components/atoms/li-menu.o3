@@ -4,15 +4,15 @@ require item as { label: string; route: string; children: any[]; };
 <template>
   <li
     --event:animationend:fade-in-bottom
-    --router-go="this.item.route"
+    --router-go={this.item.route}
     class="fade-in-bottom">
     ${this.item.label}
   </li>
   <ul>
     <AsyncRecursiveComponent
-      --for="(item, i) of this.item.children"
-      --defer="new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))"
-      :item="item"/>
+      --for={(item, i) of this.item.children}
+      --defer={new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))}
+      item={item}/>
   </ul>
 </template>
 
@@ -21,7 +21,7 @@ require item as { label: string; route: string; children: any[]; };
     Async.resolve();
 </proto>
 
-<style --keyframes="get('fade-in-bottom', { time: 1, style: 'ease-in-out', })">
+<style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
   li {
     color: black;
     font-size: 10pt;

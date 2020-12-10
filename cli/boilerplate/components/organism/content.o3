@@ -3,7 +3,7 @@ import component StoreDocComponent from '../stores/doc.store.o3';
 
 <template>
   <StoreDocComponent namespace="pages"/>
-  <iframe :src="this.page"></iframe>
+  <iframe src={this.page}></iframe>
   <div class="nav">
     <Nav></Nav>
   </div>

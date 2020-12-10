@@ -5,24 +5,24 @@ import { parseFlags, OptionType, InputCLI, Confirm, Select, existsSync } from '.
 
 class OgoneCLI {
   private static templateSTR: string = `
-{{ templateImports }}
-{{ templateStore }}
-{{ templateProto }}
-{{ elements }}
-{{ templateStyle }}`;
+{% templateImports %}
+{% templateStore %}
+{% templateProto %}
+{% elements %}
+{% templateStyle %}`;
   private static templateProto: string = `
-<proto{{ componentType }}>
-  {{ def }}
-  {{ declarations }}
-  {{ beforeEach }}
-  {{ defaultSTR }}
+<proto{% componentType %}>
+  {% def %}
+  {% declarations %}
+  {% beforeEach %}
+  {% defaultSTR %}
 </proto>`;
   private static templateStyle: string = `
-<style{{ styleLang }}>
+<style{% styleLang %}>
 
 </style>`;
-  private static templateStore: string = `<store-component {{ storeNamespace }} />`;
-  private static templateImports: string = `// {{ path }}/{{ componentName }}.o3`;
+  private static templateStore: string = `<store-component {% storeNamespace %} />`;
+  private static templateImports: string = `// {% path %}/{% componentName %}.o3`;
   private static template(tmpl: string, data: any): string {
     let result = tmpl;
     const fn = new Function(
@@ -32,13 +32,13 @@ class OgoneCLI {
     );
     const values = Object.values(data);
     while (
-      result.indexOf("{{") > -1 && result.indexOf("}}") > -1
+      result.indexOf("{%") > -1 && result.indexOf("%}") > -1
     ) {
-      if (result.indexOf("{{") > result.indexOf("}}")) {
-        result = result.replace("}}", "} }");
+      if (result.indexOf("{%") > result.indexOf("%}")) {
+        result = result.replace("%}", "% }");
       }
-      const start = result.indexOf("{{");
-      const end = result.indexOf("}}") + 2;
+      const start = result.indexOf("{%");
+      const end = result.indexOf("%}") + 2;
       const substrContent = result.substring(start + 2, end - 2).trim();
       const partStart = result.substring(0, start);
       const partEnd = result.substring(end);
@@ -160,7 +160,7 @@ class OgoneCLI {
           styleLang: hasStyle && cssLang ? ` lang="${cssLang}"` : '',
           componentType: ` type="${typeofComponent}"`,
           storeNamespace: 'namespace="test"',
-          defaultSTR: usingDefault ? `default: // Typescript: onmount, mounted, didMount...\n    {{ onmount }}` : '',
+          defaultSTR: usingDefault ? `default: // Typescript: onmount, mounted, didMount...\n    {% onmount %}` : '',
           onmount: ['async'].includes(typeofComponent) ? `Async.resolve(this.message);` : '',
           def: usingDef ? `def: # YAML` : '',
           declarations: usingDeclare ? `declare: // Typscript\n    public readonly message: string = 'Hello World';` : '',

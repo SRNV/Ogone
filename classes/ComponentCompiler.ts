@@ -25,7 +25,7 @@ export default class ComponentCompiler extends Utils {
     if (controllers.length && component.type !== "store") {
       this.error(
         this.template(
-          `forbidden use of a controller inside a non-store component. \ncomponent: {{ component.file }}`,
+          `forbidden use of a controller inside a non-store component. \ncomponent: {% component.file %}`,
           { component },
         ),
       );
@@ -68,13 +68,13 @@ export default class ComponentCompiler extends Utils {
               const mod = this.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{action}\`, ctx)
-                  .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: {{ component.file }}\`, err));
+                  .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             } else {
               const mod = this.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{id}\`, ctx)
-                  .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: {{ component.file }}\`, err));
+                  .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             }
           },
@@ -84,12 +84,12 @@ export default class ComponentCompiler extends Utils {
               const [namespace, mutation] = path;
               const mod = this.store[namespace];
               if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${mutation} component: {{ component.file }}\`, err));
+                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
               }
             } else {
               const mod = this.store[null];
               if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${id} component: {{ component.file }}\`, err));
+                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
               }
             }
           },
@@ -124,7 +124,7 @@ export default class ComponentCompiler extends Utils {
               } else if (this.resolve === null) {
                 const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
                 Ogone.error(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
-                 message: \`component: {{ component.file }}\`
+                 message: \`component: {% component.file %}\`
                 });
                 throw DoubleUseOfResolveException;
               }
@@ -135,8 +135,8 @@ export default class ComponentCompiler extends Utils {
           `;
       let result: string = `function __component () {
             OComponent.call(this);
-            {{ controllerDef }}
-            {{ hasStore }}
+            {% controllerDef %}
+            {% hasStore %}
             const ___ = (prop, inst, value) => {
               this.update(prop);
               return value;
@@ -144,15 +144,15 @@ export default class ComponentCompiler extends Utils {
             const ____r = (name, use, once) => {
               this.runtime(name, use[0], use[1], once);
             };
-            this.data = {{ data }};
+            this.data = {% data %};
             this.refs = {
-              {{ refs }}
+              {% refs %}
             };
             const Refs = this.refs;
-            {{ asyncResolve }}
-            {{ modules }}
-            {{ protocol }}
-            const __run = {{ runtime }}
+            {% asyncResolve %}
+            {% modules %}
+            {% protocol %}
+            const __run = {% runtime %}
             this.runtime = __run.bind(this.data);
           };
           `;
@@ -181,7 +181,7 @@ export default class ComponentCompiler extends Utils {
       if (mapRender.has(result)) {
         const item = mapRender.get(result);
         result = this.template(
-          `Ogone.components['{{ component.uuid }}'] = Ogone.components['{{ item.id }}'];`,
+          `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];`,
           {
             component,
             item,
@@ -194,7 +194,7 @@ export default class ComponentCompiler extends Utils {
         });
         bundle.datas.push(
           this.template(
-            `Ogone.components['{{ component.uuid }}'] = ${result.trim()}`,
+            `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
             d,
           ),
         );

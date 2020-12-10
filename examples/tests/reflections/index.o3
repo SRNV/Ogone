@@ -1,6 +1,6 @@
 <template>
   ${this.position.name} ${this.position.origin}
-  <p --for="item of this.position.test">
+  <p --for={item of this.position.test}>
     ${this.item}
   </p>
 </template>

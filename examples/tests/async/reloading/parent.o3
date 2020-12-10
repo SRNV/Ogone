@@ -3,7 +3,7 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <template>
   <store-component namespace="user" />
-  <async-component :id="this.id" --await --then:user-loaded />
+  <async-component id={this.id} --await --then:user-loaded />
 </template>
 
 <proto type="async">

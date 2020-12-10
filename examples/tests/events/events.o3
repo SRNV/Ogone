@@ -11,14 +11,14 @@ use @/examples/tests/events/target-comp.o3 as 'target-component';
   <div --mouseleave:increase> mouseLeave ${this.countmouseLeave} </div>
   <div --keypress:increase> keypress ${this.countKeypress} </div>
   <div --keydown:increase> keydown ${this.countKeyDown} </div>
-  <div --keydown:increaseSpace="'space'"> keydown space ${this.countKeyDownSpace} </div>
-  <div --keyup:increaseSpace="'space'"> keyup space ${this.countKeyUpSpace} </div>
+  <div --keydown:increaseSpace={'space'}> keydown space ${this.countKeyDownSpace} </div>
+  <div --keyup:increaseSpace={'space'}> keyup space ${this.countKeyUpSpace} </div>
   <div --keyup:increase> keyup ${this.countKeyUp} </div>
   <div --wheel:increase> wheel ${this.wheelCount} </div>
-  <div --wheel:increaseDown="'down'"> wheel down ${this.wheelDownCount} </div>
-  <div --wheel:increaseUp="'up'"> wheel up ${this.wheelUpCount} </div>
-  <div --wheel:increaseLeft="'left'"> wheel left ${this.wheelLeftCount} </div>
-  <div --wheel:increaseRight="'right'"> wheel right ${this.wheelRightCount} </div>
+  <div --wheel:increaseDown={'down'}> wheel down ${this.wheelDownCount} </div>
+  <div --wheel:increaseUp={'up'}> wheel up ${this.wheelUpCount} </div>
+  <div --wheel:increaseLeft={'left'}> wheel left ${this.wheelLeftCount} </div>
+  <div --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </div>
 
   <h1> Components </h1>
 
@@ -30,16 +30,16 @@ use @/examples/tests/events/target-comp.o3 as 'target-component';
   <target-component --mousedown:increase> mouseDown ${this.countmouseDown} </target-component>
   <target-component --mouseup:increase> mouseUp ${this.countmouseUp} </target-component>
   <target-component --mouseleave:increase> mouseLeave ${this.countmouseLeave} </target-component>
-  <target-component --keypress:increase="'a'"> keypress ${this.countKeypress} </target-component>
+  <target-component --keypress:increase={'a'}> keypress ${this.countKeypress} </target-component>
   <target-component --keydown:increase> keydown ${this.countKeyDown} </target-component>
-  <target-component --keydown:increaseSpace="'space'"> keydown space ${this.countKeyDownSpace} </target-component>
-  <target-component --keyup:increaseSpace="'space'"> keyup space ${this.countKeyUpSpace} </target-component>
+  <target-component --keydown:increaseSpace={'space'}> keydown space ${this.countKeyDownSpace} </target-component>
+  <target-component --keyup:increaseSpace={'space'}> keyup space ${this.countKeyUpSpace} </target-component>
   <target-component --keyup:increase> keyup ${this.countKeyUp} </target-component>
   <target-component --wheel:increase> wheel ${this.wheelCount} </target-component>
-  <target-component --wheel:increaseDown="'down'"> wheel down ${this.wheelDownCount} </target-component>
-  <target-component --wheel:increaseUp="'up'"> wheel up ${this.wheelUpCount} </target-component>
-  <target-component --wheel:increaseLeft="'left'"> wheel left ${this.wheelLeftCount} </target-component>
-  <target-component --wheel:increaseRight="'right'"> wheel right ${this.wheelRightCount} </target-component>
+  <target-component --wheel:increaseDown={'down'}> wheel down ${this.wheelDownCount} </target-component>
+  <target-component --wheel:increaseUp={'up'}> wheel up ${this.wheelUpCount} </target-component>
+  <target-component --wheel:increaseLeft={'left'}> wheel left ${this.wheelLeftCount} </target-component>
+  <target-component --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </target-component>
 </template>
 
 <proto>

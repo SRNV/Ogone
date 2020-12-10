@@ -5,11 +5,11 @@ require item as {
 };
 
 <template>
-  <div class="container" --router-go="this.item.route">
+  <div class="container" --router-go={this.item.route}>
     ${this.item.name}
-    <span class="ok" --if="this.item.status === 'ok'"></span>
-    <span class="todo" --if="this.item.status === 'todo'"></span>
-    <span class="in-progress" --if="this.item.status === 'in-progress'"></span>
+    <span class="ok" --if={this.item.status === 'ok'}></span>
+    <span class="todo" --if={this.item.status === 'todo'}></span>
+    <span class="in-progress" --if={this.item.status === 'in-progress'}></span>
   </div>
 </template>
 

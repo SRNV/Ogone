@@ -4,7 +4,7 @@ import component OBtn from '../atoms/button.o3';
 <template>
   <div
     ref="container"
-    --if="this.display"
+    --if={this.display}
     --event:animationend:fade-out-bottom
     --class="{
       container: true,
@@ -22,19 +22,19 @@ import component OBtn from '../atoms/button.o3';
     <p align="center">
       <OBtn
         --click:fade-out:exit
-        :text="'Getting Started'"/>
+        text={'Getting Started'}/>
     </p>
     <GithubBadges />
     <div class="links">
       <ul>
-        <li --for="item of this.links">
-          <a :href="item.href">${item.label}</a>
+        <li --for={item of this.links}>
+          <a href={item.href}>${item.label}</a>
         </li>
       </ul>
     </div>
   </div>
   <marquee
-    --if="this.display"
+    --if={this.display}
     --event:animationend:fade-out
     ref="marquee"
     truespeed

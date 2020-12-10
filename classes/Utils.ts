@@ -67,13 +67,13 @@ export abstract class Utils {
     );
     const values = Object.values(data);
     while (
-      result.indexOf("{{") > -1 && result.indexOf("}}") > -1
+      result.indexOf("{%") > -1 && result.indexOf("%}") > -1
     ) {
-      if (result.indexOf("{{") > result.indexOf("}}")) {
-        result = result.replace("}}", "} }");
+      if (result.indexOf("{%") > result.indexOf("%}")) {
+        result = result.replace("%}", "% }");
       }
-      const start = result.indexOf("{{");
-      const end = result.indexOf("}}") + 2;
+      const start = result.indexOf("{%");
+      const end = result.indexOf("%}") + 2;
       const substrContent = result.substring(start + 2, end - 2).trim();
       const partStart = result.substring(0, start);
       const partEnd = result.substring(end);
@@ -90,13 +90,13 @@ export abstract class Utils {
     );
     const values = Object.values(data);
     while (
-      result.indexOf("{{") > -1 && result.indexOf("}}") > -1
+      result.indexOf("{%") > -1 && result.indexOf("%}") > -1
     ) {
-      if (result.indexOf("{{") > result.indexOf("}}")) {
-        result = result.replace("}}", "} }");
+      if (result.indexOf("{%") > result.indexOf("%}")) {
+        result = result.replace("%}", "% }");
       }
-      const start = result.indexOf("{{");
-      const end = result.indexOf("}}") + 2;
+      const start = result.indexOf("{%");
+      const end = result.indexOf("%}") + 2;
       const substrContent = result.substring(start + 2, end - 2).trim();
       const partStart = result.substring(0, start);
       const partEnd = result.substring(end);
