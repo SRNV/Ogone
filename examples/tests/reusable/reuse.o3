@@ -1,5 +1,6 @@
 require count as number;
 require name as string;
+// TODO configurable reaction
 <template
   is="other-component"
   engine="sync">
