@@ -1,10 +1,14 @@
 import component Reuse from './reuse.o3';
+// TODO block multiple spread
 <template>
-  <Reuse count={this.count} {...this.prop} />
+  <Reuse { ...this.prop}/>
 </template>
 <proto type="component">
   declare:
-    count = 0;
+    prop = {
+      name: 'test',
+      count: 0,
+    };
     reusable = class extends HTMLElement {
       count: number = 10;
       text: Text;
@@ -18,7 +22,7 @@ import component Reuse from './reuse.o3';
       }
     }
   default:
-    setInterval(() => this.count++, 100);
+    setInterval(() => this.prop.count++, 100);
     customElements.define('other-component', this.reusable);
     break;
 </proto>

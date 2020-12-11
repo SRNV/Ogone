@@ -2,7 +2,7 @@
 <template>
   <div class="container">
     <div class="logo-back">
-      <img --await class={img} src="/ogone.svg"/>
+      <img --await class="img" src="/ogone.svg"/>
     </div>
   </div>
 </template>

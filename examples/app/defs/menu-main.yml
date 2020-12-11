@@ -50,6 +50,9 @@ menu:
           - name: --dragend:...
             status: todo
 
+          - name: --spread
+            status: todo
+
       - name: Components
         route: /doc/components
         status: ok
@@ -66,7 +69,7 @@ menu:
           - name: Recursive Tree Button
             route: /doc/components/rtb
       - name: Async Components
-        status: in-progress
+        status: ok
         route: /doc/async-components
 
       - name: Router

@@ -464,6 +464,7 @@ export default class XMLJSXOutputBuilder extends Utils {
       events: [],
       elseIf: "",
       finally: "",
+      spread: "",
       else: false,
     };
     const { nodeIsDynamic, isImported } = opts;
@@ -562,6 +563,10 @@ export default class XMLJSXOutputBuilder extends Utils {
             break;
           case key === "--defer":
             result.defer = `${attributes[key]}`;
+            node.hasFlag = true;
+            break;
+          case key === "--spread":
+            result.spread = `${attributes[key]}`;
             node.hasFlag = true;
             break;
           case key.startsWith("--then:"):

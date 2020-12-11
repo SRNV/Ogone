@@ -237,6 +237,7 @@ export interface ParseFlagsOutput {
   else: boolean;
   elseIf: string;
   finally: string;
+  spread: string;
   html: string;
   await: string | boolean;
   events: ParseFlagDescription[];
@@ -382,6 +383,7 @@ interface DOMParserExp {
   parentNode: null | DOMParserExp;
   pragma: DOMParserPragmaDescription | null;
   isTSX?: boolean;
+  isAttrSpreadTSX?: boolean;
 }
 interface DOMParserExpressions {
   [key: string]: DOMParserExp;

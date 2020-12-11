@@ -118,6 +118,30 @@ function OComponent(this: OnodeComponent): OnodeComponent {
       );
     }
   };
+  this.updateService = (key: string, value: unknown) => {
+    if (!this.activated) return;
+    if (this.data) {
+      this.data[key] = value;
+      if (this.pluggedWebComponent && typeof this.pluggedWebComponent.attributeChangedCallback === 'function') {
+        this.pluggedWebComponent.attributeChangedCallback(key, this.data[key], value);
+      }
+      /**
+       * for recycle Webcomponent feature
+       * pluggedWebComponent is a WebComponent that is used
+       * by the end user
+       */
+      if (this.pluggedWebComponent && typeof this.pluggedWebComponent.beforeUpdate === 'function') {
+        this.pluggedWebComponent.beforeUpdate(key, this.data[key], value)
+      }
+      /**
+       * update the webcomponent
+       */
+      if (this.pluggedWebComponent && value !== this.pluggedWebComponent[key]) {
+        this.pluggedWebComponent[key] = value;
+      }
+    }
+    this.update(key);
+  };
   this.updateProps = (dependency: string) => {
     if (!this.activated) return;
     if (this.type === "store") return;
@@ -131,26 +155,9 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         getText: `${prop[1]}`,
         position: this.positionInParentComponent,
       });
+      console.warn(value);
       if (this.data && value !== this.data[key]) {
-        if (this.pluggedWebComponent && typeof this.pluggedWebComponent.attributeChangedCallback === 'function') {
-          this.pluggedWebComponent.attributeChangedCallback(key, this.data[key], value);
-        }
-        /**
-         * for recycle Webcomponent feature
-         * pluggedWebComponent is a WebComponent that is used
-         * by the end user
-         */
-        if (this.pluggedWebComponent && typeof this.pluggedWebComponent.beforeUpdate === 'function') {
-          this.pluggedWebComponent.beforeUpdate(key, this.data[key], value)
-        }
-        this.data[key] = value;
-        /**
-         * update the webcomponent
-         */
-        if (this.pluggedWebComponent && value !== this.pluggedWebComponent[key]) {
-          this.pluggedWebComponent[key] = value;
-        }
-        this.update(key);
+        this.updateService(key, value);
         if (this.type === "async") {
           if (!this.dependencies) return;
           if (

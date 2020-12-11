@@ -51,7 +51,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     nodeList.forEach((node: XMLNodeDescription) => {
       node.getOuterTSX = () => {
         if (node.nodeType === 1) {
-          let templateOuterTSX = `<{%tagname%} {%attrs%}>{%outers%}</{%tagname%}>`;
+          let templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{%outers%}\n</{%tagname%}>`;
           if (node.attributes['--for']) {
             const value = node.attributes['--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
@@ -78,6 +78,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               tagname: node.tagName,
               attrs: Object.entries(node.attributes)
                 .map(([key, value]) => {
+                  if(key === '--spread') {
+                    return `\n{${value}}`;
+                  }
                   if (key.match(/^(\-){2}/)) {
                     return '';
                   }
@@ -330,7 +333,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       const regexpID = /<(\/){0,1}([a-zA-Z][^>\s\/]*)([^\>\/]*)+(\/){0,1}>/;
       const id = node.match(regexpID);
       if (id) {
-        const [input, slash, tagName, attrs, closingSlash] = id;
+        let [input, slash, tagName, attrs, closingSlash] = id;
+        attrs = this.parseTSXSpreadAndAddSpreadFlag(attrs, expression, iterator);
         const key = `<${this.getNodeUniquekey("node", iterator)}>`;
         if (!!slash) {
           // get the openning tag by tagname, id -1 and closingTag === null
@@ -565,6 +569,51 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       expressions: globalExpressions,
       typedExpressions,
     });
+    return result;
+  }
+  private parseTSXSpreadAndAddSpreadFlag(
+    text: string,
+    expression: DOMParserExpressions,
+    iterator: DOMParserIterator): string {
+    let result = text;
+    const attrSpreadTSXBlockRegExp = /(?<=\s)(\d+_block)\b/gi;
+    const attrTSXBlockRegExp = /(?<=\=)\d+_block\b/gi;
+    const expressions = {};
+    const typedExpressions = getTypedExpressions();
+    result = read({
+      name: 'block',
+      value: result,
+      array: elements,
+      expressions,
+      typedExpressions,
+    });
+    result = result.replace(attrSpreadTSXBlockRegExp, '--spread=$1');
+    let match = result.match(attrTSXBlockRegExp);
+    if (match) {
+      match.forEach((value) => {
+        const allblock = getDeepTranslation(value, expressions);
+        const key = this.getUniquekey("attr", iterator);
+        expression[key] = {
+          expression: `=${allblock}`,
+          value: allblock.slice(1, -1),
+          type: "attr",
+          rawAttrs: "",
+          rawText: "",
+          childNodes: [],
+          parentNode: null,
+          pragma: null,
+          id: null,
+          tagName: undefined,
+          nodeType: 0,
+          isTSX: true,
+          isAttrSpreadTSX: true,
+          attributes: {},
+          dependencies: [],
+          flags: null,
+        };
+        result = result.replace(`=${value}`, key);
+      })
+    }
     return result;
   }
   private preserveBlocksAttrs(

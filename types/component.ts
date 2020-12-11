@@ -37,6 +37,7 @@ export interface OnodeComponent {
   updateStore(dependency?: string): void;
   react: Function[];
   updateProps(dependency?: string): void;
+  updateService(dependency?: string, value: unknown): void;
   resolve: Function | null;
   dispatchAwait: Function | null;
   render(Onode: Template, opts: OnodeComponentRenderOptions): void;

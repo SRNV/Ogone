@@ -1,10 +1,13 @@
 require count as number;
+require name as string;
 <template
   is="other-component"
   engine="sync">
   Slot
+  ${this.count}
   <br/>
 </template>
 <proto type="component">
-  default: console.warn(this.$template);
+  declare:
+    p = 1
 </proto>

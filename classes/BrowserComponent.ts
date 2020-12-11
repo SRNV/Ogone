@@ -49,7 +49,7 @@ const getClassComponent = (
 
       // set the context of the node
       Ogone.setContext(this);
-      // this.setHMRContext();
+      // Ogone.setHMRContext();
 
       // parse the route that match with location.pathname
       if (o.type === "router") {
