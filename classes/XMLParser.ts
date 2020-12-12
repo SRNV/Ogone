@@ -5,7 +5,8 @@ import type {
   DOMParserIterator,
   DOMParserExp,
   DOMParserExpressions,
-  TypedExpressions
+  TypedExpressions,
+  Component
 } from "../.d.ts";
 import ForFlagBuilder from "./ForFlagBuilder.ts";
 import elements from '../utils/elements.ts';
@@ -208,7 +209,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       return null;
     }
   }
-  private parseNodes(html: string, expressions: DOMParserExpressions): string {
+  private parseNodes(html: string, expressions: DOMParserExpressions, componentPath: string): string {
     let result = html;
     Object.entries(expressions)
       .filter(([key, value]) => value.type === "node")
@@ -224,10 +225,16 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             const m = attr.match(attrIDRE);
             if (m && expressions[m[2]]) {
               let [input, attributeName, id] = m;
-              const { value, isTSX } = expressions[id];
+              const { value, expression, isTSX, isAttrSpreadTSX } = expressions[id];
               // translate tsx to template
+              let attributeFormatted = isTSX && !attributeName.startsWith('--') ? `:${attributeName}` : attributeName;
+              if (isAttrSpreadTSX && expressions[key].attributes[attributeFormatted]) {
+                this.error(`${componentPath}
+                Cannot spread multiple time on the same element:
+                  input: ${expression?.slice(1)}`);
+              }
               // @ts-ignore
-              expressions[key].attributes[isTSX && !attributeName.startsWith('--') ? `:${attributeName}` : attributeName] = value;
+              expressions[key].attributes[attributeFormatted] = value;
             }
           } else if (expressions[key] && !expressions[key].attributes[attr.trim()]) {
             // @ts-ignore
@@ -592,6 +599,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     if (match) {
       match.forEach((value) => {
         const allblock = getDeepTranslation(value, expressions);
+        if (!allblock.match(/^\{\s*\.{3}/)) {
+          return;
+        }
         const key = this.getUniquekey("attr", iterator);
         expression[key] = {
           expression: `=${allblock}`,
@@ -652,7 +662,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     }
     return result;
   }
-  public parse(html: string): XMLNodeDescription | null {
+  public parse(componentPath: string, html: string): XMLNodeDescription | null {
     let expressions: DOMParserExpressions = {};
     let globalExpressions: { [k: string]: string } = {}
     const typedExpressions: TypedExpressions = getTypedExpressions();
@@ -681,7 +691,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     // parse text nodes
     str = this.parseTextNodes(str, expressions, iterator);
     // parse nodes
-    str = this.parseNodes(str, expressions);
+    str = this.parseNodes(str, expressions, componentPath);
 
     const rootNode = this.getRootnode(str, expressions);
     if (rootNode) {

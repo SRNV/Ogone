@@ -7,6 +7,7 @@ enum Protocol {
     }
   `,
   BUILD = `
+    {% modules %}
     {% namespaces %}
     {% protocol %}
 

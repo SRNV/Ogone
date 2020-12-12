@@ -34,7 +34,7 @@ export default class ImportsAnalyzer extends Utils {
           const importBody = this.AssetsParser.parseImportStatement(declarations);
           if (importBody.body && importBody.body.imports) {
             const { imports } = importBody.body;
-            component.esmExpressions = Object.entries(imports)
+            component.dynamicImportsExpressions = Object.entries(imports)
               .filter(([key, imp]: [string, any]) => !imp.path.endsWith('.o3'))
               .map(
                 ([key, imp]: [string, any]) => {
@@ -64,21 +64,23 @@ export default class ImportsAnalyzer extends Utils {
                       component.modules.push(imp.getHmrModuleSystem(hmrModule));
                     });
                   }
-                  return imp.dynamic();
+                  return imp.dynamic('Ogone.imp', component.file);
                 },
               ).join("\n");
             // @ts-ignore
             // save esm tokens for production
-            component.esmExpressionsProd = Object.entries(imports).map(
+            component.esmExpressions = Object.entries(imports).map(
               ([key, imp]: [string, any]) => {
-                return imp.value;
+                if (imp.isComponent) return '';
+                return imp.static(component.file);
               },
             ).join("\n");
+            component.savedModuleDependencies = Object.entries(imports);
           }
           if (importBody.body && importBody.body.imports) {
             // @ts-ignore
             Object.values(importBody.body.imports).forEach((item: any) => {
-              if (!item.path.endsWith('.o3')) return;
+              if (!item.isComponent || !item.path.endsWith('.o3')) return;
               const pathComponent =
                 bundle.repository[component.uuid][item.path];
               const tagName = item.defaultName;
@@ -86,14 +88,14 @@ export default class ImportsAnalyzer extends Utils {
                 case !tagName:
                   this.error(
                     `this Ogone version only supports default exports.
-                      input: import ... from ${item.path}
+                      input: import component ... from ${item.path}
                       component: ${component.file}
                     `,
                   );
                 case tagName === "proto":
                   this.error(
                     `proto is a reserved tagname, don\'t use it as selector of your component.
-                      input: import ${item.defaultName} from ${item.path}
+                      input: import component ${item.defaultName} from ${item.path}
                       component: ${component.file}
                     `,
                   );
@@ -101,9 +103,9 @@ export default class ImportsAnalyzer extends Utils {
                   this.error(
                     `'${tagName}' is not a valid component name. Must be PascalCase. please use the following syntax:
 
-                      import YourComponentName from '${item.path}'
+                      import component YourComponentName from '${item.path}'
 
-                      input: import ${item.defaultName} from ${item.path}
+                      input: import component ${item.defaultName} from ${item.path}
                       component: ${component.file}
 
                       note: if the component is typed you must provide the name into the tagName
@@ -113,9 +115,9 @@ export default class ImportsAnalyzer extends Utils {
                   this.error(
                     `component name already in use. please use the following syntax:
 
-                      import ${tagName}2 from '${item.path}'
+                      import component ${tagName}2 from '${item.path}'
 
-                      input: import ${item.defaultName} from ${item.path}
+                      input: import component ${item.defaultName} from ${item.path}
                       component: ${component.file}
                     `,
                   );

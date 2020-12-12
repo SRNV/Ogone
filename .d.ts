@@ -117,6 +117,7 @@ export interface Component {
   hasStore: boolean;
   modules: string[][];
   routes: null | Route[];
+  dynamicImportsExpressions: string;
   esmExpressions: string;
   namespace: null | string;
   scripts: ComponentScript;
@@ -124,6 +125,7 @@ export interface Component {
   data: { [key: string]: any };
   rootNode: XMLNodeDescription;
   imports: MapIndexable;
+  savedModuleDependencies: any;
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
@@ -142,6 +144,10 @@ export interface Component {
      * the tagName of the component that the component is extending
      */
     reuse: string | null;
+    /**
+     * engine is the end-user's configuration
+     */
+    engine: string[];
   };
   modifiers: {
     beforeEach: string;
@@ -301,7 +307,8 @@ export interface TypedExpressions {
       object: boolean;
       members: ({ name: string, alias: string })[];
       value: string;
-      dynamic: (importFn: string) => string;
+      static: (namespace: string) => string;
+      dynamic: (importFn: string, namespace: string) => string;
       getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
     }
   };

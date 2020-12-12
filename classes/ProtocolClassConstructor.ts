@@ -4,6 +4,7 @@ import { Bundle, Component, ModifierContext, XMLNodeDescription } from '../.d.ts
 import OgoneNS from "../types/ogone/namespaces.ts";
 import ProtocolEnum from '../enums/templateProtocol.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';
+import { ComponentEngine } from '../enums/componentEngine.ts';
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
   value: string;
@@ -126,6 +127,7 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
           return this.template(ProtocolEnum.BUILD, {
             runtime,
             namespaces,
+            modules: component.esmExpressions,
             protocol: item.value.length ? item.value : `class Protocol {
               ${component.data ? Object.entries(component.data).map(([key, value]) => `\n${key} = (${JSON.stringify(value)});\n`) : ''}
             }`,
@@ -199,6 +201,9 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
       "/transpiled.ts": script
     }, { sourceMap: false }))["/transpiled.ts"].source
     // save the runtime
-    component.scripts.runtime = component.isTyped ? runtime : this.getReactivity({ text: runtime });
+    component.scripts.runtime = component.isTyped && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction)
+        || !component.isTyped && component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
+      ? runtime
+      : this.getReactivity({ text: runtime });
   }
 }

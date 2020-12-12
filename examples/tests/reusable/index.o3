@@ -1,7 +1,11 @@
 import component Reuse from './reuse.o3';
-// TODO block multiple spread
+import component DefTest from './DefTest.o3';
+import ComponentModule from './component-module.ts';
+
 <template>
-  <Reuse { ...this.prop}/>
+  a re-used webcomponent: <Reuse { ...this.prop} />
+  <br />
+  <DefTest />
 </template>
 <proto type="component">
   declare:
@@ -9,20 +13,8 @@ import component Reuse from './reuse.o3';
       name: 'test',
       count: 0,
     };
-    reusable = class extends HTMLElement {
-      count: number = 10;
-      text: Text;
-      constructor(opts: any) {
-        super();
-        this.text = new Text(`Count: ${this.count}`);
-        this.append(this.text);
-      }
-      attributeChangedCallback(prop: string, value: any) {
-        this.text.data = `Count: ${this.count}`;
-      }
-    }
   default:
     setInterval(() => this.prop.count++, 100);
-    customElements.define('other-component', this.reusable);
+    customElements.define('other-component', ComponentModule);
     break;
 </proto>

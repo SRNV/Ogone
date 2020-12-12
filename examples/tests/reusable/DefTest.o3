@@ -1,0 +1,12 @@
+<template>
+  <!-- nodetypes 1, 3, 8 supported -->
+  test reacitivty: ${this.count}
+</template>
+<proto type="component"
+    engine="proxy-reaction">
+  def:
+    count: 0
+  default:
+    this.count++;
+    break;
+</proto>

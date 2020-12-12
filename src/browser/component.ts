@@ -10,6 +10,7 @@ let Ogone: OgoneBrowser;
 function OComponent(this: OnodeComponent): OnodeComponent {
   this.key = null;
   this.data = null;
+  this.pluggedWebComponentIsSync = false;
   this.dependencies = null;
   this.state = 0;
   this.activated = true;
@@ -120,27 +121,29 @@ function OComponent(this: OnodeComponent): OnodeComponent {
   };
   this.updateService = (key: string, value: unknown) => {
     if (!this.activated) return;
-    if (this.data) {
+    if (this.data && value !== this.data[key]) {
       this.data[key] = value;
-      if (this.pluggedWebComponent && typeof this.pluggedWebComponent.attributeChangedCallback === 'function') {
-        this.pluggedWebComponent.attributeChangedCallback(key, this.data[key], value);
-      }
       /**
        * for recycle Webcomponent feature
        * pluggedWebComponent is a WebComponent that is used
        * by the end user
        */
-      if (this.pluggedWebComponent && typeof this.pluggedWebComponent.beforeUpdate === 'function') {
-        this.pluggedWebComponent.beforeUpdate(key, this.data[key], value)
+      if (this.pluggedWebComponentIsSync) {
+        if (this.pluggedWebComponent && typeof this.pluggedWebComponent.beforeUpdate === 'function') {
+          this.pluggedWebComponent.beforeUpdate(key, this.data[key], value)
+        }
+        /**
+         * update the webcomponent
+         */
+        if (this.pluggedWebComponent && value !== this.pluggedWebComponent[key]) {
+          this.pluggedWebComponent[key] = value;
+        }
       }
-      /**
-       * update the webcomponent
-       */
-      if (this.pluggedWebComponent && value !== this.pluggedWebComponent[key]) {
-        this.pluggedWebComponent[key] = value;
+      if (this.pluggedWebComponent && typeof this.pluggedWebComponent.attributeChangedCallback === 'function') {
+        this.pluggedWebComponent.attributeChangedCallback(key, this.data[key], value);
       }
+      this.update(key);
     }
-    this.update(key);
   };
   this.updateProps = (dependency: string) => {
     if (!this.activated) return;
@@ -156,8 +159,8 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         position: this.positionInParentComponent,
       });
       console.warn(value);
+      this.updateService(key, value);
       if (this.data && value !== this.data[key]) {
-        this.updateService(key, value);
         if (this.type === "async") {
           if (!this.dependencies) return;
           if (
@@ -177,8 +180,9 @@ function OComponent(this: OnodeComponent): OnodeComponent {
    * this is used to update the attributes of the webcomponent
    * when a prop is updated
    */
-  this.plugWebComponent = (wc: any) => {
+  this.plugWebComponent = (wc: any, isSync: boolean) => {
     this.pluggedWebComponent = wc;
+    this.pluggedWebComponentIsSync = isSync;
   };
   this.render = (
     Onode: Template, /** original node */

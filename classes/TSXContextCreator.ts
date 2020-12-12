@@ -21,9 +21,18 @@ export default class TSXContextCreator extends Utils {
     const newpath = '/comp.tsx';
     const startPerf = performance.now();
     const { protocol } = component.context;
-    const [diags] = await Deno.compile(newpath, {
+    const sources = {
       [newpath]: protocol,
-    }, {
+    };
+    // TODO use component.sources
+    // TODO create OgoneSandBox
+    component.savedModuleDependencies.forEach((item: any) => {
+      const [key, imp] = item;
+      // @ts-ignore
+      souces[imp.absolutePath] = imp.textFile;
+    });
+    console.warn(protocol, component.modules);
+    const [diags] = await Deno.compile(newpath, sources, {
       module: "esnext",
       target: "esnext",
       noImplicitThis: false,

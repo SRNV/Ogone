@@ -50,13 +50,15 @@ export default class EnvServer extends Env {
   public async use(server: Server, port: number = 8000): Promise<void> {
     this.success(`http://localhost:${port}/`);
     for await (const req of server) {
+
       const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
         }/${req.url}`.replace(/\/+/gi, '/');
+      const params = new URLSearchParams('?' + req.url.split("?")[1]);
+      const importedFile = params.get('import');
       const controllerRendered = await this.control(req);
       if (controllerRendered) {
         continue;
       }
-      let isUrlFile: boolean = existsSync(pathToPublic);
       switch (true) {
         case req.url.startsWith(Configuration.modules):
           const denoReqUrl = req.url.slice(1).split("?")[0];
@@ -71,9 +73,9 @@ export default class EnvServer extends Env {
             ]),
           });
           break;
-        case isUrlFile && Deno.statSync(pathToPublic).isFile:
+        case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
           req.respond({
-            body: Deno.readTextFileSync(pathToPublic),
+            body: Deno.readTextFileSync(importedFile as string),
             headers: new Headers([
               getHeaderContentTypeOf(req.url),
               ["X-Content-Type-Options", "nosniff"],

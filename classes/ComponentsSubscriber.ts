@@ -63,7 +63,8 @@ export default class ComponentsSubscriber extends Utils {
     }
     if (tokens.body && tokens.body.imports) {
       for await (let item of Object.values(tokens.body.imports)) {
-        const { path: inputPath, type }: any = item;
+        const { path: inputPath, type, isComponent }: any = item;
+        if (!isComponent) return;
         const path = inputPath.replace(/^@\//, '');
         if (path === p) {
           if (opts.recursive) {

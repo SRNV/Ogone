@@ -1,6 +1,7 @@
 import type { Bundle, Component } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import Env from './Env.ts';
+import { ComponentEngine } from '../enums/componentEngine.ts';
 /**
  * @name ComponentCompiler
  * @code OCC2-ORC8-OC0
@@ -161,11 +162,16 @@ export default class ComponentCompiler extends Utils {
         modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
         asyncResolve: component.type === "async" ? asyncResolve : "",
         protocol: component.protocol ? component.protocol : "",
-        data: component.isTyped ?
-          // setReactivity will transform the instance to a proxy
-          `Ogone.setReactivity(new (${component.context.protocolClass}), (prop) => this.update(prop))`
-          // if the end user uses def modifier, the reactivity is inline
+        dataSource: component.isTyped
+          ? `new (${component.context.protocolClass})`
           : JSON.stringify(component.data),
+        data: component.isTyped
+          || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
+            && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction) ?
+          // setReactivity will transform the instance to a proxy
+          `Ogone.setReactivity({% dataSource %}, (prop) => this.update(prop))`
+          // if the end user uses def modifier, the reactivity is inline
+          : '{% dataSource %}',
         runtime,
         controllerDef: component.type === "store" ? controllerDef : "",
         refs: Object.entries(component.refs).length

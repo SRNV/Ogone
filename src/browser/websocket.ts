@@ -3,24 +3,6 @@ import { OgoneBrowser } from "../../types/ogone.ts";
 
 let Ogone: OgoneBrowser;
 function _OGONE_BROWSER_CONTEXT() {
-  Ogone.mod = {
-    "*": [], // for reactions
-  };
-  Ogone.run = {};
-  Ogone.imp = async function (url) {
-    if (Ogone.mod[url]) return;
-    try {
-      const mod = await import(url);
-      Ogone.mod[url] = mod;
-      return mod;
-    } catch (err) {
-      Ogone.error(err.message, "Error in Dynamic Import", {
-        message: `
-        module's url: ${url}
-        `,
-      });
-    }
-  };
   Ogone.hmr = async function (url) {
     try {
       const mod = await import(`${url}?p=\${performance.now()}`);

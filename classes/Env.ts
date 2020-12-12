@@ -81,8 +81,7 @@ export default class Env extends Constructor {
       }).join("\n");
     const esm = Array.from(this.bundle.components.entries()).map((
       entry: any,
-    ) => entry[1].esmExpressions).join("\n");
-
+    ) => entry[1].dynamicImportsExpressions).join("\n");
     const style = stylesDev;
     const rootComponent = this.bundle.components.get(Configuration.entrypoint);
     if (rootComponent) {
@@ -105,7 +104,6 @@ export default class Env extends Constructor {
         ${this.bundle.datas.join("\n")}
         ${this.bundle.contexts.slice().reverse().join("\n")}
         ${this.bundle.render.join("\n")}
-        ${/*this.bundle.classes.reverse().join("\n")*/ ""}
         {% extension %}
         ${this.bundle.customElements.join("\n")}
         {% promise %}
@@ -231,7 +229,7 @@ export default class Env extends Constructor {
     const style = `<style>${(compiledStyle)}</style>`;
     const esmProd = Array.from(this.bundle.components.entries()).map((
       entry: any,
-    ) => entry[1].esmExpressionsProd).join("\n");
+    ) => entry[1].dynamicImportsExpressionsProd).join("\n");
     const rootComponent = this.bundle.components.get(Configuration.entrypoint);
     if (rootComponent) {
       if (

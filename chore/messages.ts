@@ -1,31 +1,55 @@
 import { colors } from "../deps.ts";
-const { red, green, white, blue } = colors;
+const { red, green, white, blue, gray, yellow } = colors;
+function exampleFormat(txt: string) {
+  return gray(txt.replace(/(\<([^>]*)+(\/){0,1}\>)/g, blue('<$2>')));
+}
 export default {
-  "0.24.0": `Ogone is actively looking for collaborators.
-  Any advice, any problem report related to the development, to the use of Ogone, will be studied and will get a response as soon as possible.
-  note that if you come across a bug but don't report it, it may never be resolved.
-  Thank you for your interest, and your participation in this project.
-  a problem, a question or an idea ? please open an issue on the Ogone github repo: https://github.com/SRNV/Ogone/issues`,
-  "0.25.0": `Ogone's internal architecture has changed. for readability, all files under classes/ are now in PascalCases.
-  no more nested file inside folders to prevent complex architecture`,
   "0.27.0": `${red('BREAKING: use statement is no more supported, please use instead the syntax : import component ComponentName from \'...\'')}`,
-  "0.28.0": `${green('feat')}: start tuning your webcomponents with Ogone, by using the attribute is on the component's template.
-            ${red(`BREAKING: ${white('also Ogone is changing it\'s style,')} we will now follow the JSX syntax for props and flags, using curly braces instead of quotes`)}:
-            basically this means instead typing this:
-                ${red(':item="this.item"')}
-            you will now have to type this:
-                ${green('item={this.item}')}
+  "0.28.0": `
+            - ${green('feat')}: start tuning your webcomponents with Ogone, by using the attribute (${green('is')}) on the template element.
+                example:
+                  ${exampleFormat(`<template ${green('is="my-awesome-webcomponent"')} />`)}
 
-            dynamic transformation can be done with your IDE using the following regexp:
-                ${blue('/(?<=\\s)(:)(.+?)((=)(["\'`])(.*?)(\\5))/')}
-            replacing the result by:
-                ${blue('$2$4{$6}')}
+                you can also set the attribute (${green('engine')}) to your proto element and add the argument (${green('sync-template')})
+                this will tell to Ogone to update the webcomponent's data when the component is updated.
+                example: ${exampleFormat(`
+                  <template ${green('is="my-awesome-webcomponent"')} />
+                  <proto ${green('engine="sync-template"')}>
+                    // ...
+                  </proto>`)}
+                by default Ogone uses the method (${green('attributeChangedCallback')}) when any property is updated.
 
-            same thing for the flags:
-                ${red('--for="item of this.array"')}
-            you will now have to type this:
-                ${green('--for={item of this.array}')}
+            - ${red(`BREAKING: ${white('also Ogone is changing it\'s style,')} we will now follow the JSX syntax for props and flags, using curly braces instead of quotes`)}:
+                basically this means instead typing this:
+                  ${red(':item="this.item"')}
+                you will now have to type this:
+                  ${green('item={this.item}')}
 
-            ${green('feat')}: using JSX syntax on elements allows us to spread any object to property
+                dynamic transformation can be done with your IDE using the following regexp:
+                  ${blue('/(?<=\\s)(:)(.+?)((=)(["\'`])(.*?)(\\5))/')}
+                replacing the result by:
+                  ${blue('$2$4{$6}')}
+
+                same thing for the flags:
+                  ${red('--for="item of this.array"')}
+                you will now have to type this:
+                  ${green('--for={item of this.array}')}
+
+            - ${green('feat')}: using JSX syntax on components allows us to spread any object.
+                this is the same as adding the spread flag (${green('--spread')})
+                example:${exampleFormat(`
+                  <MyComponent ${green('{...this.property}')} />
+                  or
+                  <MyComponent ${green('--spread={...this.property}')} />`)}
+                duplicate is not allowed
+
+            - ${green('feat')}: Ogone will now let you choose the type of reaction you want by setting the (${green('engine')}) attribute to your proto element
+                example:${exampleFormat(`
+                  <proto ${green('engine="inline-reaction"')} /> will change your script by adding a function after all assignment.
+                    ${yellow('[optional]')} is set by default if the ${green('def')} modifier is used.
+
+                  <proto ${green('engine="proxy-reaction"')} /> will tell to Ogone to use a proxy.
+                    ${yellow('[optional]')} is set by default if the ${green('declare')} modifier is used.`)}
+
   `,
 }

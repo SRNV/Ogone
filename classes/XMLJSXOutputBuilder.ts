@@ -1,3 +1,4 @@
+import { ComponentEngine } from './../enums/componentEngine.ts';
 import { Utils } from "./Utils.ts";
 import type {
   Component,
@@ -140,6 +141,7 @@ export default class XMLJSXOutputBuilder extends Utils {
             id: '${idComponent}',
             name: '${component.context.reuse}',
             component: ctx,
+            isSync: ${component.context.engine.includes(ComponentEngine.TemplateSyncWithWebcomponent)},
           });
           ` : '',
         setAwait: node.attributes && node.attributes.await

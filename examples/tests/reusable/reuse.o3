@@ -2,13 +2,8 @@ require count as number;
 require name as string;
 // TODO configurable reaction
 <template
-  is="other-component"
-  engine="sync">
-  Slot
-  ${this.count}
-  <br/>
+  is="other-component">
 </template>
-<proto type="component">
-  declare:
-    p = 1
+<proto type="component"
+  engine="proxy-reaction sync-template">
 </proto>

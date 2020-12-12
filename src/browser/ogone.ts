@@ -70,6 +70,7 @@ function _OGONE_BROWSER_CONTEXT() {
           height: "100vh",
           position: "fixed",
           top: "0px",
+          left: "0px",
           overflowY: "auto",
           justifyContent: "center",
           display: "grid",
@@ -173,6 +174,7 @@ function _OGONE_BROWSER_CONTEXT() {
       }
       this.errorPanel.style.gridGap = "10px";
       this.errorPanel.style.gridAutoRows = "max-content";
+      this.errorPanel.style.gridTemplateRows = "masonry";
       this.errorPanel.style.gridTemplateAreas = newgrid;
       err.style.animationName = "popup";
       err.style.animationIterationCoutn = "1";
@@ -187,6 +189,24 @@ function _OGONE_BROWSER_CONTEXT() {
         ? document.body.append(this.errorPanel)
         : [];
     },
+  };
+  Ogone.mod = {
+    "*": [], // for reactions
+  };
+  Ogone.run = {};
+  Ogone.imp = async function (url) {
+    if (Ogone.mod[url]) return;
+    try {
+      const mod = await import(`/?import=${url}`);
+      Ogone.mod[url] = mod;
+      return mod;
+    } catch (err) {
+      Ogone.error(err.message, "Error in Dynamic Import", {
+        message: `
+        module's url: ${url}
+        `,
+      });
+    }
   };
   /**
    * Component utils
@@ -1420,15 +1440,16 @@ function _OGONE_BROWSER_CONTEXT() {
     id: string;
     name: string;
     component: any;
+    isSync: boolean;
   } = { injectionStyle: 'append' }): boolean {
-    const { injectionStyle, id, name, component } = opts;
+    const { injectionStyle, id, name, component, isSync } = opts;
     const webcomponent = document.createElement(name);
     // webcomponent preparation
     webcomponent.setAttribute(id, '');
     // inject the webcomponent into the template
     Onode[injectionStyle || 'append'](webcomponent);
     // plug the webcomponent to the component
-    component.plugWebComponent(webcomponent);
+    component.plugWebComponent(webcomponent, isSync);
     console.warn(component);
     return webcomponent;
   }

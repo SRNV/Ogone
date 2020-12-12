@@ -38,9 +38,11 @@ export default class ComponentBuilder {
   ): Component {
     const template = opts.rootNode.childNodes
       .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
+    const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
     return {
       uuid: `data-${uuid.randomUUID()}`,
       isTyped: false,
+      dynamicImportsExpressions: "",
       esmExpressions: "",
       exportsExpressions: "",
       data: {},
@@ -67,7 +69,7 @@ export default class ComponentBuilder {
       elements: {
         styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
         template,
-        proto: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto"),
+        proto: protos,
       },
       context: {
         data: '',
@@ -75,6 +77,9 @@ export default class ComponentBuilder {
         protocol: '',
         protocolClass: '',
         reuse: template?.attributes?.is as string || null,
+        engine: protos[0] && protos[0].attributes.engine
+          ? (protos[0].attributes.engine as string).split(' ')
+          : [],
       },
       modifiers: {
         beforeEach: '',
@@ -83,6 +88,7 @@ export default class ComponentBuilder {
         default: '',
         build: '',
       },
+      savedModuleDependencies: null,
     };
   }
   /**
@@ -95,7 +101,7 @@ export default class ComponentBuilder {
     bundle.files.forEach((local, i) => {
       const { path, file } = local;
       const index = path;
-      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(file);
+      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
       if (rootNode) {
         const component = this.getComponent({
           rootNode,
@@ -113,7 +119,7 @@ export default class ComponentBuilder {
     bundle.remotes.forEach((remote, i) => {
       const { path, file } = remote;
       const index = path;
-      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(file);
+      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
       if (rootNode) {
         const component = this.getComponent({
           remote,
