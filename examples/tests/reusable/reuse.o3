@@ -1,9 +1,10 @@
 require count as number;
 require name as string;
-// TODO configurable reaction
+
 <template
   is="other-component">
 </template>
-<proto type="component"
+<proto
+  type="component"
   engine="proxy-reaction sync-template">
 </proto>

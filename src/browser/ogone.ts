@@ -1450,7 +1450,6 @@ function _OGONE_BROWSER_CONTEXT() {
     Onode[injectionStyle || 'append'](webcomponent);
     // plug the webcomponent to the component
     component.plugWebComponent(webcomponent, isSync);
-    console.warn(component);
     return webcomponent;
   }
 }

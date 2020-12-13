@@ -1,6 +1,6 @@
-import component StoreComponent from '@/examples/app/stores/menu.store.o3';
-import component TreeRecursive from '@/examples/app/components/menu/tree-recursive-button.o3';
-import component LogoEl from '@/examples/app/components/logo.o3';
+import component StoreComponent from '@/examples/app/stores/MenuStore.o3';
+import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
+import component LogoEl from '@/examples/app/components/Logo.o3';
 
 <template>
   <StoreComponent namespace="menu" />

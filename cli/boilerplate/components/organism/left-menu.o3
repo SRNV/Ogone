@@ -5,7 +5,7 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
     <div
       class="header"
       --router-go={'/'}>
-      <img --await class={logo} src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
+      <img --await class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
     </div>
     <hr />
     <ul>

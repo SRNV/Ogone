@@ -88,7 +88,6 @@ export default class ComponentBuilder {
         default: '',
         build: '',
       },
-      savedModuleDependencies: null,
     };
   }
   /**

@@ -105,7 +105,6 @@ const esm: ProtocolScriptRegExpList = [
         const type = path.startsWith('.') ? 'relative' :
           path.startsWith('@') ? 'absolute':
           'remote';
-        console.log(1, isComponent, tokens)
         typedExpressions.imports[id] = {
           key: id,
           type,

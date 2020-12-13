@@ -1,4 +1,4 @@
-import component Route2 from '@/examples/app/pages/body.o3';
+import component Route2 from '@/examples/app/pages/Body.o3';
 import component Route404 from '@/examples/app/components/404.o3';
 
 <proto type="router">

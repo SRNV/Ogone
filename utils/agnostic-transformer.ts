@@ -1,4 +1,12 @@
-import type { TypedExpressions, ProtocolScriptRegExpList } from '../.d.ts';
+import type { ProtocolScriptRegExpList } from '../.d.ts';
+import getDeepTranslation from './template-recursive.ts';
+import { MapPosition } from '../classes/MapPosition.ts';
+function savePosition (id: string, start: number, end: number) {
+  return MapPosition.mapTokens.set(id, {
+    start,
+    end,
+  });
+}
 export default function (
   opts: {
     typedExpressions: any;
@@ -35,10 +43,16 @@ export default function (
         const matches = result.match(item.reg as RegExp);
         const value = matches ? matches[0] : null;
         if (matches && value) {
+          const newId = item.id(value, matches, typedExpressions, expressions);
           result = result.replace(
             item.reg as RegExp,
-            item.id(value, matches, typedExpressions, expressions),
+            newId,
           );
+          const start = getDeepTranslation(
+            result.slice(0, result.indexOf(newId))
+            , expressions).length;
+          const end = getDeepTranslation(value, expressions).length + start;
+          savePosition(newId, start, end);
         }
       }
       return;
@@ -53,10 +67,16 @@ export default function (
         const matches = result.match(item.reg as RegExp);
         const value = matches ? matches[0] : null;
         if (matches && value) {
+          const newId = item.id(value, matches, typedExpressions, expressions);
           result = result.replace(
             item.reg as RegExp,
-            item.id(value, matches, typedExpressions, expressions),
+            newId,
           );
+          const start = getDeepTranslation(
+            result.slice(0, result.indexOf(newId))
+            , expressions).length;
+          const end = getDeepTranslation(value, expressions).length + start;
+          savePosition(newId, start, end);
         }
       }
       return;
@@ -67,11 +87,16 @@ export default function (
         const matches = result.match(item.reg as RegExp);
         const value = matches ? matches[0] : null;
         if (matches && value) {
+          const newId = item.id(value, matches, typedExpressions, expressions);
           result = result.replace(
             item.reg as RegExp,
-            item.id(value, matches, typedExpressions, expressions),
+            newId,
           );
-
+          const start = getDeepTranslation(
+            result.slice(0, result.indexOf(newId))
+            , expressions).length;
+          const end = getDeepTranslation(value, expressions).length + start;
+          savePosition(newId, start, end);
         }
       }
     }

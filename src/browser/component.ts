@@ -122,6 +122,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
   this.updateService = (key: string, value: unknown) => {
     if (!this.activated) return;
     if (this.data && value !== this.data[key]) {
+      const previous = this.data[key];
       this.data[key] = value;
       /**
        * for recycle Webcomponent feature
@@ -140,7 +141,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         }
       }
       if (this.pluggedWebComponent && typeof this.pluggedWebComponent.attributeChangedCallback === 'function') {
-        this.pluggedWebComponent.attributeChangedCallback(key, this.data[key], value);
+        this.pluggedWebComponent.attributeChangedCallback(key, previous, value);
       }
       this.update(key);
     }

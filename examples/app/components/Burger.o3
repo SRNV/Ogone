@@ -1,4 +1,4 @@
-import component StoreMenu from '@/examples/app/stores/menu.store.o3';
+import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
 
 <template>
   <StoreMenu namespace="menu" />

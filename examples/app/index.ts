@@ -3,10 +3,10 @@ import o3 from "../../mod.ts";
 
 // ogone use the root component
 o3.run({
-  entrypoint: "examples/app/index.o3",
+  entrypoint: "examples/app/Application.o3",
   devtool: false,
   static: "./public",
-  port: 8051,
+  port: 8052,
   modules: "/examples/modules",
   head: `
   <link href="/style.css" rel="stylesheet"/>
@@ -16,6 +16,6 @@ o3.run({
   <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
   `,
   controllers: [
-    "/examples/app/controllers/controller.user.o3",
+    "/examples/app/controllers/ControllerUser.o3",
   ],
 });

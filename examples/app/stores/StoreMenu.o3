@@ -1,4 +1,4 @@
-import component ControllerC from '@/examples/app/controllers/controller.user.o3'
+import component ControllerC from '@/examples/app/controllers/ControllerUser.o3'
 
 <proto type="store" namespace="menu">
   declare:

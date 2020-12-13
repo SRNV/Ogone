@@ -26,12 +26,6 @@ export default class TSXContextCreator extends Utils {
     };
     // TODO use component.sources
     // TODO create OgoneSandBox
-    component.savedModuleDependencies.forEach((item: any) => {
-      const [key, imp] = item;
-      // @ts-ignore
-      souces[imp.absolutePath] = imp.textFile;
-    });
-    console.warn(protocol, component.modules);
     const [diags] = await Deno.compile(newpath, sources, {
       module: "esnext",
       target: "esnext",

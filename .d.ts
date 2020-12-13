@@ -125,7 +125,6 @@ export interface Component {
   data: { [key: string]: any };
   rootNode: XMLNodeDescription;
   imports: MapIndexable;
-  savedModuleDependencies: any;
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;

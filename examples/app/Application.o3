@@ -1,8 +1,8 @@
-import component LeftMenu from '@/examples/app/components/left-menu.o3';
-import component AsyncLogoEl from '@/examples/app/asyncs/logo.async.o3';
-import component MenuContent from '@/examples/app/components/menu/menu-content.o3';
-import component MenuMain from '@/examples/app/components/menu/menu-main.o3';
-import component RouterComponent from '@/examples/app/routers/.router.o3';
+import component RightSection from '@/examples/app/components/RightSection.o3';
+import component AsyncLogoEl from '@/examples/app/asyncs/AsyncLogo.o3';
+import component MenuContent from '@/examples/app/components/menu/MenuContent.o3';
+import component MenuMain from '@/examples/app/components/menu/MenuMain.o3';
+import component RouterComponent from '@/examples/app/routers/Router.o3';
 
 <template>
   <div ref="header" class="header">
@@ -14,7 +14,7 @@ import component RouterComponent from '@/examples/app/routers/.router.o3';
   </div>
   <RouterComponent namespace="new" />
   <MenuMain />
-  <LeftMenu test={this.scrollY}/>
+  <RightSection test={this.scrollY}/>
 </template>
 
 <proto>

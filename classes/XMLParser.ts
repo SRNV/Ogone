@@ -13,9 +13,35 @@ import elements from '../utils/elements.ts';
 import notParsed from '../utils/not-parsed.ts';
 import read from '../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../utils/typedExpressions.ts';
+import { MapPosition } from './MapPosition.ts';
 
 const openComment = "<!--";
 const closeComment = "-->";
+function saveNode(text: string, opts: { expressions: DOMParserExpressions, key: string, value: string }) {
+  const { expressions, key, value } = opts;
+  const exp = expressions;
+  if (!translate(value, exp).trim().length || text.indexOf(key) < 0) return;
+  const part1 = translate(text.slice(0, text.indexOf(key)), exp);
+  const start = translate(
+    part1
+    , exp).length;
+  const end = translate(value, exp).length + start;
+  return savePosition(key, start, end);
+}
+function savePosition (id: string, start: number, end: number) {
+  return MapPosition.mapNodes.set(id, {
+    start,
+    end,
+  });
+}
+
+function translate(str: string, expressions: DOMParserExpressions) {
+  return getDeepTranslation(
+    str,
+    (expressions as unknown) as { [key: string]: string },
+    (key) => expressions[key].expression as string,
+  );
+}
 
 /**
  * @class
@@ -229,6 +255,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               // translate tsx to template
               let attributeFormatted = isTSX && !attributeName.startsWith('--') ? `:${attributeName}` : attributeName;
               if (isAttrSpreadTSX && expressions[key].attributes[attributeFormatted]) {
+                // TODO expose position of the node
                 this.error(`${componentPath}
                 Cannot spread multiple time on the same element:
                   input: ${expression?.slice(1)}`);
@@ -325,6 +352,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           dependencies: [],
         };
         result = result.replace(`>${content}<`, `>${key}<`);
+        saveNode(result, {
+          value: content,
+          expressions: expression,
+          key,
+        });
       });
     return result;
   }
@@ -387,6 +419,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           };
         }
         result = result.replace(input, key);
+        saveNode(result, {
+          value: input,
+          expressions: expression,
+          key,
+        });
       }
     });
     return result;
@@ -424,6 +461,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           dependencies: [],
         };
         result = result.replace(allTemplate, key);
+        saveNode(result, {
+          value: str,
+          expressions: expression,
+          key,
+        });
       });
     return result;
   }
@@ -459,6 +501,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             flags: null,
           };
           result = result.replace(allLit, key);
+          saveNode(result, {
+            value: allLit,
+            expressions: expression,
+            key,
+          });
         });
       });
     return result;
@@ -492,6 +539,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         dependencies: [],
         flags: null,
       };
+      saveNode(result, {
+        value: match,
+        expressions: expression,
+        key,
+      });
     });
     result.split(beginQuote)
       .filter((content) => /[^\\](")/.test(content))
@@ -516,6 +568,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           flags: null,
         };
         result = result.replace(allstring, key);
+        saveNode(result, {
+          value: allstring,
+          expressions: expression,
+          key,
+        });
       });
     return result;
   }
@@ -622,6 +679,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           flags: null,
         };
         result = result.replace(`=${value}`, key);
+        saveNode(text, {
+          value: allblock,
+          expressions: expression,
+          key,
+        });
       })
     }
     return result;
@@ -658,6 +720,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           flags: null,
         };
         result = result.replace(`=${value}`, key);
+        saveNode(result, {
+          value,
+          expressions: expression,
+          key,
+        });
       })
     }
     return result;
@@ -709,11 +776,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       // get DNA of node
       // this will register any changes in the template
       this.setDNA(result, result, expressions);
-      result.dna = getDeepTranslation(
-        result.dna,
-        (expressions as unknown) as { [key: string]: string },
-        (key) => expressions[key].expression as string,
-      );
+      result.dna = translate(result.dna, expressions)
       this.setInnerOuterHTML(result, expressions);
       // critical this will say to o3 that's the rootNode
       result.tagName = null;

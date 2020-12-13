@@ -75,7 +75,6 @@ export default class ImportsAnalyzer extends Utils {
                 return imp.static(component.file);
               },
             ).join("\n");
-            component.savedModuleDependencies = Object.entries(imports);
           }
           if (importBody.body && importBody.body.imports) {
             // @ts-ignore
