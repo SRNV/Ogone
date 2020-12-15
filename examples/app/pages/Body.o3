@@ -4,9 +4,7 @@ import component ContentPage from '@/examples/app/components/ContentPage.o3';
   <div class="container">
     <ContentPage
       --for={article of this.articles}
-      text={article.text}
-      title={article.title}
-      code={article.code}></ContentPage>
+      {...article}></ContentPage>
   </div>
 </template>
 

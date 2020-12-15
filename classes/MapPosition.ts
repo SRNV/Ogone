@@ -5,4 +5,30 @@ interface Position {
 export abstract class MapPosition {
   public static mapTokens: Map<MapPosition, Position> = new Map();
   public static mapNodes: Map<MapPosition, Position> = new Map();
+  static getColumn(text: string, position: Position, startIndex = 0): number {
+    const array = text.split('\n');
+    let i = 0;
+    let currentLine = this.getLine(text, position);
+    const currentColumn = array.map((line, index) => {
+      const part1 = array.slice(0, index).join('\n').length;
+      const result = line.slice(0, i - line.length);
+      i = part1 - line.length;
+      return part1 <= position.start
+        ? currentLine === index + 1
+          ? result
+          : ''
+        : '';
+    });
+    const result = currentColumn.find((line) => line.length)?.length || 0;
+    return result - startIndex;
+  }
+  static getLine(text: string, position: Position, startIndex = 0): number {
+    const array = text.split('\n');
+    const currentLine = array.find((line, index) => {
+      const part1 = array.slice(0, index).join('\n').length;
+      return part1 > position.start
+    });
+    const result = currentLine && array.indexOf(currentLine) || 0;
+    return result;
+  }
 }

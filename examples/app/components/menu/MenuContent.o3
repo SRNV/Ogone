@@ -1,4 +1,4 @@
-import component BugerEl from '@/examples/app/components/Burger.o3';
+import component Burger from '@/examples/app/components/Burger.o3';
 import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
 
 <template>
@@ -7,7 +7,7 @@ import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
       <MenuButton --for={t of this.menu} item={t} />
     </div>
     <div>
-      <BugerEl />
+      <Burger />
     </div>
   </div>
 </template>

@@ -3,6 +3,9 @@ import component ControllerC from '@/examples/app/controllers/ControllerUser.o3'
 <proto type="store" namespace="menu">
   declare:
     public isOpen: boolean = false;
+    static toggle() {
+      this.isOpen = !this.isOpen;
+    }
   before-each:
     const { ControllerC } = Controllers;
   case 'action:toggle':

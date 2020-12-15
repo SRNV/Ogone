@@ -159,7 +159,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         getText: `${prop[1]}`,
         position: this.positionInParentComponent,
       });
-      console.warn(value);
       this.updateService(key, value);
       if (this.data && value !== this.data[key]) {
         if (this.type === "async") {

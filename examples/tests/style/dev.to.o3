@@ -1,0 +1,16 @@
+// ./Hello-world.o3
+import component StyleComponent from './style.o3';
+
+<template>
+  Hello, <span {...{}} >${this.name}</span>
+</template>
+<proto def="">
+  declare:
+    public readonly name: string = "World";
+</proto>
+
+<style>
+  span {
+    ...$StyleComponent.rule
+  }
+</style>

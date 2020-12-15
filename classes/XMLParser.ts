@@ -14,18 +14,20 @@ import notParsed from '../utils/not-parsed.ts';
 import read from '../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../utils/typedExpressions.ts';
 import { MapPosition } from './MapPosition.ts';
-
+// TODO use instances
+// like new Element()
+// like new Attributes()
 const openComment = "<!--";
 const closeComment = "-->";
-function saveNode(text: string, opts: { expressions: DOMParserExpressions, key: string, value: string }) {
-  const { expressions, key, value } = opts;
+function saveNode(text: string, opts: { margin: number; expressions: DOMParserExpressions, key: string, value: string }) {
+  const { expressions, key, value, margin } = opts;
   const exp = expressions;
-  if (!translate(value, exp).trim().length || text.indexOf(key) < 0) return;
-  const part1 = translate(text.slice(0, text.indexOf(key)), exp);
-  const start = translate(
+  if (!translateAll(value, exp).trim().length || text.indexOf(key) < 0) return;
+  const part1 = translateAll(text.slice(0, text.indexOf(key, margin)), exp);
+  const start = translateAll(
     part1
     , exp).length;
-  const end = translate(value, exp).length + start;
+  const end = (translateAll(value, exp).length + start);
   return savePosition(key, start, end);
 }
 function savePosition (id: string, start: number, end: number) {
@@ -35,7 +37,7 @@ function savePosition (id: string, start: number, end: number) {
   });
 }
 
-function translate(str: string, expressions: DOMParserExpressions) {
+function translateAll(str: string, expressions: DOMParserExpressions) {
   return getDeepTranslation(
     str,
     (expressions as unknown) as { [key: string]: string },
@@ -54,6 +56,9 @@ function translate(str: string, expressions: DOMParserExpressions) {
  * ```
  */
 export default class XMLParser extends XMLJSXOutputBuilder {
+  public textMarginStart: number = 0;
+  public textMarginEnd: number = 0;
+  public originalHTML: string = '';
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   private getUniquekey(id = "", iterator: DOMParserIterator): string {
     iterator.value++;
@@ -252,13 +257,22 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             if (m && expressions[m[2]]) {
               let [input, attributeName, id] = m;
               const { value, expression, isTSX, isAttrSpreadTSX } = expressions[id];
-              // translate tsx to template
+              // translateAll tsx to template
               let attributeFormatted = isTSX && !attributeName.startsWith('--') ? `:${attributeName}` : attributeName;
               if (isAttrSpreadTSX && expressions[key].attributes[attributeFormatted]) {
-                // TODO expose position of the node
-                this.error(`${componentPath}
+                let textError = null;
+                const position = MapPosition.mapNodes.get(key);
+                let column = 0, line = 0;
+                if (position) {
+                  const file = translateAll(html, expressions);
+                  column = MapPosition.getColumn(file, position, this.textMarginStart);
+                  line = MapPosition.getLine(file, position, this.textMarginStart);
+                  textError = file.slice(position.start, position.end);
+
+                }
+                this.error(`${componentPath}:${line}:${column}
                 Cannot spread multiple time on the same element:
-                  input: ${expression?.slice(1)}`);
+                  input: ${textError || expression?.slice(1)}`);
               }
               // @ts-ignore
               expressions[key].attributes[attributeFormatted] = value;
@@ -353,6 +367,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         };
         result = result.replace(`>${content}<`, `>${key}<`);
         saveNode(result, {
+          margin: this.textMarginStart,
           value: content,
           expressions: expression,
           key,
@@ -395,6 +410,26 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             // set the key of the closing tag
             // @ts-ignore
             expression[tag.key].closingTag = key;
+            // if it's not a closing tag register it
+            expression[key] = {
+              key,
+              tagName,
+              id: iterator.node,
+              rawAttrs: attrs,
+              attributes: {},
+              closing: !!slash,
+              autoclosing: !!closingSlash,
+              type: "node",
+              nodeType: 30,
+              closingTag: null,
+              expression: input,
+              childNodes: [],
+              rawText: "",
+              parentNode: null,
+              pragma: null,
+              flags: null,
+              dependencies: [],
+            };
           }
         } else {
           // if it's not a closing tag register it
@@ -420,6 +455,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         }
         result = result.replace(input, key);
         saveNode(result, {
+          margin: this.textMarginStart,
           value: input,
           expressions: expression,
           key,
@@ -462,6 +498,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         };
         result = result.replace(allTemplate, key);
         saveNode(result, {
+          margin: this.textMarginStart,
           value: str,
           expressions: expression,
           key,
@@ -502,6 +539,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           };
           result = result.replace(allLit, key);
           saveNode(result, {
+            margin: this.textMarginStart,
             value: allLit,
             expressions: expression,
             key,
@@ -540,6 +578,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         flags: null,
       };
       saveNode(result, {
+        margin: this.textMarginStart,
         value: match,
         expressions: expression,
         key,
@@ -569,6 +608,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         };
         result = result.replace(allstring, key);
         saveNode(result, {
+          margin: this.textMarginStart,
           value: allstring,
           expressions: expression,
           key,
@@ -629,7 +669,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   private preserveBlocks(str: string, globalExpressions: { [k: string]: string }, typedExpressions: TypedExpressions): string {
     let result = read({
       value: str,
-      array: notParsed.concat(elements),
+      array: notParsed
+        .filter((item) => item.name !== 'comment')
+        .concat(elements),
       expressions: globalExpressions,
       typedExpressions,
     });
@@ -680,6 +722,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         };
         result = result.replace(`=${value}`, key);
         saveNode(text, {
+          margin: this.textMarginStart,
           value: allblock,
           expressions: expression,
           key,
@@ -721,6 +764,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         };
         result = result.replace(`=${value}`, key);
         saveNode(result, {
+          margin: this.textMarginStart,
           value,
           expressions: expression,
           key,
@@ -738,9 +782,16 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       node: 0,
       text: 0,
     };
-    let str = this.template(`<template>{%html%}</template>`, {
+    const start = '<template>';
+    const end = '</template>';
+    let str = this.template(`{% start %}{% html %}{% end %}`, {
       html,
+      start,
+      end
     });
+    this.originalHTML = html;
+    this.textMarginStart = start.length;
+    this.textMarginEnd = end.length;
     // preserve comments
     str = this.preserveComments(str, expressions, iterator);
     // preserve blocks for TSX
@@ -776,7 +827,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       // get DNA of node
       // this will register any changes in the template
       this.setDNA(result, result, expressions);
-      result.dna = translate(result.dna, expressions)
+      result.dna = translateAll(result.dna, expressions)
       this.setInnerOuterHTML(result, expressions);
       // critical this will say to o3 that's the rootNode
       result.tagName = null;

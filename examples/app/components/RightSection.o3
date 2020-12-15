@@ -1,7 +1,7 @@
-require test as number;
+require scrollY as number;
 
 <template>
-  <div class="container">${this.test}</div>
+  <div class="container">${this.scrollY}</div>
 </template>
 <style>
   .container {

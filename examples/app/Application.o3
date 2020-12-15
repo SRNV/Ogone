@@ -14,7 +14,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
   </div>
   <RouterComponent namespace="new" />
   <MenuMain />
-  <RightSection test={this.scrollY}/>
+  <RightSection {...this} />
 </template>
 
 <proto>

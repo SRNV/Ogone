@@ -27,6 +27,7 @@ const nullish: ProtocolScriptRegExpList = [
   },
   // end annulations
   {
+    name: 'comment',
     split: ["/*", "*/"],
     splittedId: (value, expressions) => {
       const id = `§§comment0§§`;
@@ -35,6 +36,7 @@ const nullish: ProtocolScriptRegExpList = [
     },
   },
   {
+    name: 'comment',
     open: "//",
     reg: /(?<!\:)\/\/([^\n])+\n/,
     id: (value, matches, typedExpressions, expressions) => {

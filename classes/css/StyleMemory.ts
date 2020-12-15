@@ -91,7 +91,6 @@ export default class StyleMemory extends StyleOutput {
       },
     };
     this.getTokens(styleBundle, bundle, component);
-    this.setUse(styleBundle, bundle, component);
     await this.getImports(styleBundle, bundle, component);
     this.getVars(styleBundle, bundle, component);
     styleBundle.value = this.getRules(styleBundle.value, styleBundle, bundle, component).value;
@@ -100,43 +99,29 @@ export default class StyleMemory extends StyleOutput {
     return styleBundle;
   }
   protected async getImports(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
-    const entries = styleBundle.mapImports.entries();
-    for await (const [, item] of entries) {
-      const { tag, name } = item;
-      const filePath = component.imports[tag];
+    const entries = Object.entries(component.imports);
+    for await (const [tag, filePath] of entries) {
       const subcomp = bundle.components.get(filePath);
       if (!subcomp) {
-        this.error(`${component.file}\n\tStyle Use Error while fetching component: component not found.\n\tinput: @use ${tag} as ${name}`);
+        this.error(`${component.file}\n\tStyle Use Error while fetching component: component not found.\n\tinput: ${tag}`);
       } else {
-        item.bundle = await this.getNewStyleBundle(
-          subcomp.elements.styles.map((style) => {
-            if (style.getInnerHTML) {
-              return style.getInnerHTML();
-            }
-          }).join('\n'),
-          bundle,
-          subcomp,
-        );
-      }
-    }
-  }
-  protected setUse(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
-    let result = styleBundle.value;
-    const regexp = /(\@use)\s+(\d+_string)\s+(as)\s+(\w*)+\s*(;|\n+)/;
-    while (result.match(regexp)) {
-      const m = result.match(regexp);
-      if (m) {
-        let [input, kUse, tag, kAs, name] = m;
-        tag = this.getDeepTranslation(tag, styleBundle.tokens.expressions)
-          .replace(/["'`]/gi, '');
-        styleBundle.mapImports.set(name, {
+        styleBundle.mapImports.set(tag, {
+          name: tag,
           tag,
-          name,
         });
-        result = result.replace(input, '');
+        const item = styleBundle.mapImports.get(tag)
+        if (item) {
+          item.bundle = await this.getNewStyleBundle(
+            subcomp.elements.styles.map((style) => {
+              if (style.getInnerHTML) {
+                return style.getInnerHTML();
+              }
+            }).join('\n'),
+            bundle,
+            subcomp,
+          );
+        }
       }
     }
-    styleBundle.value = result;
-    return result;
   }
 }
