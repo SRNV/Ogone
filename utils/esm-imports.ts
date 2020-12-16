@@ -114,7 +114,6 @@ const esm: ProtocolScriptRegExpList = [
           static: (namespace: string) => {
             if (type === 'remote') return getDeepTranslation(value, expressions);
             const result = getDeepTranslation(value, expressions);
-            console.warn(1, result)
             return result;
           },
           dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {

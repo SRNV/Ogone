@@ -24,15 +24,7 @@ export default class TSXContextCreator extends Utils {
     const newpath = join(Deno.cwd(), `.${p}`);
     const startPerf = performance.now();
     const { protocol } = component.context;
-    /*
-    const sources = {
-      [newpath]: protocol,
-    };
-    */
-   console.log(newpath, protocol)
     Deno.writeTextFileSync(newpath, protocol);
-    // TODO use component.sources
-    // TODO create OgoneSandBox
     const [diags] = await Deno.compile(newpath, undefined, {
       module: "esnext",
       target: "esnext",

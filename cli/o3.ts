@@ -168,7 +168,6 @@ class OgoneCLI {
           elements: ['async', 'component'].includes(typeofComponent) && usingDeclare? `\n<!--\n<p>\${message}</p>\n-->` : '',
         });
         Deno.writeTextFileSync(fullPath, result);
-        console.warn(result);
   }
 }
 if (import.meta.main) {

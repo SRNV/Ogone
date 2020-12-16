@@ -59,6 +59,7 @@ export default class EnvServer extends Env {
       if (controllerRendered) {
         continue;
       }
+      let isUrlFile: boolean = existsSync(pathToPublic);
       switch (true) {
         case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
           // TODO fix HMR
@@ -72,9 +73,9 @@ export default class EnvServer extends Env {
             ]),
           });
           break;
-          case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
+        case isUrlFile && Deno.statSync(pathToPublic).isFile:
           req.respond({
-            body: Deno.readTextFileSync(importedFile as string),
+            body: Deno.readTextFileSync(pathToPublic),
             headers: new Headers([
               getHeaderContentTypeOf(req.url),
               ["X-Content-Type-Options", "nosniff"],

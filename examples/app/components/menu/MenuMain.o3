@@ -1,9 +1,9 @@
-import component StoreComponent from '@/examples/app/stores/MenuStore.o3';
+import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
 import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
 import component LogoEl from '@/examples/app/components/Logo.o3';
 
 <template>
-  <StoreComponent namespace="menu" />
+  <StoreMenu namespace="menu" />
   <div
     class="left-menu"
     --class={{ close: !this.isOpen }}>
