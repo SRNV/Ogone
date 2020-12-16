@@ -2,9 +2,15 @@ interface Position {
   start: number;
   end: number;
 }
+interface PositionInFile {
+  start: number;
+  end: number;
+  column: number;
+  line: number;
+}
 export abstract class MapPosition {
-  public static mapTokens: Map<MapPosition, Position> = new Map();
-  public static mapNodes: Map<MapPosition, Position> = new Map();
+  public static mapTokens: Map<string, Position> = new Map();
+  public static mapNodes: Map<any, PositionInFile> = new Map();
   static getColumn(text: string, position: Position, startIndex = 0): number {
     const array = text.split('\n');
     let i = 0;
@@ -20,7 +26,7 @@ export abstract class MapPosition {
         : '';
     });
     const result = currentColumn.find((line) => line.length)?.length || 0;
-    return result - startIndex;
+    return result - startIndex > 0 ? result - startIndex : 0;
   }
   static getLine(text: string, position: Position, startIndex = 0): number {
     const array = text.split('\n');

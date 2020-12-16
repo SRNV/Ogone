@@ -90,7 +90,7 @@ export default class Env extends Constructor {
         ["router", "store", "async"].includes(rootComponent.type)
       ) {
         this.error(
-          `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+          `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports basic component`,
         );
       }
       const scriptDev = this.template(

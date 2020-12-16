@@ -26,7 +26,7 @@ interface ModuleErrorsDiagnostic {
   code: number;
 }
 export abstract class ModuleErrors extends Utils {
-  static checkDiagnostics(component: Component, diagnostics: unknown[]) {
+  static checkDiagnostics(component: Component, diagnostics: unknown[], onError?: Function) {
     const { blue, red,  gray, } = colors;
     function renderChainedDiags(chainedDiags: typeof diagnostics): string{
       let result = ``;
@@ -42,6 +42,9 @@ export abstract class ModuleErrors extends Utils {
     }
     if (diagnostics && diagnostics.length) {
       let errors = '';
+      if (onError) {
+        onError();
+      }
       for (const d of diagnostics.filter(d => (d as ModuleErrorsDiagnostic).start)) {
         const diag = d as (ModuleErrorsDiagnostic);
         const start = diag.start && diag.start.character || 0;

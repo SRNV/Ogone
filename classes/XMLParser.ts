@@ -19,22 +19,13 @@ import { MapPosition } from './MapPosition.ts';
 // like new Attributes()
 const openComment = "<!--";
 const closeComment = "-->";
-function saveNode(text: string, opts: { margin: number; expressions: DOMParserExpressions, key: string, value: string }) {
-  const { expressions, key, value, margin } = opts;
-  const exp = expressions;
-  if (!translateAll(value, exp).trim().length || text.indexOf(key) < 0) return;
-  const part1 = translateAll(text.slice(0, text.indexOf(key, margin)), exp);
-  const start = translateAll(
-    part1
-    , exp).length;
-  const end = (translateAll(value, exp).length + start);
-  return savePosition(key, start, end);
-}
-function savePosition (id: string, start: number, end: number) {
-  return MapPosition.mapNodes.set(id, {
-    start,
-    end,
-  });
+function savePosition (node: any, opts: {
+  start: number;
+  end: number;
+  column: number;
+  line: number;
+}) {
+  return MapPosition.mapNodes.set(node, opts);
 }
 
 function translateAll(str: string, expressions: DOMParserExpressions) {
@@ -74,6 +65,24 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     iterator.text++;
     // critical all regexp are based on this line
     return `§§${iterator.text}${id}§§`;
+  }
+  private saveNode(text: string, opts: { margin: number; expressions: DOMParserExpressions, node: DOMParserExp, value: string }) {
+    const { expressions, node, value, margin } = opts;
+    const { key } = node;
+    const exp = expressions;
+    if (!translateAll(value, exp).trim().length || text.indexOf(key!) < 0) return;
+    const file = translateAll(text, exp);
+    const part1 = translateAll(text.slice(0, text.indexOf(key!, margin)), exp);
+    const start = translateAll(
+      part1
+      , exp).length;
+    const end = (translateAll(value, exp).length + start);
+    return savePosition(node, {
+      start,
+      end,
+      column: MapPosition.getColumn(file, { start, end }, margin),
+      line: MapPosition.getLine(file, { start, end }, margin),
+    });
   }
   private setInnerOuterHTML(
     rootnode: XMLNodeDescription,
@@ -261,7 +270,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               let attributeFormatted = isTSX && !attributeName.startsWith('--') ? `:${attributeName}` : attributeName;
               if (isAttrSpreadTSX && expressions[key].attributes[attributeFormatted]) {
                 let textError = null;
-                const position = MapPosition.mapNodes.get(key);
+                const position = MapPosition.mapNodes.get(expressions[key]);
                 let column = 0, line = 0;
                 if (position) {
                   const file = translateAll(html, expressions);
@@ -351,6 +360,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         const key = this.getTextUniquekey("text", iterator);
         expression[key] = {
           type: "text",
+          key,
           value: content,
           expression: content,
           id: iterator.text,
@@ -366,11 +376,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           dependencies: [],
         };
         result = result.replace(`>${content}<`, `>${key}<`);
-        saveNode(result, {
+        this.saveNode(result, {
           margin: this.textMarginStart,
           value: content,
           expressions: expression,
-          key,
+          node: expression[key],
         });
       });
     return result;
@@ -454,11 +464,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           };
         }
         result = result.replace(input, key);
-        saveNode(result, {
+        this.saveNode(result, {
           margin: this.textMarginStart,
           value: input,
           expressions: expression,
-          key,
+          node: expression[key],
         });
       }
     });
@@ -481,6 +491,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         const allTemplate = `${beginTemplate}${str}${traillingTemplate}`;
         const key = this.getUniquekey("templ", iterator);
         expression[key] = {
+          key,
           expression: allTemplate,
           value: str,
           type: "template",
@@ -497,11 +508,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           dependencies: [],
         };
         result = result.replace(allTemplate, key);
-        saveNode(result, {
+        this.saveNode(result, {
           margin: this.textMarginStart,
           value: str,
           expressions: expression,
-          key,
+          node: expression[key],
         });
       });
     return result;
@@ -522,6 +533,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           if (result.indexOf(allLit) < 0) return;
           const key = this.getUniquekey("str", iterator);
           expression[key] = {
+            key,
             expression: allLit,
             value: contentOfStr,
             type: "string",
@@ -538,11 +550,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             flags: null,
           };
           result = result.replace(allLit, key);
-          saveNode(result, {
+          this.saveNode(result, {
             margin: this.textMarginStart,
             value: allLit,
             expressions: expression,
-            key,
+            node: expression[key],
           });
         });
       });
@@ -562,6 +574,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       const key = this.getUniquekey("attr", iterator);
       result = result.replace(match, key);
       expression[key] = {
+        key,
         expression: match,
         value: match,
         type: "attr",
@@ -577,11 +590,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         dependencies: [],
         flags: null,
       };
-      saveNode(result, {
+      this.saveNode(result, {
         margin: this.textMarginStart,
         value: match,
         expressions: expression,
-        key,
+        node: expression[key],
       });
     });
     result.split(beginQuote)
@@ -591,6 +604,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         const allstring = `${beginQuote}${str}${closinQuote}`;
         const key = this.getUniquekey("attr", iterator);
         expression[key] = {
+          key,
           expression: allstring,
           value: str,
           type: "attr",
@@ -607,11 +621,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           flags: null,
         };
         result = result.replace(allstring, key);
-        saveNode(result, {
+        this.saveNode(result, {
           margin: this.textMarginStart,
           value: allstring,
           expressions: expression,
-          key,
+          node: expression[key],
         });
       });
     return result;
@@ -703,6 +717,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         }
         const key = this.getUniquekey("attr", iterator);
         expression[key] = {
+          key,
           expression: `=${allblock}`,
           value: allblock.slice(1, -1),
           type: "attr",
@@ -721,11 +736,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           flags: null,
         };
         result = result.replace(`=${value}`, key);
-        saveNode(text, {
+        this.saveNode(text, {
           margin: this.textMarginStart,
           value: allblock,
           expressions: expression,
-          key,
+          node: expression[key],
         });
       })
     }
@@ -746,6 +761,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         const allblock = getDeepTranslation(value, globalExpressions);
         const key = this.getUniquekey("attr", iterator);
         expression[key] = {
+          key,
           expression: `=${allblock}`,
           value: allblock.slice(1, -1),
           type: "attr",
@@ -763,11 +779,11 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           flags: null,
         };
         result = result.replace(`=${value}`, key);
-        saveNode(result, {
+        this.saveNode(result, {
           margin: this.textMarginStart,
           value,
           expressions: expression,
-          key,
+          node: expression[key],
         });
       })
     }

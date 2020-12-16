@@ -65,12 +65,7 @@ const esm: ProtocolScriptRegExpList = [
           members: [],
           static: (namespace: string) => {
             if (type === 'remote') return getDeepTranslation(value, expressions);
-            const baseUrl = new URL(import.meta.url);
-            baseUrl.pathname = join(Deno.cwd(), namespace);
-            const newUrl = new URL(path, baseUrl);
-            const result = getDeepTranslation(value, expressions).replace(path, newUrl.pathname);
-            // @ts-ignore
-            typedExpressions.imports[id].textFile = Deno.readTextFileSync(newUrl.pathname)
+            const result = getDeepTranslation(value, expressions);
             return result;
           },
           dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {
@@ -78,7 +73,7 @@ const esm: ProtocolScriptRegExpList = [
             const baseUrl = new URL(import.meta.url);
             baseUrl.pathname = join(Deno.cwd(), namespace);
             const newUrl = new URL(path, baseUrl);
-            return `${importFn}('${newUrl.pathname}'),`
+            return `${importFn}('${path}', '${newUrl.pathname}'),`
           },
         };
       }
@@ -118,12 +113,8 @@ const esm: ProtocolScriptRegExpList = [
           path,
           static: (namespace: string) => {
             if (type === 'remote') return getDeepTranslation(value, expressions);
-            const baseUrl = new URL(import.meta.url);
-            baseUrl.pathname = join(Deno.cwd(), namespace);
-            const newUrl = new URL(path, baseUrl);
-            const result = getDeepTranslation(value, expressions).replace(path, newUrl.pathname);
-            // @ts-ignore
-            typedExpressions.imports[id].textFile = Deno.readTextFileSync(newUrl.pathname)
+            const result = getDeepTranslation(value, expressions);
+            console.warn(1, result)
             return result;
           },
           dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {
@@ -131,7 +122,7 @@ const esm: ProtocolScriptRegExpList = [
             const baseUrl = new URL(import.meta.url);
             baseUrl.pathname = join(Deno.cwd(), namespace);
             const newUrl = new URL(path, baseUrl);
-            return `${importFn}('${newUrl.pathname}'),`
+            return `${importFn}('${path}', '${newUrl.pathname}'),`
           },
           value: getDeepTranslation(value, expressions),
           members: importDescription.members,

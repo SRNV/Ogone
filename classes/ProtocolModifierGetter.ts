@@ -70,7 +70,7 @@ export default class ProtocolModifierGetter extends Utils {
     const keys = Object.keys(savedModifiers);
       if (modifier.exclude) {
         modifier.exclude.forEach((token2) => {
-          const reg = new RegExp(`${token2}\b`, 'i')
+          const reg = new RegExp(`${token2}\\b`, 'i')
           const modifierRegExp = new RegExp(modifier.token, 'i')
           const excludedModifier = keys.find((token3) => reg.test(token3));
           const hasModifier = keys.find((token3) => modifierRegExp.test(token3));

@@ -1,5 +1,5 @@
 import { Bundle, Component } from '../.d.ts';
-import { colors } from '../deps.ts';
+import { colors, join } from '../deps.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";
 /**
@@ -18,15 +18,22 @@ export default class TSXContextCreator extends Utils {
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
     const { green, gray } = colors;
-    const newpath = '/comp.tsx';
+    const baseUrl = new URL(import.meta.url);
+    baseUrl.pathname = component.file;
+    const p = new URL(`/${component.file}.tsx`, baseUrl).pathname;
+    const newpath = join(Deno.cwd(), `.${p}`);
     const startPerf = performance.now();
     const { protocol } = component.context;
+    /*
     const sources = {
       [newpath]: protocol,
     };
+    */
+   console.log(newpath, protocol)
+    Deno.writeTextFileSync(newpath, protocol);
     // TODO use component.sources
     // TODO create OgoneSandBox
-    const [diags] = await Deno.compile(newpath, sources, {
+    const [diags] = await Deno.compile(newpath, undefined, {
       module: "esnext",
       target: "esnext",
       noImplicitThis: false,
@@ -47,7 +54,9 @@ export default class TSXContextCreator extends Utils {
       sourceMap: false,
       strictFunctionTypes: true,
     });
-    ModuleErrors.checkDiagnostics(component, diags as unknown[]);
+    ModuleErrors.checkDiagnostics(component, diags as unknown[], () => {
+      Deno.removeSync(newpath);
+    });
     this.success(
       `${green(component.file)} - ${gray(Math.round(performance.now() - startPerf) + ' ms')}`,
     );

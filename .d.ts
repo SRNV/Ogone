@@ -287,6 +287,7 @@ export type hmrModuleSystemOptions = {
   isAllAs: boolean;
   isMember: boolean;
   path: string;
+  id: string;
 };
 export interface TypedExpressions {
   blocks: MapIndexable;

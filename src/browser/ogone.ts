@@ -194,11 +194,11 @@ function _OGONE_BROWSER_CONTEXT() {
     "*": [], // for reactions
   };
   Ogone.run = {};
-  Ogone.imp = async function (url) {
-    if (Ogone.mod[url]) return;
+  Ogone.imp = async function (id, url) {
+    if (Ogone.mod[id]) return;
     try {
       const mod = await import(`/?import=${url}`);
-      Ogone.mod[url] = mod;
+      Ogone.mod[id] = mod;
       return mod;
     } catch (err) {
       Ogone.error(err.message, "Error in Dynamic Import", {

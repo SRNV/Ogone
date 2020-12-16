@@ -110,10 +110,7 @@ export default class Constructor extends Utils {
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
-    new Promise((resolve) => {
-      this.TSXContextCreator.read(bundle);
-      resolve();
-    });
+    this.TSXContextCreator.read(bundle);
     return bundle;
   }
 }

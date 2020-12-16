@@ -1,4 +1,5 @@
 import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
+import { MapPosition } from "./MapPosition.ts";
 import { Utils } from "./Utils.ts";
 /**
  * @name ComponentTopLevelAnalyzer
@@ -20,8 +21,9 @@ export default class ComponentTopLevelAnalyzer extends Utils {
           if (
             node.nodeType === 3 && node.rawText && node.rawText.trim().length
           ) {
+          const position = MapPosition.mapNodes.get(node)!;
             this.error(
-              `Top level text are not allowed, excepted for the first lines, these will serve for the imports, services.\nplease wrap this text into an element:\t${node.rawText.trim()}\n\tcomponent: ${c.file}`,
+              `${c.file}:${position && position.line || 0}:${position && position.column || 0}\n\tTop level text are not allowed, excepted for the first lines, these will serve for the imports, services.\nplease wrap this text into the template:\n\t${node.rawText.trim()}\n\t`,
             );
           }
         },
@@ -60,7 +62,8 @@ export default class ComponentTopLevelAnalyzer extends Utils {
         && n.nodeType === 1
         && !["template", "proto", "style"].includes(n.tagName as string));
       if (forbiddenNode) {
-        this.error(`Component Structure Error: ${component.file}
+        const position = MapPosition.mapNodes.get(forbiddenNode)!;
+        this.error(`Component Structure Error: ${component.file}:${position.line}:${position.column}
           [v0.20.0] Only proto, template and style elements are allowed at the top-level of the component:
           please follow this pattern:
             <proto>

@@ -60,20 +60,19 @@ export default class EnvServer extends Env {
         continue;
       }
       switch (true) {
-        case req.url.startsWith(Configuration.modules):
-          const denoReqUrl = req.url.slice(1).split("?")[0];
+        case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
           // TODO fix HMR
           // use std websocket
           // HMR(denoReqUrl);
           req.respond({
-            body: await this.resolveAndReadText(denoReqUrl),
+            body: await this.resolveAndReadText(importedFile!),
             headers: new Headers([
-              getHeaderContentTypeOf(denoReqUrl),
+              getHeaderContentTypeOf(importedFile!),
               ["X-Content-Type-Options", "nosniff"],
             ]),
           });
           break;
-        case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
+          case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
           req.respond({
             body: Deno.readTextFileSync(importedFile as string),
             headers: new Headers([

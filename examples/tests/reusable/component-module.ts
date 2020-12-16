@@ -1,4 +1,4 @@
-export default class extends HTMLElement {
+export default class A extends HTMLElement {
   count: number = 10;
   text: Text;
   constructor(opts: any) {
@@ -6,6 +6,7 @@ export default class extends HTMLElement {
     this.text = new Text(`Count: ${this.count}`);
     this.append(this.text);
   }
+  static ret(arr: string) {}
   attributeChangedCallback(prop: string, value: any) {
     this.text.data = `Count: ${this.count}`;
   }

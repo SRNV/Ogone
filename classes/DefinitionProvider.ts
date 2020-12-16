@@ -1,5 +1,6 @@
 import type { Component, ModifierContext } from '../.d.ts';
 import { join, absolute, existsSync, fetchRemoteRessource, YAML } from '../deps.ts';
+import { MapPosition } from "./MapPosition.ts";
 import { Utils } from './Utils.ts';
 
 export default class DefinitionProvider extends Utils {
@@ -15,8 +16,8 @@ export default class DefinitionProvider extends Utils {
     const item = this.mapData.get(component.uuid);
     if (proto && "def" in proto.attributes) {
       if (component.isTyped) {
-        // TODO expose proto element position
-        this.error(`${component.file} \n\tcan't use def attribute with a component using declare modifier.`);
+        const position = MapPosition.mapNodes.get(proto)!;
+        this.error(`${component.file}:${position.line}:${position.column} \n\tcan't use def attribute with a component using declare modifier.`);
       }
       // allowing <proto def="..."
       // absolute <proto def="http://..."
@@ -62,17 +63,19 @@ export default class DefinitionProvider extends Utils {
         const def = Deno.readTextFileSync(relativePath);
         defData = YAML.parse(def, {});
       } else {
-        this.error(`${component.file}\n\tcan't find the definition file: ${defPath}`);
+        const position = MapPosition.mapNodes.get(proto)!;
+        this.error(`${component.file}:${position.line}:${position.column}\n\tcan't find the definition file: ${defPath}`);
       }
     }
     // save data into the component
     if (defData) {
+      const position = MapPosition.mapNodes.get(proto)!;
       switch (true) {
         case item && Array.isArray(defData) && !Array.isArray(item.data):
-          this.error(`${proto.attributes.def} doesn't match def type of ${component.file}`);
+          this.error(`${component.file}:${position.line}:${position.column}\n\t${proto.attributes.def} doesn't match def type of ${component.file}`);
           break;
         case item && !Array.isArray(defData) && Array.isArray(item.data):
-          this.error(`${proto.attributes.def} doesn't match def type of ${component.file}`);
+          this.error(`${component.file}:${position.line}:${position.column}\n\t${proto.attributes.def} doesn't match def type of ${component.file}`);
           break;
         case item && Array.isArray(defData) && Array.isArray(item.data):
           if (item) {

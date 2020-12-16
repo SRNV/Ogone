@@ -1,4 +1,5 @@
 import type { Bundle, Component, XMLNodeDescription } from '../.d.ts';
+import { MapPosition } from "./MapPosition.ts";
 import Ogone from "./Ogone.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
 import { Utils } from "./Utils.ts";
@@ -22,6 +23,7 @@ export default class ComponentTypeGetter extends Utils {
   public assignTypeConfguration(bundle: Bundle): void {
     bundle.components.forEach((component: Component) => {
       const proto = component.elements.proto[0];
+      const position = MapPosition.mapNodes.get(proto)!;
       if (
         component.requirements && component.data &&
         component.requirements.length
@@ -29,7 +31,7 @@ export default class ComponentTypeGetter extends Utils {
         component.requirements.forEach(([key]) => {
           if (component.data[key]) {
             this.error(
-              `${key} is already defined in datas for component ${component.file}`,
+              `${component.file}:${position.line}:${position.column}\n\t${key} is already defined in datas for component`,
             );
           }
           component.data[key] = null;
@@ -39,9 +41,9 @@ export default class ComponentTypeGetter extends Utils {
         const { type } = component as Component;
         if (!Ogone.allowedTypes.includes(type as string)) {
           this.error(
-            `${type} is not supported, in this version.
-                supported types of component: ${Ogone.allowedTypes.join(" ")}
-                error in: ${component.file}`,
+            `${component.file}:${position.line}:${position.column}\n\t
+              ${type} is not supported, in this version.
+                supported types of component: ${Ogone.allowedTypes.join(" ")}`,
           );
         }
         if (type === "controller") {
@@ -59,7 +61,7 @@ export default class ComponentTypeGetter extends Utils {
               component.namespace = (namespace as string);
             } else {
               this.error(
-                `proto's namespace is missing in ${type} component.\ncomponent: ${component.file}\nplease set the attribute namespace, this one can't be empty.`,
+                `${component.file}:${position.line}:${position.column}\n\tproto's namespace is missing in ${type} component.\nplease set the attribute namespace, this one can't be empty.`,
               );
             }
             const comp = {
@@ -74,7 +76,8 @@ export default class ComponentTypeGetter extends Utils {
         }
         if (type === "router") {
           if(!component.data.routes) {
-            this.error(`${component.file}\nall router components should provide routes through a def modifier`);
+            const position = MapPosition.mapNodes.get(proto)!;
+            this.error(`${component.file}:${position.line}:${position.column}\nall router components should provide routes through a def modifier`);
           }
           component.routes = this.RouterAnalyzer.inspectRoutes(
             bundle,
@@ -90,15 +93,16 @@ export default class ComponentTypeGetter extends Utils {
             component.namespace = (proto.attributes.namespace as string);
           }
         }
-        if (["store", "controller"].includes(type as string)) {
+        if (["store", "controller", "router"].includes(type as string)) {
           // check if there is any forbidden element
           component.rootNode.childNodes
             .filter((child: XMLNodeDescription) => {
               return child.tagName && child.tagName !== "proto";
             })
             .map((child: XMLNodeDescription) => {
+              const position = MapPosition.mapNodes.get(child)!;
               this.error(
-                `a forbidden element found in ${type} component.\ncomponent: ${component.file}\nelement: ${child.tagName}`,
+                `${component.file}:${position.line}:${position.column}\n\ta forbidden element found in ${type} component.\nelement: ${child.tagName}`,
               );
             });
 

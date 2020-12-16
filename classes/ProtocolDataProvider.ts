@@ -5,6 +5,7 @@ import DefinitionProvider from './DefinitionProvider.ts';
 import ProtocolClassConstructor from './ProtocolClassConstructor.ts';
 import ProtocolBodyConstructor from './ProtocolBodyConstructor.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';
+import { MapPosition } from "./MapPosition.ts";
 
 /**
  * @name ProtocolDataProvider
@@ -23,6 +24,7 @@ export default class ProtocolDataProvider extends Utils {
     entries.forEach(([, component]: [string, Component]) => {
       const proto = component.elements.proto[0];
       if (!proto || !proto.getInnerHTML) return;
+      const position = MapPosition.mapNodes.get(proto)!;
       const protocol = proto.getInnerHTML();
       this.ProtocolClassConstructor.setItem(component);
       this.ProtocolModifierGetter.registerModifierProviders(protocol, {
@@ -83,7 +85,7 @@ export default class ProtocolDataProvider extends Utils {
           },
         ],
         onError: (err) => {
-          this.error(`Error in component: ${component.file} \n\t${err.message}`);
+          this.error(`Error in component: ${component.file}:${position.line}:${position.column} \n\t${err.message}`);
         }
       });
     });
