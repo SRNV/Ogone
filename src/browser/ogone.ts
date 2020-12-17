@@ -62,7 +62,6 @@ function _OGONE_BROWSER_CONTEXT() {
       // here we render the errors in development
       if (!this.errorPanel) {
         const p = document.createElement("div");
-        const h = document.createElement("div");
         Object.entries({
           zIndex: "5000000",
           background: "#00000097",
@@ -76,16 +75,7 @@ function _OGONE_BROWSER_CONTEXT() {
           display: "grid",
           flexDirection: "column",
         }).forEach(([key, value]) => p.style[key] = value);
-        h.style.width = "100vw";
-        h.style.position = "fixed";
-        h.style.background = "black";
-        h.style.bottom = "26px";
-        h.style.height = "20px";
-        h.style.left = "0px";
-        h.style.zIndex = "50000000";
         this.errorPanel = p;
-        this.errorPanel.append(h);
-        this.historyError = h;
       }
       this.errors++;
       const err = document.createElement("div");
@@ -105,7 +95,6 @@ function _OGONE_BROWSER_CONTEXT() {
       const code = document.createElement("code");
       const stack = document.createElement("code");
       const h = document.createElement("h4");
-      const errorPin = document.createElement("div");
       // set the text
       h.innerText = `[Ogone] Error ${errorId}: ${errorType ||
         "Undefined Type"}`;
@@ -136,17 +125,6 @@ function _OGONE_BROWSER_CONTEXT() {
       stack.style.border = "1px solid";
       stack.style.marginTop = "10px";
       h.style.color = "#8c8c8c";
-      errorPin.style.background = "red";
-      errorPin.style.width = "13px";
-      errorPin.style.height = errorPin.style.width;
-      errorPin.style.position = "fixed";
-      errorPin.style.bottom = "30px";
-      errorPin.style.zIndex = "50000000";
-      const relativePinPosition =
-        Math.round((this.firstErrorPerf / performance.now()) * 30) + 30;
-      errorPin.style.left = this.firstErrorPerf
-        ? `${relativePinPosition}px`
-        : "30px";
       if (!this.firstErrorPerf) {
         this.firstErrorPerf = performance.now();
       }
@@ -182,7 +160,6 @@ function _OGONE_BROWSER_CONTEXT() {
       // append elements
       err.append(h, code, stack);
       this.errorPanel.append(err);
-      this.errorPanel.append(errorPin);
       this.errorPanel.style.pointerEvents = "scroll";
       //  append only if it's not in the document
       !this.errorPanel.isConnected
