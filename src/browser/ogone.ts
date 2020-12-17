@@ -454,8 +454,9 @@ function _OGONE_BROWSER_CONTEXT() {
   }
   Ogone.useSpread = function(Onode: any) {
     const o = Onode.ogone, oc = o.component, op = oc.parent;
+    let reaction, parent;
     if (o.isTemplate && o.flags && o.flags.spread && op) {
-      const reaction = () => {
+      reaction = () => {
         const v = o.getContext({
           position: o.positionInParentComponent,
           getText: `{${o.flags.spread}}`,
@@ -465,9 +466,24 @@ function _OGONE_BROWSER_CONTEXT() {
         });
         return oc.activated;
       };
-      oc.parent.react.push(reaction);
-      reaction();
+      parent = oc.parent;
+    } else if (!o.isTemplate && o.flags && o.flags.spread) {
+      reaction = () => {
+        const v = o.getContext({
+          position: o.positionInParentComponent,
+          getText: `{${o.flags.spread}}`,
+        });
+        Object.entries(v).forEach(([k, value]) => {
+          for (let n of o.nodes) {
+            n.setAttribute(k, value);
+          }
+        });
+        return oc.activated;
+      };
+      parent = oc.react
     }
+    reaction && reaction();
+    parent && parent.react.push(reaction);
   }
   Ogone.setNodes = function (Onode: any) {
     const o = Onode.ogone, oc = o.component;
