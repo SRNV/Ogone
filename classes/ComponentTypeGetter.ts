@@ -93,7 +93,7 @@ export default class ComponentTypeGetter extends Utils {
             component.namespace = (proto.attributes.namespace as string);
           }
         }
-        if (["store", "controller", "router"].includes(type as string)) {
+        if (["store", "controller"].includes(type as string)) {
           // check if there is any forbidden element
           component.rootNode.childNodes
             .filter((child: XMLNodeDescription) => {

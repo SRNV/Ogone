@@ -84,29 +84,54 @@ export default class Constructor extends Utils {
         controller: false,
       },
     };
+    this.trace('Bundle created');
+
     // @code OCS1
     await this.ComponentsSubscriber.inspect(entrypoint, bundle);
+    this.trace('Subscriptions done');
+
     // @code OCB2
     await this.ComponentBuilder.read(bundle);
+    this.trace('Components created');
+
     // get the type for all the components
     this.ComponentTypeGetter.setTypeOfComponents(bundle);
+    this.trace('Components Protocol\'s Type Checking');
+
     // @code OIA3
     await this.ImportsAnalyzer.inspect(bundle);
+    this.trace('Imports Checking');
+
     // @code OCTLA5
     await this.ComponentTopLevelAnalyzer.switchRootNodeToTemplateNode(bundle);
+    this.trace('Root Node changed to the template node');
+
     // --for flag - creates sub context
     this.ForFlagBuilder.startAnalyze(bundle);
+    this.trace('Contexts analyzes done');
+
     // move back after second runtime
     await this.SwitchContextBuilder.startAnalyze(bundle);
+    this.trace('Switch block context created');
     // @code OPDP
     await this.ProtocolDataProvider.read(bundle);
+    this.trace('Component\'s data provided');
+
     this.ComponentTypeGetter.assignTypeConfguration(bundle);
+    this.trace('Last Component configurations');
+
     // @code OSAR6
     this.StoreArgumentReader.read(bundle);
+    this.trace('Store Components analyze done');
+
     // @code OSB7
     await this.StylesheetBuilder.read(bundle);
+    this.trace('Style Sheet done');
+
     // @code OCTLA5
     await this.ComponentTopLevelAnalyzer.cleanRoot(bundle);
+    this.trace('Component\'s Top level checked');
+
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);

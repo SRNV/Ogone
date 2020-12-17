@@ -411,7 +411,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     for (let n of o.nodes) {
       for (let p of o.nodeProps) {
-        t.push(() => {});t.push(() => r(n as HTMLElement, p));
+        oc.react.push(() => r(n as HTMLElement, p));
         r(n as HTMLElement, p);
       }
     }
@@ -480,11 +480,11 @@ function _OGONE_BROWSER_CONTEXT() {
     if (o.isTemplate && o.flags && o.flags.spread && op) {
       const reaction = () => {
         const v = o.getContext({
-          position: o.position,
+          position: o.positionInParentComponent,
           getText: `{${o.flags.spread}}`,
         });
-        Object.entries(v).forEach(([k, p]) => {
-          oc.data[k] !== p && oc.updateService(k, p);
+        Object.entries(v).forEach(([k, value]) => {
+          oc.updateService(k, value);
         });
         return oc.activated;
       };
@@ -887,7 +887,7 @@ function _OGONE_BROWSER_CONTEXT() {
           oc.update(k, ev);
         }
       });
-      t.push(() => {});t.push((dependency: string | boolean) =>
+      oc.react.push((dependency: string | boolean) =>
         r((n as TextElements), dependency)
       );
       r((n as TextElements), true);
@@ -913,7 +913,7 @@ function _OGONE_BROWSER_CONTEXT() {
       return n.isConnected;
     }
     for (let node of o.nodes) {
-      t.push(() => {});t.push(() => r(node as HTMLElement));
+      oc.react.push(() => r(node as HTMLElement));
       r(node as HTMLElement);
     }
   }
@@ -932,7 +932,7 @@ function _OGONE_BROWSER_CONTEXT() {
       return n.isConnected;
     }
     for (let node of o.nodes) {
-      t.push(() => {});t.push(() => r(node as HTMLElement));
+      oc.react.push(() => r(node as HTMLElement));
       r(node as HTMLElement);
     }
   }
@@ -955,7 +955,7 @@ function _OGONE_BROWSER_CONTEXT() {
       return n.isConnected;
     }
     for (let n of o.nodes) {
-      t.push(() => {});t.push(() => r(n as HTMLElement));
+      oc.react.push(() => r(n as HTMLElement));
       r(n as HTMLElement);
     }
   }

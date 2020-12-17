@@ -31,8 +31,12 @@ export default class StylesheetBuilder extends Utils {
   private Style: Style = new Style();
   async read(bundle: Bundle) {
     const entries = Array.from(bundle.components.entries());
+    this.trace('start component style analyze');
+
     for await (const [, component] of entries) {
       const { styles } = component.elements;
+      this.trace('start style node analyze');
+
       for await (const element of styles) {
         let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
         const isGlobal = element.attributes.global;
@@ -46,7 +50,6 @@ export default class StylesheetBuilder extends Utils {
           const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
             src.split("://")[0],
           );
-          const lang = (element.attributes.lang || "css") as string;
           // allows <syle src="path/to/style.css"
           if (src.length && !component.remote) {
             const p = existsSync(src)
@@ -85,6 +88,8 @@ export default class StylesheetBuilder extends Utils {
                 );
             }
           }
+          this.trace('end style element analyze, start assignment');
+
           switch (element.attributes.lang) {
             default:
               compiledCss = styleContent as string;
@@ -93,7 +98,11 @@ export default class StylesheetBuilder extends Utils {
           if (element.attributes['--keyframes']) {
             compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
           }
+
+          this.trace('start component style transformations');
           compiledCss = await this.Style.read(compiledCss, bundle, component);
+
+          this.trace('end component style transformations, start mapStyleBundle assignment');
           component.mapStyleBundle = this.Style.mapStyleBundle;
           const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
           component.style.push(css);

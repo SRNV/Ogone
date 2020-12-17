@@ -46,6 +46,7 @@ export default class TSXContextCreator extends Utils {
       sourceMap: false,
       strictFunctionTypes: true,
     });
+    Deno.removeSync(newpath);
     ModuleErrors.checkDiagnostics(component, diags as unknown[], () => {
       Deno.removeSync(newpath);
     });

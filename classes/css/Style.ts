@@ -12,6 +12,8 @@ import StyleMemory from './StyleMemory.ts';
  */
 export default class Style extends StyleMemory {
   public async read(css: string, bundle: Bundle, component: Component): Promise<string> {
+    this.trace('getting new style bundle');
+
     const styleBundle: StyleBundle = await this.getNewStyleBundle(css, bundle, component);
     this.mapStyleBundle.set("k" + Math.random(), styleBundle);
     return styleBundle.value;

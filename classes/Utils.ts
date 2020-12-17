@@ -6,6 +6,16 @@ export abstract class Utils {
   protected getDeepTranslation = getDeepTranslation;
   protected static getDeepTranslation = getDeepTranslation;
   protected absolute = absolute;
+  trace(message: string) {
+    if (Deno.args.includes('--ogone-trace')) {
+      this.message(`${this.constructor.name} ${message}`);
+    }
+  }
+  static trace(message: string) {
+    if (Deno.args.includes('--ogone-trace')) {
+      this.message(`${this.constructor.name} ${message}`);
+    }
+  }
   public warn(message: string, opts?: { [k: string]: any }): void {
     const { bgYellow, bold, black, yellow } = colors;
     this.message(`${bgYellow(bold(black("   WARN  ")))} ${yellow(message)}`);

@@ -120,7 +120,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     }
   };
   this.updateService = (key: string, value: unknown) => {
-    if (!this.activated) return;
     if (this.data && value !== this.data[key]) {
       const previous = this.data[key];
       this.data[key] = value;
@@ -144,6 +143,18 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         this.pluggedWebComponent.attributeChangedCallback(key, previous, value);
       }
       this.update(key);
+      if (this.type === "async") {
+        if (!this.dependencies) return;
+        if (
+          key &&
+          this.dependencies.find((d: string) => d.indexOf(key) > -1)
+        ) {
+          // let the user rerender
+          this.runtime("async:update", {
+            updatedParentProp: key,
+          });
+        }
+      }
     }
   };
   this.updateProps = (dependency: string) => {
@@ -159,20 +170,8 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         getText: `${prop[1]}`,
         position: this.positionInParentComponent,
       });
-      this.updateService(key, value);
       if (this.data && value !== this.data[key]) {
-        if (this.type === "async") {
-          if (!this.dependencies) return;
-          if (
-            dependency &&
-            this.dependencies.find((d: string) => d.indexOf(dependency) > -1)
-          ) {
-            // let the user rerender
-            this.runtime("async:update", {
-              updatedParentProp: dependency,
-            });
-          }
-        }
+        this.updateService(key, value);
       }
     });
   };

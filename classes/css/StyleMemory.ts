@@ -90,9 +90,17 @@ export default class StyleMemory extends StyleOutput {
         }
       },
     };
+    this.trace(`Style bundle created for component: ${component.file}`);
+
     this.getTokens(styleBundle, bundle, component);
+    this.trace('All tokens analyze done');
+
     await this.getImports(styleBundle, bundle, component);
+    this.trace(`All imports saved for component: ${component.file}`);
+
     this.getVars(styleBundle, bundle, component);
+    this.trace(`Style variables saved`);
+
     styleBundle.value = this.getRules(styleBundle.value, styleBundle, bundle, component).value;
     // read rules
     this.getOutput(styleBundle, bundle, component);
@@ -101,25 +109,28 @@ export default class StyleMemory extends StyleOutput {
   protected async getImports(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
     const entries = Object.entries(component.imports);
     for await (const [tag, filePath] of entries) {
-      const subcomp = bundle.components.get(filePath);
-      if (!subcomp) {
-        this.error(`${component.file}\n\tStyle Use Error while fetching component: component not found.\n\tinput: ${tag}`);
-      } else {
-        styleBundle.mapImports.set(tag, {
-          name: tag,
-          tag,
-        });
-        const item = styleBundle.mapImports.get(tag)
-        if (item) {
-          item.bundle = await this.getNewStyleBundle(
-            subcomp.elements.styles.map((style) => {
-              if (style.getInnerHTML) {
-                return style.getInnerHTML();
-              }
-            }).join('\n'),
-            bundle,
-            subcomp,
-          );
+      // for recursive component
+      if (filePath !== component.file) {
+        const subcomp = bundle.components.get(filePath);
+        if (!subcomp) {
+          this.error(`${component.file}\n\tStyle Use Error while fetching component: component not found.\n\tinput: ${tag}`);
+        } else {
+          styleBundle.mapImports.set(tag, {
+            name: tag,
+            tag,
+          });
+          const item = styleBundle.mapImports.get(tag)
+          if (item) {
+            item.bundle = await this.getNewStyleBundle(
+              subcomp.elements.styles.map((style) => {
+                if (style.getInnerHTML) {
+                  return style.getInnerHTML();
+                }
+              }).join('\n'),
+              bundle,
+              subcomp,
+            );
+          }
         }
       }
     }
