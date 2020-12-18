@@ -41,16 +41,16 @@ export default {
                     ${yellow('[optional]')} is set by default if the ${green('declare')} modifier is used.`)}
 
             - ${green('feat')}: start tuning your webcomponents with Ogone, by using the attribute (${green('is')}) on the template element.
-              example:
-                ${exampleFormat(`<template ${green('is="my-awesome-webcomponent"')} />`)}
+                example:
+                  ${exampleFormat(`<template ${green('is="my-awesome-webcomponent"')} />`)}
 
-              you can also set the attribute (${green('engine')}) to your proto element and add the argument (${green('sync-template')})
-              this will tell to Ogone to update the webcomponent's data when the component is updated.
-              example: ${exampleFormat(`
-                <template ${green('is="my-awesome-webcomponent"')} />
-                <proto ${green('engine="sync-template"')}>
-                  // ...
-                </proto>`)}
-              by default Ogone uses the method (${green('attributeChangedCallback')}) when any property is updated.
+                you can also set the attribute (${green('engine')}) to your proto element and add the argument (${green('sync-template')})
+                this will tell to Ogone to update the webcomponent's data when the component is updated.
+                example: ${exampleFormat(`
+                  <template ${green('is="my-awesome-webcomponent"')} />
+                  <proto ${green('engine="sync-template"')}>
+                    // ...
+                  </proto>`)}
+                by default Ogone uses the method (${green('attributeChangedCallback')}) when any property is updated.
   `,
 }
