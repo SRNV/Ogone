@@ -22,6 +22,8 @@ export default {
                 you will now have to type this:
                   ${green('--for={item of this.array}')}
 
+            - ${blue('chore')}: Ogone will start using workers, the first one is set for the local server.
+
             - ${green('feat')}: using JSX syntax on components allows us to spread any object.
                 this is the same as adding the spread flag (${green('--spread')})
                 example:${exampleFormat(`
@@ -37,6 +39,7 @@ export default {
 
                   <proto ${green('engine="proxy-reaction"')} /> will tell to Ogone to use a proxy.
                     ${yellow('[optional]')} is set by default if the ${green('declare')} modifier is used.`)}
+
             - ${green('feat')}: start tuning your webcomponents with Ogone, by using the attribute (${green('is')}) on the template element.
               example:
                 ${exampleFormat(`<template ${green('is="my-awesome-webcomponent"')} />`)}
