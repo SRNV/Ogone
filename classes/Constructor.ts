@@ -12,7 +12,6 @@ import { Utils } from "./Utils.ts";
 import ProtocolDataProvider from './ProtocolDataProvider.ts';
 import ComponentTypeGetter from './ComponentTypeGetter.ts';
 import ForFlagBuilder from './ForFlagBuilder.ts';
-import TSXContextCreator from './TSXContextCreator.ts';
 
 /**
  * @name Constructor
@@ -22,13 +21,6 @@ import TSXContextCreator from './TSXContextCreator.ts';
  * ```ts
  *  Constructor.getBundle(entrypoint: string): Promise<Bundle>
  * ```
- * @dependency ComponentsSubscriber
- * @dependency ComponentBuilder
- * @dependency ImportsAnalyzer
- * @dependency ComponentTopLevelAnalyzer
- * @dependency StoreArgumentReader
- * @dependency StylesheetBuilder
- * @dependency RuntimeCompiler
  */
 export default class Constructor extends Utils {
   private StoreArgumentReader: StoreArgumentReader =
@@ -40,7 +32,6 @@ export default class Constructor extends Utils {
   private SwitchContextBuilder: SwitchContextBuilder = new SwitchContextBuilder();
   private NodeAnalyzerCompiler: NodeAnalyzerCompiler = new NodeAnalyzerCompiler();
   private StylesheetBuilder: StylesheetBuilder = new StylesheetBuilder();
-  private TSXContextCreator: TSXContextCreator = new TSXContextCreator();
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   /**
    * saves modules and imported components inside component.imports[index]: string;
@@ -135,7 +126,6 @@ export default class Constructor extends Utils {
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
-    this.TSXContextCreator.read(bundle);
     return bundle;
   }
 }

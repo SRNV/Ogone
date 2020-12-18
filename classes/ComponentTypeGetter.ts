@@ -37,7 +37,7 @@ export default class ComponentTypeGetter extends Utils {
           component.data[key] = null;
         });
       }
-      if(proto) {
+      if (proto) {
         const { type } = component as Component;
         if (!Ogone.allowedTypes.includes(type as string)) {
           this.error(
@@ -47,32 +47,35 @@ export default class ComponentTypeGetter extends Utils {
           );
         }
         if (type === "controller") {
-          const run = eval(component.scripts.runtime);
-          if (run) {
-            const namespace = proto.attributes.namespace;
-            if (namespace && /[^\w]/gi.test(namespace as string)) {
-              const char = (namespace as string).match(/[^\w]/);
-              this.error(
-                `forbidden character in namespace found. please remove it.\ncomponent: ${component.file}\ncharacter: ${char}`,
-              );
-            }
-            if (namespace && (namespace as string).length) {
-              // set the component type, default is null
-              component.namespace = (namespace as string);
-            } else {
-              this.error(
-                `${component.file}:${position.line}:${position.column}\n\tproto's namespace is missing in ${type} component.\nplease set the attribute namespace, this one can't be empty.`,
-              );
-            }
-            const comp = {
-              ns: component.namespace,
-              data: component.data,
-              runtime: (_state: any, ctx: any) => { },
-            };
-            comp.runtime = run.bind(comp.data);
-            // save the controller
-            Ogone.controllers[comp.ns as string] = comp;
+          const namespace = proto.attributes.namespace;
+          if (namespace && /[^\w]/gi.test(namespace as string)) {
+            const char = (namespace as string).match(/[^\w]/);
+            this.error(
+              `${component.file}:${position.line}:${position.column}\n\tforbidden character in namespace found. please remove it.\ncharacter: ${char}`,
+            );
           }
+          if (namespace && (namespace as string).length) {
+            // set the component type, default is null
+            component.namespace = (namespace as string);
+          } else {
+            this.error(
+              `${component.file}:${position.line}:${position.column}\n\tproto's namespace is missing in ${type} component.\nplease set the attribute namespace, this one can't be empty.`,
+            );
+          }
+          // TODO add possibility to import modules
+          const comp = {
+            namespace: component.namespace,
+            protocol: `(${component.context.protocolClass})`,
+            runtime: `(${component.scripts.runtime})`,
+            file: component.file,
+          };
+          if (Ogone.controllers[comp.namespace as string]) {
+            this.error(
+              `${component.file}:${position.line}:${position.column}\n\tnamespace already used`,
+            );
+          }
+          // save the controller
+          Ogone.controllers[comp.namespace as string] = comp;
         }
         if (type === "router") {
           if(!component.data.routes) {

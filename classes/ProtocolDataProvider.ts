@@ -96,7 +96,7 @@ export default class ProtocolDataProvider extends Utils {
       await this.DefinitionProvider.setDataToComponentFromFile(component);
     }
   }
-    // set the automatic reactivity helper
+  // set the automatic reactivity helper
   // protocolReactivity will add a function after all AssignmentPattern
   setReactivity(text: string) {
     return this.ProtocolReactivity.getReactivity({ text });

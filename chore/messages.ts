@@ -6,20 +6,7 @@ function exampleFormat(txt: string) {
 export default {
   "0.27.0": `${red('BREAKING: use statement is no more supported, please use instead the syntax : import component ComponentName from \'...\'')}`,
   "0.28.0": `
-            - ${green('feat')}: start tuning your webcomponents with Ogone, by using the attribute (${green('is')}) on the template element.
-                example:
-                  ${exampleFormat(`<template ${green('is="my-awesome-webcomponent"')} />`)}
-
-                you can also set the attribute (${green('engine')}) to your proto element and add the argument (${green('sync-template')})
-                this will tell to Ogone to update the webcomponent's data when the component is updated.
-                example: ${exampleFormat(`
-                  <template ${green('is="my-awesome-webcomponent"')} />
-                  <proto ${green('engine="sync-template"')}>
-                    // ...
-                  </proto>`)}
-                by default Ogone uses the method (${green('attributeChangedCallback')}) when any property is updated.
-
-            - ${red(`BREAKING: ${white('also Ogone is changing it\'s style,')} we will now follow the JSX syntax for props and flags, using curly braces instead of quotes`)}:
+            - ${red(`BREAKING: ${white('Ogone is changing it\'s style,')} we will now follow the JSX syntax for props and flags, using curly braces instead of quotes`)}:
                 basically this means instead typing this:
                   ${red(':item="this.item"')}
                 you will now have to type this:
@@ -50,6 +37,17 @@ export default {
 
                   <proto ${green('engine="proxy-reaction"')} /> will tell to Ogone to use a proxy.
                     ${yellow('[optional]')} is set by default if the ${green('declare')} modifier is used.`)}
+            - ${green('feat')}: start tuning your webcomponents with Ogone, by using the attribute (${green('is')}) on the template element.
+              example:
+                ${exampleFormat(`<template ${green('is="my-awesome-webcomponent"')} />`)}
 
+              you can also set the attribute (${green('engine')}) to your proto element and add the argument (${green('sync-template')})
+              this will tell to Ogone to update the webcomponent's data when the component is updated.
+              example: ${exampleFormat(`
+                <template ${green('is="my-awesome-webcomponent"')} />
+                <proto ${green('engine="sync-template"')}>
+                  // ...
+                </proto>`)}
+              by default Ogone uses the method (${green('attributeChangedCallback')}) when any property is updated.
   `,
 }

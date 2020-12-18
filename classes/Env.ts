@@ -8,13 +8,21 @@ import { join } from "../deps.ts";
 import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
 import WebComponentExtends from "./WebComponentExtends.ts";
+import TSXContextCreator from "./TSXContextCreator.ts";
 export default class Env extends Constructor {
-  private bundle: Bundle | null = null;
+  protected bundle: Bundle | null = null;
   public env: Environment = "development";
   public devtool?: boolean;
   public static _devtool?: boolean;
   public static _env: Environment = "development";
   public WebComponentExtends: WebComponentExtends = new WebComponentExtends();
+  protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
+
+  // workers
+  protected serviceDev = new Worker(new URL("../workers/server-dev.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
   constructor() {
     super();
     this.devtool = Configuration.devtool;
@@ -244,6 +252,7 @@ export default class Env extends Constructor {
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `
         import test from "./test.js"
+import TSXContextCreator from './TSXContextCreator';
         `,
         "test.js": "export default 10;",
       }, {

@@ -29,35 +29,6 @@ export default class Ogone extends EnvServer {
     }
     Configuration.setConfig(opts);
     Ogone.main = `${Deno.cwd()}${Configuration.entrypoint}`;
-    const port: number = Configuration.port;
-    const modulesPath: string = Configuration.modules;
-    // open the server
-    const server = serve({ port });
-
-    // start rendering Ogone system
-    if (!Configuration.entrypoint || !existsSync(Configuration.entrypoint)) {
-      server.close();
-      this.error(
-        `can't find entrypoint, please specify a correct path. input: ${Configuration.entrypoint}`,
-      );
-    }
-    if (!modulesPath || !existsSync(modulesPath.slice(1))) {
-      server.close();
-      this.error(
-        "can't find modules, please specify in options a correct path: run({ modules: '/path/to/modules' }). \nnote: the path should be absolute",
-      );
-    }
-    if (!Configuration.modules.startsWith("/")) {
-      server.close();
-      this.error(
-        "modules path has to start with: /",
-      );
-    }
-    if (!("port" in Configuration) || typeof Configuration.port !== "number") {
-      this.error(
-        "please provide a port for the server. it has to be a number.",
-      );
-    }
     // message for contributions, ideas, issues and any help.
     Object.entries(this.contributorMessage)
       .map(([version, message]: any) => this.message(`[${version}] ${message}`))
@@ -78,6 +49,8 @@ export default class Ogone extends EnvServer {
         .then(async () => {
           //start compilation of o3 files
           const b = await this.getBuild();
+          /*
+          TODO use workers for build
           const application = `${opts.build}/index.html`;
           Deno.writeTextFileSync(application, b as string);
           this.success(
@@ -89,15 +62,15 @@ export default class Ogone extends EnvServer {
             server.close();
             Deno.exit();
           }
+          */
         });
     } else {
       //start compilation of o3 files
       this.setDevTool(Configuration.devtool as boolean);
       this.compile(Configuration.entrypoint, true)
         .then(() => {
-
           // Ogone is now ready to serve
-          this.use(server, port);
+          this.startDevelopment();
         });
     }
   }

@@ -2,7 +2,7 @@
   declare:
     public name: string = "SRNV";
   case 'GET:/':
-    return 'Hello Deno!';
+    return `Hello ${this.name}`;
   case 'GET:/2':
     return '<h1> test </h1>';
 </proto>
