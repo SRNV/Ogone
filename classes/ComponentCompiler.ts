@@ -170,7 +170,7 @@ export default class ComponentCompiler extends Utils {
             && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction) ?
           // setReactivity will transform the instance to a proxy
           `Ogone.setReactivity({% dataSource %}, (prop) => this.update(prop))`
-          // if the end user uses def modifier, the reactivity is inline
+          // if the end user usesthe def modifier, the reactivity is inline
           : '{% dataSource %}',
         runtime,
         controllerDef: component.type === "store" ? controllerDef : "",
