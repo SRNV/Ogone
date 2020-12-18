@@ -21,8 +21,6 @@ export type Controllers = {
 let controllers: Controllers = {};
 
 async function control(req: any): Promise<boolean> {
-  // TODO fix it
-  // TODO need a new way to add controllers
   const ns = req.url.slice(1).split("/")[0];
   if (req.url.indexOf("/") > -1 && req.url.startsWith(`/${ns}/`)) {
     const controller = controllers[ns] || controllers[`/${ns}`];
