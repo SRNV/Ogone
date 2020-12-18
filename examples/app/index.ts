@@ -7,7 +7,6 @@ o3.run({
   devtool: false,
   static: "./public",
   port: 8052,
-  modules: "/examples/modules",
   head: `
   <link href="/style.css" rel="stylesheet"/>
   <link href="/animations.css" rel="stylesheet"/>

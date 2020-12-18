@@ -23,11 +23,6 @@ export interface OgoneConfiguration {
   static?: string;
 
   /**
-   * @property modules
-   * @description path to all modules, this is usefull for the hmr
-   */
-  modules: string;
-  /**
    * @property head
    * @description insert tags in the <head> of the html
    */
