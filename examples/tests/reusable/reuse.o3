@@ -1,8 +1,7 @@
 require count as number;
 require name as string;
 
-<template
-  is="other-component">
+<template is="test-el:div">
 </template>
 <proto
   type="component"

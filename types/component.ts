@@ -46,6 +46,7 @@ export interface OnodeComponent {
   renderTexts(dependency: string | boolean): void;
   parentContext(ctx: any): any;
   plugWebComponent(webcomponent: any, isSync: boolean): any;
+  destroyPluggedWebcomponent(): void;
 }
 export interface ComponentItem {
   name: string;

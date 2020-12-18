@@ -3,11 +3,6 @@ import Ogone from "./Ogone.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
 import Workers from '../enums/workers.ts';
-
-/**
- * class to manage the environments of your application
- * @extends Env
- */
 export default class EnvServer extends Env {
   public async startDevelopment(): Promise<void> {
     this.serviceDev.postMessage({

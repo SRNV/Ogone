@@ -1,6 +1,7 @@
 import component Reuse from './reuse.o3';
 import component DefTest from './DefTest.o3';
 import ComponentModule from './component-module.ts';
+import Enum from 'https://deno.land/x/enum/index.js'
 
 <template>
   a re-used webcomponent: <Reuse { ...this.prop} />
@@ -15,6 +16,7 @@ import ComponentModule from './component-module.ts';
     };
   default:
     setInterval(() => this.prop.count++, 100);
+    console.warn(Enum);
     customElements.define('other-component', ComponentModule);
     break;
 </proto>

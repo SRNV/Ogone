@@ -97,7 +97,7 @@ self.onmessage = async (e: any): Promise<void> => {
     );
   }
   Utils.trace(`Worker: Dev Server available on http://localhost:${Configuration.port}/`);
-  Utils.success(`Application running: http://localhost:${Configuration.port}/`);
+  Utils.success(`Your application is running here: http://localhost:${Configuration.port}/`);
   self.postMessage(Workers.SERVICE_DEV_READY);
 
   for await (const req of server) {

@@ -47,9 +47,7 @@ export default class TSXContextCreator extends Utils {
       strictFunctionTypes: true,
     });
     Deno.removeSync(newpath);
-    ModuleErrors.checkDiagnostics(component, diags as unknown[], () => {
-      Deno.removeSync(newpath);
-    });
+    ModuleErrors.checkDiagnostics(component, diags as unknown[]);
     this.success(
       `${green(component.file)} - ${gray(Math.round(performance.now() - startPerf) + ' ms')}`,
     );

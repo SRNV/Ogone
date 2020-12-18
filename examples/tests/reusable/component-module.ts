@@ -1,3 +1,11 @@
+customElements.define('test-el', class extends HTMLDivElement {
+  constructor() {
+    super();
+    console.warn('div extended')
+  }
+}, {
+  extends: 'div'
+});
 export default class A extends HTMLElement {
   count: number = 10;
   text: Text;

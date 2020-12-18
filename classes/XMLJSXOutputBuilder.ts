@@ -108,6 +108,7 @@ export default class XMLJSXOutputBuilder extends Utils {
       const constants = idList.map(([k, v]: [string, string]) => `${k} = ${v}`);
       nodeSuperCreation = `const ${constants};`;
     }
+    const reuseStatement = component.context.reuse;
     return this.template(
       `
               {% start %}
@@ -136,10 +137,11 @@ export default class XMLJSXOutputBuilder extends Utils {
         isAsync: !!isImported && !!subcomp && subcomp.type === "async",
         isRouter: !!isImported && !!subcomp && subcomp.type === "router",
         isStore: !!isImported && !!subcomp && subcomp.type === "store",
-        recycleWebcomponent: isRoot && component.context.reuse ? `
+        recycleWebcomponent: isRoot && reuseStatement ? `
           Ogone.recycleWebComponent({% nId %}, {
             id: '${idComponent}',
-            name: '${component.context.reuse}',
+            name: '${reuseStatement.split(':')[0]}',
+            extends: '${reuseStatement.split(':')[1]}',
             component: ctx,
             isSync: ${component.context.engine.includes(ComponentEngine.TemplateSyncWithWebcomponent)},
           });

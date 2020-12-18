@@ -183,6 +183,15 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     this.pluggedWebComponent = wc;
     this.pluggedWebComponentIsSync = isSync;
   };
+  this.destroyPluggedWebcomponent = () => {
+    if (this.pluggedWebComponent && typeof this.pluggedWebComponent.beforeDestroy === 'function') {
+      this.pluggedWebComponent.beforeDestroy();
+    }
+    if (this.pluggedWebComponent) {
+      this.pluggedWebComponent = false;
+      this.pluggedWebComponentIsSync = false;
+    }
+  };
   this.render = (
     Onode: Template, /** original node */
     opts: OnodeComponentRenderOptions,

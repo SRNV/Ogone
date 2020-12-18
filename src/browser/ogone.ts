@@ -174,13 +174,19 @@ function _OGONE_BROWSER_CONTEXT() {
   Ogone.imp = async function (id, url) {
     if (Ogone.mod[id]) return;
     try {
-      const mod = await import(`/?import=${url}`);
-      Ogone.mod[id] = mod;
-      return mod;
+    if (!url) {
+        const mod = await import(id);
+        Ogone.mod[id] = mod;
+        return mod;
+      } else {
+        const mod = await import(`/?import=${url}`);
+        Ogone.mod[id] = mod;
+        return mod;
+      }
     } catch (err) {
       Ogone.error(err.message, "Error in Dynamic Import", {
         message: `
-        module's url: ${url}
+        module's url: ${id}
         `,
       });
     }
@@ -452,7 +458,7 @@ function _OGONE_BROWSER_CONTEXT() {
     }
     oc.updateProps();
   }
-  Ogone.useSpread = function(Onode: any) {
+  Ogone.useSpread = function (Onode: any) {
     const o = Onode.ogone, oc = o.component, op = oc.parent;
     let reaction, parent;
     if (o.isTemplate && o.flags && o.flags.spread && op) {
@@ -564,6 +570,7 @@ function _OGONE_BROWSER_CONTEXT() {
     });
     Ogone.removeNodes(Onode);
     if (o.isTemplate) {
+      oc.destroyPluggedWebcomponent();
       oc.runtime("destroy");
       oc.activated = false;
     }
@@ -1428,15 +1435,24 @@ function _OGONE_BROWSER_CONTEXT() {
   /**
    * recycle feature utils
    */
-  Ogone.recycleWebComponent = function(Onode: any, opts: {
+  Ogone.recycleWebComponent = function (Onode: any, opts: {
     injectionStyle: 'append' | 'preprend';
     id: string;
     name: string;
     component: any;
     isSync: boolean;
+    extends?: string;
   } = { injectionStyle: 'append' }): boolean {
     const { injectionStyle, id, name, component, isSync } = opts;
-    const webcomponent = document.createElement(name);
+    let webcomponent;
+    if (opts.extends) {
+      const original = opts.extends;
+      webcomponent = document.createElement(original, {
+        is: name,
+      });
+    } else {
+      webcomponent = document.createElement(name);
+    }
     // webcomponent preparation
     webcomponent.setAttribute(id, '');
     // inject the webcomponent into the template
