@@ -56,8 +56,6 @@ export default class CSSScoper {
         }
       });
     }
-    /*
-        */
     // replace only blocks
     while (
       Object.keys(expressions).filter((k) => k.startsWith("block")).find((

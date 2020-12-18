@@ -216,6 +216,7 @@ export default class Env extends Constructor {
    * including HTML CSS and JS
    */
   public async getBuild() {
+    // TODO use worker instead
     this.error(`\nbuild is not yet ready.\nwaiting for a fix on the ts compiler\nplease check this issue: https://github.com/denoland/deno/issues/7054`);
     let Style = '';
     if (!this.bundle) return;
@@ -252,7 +253,6 @@ export default class Env extends Constructor {
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `
         import test from "./test.js"
-import TSXContextCreator from './TSXContextCreator';
         `,
         "test.js": "export default 10;",
       }, {

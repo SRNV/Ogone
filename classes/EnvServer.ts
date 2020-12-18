@@ -1,7 +1,4 @@
-import type { Server } from "../deps.ts";
-import { getHeaderContentTypeOf } from "../utils/extensions-resolution.ts";
 import Ogone from "./Ogone.ts";
-import { existsSync } from "./../utils/exists.ts";
 // import HMR from "../lib/hmr/index.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
