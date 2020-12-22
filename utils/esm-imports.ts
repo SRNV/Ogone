@@ -52,6 +52,7 @@ const esm: ProtocolScriptRegExpList = [
           'remote';
         typedExpressions.imports[id] = {
           key: id,
+          uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
           value,
           path,
           type,
@@ -103,6 +104,7 @@ const esm: ProtocolScriptRegExpList = [
         typedExpressions.imports[id] = {
           key: id,
           type,
+          uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
           isComponent: !!isComponent,
           ambient: false,
           allAs: importDescription.hasAllAs,

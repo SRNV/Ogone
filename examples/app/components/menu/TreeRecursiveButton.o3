@@ -15,7 +15,10 @@ require item as {
 
 <template>
   <div class="container">
-    <div class="title" --click:toggle --router-go={this.item.route}>
+    <div
+      class="title"
+      --click:toggle
+      --router-go={this.item.route}>
       <span>
       ${this.item.name}
       </span>

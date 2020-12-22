@@ -4,6 +4,12 @@ import component MenuContent from '@/examples/app/components/menu/MenuContent.o3
 import component MenuMain from '@/examples/app/components/menu/MenuMain.o3';
 import component RouterComponent from '@/examples/app/routers/Router.o3';
 
+
+/**
+ *  @name Application
+ *  @description
+ *    example of an Ogone web app
+ */
 <template>
   <div ref="header" class="header">
     <div class="logo">
@@ -16,7 +22,6 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
   <MenuMain />
   <RightSection {...this} />
 </template>
-
 <proto>
   declare:
     public scrollY: number = 0
@@ -37,7 +42,6 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
     });
     break;
 </proto>
-
 <style>
   h1, h2, h3, h4 {
     color: #193b48;

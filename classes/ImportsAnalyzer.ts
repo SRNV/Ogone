@@ -1,4 +1,4 @@
-import type { Bundle } from "../.d.ts";
+import type { Bundle, ImportDescription } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import AssetsParser from './AssetsParser.ts';
 /**
@@ -34,6 +34,7 @@ export default class ImportsAnalyzer extends Utils {
           const importBody = this.AssetsParser.parseImportStatement(declarations);
           if (importBody.body && importBody.body.imports) {
             const { imports } = importBody.body;
+            component.deps = (Object.values(imports) as ImportDescription[]).filter((imp: ImportDescription) => !imp.isComponent) as ImportDescription[];
             component.dynamicImportsExpressions = Object.entries(imports)
               .filter(([key, imp]: [string, any]) => !imp.path.endsWith('.o3'))
               .map(
@@ -115,6 +116,7 @@ export default class ImportsAnalyzer extends Utils {
                     `component name already in use. please use the following syntax:
 
                       import component ${tagName}2 from '${item.path}'
+import { ImportDescription } from '../';
 
                       input: import component ${item.defaultName} from ${item.path}
                       component: ${component.file}

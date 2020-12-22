@@ -76,6 +76,24 @@ interface Local {
   item: any | null;
   parent: string;
 }
+export interface ImportDescription {
+  key: string;
+  uuid: string;
+  default: boolean;
+  isComponent?: boolean;
+  defaultName: string | null;
+  ambient: boolean;
+  allAs: boolean;
+  allAsName: string | null;
+  path: string;
+  type?: string;
+  object: boolean;
+  members: ({ name: string, alias: string })[];
+  value: string;
+  static: (namespace: string) => string;
+  dynamic: (importFn: string, namespace: string) => string;
+  getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
+}
 export interface Bundle {
   files: Local[];
   remotes: Remote[];
@@ -120,6 +138,7 @@ export interface Component {
   data: { [key: string]: any };
   rootNode: XMLNodeDescription;
   imports: MapIndexable;
+  deps: ImportDescription[];
   requirements: [string, [string]][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
@@ -289,23 +308,7 @@ export interface TypedExpressions {
   parentheses: MapIndexable;
   setters: MapIndexable;
   imports: {
-    [k: string]: {
-      key: string;
-      default: boolean;
-      isComponent?: boolean;
-      defaultName: string | null;
-      ambient: boolean;
-      allAs: boolean;
-      allAsName: string | null;
-      path: string;
-      type?: string;
-      object: boolean;
-      members: ({ name: string, alias: string })[];
-      value: string;
-      static: (namespace: string) => string;
-      dynamic: (importFn: string, namespace: string) => string;
-      getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
-    }
+    [k: string]: ImportDescription;
   };
   exports: {
     [k: string]: {

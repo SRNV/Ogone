@@ -51,6 +51,7 @@ export default class ComponentBuilder {
         runtime: "function run(){};",
       },
       imports: {},
+      deps: [],
       flags: [],
       for: {},
       refs: {},

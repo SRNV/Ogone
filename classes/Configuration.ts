@@ -77,7 +77,6 @@ export abstract class Configuration {
     Configuration.entrypoint = config.entrypoint;
     Configuration.port = config.port;
     Configuration.static = config.static;
-    Configuration.modules = config.modules;
     Configuration.head = config.head;
     Configuration.controllers = config.controllers;
     Configuration.devtool = config.devtool;

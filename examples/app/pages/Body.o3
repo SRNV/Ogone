@@ -2,12 +2,13 @@ import component ContentPage from '@/examples/app/components/ContentPage.o3';
 
 <template>
   <div class="container">
-    <ContentPage --for={article of this.articles} {...article} />
+    <ContentPage
+      --for={article of this.articles}
+      {...article} />
   </div>
 </template>
 
 <proto def="examples/app/defs/body.proto.yml" />
-
 <style>
   .container {
     height: auto;

@@ -757,12 +757,10 @@ function _OGONE_BROWSER_CONTEXT() {
                 }
               });
           }
-          /*
       } else if (flag.name === 'router-dev-tool' && flag.eval)  { // special for router-dev-tool flag
         node.addEventListener("click", (ev) => {
           Ogone.router.openDevTool();
         });
-      */
         } else if (flag.name === "event" && flag.type.startsWith('animation')) {
           if (node.ogone) {
             Ogone.saveUntilRender(node, (nr: HTMLElement) => {

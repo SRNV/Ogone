@@ -1,3 +1,11 @@
+
+/**
+ *  @name AsyncLogo
+ *  @description
+ *    this component will render after the image is loaded
+ *  @example
+      Async.resolve(undefined)
+ */
 <template>
   <div class="container">
     <div class="logo-back">
@@ -5,13 +13,11 @@
     </div>
   </div>
 </template>
-
 <proto type="async">
   default:
     Async.resolve();
     break;
 </proto>
-
 <style>
   .img {
     width: auto;
