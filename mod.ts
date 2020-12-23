@@ -13,6 +13,7 @@ import { Configuration } from "./classes/Configuration.ts";
 import XMLParser from './classes/XMLParser.ts';
 import AssetsParser from './classes/AssetsParser.ts';
 import ComponentBuilder from './classes/ComponentBuilder.ts';
+import DefinitionProvider from './classes/DefinitionProvider.ts';
 import { MapPosition } from './classes/MapPosition.ts';
 import StylesheetBuilder from './classes/StylesheetBuilder.ts';
 import { Utils } from './classes/Utils.ts';
@@ -34,6 +35,7 @@ export {
   ProtocolDataProvider,
   ProtocolModifierGetter,
   ProtocolReactivity,
+  DefinitionProvider
 };
 export default {
   async run(opts: OgoneConfiguration): Promise<void> {
