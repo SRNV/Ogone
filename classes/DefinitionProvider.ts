@@ -1,5 +1,6 @@
 import type { Component, ModifierContext } from '../.d.ts';
-import { join, absolute, existsSync, fetchRemoteRessource, YAML } from '../deps.ts';
+import { join, absolute, existsSync, fetchRemoteRessource } from '../deps.ts';
+import { YAML } from '../dep-yaml.ts';
 import { MapPosition } from "./MapPosition.ts";
 import { Utils } from './Utils.ts';
 

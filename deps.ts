@@ -13,7 +13,6 @@ export {
   WebSocketServer,
 } from "https://deno.land/x/websocket@v0.0.3/mod.ts";
 */
-export * as YAML from "https://deno.land/std@0.66.0/encoding/yaml.ts";
 export * as SUI from "https://raw.githubusercontent.com/jeanlescure/short_uuid/master/mod.ts";
 export {
   assertEquals,
