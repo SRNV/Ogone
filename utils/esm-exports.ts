@@ -5,7 +5,7 @@ import type {
 import getDeepTranslation from "./template-recursive.ts";
 import { getMembers } from './get-members.ts';
 
-const exports: ProtocolScriptRegExpList = [
+const AllExports: ProtocolScriptRegExpList = [
   {
     name: "export default",
     open: false,
@@ -163,4 +163,4 @@ const exports: ProtocolScriptRegExpList = [
   },
 ];
 
-export default exports;
+export default AllExports;
