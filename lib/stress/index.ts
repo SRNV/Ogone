@@ -39,6 +39,9 @@ function read(path: string): void {
       if (name.match(/((_|.)test.(js|ts))$/i)) {
         read(subpath);
       } else {
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(subpath, 0o777);
+        }
         const stats = Deno.statSync(subpath);
         if (stats.isDirectory) {
           read(subpath);
