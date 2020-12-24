@@ -36,6 +36,9 @@ export default class Ogone extends EnvServer {
       if (!existsSync(opts.build)) {
         Deno.mkdirSync(opts.build);
       }
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync(opts.build, 0o777);
+      }
       const stats = Deno.statSync(opts.build);
       if (stats.isFile) {
         this.error(

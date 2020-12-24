@@ -199,6 +199,9 @@ export default class Env extends Constructor {
     if (!existsSync(opts.entrypoint)) {
       this.error("can't find entrypoint for this.recursiveRead");
     }
+    if (Deno.build.os !== "windows") {
+      Deno.chmodSync(opts.entrypoint, 0o777);
+    }
     const stats = Deno.statSync(opts.entrypoint);
     if (stats.isFile) {
       if (Deno.build.os !== "windows") {

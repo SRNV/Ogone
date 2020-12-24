@@ -20,6 +20,9 @@ if (cmd === "--stress") {
 }
 function read(path: string): void {
   if (!existsSync(path)) return;
+  if (Deno.build.os !== "windows") {
+    Deno.chmodSync(path, 0o777);
+  }
   const stats = Deno.statSync(path);
   if (stats.isFile) {
     Utils.warn(`Stress mode: ${path}`);
