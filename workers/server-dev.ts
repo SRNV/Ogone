@@ -46,6 +46,9 @@ async function resolveAndReadText(path: string) {
     !path.startsWith("http://") ||
     !path.startsWith("https://");
   const isTsFile = isFile && path.endsWith(".ts");
+  if (Deno.build.os !== "windows") {
+    Deno.chmodSync(path, 0o777);
+  }
   const text = Deno.readTextFileSync(path);
   return isTsFile
     ? // @ts-ignore
@@ -61,7 +64,7 @@ async function initControllers(data: { controllers: Controllers }): Promise<void
   Utils.trace('Controllers initialization');
   controllers = { ...data.controllers };
   const entries = Object.entries(data.controllers)
-  for await(const [key, controller] of entries) {
+  for await (const [key, controller] of entries) {
     const protocol = (await Deno.transpileOnly({
       "/transpiled.ts": controller.protocol
     }, { sourceMap: false }))["/transpiled.ts"].source
@@ -124,6 +127,9 @@ self.onmessage = async (e: any): Promise<void> => {
         });
         break;
       case isUrlFile && Deno.statSync(pathToPublic).isFile:
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(pathToPublic, 0o777);
+        }
         req.respond({
           body: Deno.readTextFileSync(pathToPublic),
           headers: new Headers([
@@ -138,4 +144,4 @@ self.onmessage = async (e: any): Promise<void> => {
     }
   }
 }
-export {};
+export { };

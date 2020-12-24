@@ -133,6 +133,9 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
     }
     // now it's created, add /.susano to gitignore
     if (existsSync("./.gitignore")) {
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync("./.gitignore", 0o777);
+      }
       let content = await Deno.readTextFile("./.gitignore");
       if (content) {
         const regexp = /(\n|\s|^)\.susano\/(?=\n|\s|$)/i;
@@ -183,6 +186,9 @@ export default class SusanoScopeInspector extends SusanoImportInspector {
   ): Promise<any | null> {
     let modPath: string | null = await this.getSusanoModPath(path);
     if (existsSync(modPath)) {
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync(modPath, 0o777);
+      }
       const file = await Deno.readTextFile(modPath);
       const mod = JSON.parse(file);
       modPath = null;

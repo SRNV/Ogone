@@ -103,6 +103,9 @@ export default class ComponentsSubscriber extends Utils {
           }
         } else if (type === "absolute" && existsSync(path)) {
           // absolute  and local
+          if (Deno.build.os !== "windows") {
+            Deno.chmodSync(path, 0o777);
+          }
           const file = Deno.readTextFileSync(path);
           await this.startRecursiveInspectionOfComponent(file, path, bundle, {
             item,
@@ -134,6 +137,9 @@ export default class ComponentsSubscriber extends Utils {
         } else if (!opts.remote && type === "relative") {
           const newPath = absolute(p, path);
           if (existsSync(newPath)) {
+            if (Deno.build.os !== "windows") {
+              Deno.chmodSync(newPath, 0o777);
+            }
             const file = Deno.readTextFileSync(newPath);
             await this.startRecursiveInspectionOfComponent(
               file,
@@ -159,6 +165,9 @@ export default class ComponentsSubscriber extends Utils {
   }
   async inspect(entrypoint: string, bundle: Bundle) {
     if (existsSync(entrypoint)) {
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync(entrypoint, 0o777);
+      }
       const rootComponentFile = Deno.readTextFileSync(entrypoint);
       await this.startRecursiveInspectionOfComponent(
         rootComponentFile,

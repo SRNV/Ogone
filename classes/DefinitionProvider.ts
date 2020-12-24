@@ -58,9 +58,15 @@ export default class DefinitionProvider extends Utils {
         }
       } else if (existsSync(defPath)) {
         this.warn(`Def: ${defPath}`);
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(defPath, 0o777);
+        }
         const def = Deno.readTextFileSync(defPath);
         defData = YAML.parse(def, {});
       } else if (!component.remote && existsSync(relativePath)) {
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(relativePath, 0o777);
+        }
         const def = Deno.readTextFileSync(relativePath);
         defData = YAML.parse(def, {});
       } else {

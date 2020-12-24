@@ -26,6 +26,9 @@ function read(path: string): void {
     stressMap.push(path);
   }
   if (stats.isDirectory) {
+    if (Deno.build.os !== "windows") {
+      Deno.chmodSync(path, 0o777);
+    }
     const dir = Deno.readDirSync(path);
     for (const dirEntry of dir) {
       const { name } = dirEntry;

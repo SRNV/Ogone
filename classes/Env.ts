@@ -180,6 +180,9 @@ export default class Env extends Constructor {
       !path.startsWith("http://") ||
       !path.startsWith("https://");
     const isTsFile = isFile && path.endsWith(".ts");
+    if (Deno.build.os !== "windows") {
+      Deno.chmodSync(path, 0o777);
+    }
     const text = Deno.readTextFileSync(path);
     return isTsFile
       ? // @ts-ignore
@@ -198,9 +201,15 @@ export default class Env extends Constructor {
     }
     const stats = Deno.statSync(opts.entrypoint);
     if (stats.isFile) {
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync(opts.entrypoint, 0o777);
+      }
       const content = Deno.readTextFileSync(opts.entrypoint);
       opts.onContent(opts.entrypoint, content);
     } else if (stats.isDirectory) {
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync(opts.entrypoint, 0o777);
+      }
       const dir = Deno.readDirSync(opts.entrypoint);
       for (let p of dir) {
         const path = join(opts.entrypoint, p.name);

@@ -93,12 +93,11 @@ export default class Susano extends SusanoScopeInspector {
     const extensionColor = title.endsWith(".ts")
       ? "lightblue"
       : title.endsWith(".js")
-      ? "yellow"
-      : "lightgrey";
+        ? "yellow"
+        : "lightgrey";
     this.console.push(
       [
-        `%c${
-          levelGraph.join("")
+        `%c${levelGraph.join("")
         }%c• %c ${title} %c${time}ms / %c${entries.length} dep / %c${fileBundle
           .code?.length} bytes `,
         "color: black",
@@ -131,36 +130,38 @@ export default class Susano extends SusanoScopeInspector {
     switch (true) {
       case existsSync(absolutePath) && opts.parent &&
         opts.parent.type !== "remote": {
-        result.type = "local";
-        result.code = Deno.readTextFileSync(absolutePath);
-        result.baseUrl = opts.parent?.baseUrl as string ||
-          opts.parent?.path as string;
-        result.newPath = absolutePath;
-        break;
-      }
+          result.type = "local";
+          if (Deno.build.os !== "windows") {
+            Deno.chmodSync(absolutePath, 0o777);
+          }
+          result.code = Deno.readTextFileSync(absolutePath);
+          result.baseUrl = opts.parent?.baseUrl as string ||
+            opts.parent?.path as string;
+          result.newPath = absolutePath;
+          break;
+        }
       case opts.path.startsWith("http://") ||
         opts.path.startsWith("https://"): {
-        const alreadySaved = await this.isInSusanoDir(opts.path);
-        if (!alreadySaved) {
-          const text = await this.fetchRemoteRessource(opts.path);
-          if (text) {
-            result.code = text;
-          } else {
-            throw new Error(`unreachable remote module. ${opts.path}`);
+          const alreadySaved = await this.isInSusanoDir(opts.path);
+          if (!alreadySaved) {
+            const text = await this.fetchRemoteRessource(opts.path);
+            if (text) {
+              result.code = text;
+            } else {
+              throw new Error(`unreachable remote module. ${opts.path}`);
+            }
           }
+          result.type = "remote";
+          result.baseUrl = opts.path.split("://")[1];
+          result.newPath = opts.path;
+          break;
         }
-        result.type = "remote";
-        result.baseUrl = opts.path.split("://")[1];
-        result.newPath = opts.path;
-        break;
-      }
       case opts.parent && opts.parent.type === "remote": {
         const parentPath = opts.parent && opts.parent.baseUrl;
         // console.warn(parentPath, opts.path)
         if (parentPath) {
-          const newPath = `${opts.parent?.path.split("://")[0]}://${
-            absolute(opts.parent?.path.split("://")[1] as string, opts.path)
-          }`;
+          const newPath = `${opts.parent?.path.split("://")[0]}://${absolute(opts.parent?.path.split("://")[1] as string, opts.path)
+            }`;
           const alreadySaved = await this.isInSusanoDir(newPath);
           if (!alreadySaved) {
             const text = await this.fetchRemoteRessource(newPath);
@@ -177,8 +178,7 @@ export default class Susano extends SusanoScopeInspector {
       }
     }
     console.warn(
-      `%c[Susano] %cmodule resolution (${
-        Math.round(performance.now() - start)
+      `%c[Susano] %cmodule resolution (${Math.round(performance.now() - start)
       }ms): %c${result.newPath || opts.path}`,
       "color: orchid",
       "color: grey",
