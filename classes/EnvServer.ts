@@ -14,14 +14,20 @@ export default class EnvServer extends Env {
       },
     });
     this.serviceDev.addEventListener('message', async (event) => {
-      switch(event.data) {
+      switch (event.data.type) {
         case Workers.SERVICE_DEV_READY:
           // start type checking of all typed components
           if (this.bundle) {
             await this.TSXContextCreator.read(this.bundle);
             this.success('no type error found.');
           }
-        break;
+          break;
+        case Workers.SERVICE_DEV_GET_PORT:
+          this.lspWebsocketClient.postMessage({
+            type: Workers.LSP_SEND_PORT,
+            data: event.data.data
+          })
+          break;
       }
     });
   }

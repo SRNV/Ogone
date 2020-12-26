@@ -76,6 +76,23 @@ async function initControllers(data: { controllers: Controllers }): Promise<void
     }
   }
 }
+function isFreePort(port: number): boolean {
+  try {
+    const listener = Deno.listen({
+      port: port,
+    });
+
+    listener.close();
+
+    return true;
+  } catch (err) {
+    if (err instanceof Deno.errors.AddrInUse) {
+      return false;
+    }
+
+    throw err;
+  }
+}
 
 self.onmessage = async (e: any): Promise<void> => {
   Utils.trace(`Worker: Dev Server received a message`);
@@ -83,10 +100,17 @@ self.onmessage = async (e: any): Promise<void> => {
   if (type === Workers.INIT_MESSAGE_SERVICE_DEV) {
     await initControllers(e.data);
   }
-  const port: number = Configuration.port;
+  let port: number = Configuration.port || 8080;
+  while (!isFreePort(port)) {
+    port = Math.floor(Math.random() * 9000 + 1000)
+  }
   // open the server
   const server = serve({ port });
-
+  // close the server when the window is unloaded
+  // or the worker is killed
+  self.addEventListener("unload", () => {
+    server.close();
+  })
   // start rendering Ogone system
   if (!Configuration.entrypoint || !existsSync(Configuration.entrypoint)) {
     server.close();
@@ -94,14 +118,15 @@ self.onmessage = async (e: any): Promise<void> => {
       `can't find entrypoint, please specify a correct path. input: ${Configuration.entrypoint}`,
     );
   }
-  if (!("port" in Configuration) || typeof Configuration.port !== "number") {
-    Utils.error(
-      "please provide a port for the server. it has to be a number.",
-    );
-  }
-  Utils.trace(`Worker: Dev Server available on http://localhost:${Configuration.port}/`);
-  Utils.success(`Your application is running here: http://localhost:${Configuration.port}/`);
-  self.postMessage(Workers.SERVICE_DEV_READY);
+  Utils.trace(`Worker: Dev Server available on http://localhost:${port}/`);
+  Utils.success(`Your application is running here: http://localhost:${port}/`);
+  self.postMessage({
+    type: Workers.SERVICE_DEV_READY
+  });
+  self.postMessage({
+    type: Workers.SERVICE_DEV_GET_PORT,
+    data: port,
+  });
 
   for await (const req of server) {
     const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''

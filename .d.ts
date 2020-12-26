@@ -14,7 +14,7 @@ export interface OgoneConfiguration {
    * @property port
    * @description which port to use for development
    */
-  port: number;
+  port?: number;
 
   /**
    * @property static

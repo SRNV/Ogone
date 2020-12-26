@@ -23,6 +23,10 @@ export default class Env extends Constructor {
     type: "module",
     deno: true,
   });
+  protected lspWebsocketClient = new Worker(new URL("../workers/lsp-websocket-client.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
   constructor() {
     super();
     this.devtool = Configuration.devtool;

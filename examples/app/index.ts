@@ -5,8 +5,6 @@ import o3 from "../../mod.ts";
 o3.run({
   entrypoint: "examples/app/Application.o3",
   devtool: false,
-  static: "./public",
-  port: 8052,
   head: `
   <link href="/style.css" rel="stylesheet"/>
   <link href="/animations.css" rel="stylesheet"/>

@@ -24,6 +24,7 @@ export default {
 
 
             - ${blue('chore')}: Ogone will start using workers, the first one is set for the local server.
+            - ${blue('chore')}: specifying the port and the static on configurtion is no more required.
 
             - ${green('feat')}: using curly braces on components allows us to spread any object.
                 this is the same as adding the spread flag (${green('--spread')})
