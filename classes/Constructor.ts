@@ -50,6 +50,7 @@ export default class Constructor extends Utils {
   private ComponentBuilder: ComponentBuilder = new ComponentBuilder();
   async getBundle(entrypoint: string): Promise<Bundle> {
     const bundle: Bundle = {
+      uuid: `b${crypto.getRandomValues(new Uint32Array(10)).join('')}`,
       files: [],
       datas: [],
       context: [],

@@ -1,3 +1,4 @@
+import { BoilerPlate } from './../enums/templateComponent.ts';
 import { browserBuild, template } from "./../src/browser/readfiles.ts";
 // TODO fix HMR
 // use std websocket instead of deno.x one
@@ -10,6 +11,7 @@ import { Configuration } from "./Configuration.ts";
 import WebComponentExtends from "./WebComponentExtends.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
+import { DenoStdInternalError } from "https://deno.land/std@0.61.0/_util/assert.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -24,7 +26,7 @@ export default class Env extends Constructor {
     type: "module",
     deno: true,
   });
-  protected lspWebsocketClient = new Worker(new URL("../workers/lsp-websocket-client.ts", import.meta.url).href, {
+  protected lspWebsocketClientWorker = new Worker(new URL("../workers/lsp-websocket-client.ts", import.meta.url).href, {
     type: "module",
     deno: true,
   });
@@ -67,25 +69,30 @@ export default class Env extends Constructor {
   public async compile(
     entrypoint: string,
     shouldBundle?: boolean,
-  ): Promise<any> {
+  ): Promise<Bundle> {
     const bundle: Bundle = await this.getBundle(entrypoint);
     if (shouldBundle) {
       this.setBundle(bundle);
       return bundle;
-    } else {
-      return bundle;
     }
+    return bundle;
   }
   public listenLSPWebsocket(): void {
-    this.lspWebsocketClient.addEventListener('message', (event) => {
-      console.log(1, "from lsp", event.data);
-      switch (event.data.type) {
+    this.lspWebsocketClientWorker.addEventListener('message', (event) => {
+      const { data } = event;
+      switch (data.type) {
         case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-          this.compile(event.data.data.path)
+          const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_ERROR, {
+            filePath: data.data.path,
+          });
+          const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview' });
+          console.log(1, tmpFile)
+          this.compile(tmpFile)
             .then((bundle) => {
-              this.lspWebsocketClient.postMessage({
-                type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
-                application: this.renderBundle(event.data.data.path,
+              console.warn('bundled and ready')
+              this.serviceDev.postMessage({
+                type: Workers.LSP_UPDATE_SERVER_COMPONENT,
+                application: this.renderBundle(data.data.path,
                   bundle
                 ),
               })
@@ -135,7 +142,7 @@ export default class Env extends Constructor {
         {% promise %}
         `,
         {
-          extension: this.WebComponentExtends.getExtensions(bundle),
+          extension: this.WebComponentExtends.getExtensions(bundle, entrypoint),
           promise: esm.trim().length
             ? `
             Promise.all([
@@ -292,6 +299,7 @@ export default class Env extends Constructor {
         "index.ts": `
         import test from "./test.js"
 import Workers from '../enums/workers';
+import { BoilerPlate } from '../enums/templateComponent';
         `,
         "test.js": "export default 10;",
       }, {

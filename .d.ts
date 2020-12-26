@@ -95,6 +95,7 @@ export interface ImportDescription {
   getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
 }
 export interface Bundle {
+  uuid: string;
   files: Local[];
   remotes: Remote[];
   datas: string[];

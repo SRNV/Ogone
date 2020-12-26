@@ -14,7 +14,7 @@ const oca = `Ogone.classes.async = {% getClassAsync %}`;
 const ocr = `Ogone.classes.router = {% getClassRouter %}`;
 const occo = `Ogone.classes.controller = {% getClassController %}`;
 export default class WebComponentExtends extends Utils {
-  public getExtensions(bundle: Bundle) {
+  public getExtensions(bundle: Bundle, entrypoint: string) {
     const result: string[] = [];
     result.push(oce, occ);
     if (bundle.types.store) {
@@ -36,7 +36,7 @@ export default class WebComponentExtends extends Utils {
       getClassAsync,
       getClassComponent,
       getClassStore,
-      root: bundle.components.get(Configuration.entrypoint),
+      root: bundle.components.get(entrypoint),
     });
   }
 }

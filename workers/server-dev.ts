@@ -5,6 +5,9 @@ import { serve } from "../deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 
+const registry = {
+  application: '',
+}
 export interface Controller {
   namespace: string;
   protocol: any;
@@ -98,7 +101,12 @@ self.onmessage = async (e: any): Promise<void> => {
   Utils.trace(`Worker: Dev Server received a message`);
   const { application, Configuration, type } = e.data;
   if (type === Workers.INIT_MESSAGE_SERVICE_DEV) {
+    registry.application = application;
     await initControllers(e.data);
+  }
+  if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
+    registry.application = application;
+    return;
   }
   let port: number = Configuration.port || 8080;
   while (!isFreePort(port)) {
@@ -125,20 +133,25 @@ self.onmessage = async (e: any): Promise<void> => {
   });
   self.postMessage({
     type: Workers.SERVICE_DEV_GET_PORT,
-    data: port,
+    port,
   });
 
   for await (const req of server) {
     const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
       }/${req.url}`.replace(/\/+/gi, '/');
     const params = new URLSearchParams('?' + req.url.split("?")[1]);
+    // for imported modules
     const importedFile = params.get('import');
+    // for lsp
+    const component = params.get('component');
+    const keyPort = params.get('port');
     const controllerRendered = await control(req);
     if (controllerRendered) {
       continue;
     }
     let isUrlFile: boolean = existsSync(pathToPublic);
     switch (true) {
+      case component && port === parseFloat(keyPort as string):
       case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
         // TODO fix HMR
         // use std websocket
@@ -164,7 +177,7 @@ self.onmessage = async (e: any): Promise<void> => {
         });
         break;
       default:
-        req.respond({ body: application });
+        req.respond({ body: registry.application });
         break;
     }
   }

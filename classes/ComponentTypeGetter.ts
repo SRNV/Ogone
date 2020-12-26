@@ -4,6 +4,7 @@ import Ogone from "./Ogone.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
 import { Utils } from "./Utils.ts";
 
+const registry: { [k: string]: { [c: string]: boolean } } = {};
 /**
  * @name ComponentTypeGetter
  * @code OO2-OSB7-OC0
@@ -14,13 +15,14 @@ export default class ComponentTypeGetter extends Utils {
   public async setTypeOfComponents(bundle: Bundle): Promise<void> {
     bundle.components.forEach((component: Component) => {
       const proto = component.elements.proto[0];
-      if(proto) {
+      if (proto) {
         component.type = proto.attributes?.type as Component['type'] || 'component';
         bundle.types[component.type] = true;
       }
     });
   }
   public assignTypeConfguration(bundle: Bundle): void {
+    registry[bundle.uuid] = registry[bundle.uuid] || {};
     bundle.components.forEach((component: Component) => {
       const proto = component.elements.proto[0];
       const position = MapPosition.mapNodes.get(proto)!;
@@ -69,16 +71,17 @@ export default class ComponentTypeGetter extends Utils {
             runtime: `(${component.scripts.runtime})`,
             file: component.file,
           };
-          if (Ogone.controllers[comp.namespace as string]) {
+          if (registry[bundle.uuid] && registry[bundle.uuid][comp.namespace as string]) {
             this.error(
               `${component.file}:${position.line}:${position.column}\n\tnamespace already used`,
             );
           }
           // save the controller
           Ogone.controllers[comp.namespace as string] = comp;
+          registry[bundle.uuid][comp.namespace as string] = true;
         }
         if (type === "router") {
-          if(!component.data.routes) {
+          if (!component.data.routes) {
             const position = MapPosition.mapNodes.get(proto)!;
             this.error(`${component.file}:${position.line}:${position.column}\nall router components should provide routes through a def modifier`);
           }

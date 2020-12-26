@@ -23,9 +23,9 @@ export default class EnvServer extends Env {
           }
           break;
         case Workers.SERVICE_DEV_GET_PORT:
-          this.lspWebsocketClient.postMessage({
+          this.lspWebsocketClientWorker.postMessage({
             type: Workers.LSP_SEND_PORT,
-            data: event.data.data
+            port: event.data.port
           })
           break;
       }
