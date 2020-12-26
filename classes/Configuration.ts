@@ -75,7 +75,7 @@ export abstract class Configuration {
       );
     }
     Configuration.entrypoint = config.entrypoint;
-    Configuration.port = config.port;
+    Configuration.port = config.port ? config.port : 0;
     Configuration.static = config.static;
     Configuration.head = config.head;
     Configuration.controllers = config.controllers;

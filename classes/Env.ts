@@ -78,7 +78,7 @@ export default class Env extends Constructor {
   }
   public listenLSPWebsocket(): void {
     this.lspWebsocketClient.addEventListener('message', (event) => {
-      console.log("from lsp", event.data);
+      console.log(1, "from lsp", event.data);
       switch (event.data.type) {
         case Workers.LSP_UPDATE_CURRENT_COMPONENT:
           this.compile(event.data.data.path)

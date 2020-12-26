@@ -5,7 +5,7 @@ client.onopen = (event) => {
   console.warn('open', event)
 }
 client.onmessage = (event) => {
-  console.warn('message', event, event.data);
+  console.warn('message', event.data);
   switch (event.data.type) {
     case Workers.LSP_UPDATE_CURRENT_COMPONENT:
       self.postMessage(event.data);
@@ -17,8 +17,6 @@ self.addEventListener('unload', () => {
 })
 self.onmessage = (ev: any) => {
   const { type } = ev;
-  if (type === Workers.LSP_SEND_PORT) {
-  }
   switch (type) {
     case Workers.LSP_SEND_PORT:
       notify(Workers.LSP_SEND_PORT, ev.port);
