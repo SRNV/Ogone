@@ -6,6 +6,11 @@ client.onopen = (event) => {
 }
 client.onmessage = (event) => {
   console.warn('message', event, event.data);
+  switch (event.data.type) {
+    case Workers.LSP_UPDATE_CURRENT_COMPONENT:
+      self.postMessage(event.data);
+      break;
+  }
 }
 self.addEventListener('unload', () => {
   client.close();
@@ -13,7 +18,14 @@ self.addEventListener('unload', () => {
 self.onmessage = (ev: any) => {
   const { type } = ev;
   if (type === Workers.LSP_SEND_PORT) {
-    notify(Workers.LSP_SEND_PORT, ev.port);
+  }
+  switch (type) {
+    case Workers.LSP_SEND_PORT:
+      notify(Workers.LSP_SEND_PORT, ev.port);
+      break;
+    case Workers.LSP_CURRENT_COMPONENT_RENDERED:
+      notify(Workers.LSP_CURRENT_COMPONENT_RENDERED, ev.application);
+      break;
   }
 }
 function notify(type: any, message: Object | string | number) {

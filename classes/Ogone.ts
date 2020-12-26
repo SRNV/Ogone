@@ -70,6 +70,7 @@ export default class Ogone extends EnvServer {
     } else {
       //start compilation of o3 files
       this.setDevTool(Configuration.devtool as boolean);
+      this.listenLSPWebsocket();
       this.compile(Configuration.entrypoint, true)
         .then(() => {
           // Ogone is now ready to serve

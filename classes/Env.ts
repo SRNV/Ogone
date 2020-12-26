@@ -9,6 +9,7 @@ import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
 import WebComponentExtends from "./WebComponentExtends.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
+import Workers from "../enums/workers.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -67,7 +68,7 @@ export default class Env extends Constructor {
     entrypoint: string,
     shouldBundle?: boolean,
   ): Promise<any> {
-    const bundle: Bundle = await this.getBundle(Configuration.entrypoint);
+    const bundle: Bundle = await this.getBundle(entrypoint);
     if (shouldBundle) {
       this.setBundle(bundle);
       return bundle;
@@ -75,13 +76,26 @@ export default class Env extends Constructor {
       return bundle;
     }
   }
-  public get application(): string {
-    if (!this.bundle) {
-      throw this.error(
-        "undefined bundle, please use setBundle method before accessing to the application",
-      );
-    }
-    const stylesDev = Array.from(this.bundle.components.entries())
+  public listenLSPWebsocket(): void {
+    this.lspWebsocketClient.addEventListener('message', (event) => {
+      console.log("from lsp", event.data);
+      switch (event.data.type) {
+        case Workers.LSP_UPDATE_CURRENT_COMPONENT:
+          this.compile(event.data.data.path)
+            .then((bundle) => {
+              this.lspWebsocketClient.postMessage({
+                type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
+                application: this.renderBundle(event.data.data.path,
+                  bundle
+                ),
+              })
+            })
+          break;
+      }
+    });
+  }
+  public renderBundle(entrypoint: string, bundle: Bundle): string {
+    const stylesDev = Array.from(bundle.components.entries())
       .map((
         entry: any,
       ) => {
@@ -91,11 +105,11 @@ export default class Env extends Constructor {
         }
         return result;
       }).join("\n");
-    const esm = Array.from(this.bundle.components.entries()).map((
+    const esm = Array.from(bundle.components.entries()).map((
       entry: any,
     ) => entry[1].dynamicImportsExpressions).join("\n");
     const style = stylesDev;
-    const rootComponent = this.bundle.components.get(Configuration.entrypoint);
+    const rootComponent = bundle.components.get(entrypoint);
     if (rootComponent) {
       if (
         rootComponent &&
@@ -113,15 +127,15 @@ export default class Env extends Constructor {
           hasDevtool: this.devtool,
         })
         }
-        ${this.bundle.datas.join("\n")}
-        ${this.bundle.contexts.slice().reverse().join("\n")}
-        ${this.bundle.render.join("\n")}
+        ${bundle.datas.join("\n")}
+        ${bundle.contexts.slice().reverse().join("\n")}
+        ${bundle.render.join("\n")}
         {% extension %}
-        ${this.bundle.customElements.join("\n")}
+        ${bundle.customElements.join("\n")}
         {% promise %}
         `,
         {
-          extension: this.WebComponentExtends.getExtensions(this.bundle),
+          extension: this.WebComponentExtends.getExtensions(bundle),
           promise: esm.trim().length
             ? `
             Promise.all([
@@ -138,7 +152,7 @@ export default class Env extends Constructor {
             })
           );`,
           render: {},
-          root: this.bundle.components.get(Configuration.entrypoint),
+          root: bundle.components.get(entrypoint),
           destroy: {},
           nodes: {},
           debugg: `
@@ -175,6 +189,14 @@ export default class Env extends Constructor {
     } else {
       return "no root-component found";
     }
+  }
+  public get application(): string {
+    if (!this.bundle) {
+      throw this.error(
+        "undefined bundle, please use setBundle method before accessing to the application",
+      );
+    }
+    return this.renderBundle(Configuration.entrypoint, this.bundle);
   }
 
   public async resolveAndReadText(path: string) {
@@ -269,6 +291,7 @@ export default class Env extends Constructor {
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `
         import test from "./test.js"
+import Workers from '../enums/workers';
         `,
         "test.js": "export default 10;",
       }, {
