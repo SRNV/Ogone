@@ -12,6 +12,7 @@ import WebComponentExtends from "./WebComponentExtends.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
 import { DenoStdInternalError } from "https://deno.land/std@0.61.0/_util/assert.ts";
+import MapFile from "./MapFile.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -77,28 +78,59 @@ export default class Env extends Constructor {
     }
     return bundle;
   }
+  /**
+   * @name listenLSPWebsocket
+   * takes no argument, this method add an event listener on the LSP websocket worker
+   * connected to the IDE
+   * it sends two messages
+   */
   public listenLSPWebsocket(): void {
+    let timeoutBeforeSendingRequests: number;
     this.lspWebsocketClientWorker.addEventListener('message', (event) => {
-      const { data } = event;
-      switch (data.type) {
-        case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-          const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_ERROR, {
-            filePath: data.data.path,
-          });
-          const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview' });
-          console.log(1, tmpFile)
-          this.compile(tmpFile)
-            .then((bundle) => {
-              console.warn('bundled and ready')
-              this.serviceDev.postMessage({
-                type: Workers.LSP_UPDATE_SERVER_COMPONENT,
-                application: this.renderBundle(data.data.path,
-                  bundle
-                ),
-              })
-            })
-          break;
+      if (timeoutBeforeSendingRequests !== undefined) {
+        clearTimeout(timeoutBeforeSendingRequests);
       }
+      // this timeout fixes all the broken pipe issue
+      timeoutBeforeSendingRequests = setTimeout(() => {
+        const { data } = event;
+        switch (data.type) {
+          case Workers.LSP_UPDATE_CURRENT_COMPONENT:
+            const filePath = data.data.path;
+            const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
+              filePath: filePath.replace(Deno.cwd(), '@'),
+            });
+            // save the content of the file to overwrite
+            // this allows the live edition
+            MapFile.files.set(filePath, {
+              content: data.data.text,
+              original: Deno.readTextFileSync(data.data.path),
+              path: data.data.path,
+            });
+            const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
+            Deno.writeTextFileSync(tmpFile, file);
+            this.compile(tmpFile)
+              .then((bundle) => {
+                const application = this.renderBundle(tmpFile,
+                  bundle
+                );
+                this.serviceDev.postMessage({
+                  type: Workers.LSP_UPDATE_SERVER_COMPONENT,
+                  application,
+                })
+                this.lspWebsocketClientWorker.postMessage({
+                  type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
+                  application,
+                })
+              })
+              .then(() => {
+                Deno.remove(tmpFile);
+              })
+              .catch(() => {
+                Deno.remove(tmpFile);
+              })
+            break;
+        }
+      }, 250);
     });
   }
   public renderBundle(entrypoint: string, bundle: Bundle): string {
@@ -300,6 +332,7 @@ export default class Env extends Constructor {
         import test from "./test.js"
 import Workers from '../enums/workers';
 import { BoilerPlate } from '../enums/templateComponent';
+import MapFile from './MapFile';
         `,
         "test.js": "export default 10;",
       }, {

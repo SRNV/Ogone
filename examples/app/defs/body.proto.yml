@@ -53,3 +53,6 @@ articles:
       \t\tthis.count = 0;\n
       \tbreak;\n
       </proto>"
+  - title: This doc is no more up to date
+    text: "no more."
+    code: ""

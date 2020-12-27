@@ -7,6 +7,7 @@ import Workers from '../enums/workers.ts';
 
 const registry = {
   application: '',
+  webview_application: '',
 }
 export interface Controller {
   namespace: string;
@@ -43,11 +44,11 @@ async function control(req: any): Promise<boolean> {
   return false;
 }
 async function resolveAndReadText(path: string) {
-  const isFile = path.startsWith("/") ||
+  const isFile = path && (path.startsWith("/") ||
     path.startsWith("./") ||
     path.startsWith("../") ||
     !path.startsWith("http://") ||
-    !path.startsWith("https://");
+    !path.startsWith("https://"));
   const isTsFile = isFile && path.endsWith(".ts");
   if (Deno.build.os !== "windows") {
     Deno.chmodSync(path, 0o777);
@@ -105,7 +106,7 @@ self.onmessage = async (e: any): Promise<void> => {
     await initControllers(e.data);
   }
   if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
-    registry.application = application;
+    registry.webview_application = application;
     return;
   }
   let port: number = Configuration.port || 8080;
@@ -152,6 +153,8 @@ self.onmessage = async (e: any): Promise<void> => {
     let isUrlFile: boolean = existsSync(pathToPublic);
     switch (true) {
       case component && port === parseFloat(keyPort as string):
+        req.respond({ body: registry.webview_application });
+        break;
       case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
         // TODO fix HMR
         // use std websocket

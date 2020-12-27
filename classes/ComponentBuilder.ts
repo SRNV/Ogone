@@ -1,5 +1,6 @@
 import XMLParser from "./XMLParser.ts";
 import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
+import MapFile, { FileDescription } from "./MapFile.ts";
 
 /**
  * @name ComponentBuilder
@@ -94,7 +95,8 @@ export default class ComponentBuilder {
     bundle.files.forEach((local, i) => {
       const { path, file } = local;
       const index = path;
-      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
+      const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
+      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
       if (rootNode) {
         const component = this.getComponent({
           rootNode,
