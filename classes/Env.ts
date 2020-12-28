@@ -86,6 +86,12 @@ export default class Env extends Constructor {
    */
   public listenLSPWebsocket(): void {
     let timeoutBeforeSendingRequests: number;
+    // send open designer message to the LSP
+    if (Deno.args.includes('--open-designer')) {
+      this.lspWebsocketClientWorker.postMessage({
+        type: Workers.LSP_OPEN_WEBVIEW,
+      })
+    }
     this.lspWebsocketClientWorker.addEventListener('message', (event) => {
       if (timeoutBeforeSendingRequests !== undefined) {
         clearTimeout(timeoutBeforeSendingRequests);
