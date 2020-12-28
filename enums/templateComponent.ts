@@ -4,5 +4,7 @@ export enum BoilerPlate {
     <template>
         <Subject />
     </template>
+    <proto type="component">
+    </proto>
     `,
 }
