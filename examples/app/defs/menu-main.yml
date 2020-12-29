@@ -51,7 +51,7 @@ menu:
             status: todo
 
           - name: --spread
-            status: todo
+            status: ok
 
       - name: Components
         route: /doc/components

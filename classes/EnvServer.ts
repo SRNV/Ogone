@@ -3,9 +3,10 @@ import Ogone from "./Ogone.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
 import Workers from '../enums/workers.ts';
+import OgoneWorkers from "./OgoneWorkers.ts";
 export default class EnvServer extends Env {
   public async startDevelopment(): Promise<void> {
-    this.serviceDev.postMessage({
+    OgoneWorkers.serviceDev.postMessage({
       type: Workers.INIT_MESSAGE_SERVICE_DEV,
       application: this.application,
       controllers: Ogone.controllers,
@@ -13,7 +14,7 @@ export default class EnvServer extends Env {
         ...Configuration
       },
     });
-    this.serviceDev.addEventListener('message', async (event) => {
+    OgoneWorkers.serviceDev.addEventListener('message', async (event) => {
       switch (event.data.type) {
         case Workers.SERVICE_DEV_READY:
           // start type checking of all typed components
@@ -23,7 +24,7 @@ export default class EnvServer extends Env {
           }
           break;
         case Workers.SERVICE_DEV_GET_PORT:
-          this.lspWebsocketClientWorker.postMessage({
+          OgoneWorkers.lspWebsocketClientWorker.postMessage({
             type: Workers.LSP_SEND_PORT,
             port: event.data.port
           })

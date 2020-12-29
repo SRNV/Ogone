@@ -65,6 +65,11 @@ export abstract class Configuration {
    */
   public static types?: string[];
   /**
+   * @name OgoneDesignerOpened
+   * if the webview is required by the end user
+   */
+  public static OgoneDesignerOpened: boolean = false;
+  /**
    * @param {typeof Configuration} config
    * set the current global configuration of the compiler
    */

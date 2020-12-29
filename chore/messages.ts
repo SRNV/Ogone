@@ -6,6 +6,7 @@ function exampleFormat(txt: string) {
 export default {
   "0.27.0": `${red('BREAKING: use statement is no more supported, please use instead the syntax : import component ComponentName from \'...\'')}`,
   "0.28.0": `
+
             - ${red(`BREAKING: ${white('Ogone is changing it\'s style,')} we will now use curly braces for props and flags, instead of quotes`)}:
                 basically this means instead of typing this:
                   ${red(':item="this.item"')}
@@ -65,5 +66,9 @@ export default {
                 your webcomponent can also expose the following methods as callback:
                  - beforeUpdate
                  - beforeDestroy
+
+            - ${green('feat')}: Great news for Visual Studio Code users, Ogone will now let build your components with a new dev tool
+              passing the flag ${green('--open-designer')} will open a webview in your IDE
+              you will be able to see your component while your building it.
   `,
 }

@@ -3,7 +3,7 @@ import { browserBuild, template } from "./../src/browser/readfiles.ts";
 // TODO fix HMR
 // use std websocket instead of deno.x one
 // import { HCR } from "../../lib/hmr/index.ts";
-import type { Bundle, Environment } from "./../.d.ts";
+import type { Bundle, Environment, Component } from "./../.d.ts";
 import { existsSync } from "../utils/exists.ts";
 import { join } from "../deps.ts";
 import Constructor from "./Constructor.ts";
@@ -13,6 +13,7 @@ import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
 import { DenoStdInternalError } from "https://deno.land/std@0.61.0/_util/assert.ts";
 import MapFile from "./MapFile.ts";
+import OgoneWorkers from "./OgoneWorkers.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -21,16 +22,6 @@ export default class Env extends Constructor {
   public static _env: Environment = "development";
   public WebComponentExtends: WebComponentExtends = new WebComponentExtends();
   protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
-
-  // workers
-  protected serviceDev = new Worker(new URL("../workers/server-dev.ts", import.meta.url).href, {
-    type: "module",
-    deno: true,
-  });
-  protected lspWebsocketClientWorker = new Worker(new URL("../workers/lsp-websocket-client.ts", import.meta.url).href, {
-    type: "module",
-    deno: true,
-  });
   constructor() {
     super();
     this.devtool = Configuration.devtool;
@@ -72,11 +63,36 @@ export default class Env extends Constructor {
     shouldBundle?: boolean,
   ): Promise<Bundle> {
     const bundle: Bundle = await this.getBundle(entrypoint);
+    this.sendComponentsToLSP(bundle);
     if (shouldBundle) {
       this.setBundle(bundle);
       return bundle;
     }
     return bundle;
+  }
+  /**
+   * @name sendComponentsToLSP
+   * @param bundle {Bundle}
+   * sending all the informations of all the components to the LSP
+   */
+  private sendComponentsToLSP(bundle: Bundle) {
+    const components = Array.from(bundle.components.entries())
+      .map(([p, c]: [string, Component]) => c) as Component[];
+    components.forEach((component) => {
+      const lightComponent = {
+        file: component.file,
+        imports: component.imports,
+        context: component.context,
+        modifiers: component.modifiers,
+        uuid: component.uuid,
+        isTyped: component.isTyped,
+        requirements: component.requirements,
+      };
+      OgoneWorkers.lspWebsocketClientWorker.postMessage({
+        type: Workers.LSP_SEND_COMPONENT_INFORMATIONS,
+        component: lightComponent,
+      });
+    })
   }
   /**
    * @name listenLSPWebsocket
@@ -88,11 +104,12 @@ export default class Env extends Constructor {
     let timeoutBeforeSendingRequests: number;
     // send open designer message to the LSP
     if (Deno.args.includes('--open-designer')) {
-      this.lspWebsocketClientWorker.postMessage({
+      Configuration.OgoneDesignerOpened = true;
+      OgoneWorkers.lspWebsocketClientWorker.postMessage({
         type: Workers.LSP_OPEN_WEBVIEW,
       })
     }
-    this.lspWebsocketClientWorker.addEventListener('message', (event) => {
+    OgoneWorkers.lspWebsocketClientWorker.addEventListener('message', (event) => {
       if (timeoutBeforeSendingRequests !== undefined) {
         clearTimeout(timeoutBeforeSendingRequests);
       }
@@ -115,18 +132,20 @@ export default class Env extends Constructor {
             const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
             Deno.writeTextFileSync(tmpFile, file);
             this.compile(tmpFile)
-              .then((bundle) => {
+              .then(async (bundle) => {
                 const application = this.renderBundle(tmpFile,
                   bundle
                 );
-                this.serviceDev.postMessage({
+                OgoneWorkers.serviceDev.postMessage({
                   type: Workers.LSP_UPDATE_SERVER_COMPONENT,
                   application,
                 })
-                this.lspWebsocketClientWorker.postMessage({
+                OgoneWorkers.lspWebsocketClientWorker.postMessage({
                   type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
                   application,
-                })
+                });
+                await this.TSXContextCreator.read(bundle);
+                this.success('no type error found.');
               })
               .then(() => {
                 Deno.remove(tmpFile);
@@ -339,6 +358,7 @@ export default class Env extends Constructor {
 import Workers from '../enums/workers';
 import { BoilerPlate } from '../enums/templateComponent';
 import MapFile from './MapFile';
+import OgoneWorkers from './OgoneWorkers';
         `,
         "test.js": "export default 10;",
       }, {

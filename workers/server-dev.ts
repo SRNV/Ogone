@@ -85,7 +85,6 @@ function isFreePort(port: number): boolean {
     const listener = Deno.listen({
       port: port,
     });
-
     listener.close();
 
     return true;
@@ -106,7 +105,13 @@ self.onmessage = async (e: any): Promise<void> => {
     await initControllers(e.data);
   }
   if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
-    registry.webview_application = application;
+    registry.webview_application = `
+    <style>
+      body {
+        background: #FFFFFF00 !important;
+      }
+    </style>
+      ${application}`;
     return;
   }
   let port: number = Configuration.port || 8080;

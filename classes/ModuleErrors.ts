@@ -1,6 +1,8 @@
 import { colors } from "../deps.ts";
 import { Utils } from "./Utils.ts";
 import { Component } from '../.d.ts';
+import { Configuration } from "./Configuration.ts";
+import OgoneWorkers from "./OgoneWorkers.ts";
 /**
  * a class to display the errors inside the module
  */
@@ -27,8 +29,8 @@ interface ModuleErrorsDiagnostic {
 }
 export abstract class ModuleErrors extends Utils {
   static checkDiagnostics(component: Component, diagnostics: unknown[], onError?: Function) {
-    const { blue, red,  gray, } = colors;
-    function renderChainedDiags(chainedDiags: typeof diagnostics): string{
+    const { blue, red, gray, } = colors;
+    function renderChainedDiags(chainedDiags: typeof diagnostics): string {
       let result = ``;
       const { red } = colors;
       if (chainedDiags && chainedDiags.length) {
@@ -59,11 +61,17 @@ export abstract class ModuleErrors extends Utils {
           ${sourceline}
           ${underline}
         at ${blue(diag && diag.fileName || '')}:${diag.start && diag.start.line + 1 || ''}:${diag.start && diag.start.character || ''}`;
+        // TODO add errors, send them to the webview
       }
       this.error(
         `${component.file}\n${errors}`,
       );
-      Deno.exit(1);
+      if (!Configuration.OgoneDesignerOpened) {
+        // if the webview isn't opened
+        // this means the end user is not using the Ogone Designer
+        // so we can exit
+        Deno.exit(1);
+      }
     } else {
       return;
     }

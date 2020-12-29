@@ -30,8 +30,10 @@ export default class Ogone extends EnvServer {
     Configuration.setConfig(opts);
     Ogone.main = `${Deno.cwd()}${Configuration.entrypoint}`;
     // message for contributions, ideas, issues and any help.
-    Object.entries(this.contributorMessage)
-      .map(([version, message]: any) => this.message(`[${version}] ${message}`))
+    if (Deno.args.includes('--release')) {
+      Object.entries(this.contributorMessage)
+        .map(([version, message]: any) => this.message(`[${version}] ${message}`))
+    }
     if (opts.build) {
       if (!existsSync(opts.build)) {
         Deno.mkdirSync(opts.build);
