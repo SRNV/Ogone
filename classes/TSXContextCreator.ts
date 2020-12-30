@@ -7,16 +7,31 @@ import { Utils } from "./Utils.ts";
  * a new tsx file, it should expose the diagnostics to the end-user
  */
 export default class TSXContextCreator extends Utils {
-  async read(bundle: Bundle) {
+  async read(bundle: Bundle, opts: { checkOnly?: string } = {}) {
+    const { checkOnly } = opts;
+    let hasError = false;
     this.warn(`Type checking.`);
     const entries = Array.from(bundle.components.entries());
     for await (const [key, component] of entries) {
-      if (component.isTyped) {
-        await this.createContext(bundle, component);
+      if (checkOnly && component.isTyped && (component.file === checkOnly
+        || component.file.endsWith(checkOnly)
+        || checkOnly && checkOnly.endsWith(component.file))) {
+        const diagnosticError = await this.createContext(bundle, component);
+        if (diagnosticError) {
+          hasError = diagnosticError;
+        }
+      } else if (!checkOnly && component.isTyped) {
+        const diagnosticError = await this.createContext(bundle, component);
+        if (diagnosticError) {
+          hasError = diagnosticError;
+        }
       }
     }
+    if (!hasError) {
+      this.success('no type error found.');
+    }
   }
-  private async createContext(bundle: Bundle, component: Component): Promise<void> {
+  private async createContext(bundle: Bundle, component: Component): Promise<boolean> {
     const { green, gray } = colors;
     const baseUrl = new URL(import.meta.url);
     baseUrl.pathname = component.file;
@@ -48,8 +63,13 @@ export default class TSXContextCreator extends Utils {
     });
     Deno.removeSync(newpath);
     ModuleErrors.checkDiagnostics(component, diags as unknown[]);
-    this.success(
-      `${green(component.file)} - ${gray(Math.round(performance.now() - startPerf) + ' ms')}`,
-    );
+    if (diags && diags.length) {
+      return true;
+    } else {
+      this.success(
+        `${green(component.file)} - ${gray(Math.round(performance.now() - startPerf) + ' ms')}`,
+      );
+      return false;
+    }
   }
 }

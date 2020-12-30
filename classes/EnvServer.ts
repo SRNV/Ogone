@@ -20,7 +20,6 @@ export default class EnvServer extends Env {
           // start type checking of all typed components
           if (this.bundle) {
             await this.TSXContextCreator.read(this.bundle);
-            this.success('no type error found.');
           }
           break;
         case Workers.SERVICE_DEV_GET_PORT:

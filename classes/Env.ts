@@ -144,8 +144,9 @@ export default class Env extends Constructor {
                   type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
                   application,
                 });
-                await this.TSXContextCreator.read(bundle);
-                this.success('no type error found.');
+                await this.TSXContextCreator.read(bundle, {
+                  checkOnly: filePath.replace(Deno.cwd(), ''),
+                });
               })
               .then(() => {
                 Deno.remove(tmpFile);
@@ -155,7 +156,7 @@ export default class Env extends Constructor {
               })
             break;
         }
-      }, 250);
+      }, 50);
     });
   }
   public renderBundle(entrypoint: string, bundle: Bundle): string {
