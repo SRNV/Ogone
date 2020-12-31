@@ -66,7 +66,11 @@ o3.run({
 
 ```typescript
 import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
-
+/**
+ * @name Burger
+ * @description
+ *   this component will open the menu in the application
+*/
 <template>
   <StoreMenu namespace="menu" />
   <div class="container" --click:openMenu>
@@ -80,9 +84,6 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
   declare:
     public isOpen: boolean = false;
   case 'click:openMenu':
-    // TODO use StoreMenu.dispatch('toggle')
-    // TODO use StoreMenu.dispatch('checkController')
-    // TODO use StoreMenu.toggle() and basically having acces to the static methods
     Store.dispatch('menu/toggle')
     Store.dispatch('menu/checkController')
       .then((res: any) => {
@@ -132,3 +133,4 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
   - diagnostics
   - webview (live edition)
   - overviews
+  - quick naviguation
