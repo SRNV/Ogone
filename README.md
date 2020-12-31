@@ -66,6 +66,7 @@ o3.run({
 
 ```typescript
 import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
+
 /**
  * @name Burger
  * @description
