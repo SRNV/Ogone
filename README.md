@@ -127,8 +127,8 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
 
 # Extensions
   the only extension available is Otone on Visual Studio Code, this one includes the following configurations:
-    - snippets
-    - syntax high-lighting
-    - diagnostics
-    - webview (live edition)
-    - overviews
+  - snippets
+  - syntax high-lighting
+  - diagnostics
+  - webview (live edition)
+  - overviews
