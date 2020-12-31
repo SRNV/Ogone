@@ -50,6 +50,12 @@ menu:
           - name: --dragend:...
             status: todo
 
+          - name: --event:animationstart:...
+            status: ok
+
+          - name: --event:animationend:...
+            status: ok
+
           - name: --spread
             status: ok
 

@@ -8,9 +8,7 @@
  */
 <template>
   <div class="container">
-    <div class="logo-back">
-      <img --await class="img" src="/ogone.svg"/>
-    </div>
+    <img --await class="img" src="/ogone.svg"/>
   </div>
 </template>
 <proto type="async">
@@ -19,19 +17,11 @@
     break;
 </proto>
 <style>
-  .img {
-    width: auto;
-  }
-  .logo-back {
-    background: var(--o-primary);
-    padding: 6px;
-    border-radius: 100%;
-    animation-name: fade-in-down;
-    animation-iteration-count: 1;
-    animation-duration: 1s;
-  }
-  .container {
+  @const rule = div {
     width: 60px;
     height: auto;
+  }
+  .img, .container {
+    ...rule
   }
 </style>

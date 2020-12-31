@@ -64,6 +64,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
     max-width: 124px;
     min-width: 124px;
     min-height: 65px;
+    cursor: pointer;
   }
   .header {
     background: var(--o-header);
