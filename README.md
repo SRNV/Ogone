@@ -60,8 +60,75 @@ o3.run({
 - [Contributions](https://github.com/SRNV/Ogone/tree/master/docs/contributions.md)
 
 
+# Overview
+
+> find this example in this repository
+
+```typescript
+import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
+
+<template>
+  <StoreMenu namespace="menu" />
+  <div class="container" --click:openMenu>
+    <div class="line"></div>
+    <div class="line"></div>
+    <div class="line"></div>
+  </div>
+</template>
+
+<proto>
+  declare:
+    public isOpen: boolean = false;
+  case 'click:openMenu':
+    // TODO use StoreMenu.dispatch('toggle')
+    // TODO use StoreMenu.dispatch('checkController')
+    // TODO use StoreMenu.toggle() and basically having acces to the static methods
+    Store.dispatch('menu/toggle')
+    Store.dispatch('menu/checkController')
+      .then((res: any) => {
+        console.warn(res);
+      });
+    break;
+</proto>
+
+<style>
+  @const shadowColor = #00000045;
+  @const lineBackground = #848181;
+  .container {
+    padding: 9px;
+    width: 28px;
+    height: auto;
+    background: var(--o-header);
+    display: flex;
+    flex-direction: column;
+    filter: drop-shadow(0px 0px 0px $shadowColor);
+    &:hover {
+      filter: drop-shadow(0px 5px 3px $shadowColor);
+    }
+    &:hover .line {
+      background: var(--o-primary);
+    }
+    .line {
+      background: $lineBackground;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      height: 4px;
+    }
+    .line, & {
+      border-radius: 5px;
+      transition: filter 0.2s ease;
+      cursor: pointer;
+    }
+  }
+</style>
+
+```
 ---
 
 # Extensions
-  - VS Code
-    - Syntax High-lighting: Otone 0.0.8^
+  the only extension available is Otone on Visual Studio Code, this one includes the following configurations:
+    - snippets
+    - syntax high-lighting
+    - diagnostics
+    - webview (live edition)
+    - overviews
