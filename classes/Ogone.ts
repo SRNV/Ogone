@@ -34,6 +34,7 @@ export default class Ogone extends EnvServer {
       Object.entries(this.contributorMessage)
         .map(([version, message]: any) => this.message(`[${version}] ${message}`))
     }
+
     if (opts.build) {
       if (!existsSync(opts.build)) {
         Deno.mkdirSync(opts.build);
@@ -68,6 +69,9 @@ export default class Ogone extends EnvServer {
             Deno.exit();
           }
           */
+        }).then(() => {
+          // message for any interested developer.
+          this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
         });
     } else {
       //start compilation of o3 files
@@ -77,6 +81,9 @@ export default class Ogone extends EnvServer {
         .then(() => {
           // Ogone is now ready to serve
           this.startDevelopment();
+        }).then(() => {
+          // message for any interested developer.
+          this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
         });
     }
   }

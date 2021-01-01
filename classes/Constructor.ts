@@ -126,7 +126,11 @@ export default class Constructor extends Utils {
 
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
+    this.trace('Compilation done.');
+
     await this.NodeAnalyzerCompiler.startAnalyze(bundle);
+    this.trace('Node Analyzer done.');
+
     return bundle;
   }
 }

@@ -17,11 +17,8 @@
     break;
 </proto>
 <style>
-  @const rule = div {
+  .img, .container {
     width: 60px;
     height: auto;
-  }
-  .img, .container {
-    ...rule
   }
 </style>

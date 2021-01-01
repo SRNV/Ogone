@@ -21,6 +21,8 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
   ): Promise<void> {
     const component = bundle.components.get(keyComponent);
     if (component) {
+      const protoNoStrictTagname = component.elements.proto[0]
+        && component.elements.proto[0].attributes.engine === 'no-strict-tagname';
       const isImported: string = component.imports[node.tagName as string];
       const subcomp = bundle.components.get(isImported);
       if (
@@ -31,6 +33,7 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
           `--await must be used in an async component. define type="async" to the proto.\n Error in component: ${component.file}\n node: ${node.tagName}`;
         this.error(BadUseOfAwaitInSyncComponentException);
       }
+      this.trace('BadUseOfAwaitInSyncComponentException passed.')
       if (
         node.attributes && node.attributes["--await"] && isImported &&
         subcomp && subcomp.type !== "async"
@@ -39,12 +42,14 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
           `--await must be called only on async components. change type of <${node.tagName} --await /> or erase --await.\n Error in component: ${component.file}\n node: ${node.tagName}`;
         this.error(BadUseOfAwaitInSyncComponentException);
       }
+      this.trace('BadUseOfAwaitInSyncComponentException passed.')
       if (node.attributes && node.attributes["--defer"] && !isImported) {
         const BadUseDeferFlagException =
           `--defer must be called only on async components. discard <${node.tagName} --defer="${node.attributes["--defer"]
           }" />.\n Error in component: ${component.file}\n node: ${node.tagName}`;
         this.error(BadUseDeferFlagException);
       }
+      this.trace('BadUseDeferFlagException passed.')
       if (
         node.attributes && node.attributes["--defer"] && isImported &&
         subcomp && subcomp.type !== "async"
@@ -54,8 +59,10 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
           }" /> or delete it.\n Error in component: ${component.file}\n node: ${node.tagName}`;
         this.error(BadUseDeferFlagException);
       }
+      this.trace('BadUseDeferFlagException passed.')
       switch (true) {
-        case subcomp &&
+        case !protoNoStrictTagname &&
+          subcomp &&
           ["async", "store", "router"].includes(subcomp.type) &&
           node.tagName &&
           !node.tagName.startsWith(`${subcomp.type[0].toUpperCase()}${subcomp.type.slice(1)}`):
@@ -68,6 +75,7 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
             );
           }
       }
+      this.trace('Valid tag name passed.')
       const nodeIsDynamic = node.nodeType === 1  && Object.keys(node.attributes).find((key: string) => key.startsWith(':'))
       if (node.nodeType === 1 && node.childNodes && node.childNodes.length) {
         for await (const child of node.childNodes) {

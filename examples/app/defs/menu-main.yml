@@ -20,7 +20,7 @@ menu:
             status: ok
 
           - name: --await --defer
-            status: in-progress
+            status: ok
 
           - name: --then:...
             status: ok

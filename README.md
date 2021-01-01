@@ -39,6 +39,9 @@ use Ogone to compile web-components for your applications. it's based on Deno.
 Actually Ogone is under an experimental phase. avoid using it for production.
 Ogone has it own extension `*.o3` which allow some new features.
 
+
+If you're interested by this project: [please join the Discord here](https://discord.gg/gCnGzh2wMc)
+
 # Installation
 
 ```typescript

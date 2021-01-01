@@ -45,15 +45,23 @@ export abstract class Utils {
     throw new Error(m);
   }
   public success(message: string, opts?: { [k: string]: any }): void {
-    const { bgRed, bgBlack, white, bold, green } = colors;
+    const { bgBlack, white, bold, green } = colors;
     this.message(`${bgBlack(bold(green(" SUCCESS ")))} ${white(message)}`);
   }
   public static success(message: string, opts?: { [k: string]: any }): void {
-    const { bgRed, bgBlack, white, bold, green } = colors;
+    const { bgBlack, white, bold, green } = colors;
     this.message(`${bgBlack(bold(green(" SUCCESS ")))} ${white(message)}`);
   }
+  public infos(message: string, opts?: { [k: string]: any }): void {
+    const { bgBlack, bold, blue } = colors;
+    this.message(`${bgBlack(bold(blue("  INFOS  ")))} ${blue(message)}`);
+  }
+  public static infos(message: string, opts?: { [k: string]: any }): void {
+    const { bgBlack, bold, blue } = colors;
+    this.message(`${bgBlack(bold(blue("  INFOS  ")))} ${blue(message)}`);
+  }
   public message(message: string, opts?: { [k: string]: any }): void | string {
-    const { cyan, bold, white } = colors;
+    const { cyan, bold } = colors;
     const name = bold(cyan(" [Ogone] "));
     if (opts && opts.returns) {
       return `${name} ${message}`;

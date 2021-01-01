@@ -31,7 +31,7 @@
     max-width: 500px;
     margin: auto;
     img.logo {
-      width: 400px;
+      width: 500px;
       height: auto;
       animation-name: rotate;
       animation-duration: 5s;

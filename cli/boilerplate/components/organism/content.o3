@@ -5,7 +5,7 @@ import component StoreDocComponent from '../stores/doc.store.o3';
   <StoreDocComponent namespace="pages"/>
   <iframe src={this.page}></iframe>
   <div class="nav">
-    <Nav></Nav>
+    <Nav />
   </div>
 </template>
 <proto>

@@ -21,7 +21,7 @@ self.addEventListener('unload', () => {
   client.close();
 })
 self.onmessage = (ev: any) => {
-  const { type, application, port, component } = ev.data;
+  const { type, application, port, component, data } = ev.data;
   switch (type) {
     case Workers.LSP_SEND_COMPONENT_INFORMATIONS:
       notify(Workers.LSP_SEND_COMPONENT_INFORMATIONS, component);
@@ -31,6 +31,9 @@ self.onmessage = (ev: any) => {
       break;
     case Workers.LSP_CURRENT_COMPONENT_RENDERED:
       notify(Workers.LSP_CURRENT_COMPONENT_RENDERED, application);
+      break;
+    default:
+      notify(type, data);
       break;
   }
 }
