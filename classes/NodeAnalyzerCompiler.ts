@@ -1,3 +1,4 @@
+import { ComponentEngine } from './../enums/componentEngine.ts';
 import type { Bundle, XMLNodeDescription } from "../.d.ts";
 import WebComponentDefinition from "./WebComponentDefinition.ts";
 /**
@@ -22,7 +23,7 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
     const component = bundle.components.get(keyComponent);
     if (component) {
       const protoNoStrictTagname = component.elements.proto[0]
-        && component.elements.proto[0].attributes.engine === 'no-strict-tagname';
+        && component.elements.proto[0].attributes.engine === ComponentEngine.NoStrictTagName;
       const isImported: string = component.imports[node.tagName as string];
       const subcomp = bundle.components.get(isImported);
       if (
@@ -70,6 +71,7 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
             this.error(
               `'${node.tagName}' is not a valid selector of ${subcomp.type} component. please use the following syntax:
                 import ${subcomp.type[0].toUpperCase()}${subcomp.type.slice(1)}${node.tagName} from '${isImported}';
+import { ComponentEngine } from '../enums/componentEngine';
                 component: ${component.file}
               `,
             );
