@@ -44,6 +44,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     if (this.type === "store") {
       this.initStore();
     }
+    this.updateProps();
     this.runtime(0, params, event);
   };
   this.update = (dependency?: string) => {
@@ -119,8 +120,8 @@ function OComponent(this: OnodeComponent): OnodeComponent {
       );
     }
   };
-  this.updateService = (key: string, value: unknown) => {
-    if (this.data && value !== this.data[key]) {
+  this.updateService = (key: string, value: unknown, force?: boolean) => {
+    if (this.data && value !== this.data[key] || force && this.data) {
       const previous = this.data[key];
       this.data[key] = value;
       /**
@@ -160,8 +161,8 @@ function OComponent(this: OnodeComponent): OnodeComponent {
   this.updateProps = (dependency: string) => {
     if (!this.activated) return;
     if (this.type === "store") return;
-    if (!this.requirements || !this.props) return;
-    this.requirements.forEach(([key,]: [string, any[]]) => {
+    if (!this.requirements || !this.requirements.length || !this.props) return;
+    this.requirements.forEach(([key]: [string, string]) => {
       const prop = this.props.find((prop: [string, ...any[]]) =>
         prop[0] === key
       );
@@ -170,9 +171,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
         getText: `${prop[1]}`,
         position: this.positionInParentComponent,
       });
-      if (this.data && value !== this.data[key]) {
-        this.updateService(key, value);
-      }
+      this.updateService(key, value, !!dependency);
     });
   };
   /**

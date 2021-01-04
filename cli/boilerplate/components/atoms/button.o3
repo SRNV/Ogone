@@ -1,11 +1,13 @@
-require text as string;
-
 <template>
   <div class="container">
     ${this.text}
   </div>
 </template>
 
+<proto type="component">
+  declare:
+    inherit text: string = 'Untitled';
+</proto>
 <style>
   .container {
     background: #f1f1f1;

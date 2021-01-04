@@ -1,4 +1,3 @@
-require text as string;
 <template>
     <div>
         <slot></slot>
@@ -6,3 +5,7 @@ require text as string;
         ${this.text}
     </div>
 </template>
+<proto type="component">
+  declare:
+    inherit text: string = 'no text';
+</proto>

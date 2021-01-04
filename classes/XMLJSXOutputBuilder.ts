@@ -202,8 +202,7 @@ export default class XMLJSXOutputBuilder extends Utils {
             ? "position: p, level: l, index: i,"
             : "",
           positionInParentComponent: isImported && subcomp
-            ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${JSON.stringify(props)
-            }),
+            ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${JSON.stringify(props)}),
             uuid: '${subcomp.uuid}',
             routes: ${JSON.stringify(subcomp.routes)},
             namespace: '${subcomp.namespace ? subcomp.namespace : ""}',

@@ -26,15 +26,10 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
       importedComponentsTypes: [],
     });
   }
-  static getPropsDeclarations(component: Component): string {
-    return component.requirements ? component.requirements.map(
-      ([name, constructors]) =>
-        `\ndeclare public ${name}: ${constructors.join(" | ")};`,
-    ).join('') : '';
-  }
   static getInterfaceProps(component: Component): string {
+    console.log(1, component.requirements);
     return component.requirements ? component.requirements.map(
-      ([name, constructors]) => `\n${name}: ${constructors.map((c) => `${c}`,).join(" | ")};`).join('') : ''
+      ([name, type]) => `\n${name}: ${type};`).join('') : ''
   }
   static getPropsFromNode(node: XMLNodeDescription): string {
     return Object.entries(node.attributes).filter(([key]) =>
@@ -49,14 +44,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
       if (item) {
         item.value = this.template(ProtocolEnum.PROTOCOL_TEMPLATE.trim(), {
           data: ctx.value.trim(),
-          props: ProtocolClassConstructor.getPropsDeclarations(component),
         });
       }
-    }
-  }
-  public setProps(component: Component) {
-    if (component.requirements) {
-      component.context.props = ProtocolClassConstructor.getPropsDeclarations(component);
     }
   }
   private recursiveInspectionOfNodes(bundle: Bundle, component: Component, opts: { importedComponent: Component, tagName: string, n: XMLNodeDescription }) {
@@ -145,7 +134,7 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
     let result = '';
     const { template } = component.elements;
     if (template && template.getOuterTSX) {
-      result = template.getOuterTSX();
+      result = template.getOuterTSX(component);
     }
     return result;
   }

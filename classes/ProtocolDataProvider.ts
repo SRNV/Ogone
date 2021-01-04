@@ -1,4 +1,4 @@
-import type { Bundle, Component, ModifierContext } from '../.d.ts';
+import type { Bundle, Component, ModifierContext, TypedExpressions } from '../.d.ts';
 import ProtocolModifierGetter from './ProtocolModifierGetter.ts';
 import { Utils } from './Utils.ts';
 import DefinitionProvider from './DefinitionProvider.ts';
@@ -6,6 +6,12 @@ import ProtocolClassConstructor from './ProtocolClassConstructor.ts';
 import ProtocolBodyConstructor from './ProtocolBodyConstructor.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';
 import { MapPosition } from "./MapPosition.ts";
+import notParsedElements from '../utils/not-parsed.ts';
+import elements from '../utils/elements.ts';
+import read from '../utils/agnostic-transformer.ts';
+import getTypedExpressions from '../utils/typedExpressions.ts';
+import getDeepTranslation from '../utils/template-recursive.ts';
+import generator from "../utils/generator.ts";
 
 /**
  * @name ProtocolDataProvider
@@ -45,8 +51,8 @@ export default class ProtocolDataProvider extends Utils {
             exclude: ['def'],
             isReactive: component.type !== "controller",
             onParse: (ctx: ModifierContext) => {
+              this.transformInheritedPropertiesInContext(component, ctx);
               component.isTyped = true;
-              this.ProtocolClassConstructor.setProps(component);
               this.ProtocolClassConstructor.saveProtocol(component, ctx);
             }
           },
@@ -90,15 +96,49 @@ export default class ProtocolDataProvider extends Utils {
       });
     });
     for await (const [, component] of entries) {
+      await this.DefinitionProvider.setDataToComponentFromFile(component);
+      this.DefinitionProvider.transformInheritedProperties(component);
+    }
+    for await (const [, component] of entries) {
       this.ProtocolClassConstructor.getAllUsedComponents(bundle, component);
       this.ProtocolClassConstructor.buildProtocol(component);
       await this.ProtocolClassConstructor.setComponentRuntime(component);
-      await this.DefinitionProvider.setDataToComponentFromFile(component);
     }
   }
   // set the automatic reactivity helper
   // protocolReactivity will add a function after all AssignmentPattern
   setReactivity(text: string) {
     return this.ProtocolReactivity.getReactivity({ text });
+  }
+  private transformInheritedPropertiesInContext(component: Component, ctx: ModifierContext) {
+    const expressions: any = {};
+    const typedExpressions = getTypedExpressions();
+    let result = read({
+      value: ctx.value,
+      array: notParsedElements.concat(elements).concat([
+        {
+          name: 'inherit',
+          reg: /(inherit)(?:\s+)([^\s\:\n\=\;\?]+)+(\:(?<types>.+?)){0,1}(?:\=)/i,
+          open: false,
+          id: (value, matches) => {
+            const id = `${generator.next().value}_inherit`;
+            if (matches) {
+              const [input, statement, property] = matches;
+              const types = matches?.groups?.types || 'unknown';
+              component.requirements = component.requirements || [];
+              component.requirements.push([property.trim(), getDeepTranslation(types, expressions)])
+              expressions[id] = `${property}${':' + types}=`;
+              return id;
+            }
+            expressions[id] = value;
+            return id;
+          },
+          close: false,
+        }
+      ]),
+      expressions,
+      typedExpressions,
+    });
+    ctx.value = getDeepTranslation(result, expressions);
   }
 }

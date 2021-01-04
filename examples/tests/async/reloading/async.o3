@@ -1,7 +1,4 @@
-// require statement tells to the parent component what is needed inside the component.
-require id as number;
-// use statement tells to Ogone to use the file as store-component
-use @/examples/tests/async/reloading/store.o3 as 'store-component';
+import component StoreComponent from "@/examples/tests/async/reloading/store.o3";
 
 <template>
   <store-component namespace="user"/>
@@ -11,6 +8,7 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
 
 <proto type="async">
   def:
+    inherit id: 0
     user: null
   before-each:
     const getUser = () => {

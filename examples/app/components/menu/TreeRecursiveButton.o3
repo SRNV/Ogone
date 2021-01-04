@@ -1,18 +1,6 @@
 import component ScrollComponent from '@/examples/app/components/Scroll.o3';
 import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
 
-require item as {
-  route: string;
-  status?: string;
-  name?: string;
-  children: ({
-    status?: string;
-    name: string;
-    route: string;
-    children: any[]
-  })[];
-};
-
 <template>
   <div class="container">
     <div
@@ -20,7 +8,7 @@ require item as {
       --click:toggle
       --router-go={this.item.route}>
       <span>
-      ${this.item.name}
+        ${this.item.name}
       </span>
       <span --class={!this.item.children && this.item.status ? `status ${this.item.status}` : ''}>
         ${!this.item.children && this.item.status ? this.item.status : ''}
@@ -44,6 +32,17 @@ require item as {
 <proto>
   declare:
     public openTree: boolean = false;
+    public inherit item: {
+      route: string;
+      status?: string;
+      name?: string;
+      children: ({
+        status?: string;
+        name: string;
+        route: string;
+        children: any[]
+      })[];
+    } = { route: '', children: []};
   case 'click:toggle':
     this.openTree = !this.openTree
     break;

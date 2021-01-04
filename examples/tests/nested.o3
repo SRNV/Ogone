@@ -1,2 +1,5 @@
-require name as string;
 <template>${this.name}</template>
+<proto type="component">
+  declare:
+    inherit name: string = 'no-name';
+</proto>

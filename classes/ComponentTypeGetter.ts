@@ -26,19 +26,6 @@ export default class ComponentTypeGetter extends Utils {
     bundle.components.forEach((component: Component) => {
       const proto = component.elements.proto[0];
       const position = MapPosition.mapNodes.get(proto)!;
-      if (
-        component.requirements && component.data &&
-        component.requirements.length
-      ) {
-        component.requirements.forEach(([key]) => {
-          if (component.data[key]) {
-            this.error(
-              `${component.file}:${position.line}:${position.column}\n\t${key} is already defined in datas for component`,
-            );
-          }
-          component.data[key] = null;
-        });
-      }
       if (proto) {
         const { type } = component as Component;
         if (!Ogone.allowedTypes.includes(type as string)) {

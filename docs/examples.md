@@ -4,18 +4,17 @@
 [read this documentation on Async Components](https://github.com/SRNV/Ogone/blob/master/docs/async.README.md).
 
 ```typescript
-// require statement tells to the parent component what is needed inside the component.
-require id as number;
-// use statement tells to Ogone to use the file as store-component
-use @/examples/tests/async/reloading/store.o3 as 'store-component';
+import component StoreComponent from "@/examples/tests/async/reloading/store.o3";
 
 <template>
-  <store-component namespace="user"/>
+  <StoreComponent namespace="user"/>
   <div> Welcome ${user ? user.username : ''}</div>
   <img src="public/ogone.svg"  --await />
 </template>
 <proto type="async">
   def:
+    // inherit statement tells to the parent component what is needed inside the component.
+    inherit number: null
     user: null
   before-each: // 0.6.0
     const getUser = () => Store.dispatch('user/getUser', this.id)
@@ -35,12 +34,12 @@ use @/examples/tests/async/reloading/store.o3 as 'store-component';
 let's see what we can do inside the parent component
 
 ```typescript
-use @/examples/tests/async/reloading/async.o3 as 'async-component';
-use @/examples/tests/async/reloading/store.o3 as 'store-component';
+import component AsyncComponent from  "@/examples/tests/async/reloading/async.o3";
+import component StoreComponent from "@/examples/tests/async/reloading/store.o3";
 
 <template>
-  <store-component namespace="user" />
-  <async-component :id="id" --await --then:user-loaded />
+  <StoreComponent namespace="user" />
+  <AsyncComponent :id="id" --await --then:user-loaded />
 </template>
 <proto type="async">
   def:
@@ -118,74 +117,87 @@ more on reflected datas
 ### menu component example
 
 ```typescript
-use @/examples/app/stores/menu.store.o3 as 'store-component'
-use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/examples/app/components/logo.o3 as 'logo-el'
+import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
+import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
+import component LogoEl from '@/examples/app/components/Logo.o3';
 
+<template>
+  <StoreMenu namespace="menu" />
+  <div
+    class="left-menu"
+    --class={{ close: !this.isOpen }}>
+    <div class="header">
+      <LogoEl --click:toggle-menu></LogoEl>
+      <div>0.1.0</div>
+    </div>
+    <div class="tree">
+      <TreeRecursive --for={item of this.menu} item={item} />
+    </div>
+  </div>
+  <div --class={{ darken: this.isOpen }} --click:toggle-menu></div>
+</template>
 
 <proto def="examples/app/defs/menu-main.yml">
   def:
     isOpen: false
   case 'click:toggle-menu':
     Store.dispatch('menu/toggle');
-  break;
+    break;
 </proto>
-
-<template>
-  <store-component namespace="menu" />
-  <div class="left-menu"
-    --class="{ close: !this.isOpen }">
-    <div class="header">
-      <logo-el --click:toggle-menu></logo-el>
-      <div>0.1.0</div>
-    </div>
-    <div class="tree">
-      <tree-recursive --for="item of menu" :item="item">
-      </tree-recursive>
-    </div>
-  </div>
-  <div --class="{ darken: this.isOpen }" --click:toggle-menu></div>
-</template>
 ```
 
 ### recursive component example
 
 ```typescript
-require item as Object
-
-use @/examples/app/components/menu/tree-recursive-button.o3 as 'tree-recursive'
-use @/examples/app/components/scroll.o3 as 'scroll'
-
-<proto>
-  def:
-    openTree: false
-  case 'click:toggle':
-    this.openTree = !this.openTree
-  break;
-</proto>
+import component ScrollComponent from '@/examples/app/components/Scroll.o3';
+import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
 
 <template>
   <div class="container">
-    <div class="title" --click:toggle --router-go="item.route">
+    <div
+      class="title"
+      --click:toggle
+      --router-go={this.item.route}>
       <span>
-      ${item.name}
+      ${this.item.name}
       </span>
-      <span --class="!item.children && item.status ? `status ${item.status}` : ''">
-        ${!item.children && item.status ? item.status : ''}
+      <span --class={!this.item.children && this.item.status ? `status ${this.item.status}` : ''}>
+        ${!this.item.children && this.item.status ? this.item.status : ''}
       </span>
-      <span --if="item.children && !openTree"> > </span>
-      <span --else-if="item.children && openTree"> < </span>
+      <span --if={this.item.children && !this.openTree}> > </span>
+      <span --else-if={this.item.children && this.openTree}> < </span>
     </div>
-    <div class="child" --if="item.children" --class="{ 'child-open': openTree }">
-      <scroll>
-        <tree-recursive
-          --if="!!item.children"
-          --for="child of item.children"
-          :item="child ? child : {}"></tree-recursive>
-      </scroll>
+    <div
+      class="child"
+      --if={this.item.children}
+      --class={{ 'child-open': this.openTree }}>
+      <ScrollComponent>
+        <TreeRecursive
+          --for={child of this.item.children}
+          item={child}></TreeRecursive>
+      </ScrollComponent>
     </div>
   </div>
 </template>
+
+<proto>
+  declare:
+    public openTree: boolean = false;
+    public inherit item: {
+      route: string;
+      status?: string;
+      name?: string;
+      children: ({
+        status?: string;
+        name: string;
+        route: string;
+        children: any[]
+      })[];
+    } = { route: '', children: []};
+  case 'click:toggle':
+    this.openTree = !this.openTree
+    break;
+</proto>
 ```
 # Learn Ogone
 

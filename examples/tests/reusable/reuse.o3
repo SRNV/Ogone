@@ -1,9 +1,9 @@
-require count as number;
-require name as string;
-
 <template is="test-el:div">
 </template>
 <proto
   type="component"
   engine="proxy-reaction sync-template">
+  declare:
+    inherit count: number = 0;
+    inherit name: string = '';
 </proto>

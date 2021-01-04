@@ -15,8 +15,6 @@ function _OGONE_BROWSER_CONTEXT() {
         } else if (obj[key] instanceof Object && !proxies[id]) {
           v = setReactivity(obj[key] as Object, updateFunction, id);
           proxies[id] = v;
-        } else if (proxies[id]) {
-          return proxies[id];
         } else {
           v = Reflect.get(obj, key, ...args);
         }

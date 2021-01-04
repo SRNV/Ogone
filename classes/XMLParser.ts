@@ -90,7 +90,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   ): void {
     const { nodeList } = rootnode;
     nodeList.forEach((node: XMLNodeDescription) => {
-      node.getOuterTSX = () => {
+      node.getOuterTSX = (component: Component) => {
         if (node.nodeType === 1) {
           let templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{%outers%}\n</{%tagname%}>`;
           if (node.attributes['--for']) {
@@ -111,7 +111,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             {
               outers: node.childNodes.map((c) => {
                 if (c.getOuterTSX) {
-                  return c.getOuterTSX();
+                  return c.getOuterTSX(component);
                 } else {
                   return "";
                 }
@@ -119,6 +119,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               tagname: node.tagName,
               attrs: Object.entries(node.attributes)
                 .map(([key, value]) => {
+                  if (key === component.uuid) return '';
                   if(key === '--spread') {
                     return `\n{${value}}`;
                   }

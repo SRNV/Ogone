@@ -1,5 +1,5 @@
 import { colors } from "../deps.ts";
-const { red, green, white, blue, gray, yellow } = colors;
+const { red, green, white, blue, gray, yellow, bgRed } = colors;
 function exampleFormat(txt: string) {
   return gray(txt.replace(/(\<([^>]*)+(\/){0,1}\>)/g, blue('<$2>')));
 }
@@ -23,9 +23,19 @@ export default {
                 replacing the result by:
                   ${blue('$2$4{$6}')}
 
+            - ${red(`BREAKING: ${white('the require syntax for props is no more supported,')} use instead the inherit statement like following`)}:
+                ${exampleFormat(`
+                ${bgRed('require prop as string;')}
+                <proto>
+                  declare:
+                    ${green('public inherit prop: string = "";')}
+                  // or with def
+                  def:
+                    ${green('inherit prop: ""')}
+                </proto>`)}
 
             - ${blue('chore')}: Ogone will start using workers, the first one is set for the local server.
-            - ${blue('chore')}: specifying the port and the static on configurtion is no more required.
+            - ${blue('chore')}: specifying the port on configurtion is no more required.
 
             - ${green('feat')}: using curly braces on components allows us to spread any object.
                 this is the same as adding the spread flag (${green('--spread')})

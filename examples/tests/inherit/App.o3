@@ -1,0 +1,11 @@
+
+import component DefComponent from './DefComponent.o3';
+import component TypedComponent from './TypedComponent.o3';
+<template>
+  <DefComponent inherited={this.leg} />
+  <TypedComponent inherited={this.leg} test={this.leg.test}/>
+</template>
+<proto type="component">
+  declare:
+    leg: { test: string } = { test: "working" };
+</proto>

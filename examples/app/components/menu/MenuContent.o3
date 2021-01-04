@@ -4,7 +4,7 @@ import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
 <template>
   <div id="test" class="menu">
     <div class="displayButtons">
-      <MenuButton --for={t of this.menu} item={t} />
+      <MenuButton --for={t of this.menu} buttonOpts={t} />
     </div>
     <div>
       <Burger />

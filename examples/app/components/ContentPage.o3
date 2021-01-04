@@ -1,4 +1,3 @@
-require title, text, code as string;
 <template>
   <div class="container">
     <div class="left">
@@ -14,6 +13,12 @@ require title, text, code as string;
     </div>
   </div>
 </template>
+<proto type="component">
+  def:
+    inherit title: untitled
+    inherit text: no text
+    inherit code: "..."
+</proto>
 <style>
   .container {
     min-height: 400px;

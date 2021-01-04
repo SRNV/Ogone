@@ -9,9 +9,10 @@ export default class DefinitionProvider extends Utils {
   public saveDataOfComponent(component: Component, ctx: ModifierContext): void {
     const { value } = ctx;
     const data = YAML.parse(value);
+    console.warn(data);
     this.mapData.set(component.uuid, { data });
   }
-  public async setDataToComponentFromFile(component: Component) {
+  public async setDataToComponentFromFile(component: Component): Promise<void> {
     const proto = component.elements.proto[0];
     let defData: any;
     const item = this.mapData.get(component.uuid);
@@ -110,8 +111,26 @@ export default class DefinitionProvider extends Utils {
   }
   saveContextToComponent(component: Component): void {
     component.context.data = component.data instanceof Object
-      && !Array.isArray(component.data) ? Object.keys(component.data).map((key) => {
-        return `const ${key} = this.${key};`;
-      }).join('\n') : '';
+    && !Array.isArray(component.data) ? Object.keys(component.data).map((key) => {
+      return `const ${key} = this.${key};`;
+    }).join('\n') : '';
+  }
+  public transformInheritedProperties(component: Component): void {
+    this.trace('Inherit statements on def modifier.');
+    // if (component.isTyped || !component.data) return
+    const keys = Object.keys(component.data);
+    const inheritRegExp = /^(inherit\s+)([^\s]+)+$/
+    keys.filter((key) => {
+      return inheritRegExp.test(key)
+    })
+    .forEach((key) => {
+      const property = key.replace(inheritRegExp, '$2');
+      component.data[property] = component.data[key];
+      component.requirements = component.requirements || [];
+      component.requirements.push([property, 'unknown']);
+      this.trace(`${property} inherited. transformation of ${key}`);
+      delete component.data[key];
+    });
+    this.trace('Inherit statements on def modifier done.');
   }
 }

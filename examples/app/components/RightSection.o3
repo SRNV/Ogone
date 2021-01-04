@@ -1,8 +1,10 @@
-require scrollY as number;
-
 <template>
   <div class="container">${this.scrollY}</div>
 </template>
+<proto type="component">
+  def:
+    inherit scrollY: 0
+</proto>
 <style>
   .container {
     position: fixed;

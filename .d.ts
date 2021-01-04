@@ -140,7 +140,11 @@ export interface Component {
   rootNode: XMLNodeDescription;
   imports: MapIndexable;
   deps: ImportDescription[];
-  requirements: [string, [string]][] | null;
+  /**
+   * first is the property
+   * second is the types, unknown if undefined
+   */
+  requirements: [string, string][] | null;
   type: "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
   mapStyleBundle?: Style["mapStyleBundle"];
@@ -214,7 +218,7 @@ export interface XMLNodeDescription {
   };
   getInnerHTML?: () => string;
   getOuterHTML?: () => string;
-  getOuterTSX?: () => string;
+  getOuterTSX?: (component: Component) => string;
 }
 
 /**

@@ -1,5 +1,4 @@
 import component AsyncRecursiveComponent from '@/cli/boilerplate/components/atoms/li-menu.o3';
-require item as { label: string; route: string; children: any[]; };
 
 <template>
   <li
@@ -17,6 +16,8 @@ require item as { label: string; route: string; children: any[]; };
 </template>
 
 <proto type="async">
+  declare:
+    inherit item: { label: string; route: string; children: any[]; };
   default:
     Async.resolve();
 </proto>
