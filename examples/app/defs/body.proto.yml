@@ -1,11 +1,7 @@
 articles:
   - title: Experimental tool for a fullstack use.
     text: "Ogone is an experimental tool for Fullstack dev. \nFully based on Deno."
-    code: "
-      o3.run({\n
-      \tentrypoint: '/app/index.o3',\n
-      \tport: 4000,\n
-      })"
+    code: ""
 
   - title: Get Started with the classic greeting app
     text: TODO
@@ -17,7 +13,9 @@ articles:
 
   - title: Install Ogone
     text: TODO
-    code: 'import o3 from "https://deno.land/x/ogone/mod.ts"'
+    code: "
+      deno install -Afq --unstable <deno or nest registry>/ogone@0.28.0/cli/ogone.ts\n
+      ogone run <path_to_component>"
 
   - title: Using case, default, def, before-each keywords to rule the component
     text: TODO

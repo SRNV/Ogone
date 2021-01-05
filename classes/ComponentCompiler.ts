@@ -181,6 +181,7 @@ export default class ComponentCompiler extends Utils {
           : "",
         hasStore: !!component.hasStore ? store : "",
       };
+      console.warn(`  ${this.template(result, d)}`)
       result = (await Deno.transpileOnly({
         "/transpiled.ts": `  ${this.template(result, d)}`,
       }, { sourceMap: false, }))["/transpiled.ts"].source;

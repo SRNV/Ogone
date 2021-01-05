@@ -6,5 +6,7 @@ export enum Messages {
             <PATH TO YOUR COMPONENT>.o3
         - build (todo)
         - create (todo)
+        - fmt (todo)
+        - lint (todo)
     `
 }

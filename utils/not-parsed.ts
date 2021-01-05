@@ -30,19 +30,40 @@ const nullish: ProtocolScriptRegExpList = [
     name: 'comment',
     split: ["/*", "*/"],
     splittedId: (value, expressions) => {
-      const id = `§§comment0§§`;
+      const id = `${gen.next().value}_comment`;
       if (expressions) expressions[id] = value;
-      return "";
+      return " ".repeat(value.length);
     },
   },
   {
     name: 'comment',
     open: "//",
+    reg: /(?<!\:)\/\/([^\n])+(?:\n)/,
+    id: (value, matches, typedExpressions, expressions) => {
+      const id = `${gen.next().value}_comment`;
+      if (expressions) expressions[id] = value;
+      return " ".repeat(value.length -1)  + '\n';
+    },
+    close: "/",
+  },
+  // comments not erased
+  {
+    name: 'comment_saved',
+    split: ["/*", "*/"],
+    splittedId: (value, expressions) => {
+      const id = `${gen.next().value}_comment`;
+      if (expressions) expressions[id] = value;
+      return id;
+    },
+  },
+  {
+    name: 'comment_saved',
+    open: "//",
     reg: /(?<!\:)\/\/([^\n])+\n/,
     id: (value, matches, typedExpressions, expressions) => {
-      const id = `§§commentLine${gen.next().value}§§`;
+      const id = `${gen.next().value}_comment`;
       if (expressions) expressions[id] = value;
-      return "";
+      return id;
     },
     close: "/",
   },

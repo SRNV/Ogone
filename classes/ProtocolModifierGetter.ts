@@ -56,7 +56,12 @@ export default class ProtocolModifierGetter extends Utils {
       typedExpressions: this.typedExpressions,
       expressions: this.expressions,
       value: text,
-      array: notParsedElements.concat(elements),
+      array: notParsedElements.concat(elements, [{
+        open: false,
+        reg: /\n\s*\n/,
+        id: (value, matches) => '\n',
+        close: false,
+      }]),
     });
     // split modifiers
     // now we got all the content following the token

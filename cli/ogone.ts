@@ -7,8 +7,14 @@ import o3 from '../mod.ts';
 export class OgoneCLI extends Utils {
   public static async init(): Promise<void> {
     const command = Deno.args[0];
-    switch(command) {
+    switch (command) {
       case Commands.CREATE:
+        break;
+      case Commands.BUILD:
+        break;
+      case Commands.LINT:
+        break;
+      case Commands.FMT:
         break;
       case Commands.RUN:
         const path = Deno.args[1];
