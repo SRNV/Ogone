@@ -1,18 +1,19 @@
 import { colors } from "../deps.ts";
 import getDeepTranslation from '../utils/template-recursive.ts';
 import { absolute } from '../deps.ts';
+import { Flags } from "../enums/flags.ts";
 
 export abstract class Utils {
   protected getDeepTranslation = getDeepTranslation;
   protected static getDeepTranslation = getDeepTranslation;
   protected absolute = absolute;
   trace(message: string) {
-    if (Deno.args.includes('--ogone-trace')) {
+    if (Deno.args.includes(Flags.TRACE)) {
       this.message(`${this.constructor.name} ${message}`);
     }
   }
   static trace(message: string) {
-    if (Deno.args.includes('--ogone-trace')) {
+    if (Deno.args.includes(Flags.TRACE)) {
       this.message(`${this.constructor.name} ${message}`);
     }
   }

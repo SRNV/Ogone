@@ -4,6 +4,7 @@ import { existsSync } from "../utils/exists.ts";
 import EnvServer from "./EnvServer.ts";
 import type { OgoneConfiguration } from "../.d.ts";
 import messages from "../chore/messages.ts";
+import { Flags } from "../enums/flags.ts";
 
 export default class Ogone extends EnvServer {
   static files: string[] = [];
@@ -32,7 +33,7 @@ export default class Ogone extends EnvServer {
     Configuration.setConfig(opts);
     Ogone.main = `${Deno.cwd()}${Configuration.entrypoint}`;
     // message for contributions, ideas, issues and any help.
-    if (Deno.args.includes('--release')) {
+    if (Deno.args.includes(Flags.RELEASE)) {
       Object.entries(this.contributorMessage)
         .map(([version, message]: any) => this.message(`[${version}] ${message}`))
     }

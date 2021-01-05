@@ -49,6 +49,19 @@ export default {
             - ${blue('chore')}: Ogone will start using workers, the first one is set for the local server.
             - ${blue('chore')}: specifying the port on configurtion is no more required.
 
+            - ${green('feat')}: Ogone CLI is landed
+              start using it by the following command:
+                ${green(`
+                  deno install -Afq --unstable https://deno.land/x/ogone@0.28.0/cli/ogone.ts
+                  deno install -Afq --unstable https://x.nest.land/Ogone@0.28.0/cli/ogone.ts
+                `)}
+
+              you can now run your application like following:
+
+                ${green(`ogone run <path_to_component>`)}
+
+              more as to be done...
+
             - ${green('feat')}: using curly braces on components allows us to spread any object.
                 this is the same as adding the spread flag (${green('--spread')})
                 example:${exampleFormat(`

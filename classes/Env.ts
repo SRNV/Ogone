@@ -14,6 +14,7 @@ import Workers from "../enums/workers.ts";
 import { DenoStdInternalError } from "https://deno.land/std@0.61.0/_util/assert.ts";
 import MapFile from "./MapFile.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
+import { Flags } from "../enums/flags.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -103,7 +104,7 @@ export default class Env extends Constructor {
   public listenLSPWebsocket(): void {
     let timeoutBeforeSendingRequests: number;
     // send open designer message to the LSP
-    if (Deno.args.includes('--open-designer')) {
+    if (Deno.args.includes(Flags.DESIGNER)) {
       Configuration.OgoneDesignerOpened = true;
       OgoneWorkers.lspWebsocketClientWorker.postMessage({
         type: Workers.LSP_OPEN_WEBVIEW,

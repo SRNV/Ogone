@@ -93,7 +93,7 @@ export default class Constructor extends Utils {
 
     // get the type for all the components
     this.ComponentTypeGetter.setApplication(bundle);
-    this.trace('App Component switched to component type and Configuration.head is defined if the head is provided');
+    this.trace('App Component switched to component type and Configuration.head is defined if the head was provided');
 
     // @code OIA3
     await this.ImportsAnalyzer.inspect(bundle);
