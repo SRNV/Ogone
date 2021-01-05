@@ -1,4 +1,5 @@
 import type { Bundle, Component, XMLNodeDescription } from '../.d.ts';
+import { Configuration } from "./Configuration.ts";
 import { MapPosition } from "./MapPosition.ts";
 import Ogone from "./Ogone.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
@@ -18,6 +19,33 @@ export default class ComponentTypeGetter extends Utils {
       if (proto) {
         component.type = proto.attributes?.type as Component['type'] || 'component';
         bundle.types[component.type] = true;
+      }
+    });
+  }
+  setApplication(bundle: Bundle) {
+    const rootComponent: Component | undefined = bundle.components.get(Configuration.entrypoint);
+    const entries = Array.from(bundle.components.entries()).map(([, c]) => c);
+    if (rootComponent) {
+      const { head, template } = rootComponent.elements;
+      if (rootComponent.type !== "app") {
+        this.error(`${rootComponent.file}\n\troot component type should be defined as app.`);
+      }
+      if (head && head.getInnerHTML) {
+        Configuration.head = head.getInnerHTML();
+        if (template) {
+          // remove the head in the template
+          template.childNodes.splice(
+            template.childNodes.indexOf(head),
+            1
+          );
+        }
+      }
+      rootComponent.type = "component";
+    }
+    // change all the sub component that are typed as app
+    entries.forEach((component: Component) => {
+      if (component.type === 'app') {
+        component.type = 'component';
       }
     });
   }

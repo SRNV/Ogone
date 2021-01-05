@@ -24,6 +24,7 @@
     display: inline-flex;
     background: var(--o-header);
     height: 100%;
+    width:  min-content;
     vertical-align: middle;
     align-items: center;
     padding: 23px;

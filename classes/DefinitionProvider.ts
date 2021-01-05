@@ -9,7 +9,6 @@ export default class DefinitionProvider extends Utils {
   public saveDataOfComponent(component: Component, ctx: ModifierContext): void {
     const { value } = ctx;
     const data = YAML.parse(value);
-    console.warn(data);
     this.mapData.set(component.uuid, { data });
   }
   public async setDataToComponentFromFile(component: Component): Promise<void> {

@@ -356,10 +356,6 @@ export default class Env extends Constructor {
       const [, scriptProd] = await Deno.compile("index.ts", {
         "index.ts": `
         import test from "./test.js"
-import Workers from '../enums/workers';
-import { BoilerPlate } from '../enums/templateComponent';
-import MapFile from './MapFile';
-import OgoneWorkers from './OgoneWorkers';
         `,
         "test.js": "export default 10;",
       }, {

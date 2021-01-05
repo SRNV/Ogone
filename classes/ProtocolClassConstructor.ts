@@ -27,7 +27,6 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
     });
   }
   static getInterfaceProps(component: Component): string {
-    console.log(1, component.requirements);
     return component.requirements ? component.requirements.map(
       ([name, type]) => `\n${name}: ${type};`).join('') : ''
   }

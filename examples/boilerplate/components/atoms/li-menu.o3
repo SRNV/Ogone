@@ -5,11 +5,11 @@ import component AsyncRecursiveComponent from '@/cli/boilerplate/components/atom
     --event:animationend:fade-in-bottom
     --router-go={this.item.route}
     class="fade-in-bottom">
-    ${this.item.label}
+    ${this.item?.label}
   </li>
   <ul>
     <AsyncRecursiveComponent
-      --for={(item, i) of this.item.children}
+      --for={(item, i) of this.item?.children}
       --defer={new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))}
       item={item}/>
   </ul>
@@ -17,7 +17,7 @@ import component AsyncRecursiveComponent from '@/cli/boilerplate/components/atom
 
 <proto type="async">
   declare:
-    inherit item: { label: string; route: string; children: any[]; };
+    inherit item?: { label: string; route: string; children: any[]; };
   default:
     Async.resolve();
 </proto>

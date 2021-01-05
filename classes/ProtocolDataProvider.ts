@@ -118,16 +118,16 @@ export default class ProtocolDataProvider extends Utils {
       array: notParsedElements.concat(elements).concat([
         {
           name: 'inherit',
-          reg: /(inherit)(?:\s+)([^\s\:\n\=\;\?]+)+(\:(?<types>.+?)){0,1}(?:\=)/i,
+          reg: /(inherit)(?:\s+)([^\s\:\n\=\;\?]+)+((?<undefinedAllowed>\s*\?\s*){0,1}\:(?<types>.+?)){0,1}(?<last>\=|\;|\n)/,
           open: false,
           id: (value, matches) => {
-            const id = `${generator.next().value}_inherit`;
+            const id = `${generator.next().value}_tokenIn`;
             if (matches) {
               const [input, statement, property] = matches;
-              const types = matches?.groups?.types || 'unknown';
+              const types = matches && matches.groups && matches.groups.types ? matches.groups.types : '';
               component.requirements = component.requirements || [];
               component.requirements.push([property.trim(), getDeepTranslation(types, expressions)])
-              expressions[id] = `${property}${':' + types}=`;
+              expressions[id] = value.replace(/^\s*inherit\b/, '');
               return id;
             }
             expressions[id] = value;

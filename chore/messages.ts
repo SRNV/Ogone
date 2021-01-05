@@ -6,6 +6,18 @@ function exampleFormat(txt: string) {
 export default {
   "0.27.0": `${red('BREAKING: use statement is no more supported, please use instead the syntax : import component ComponentName from \'...\'')}`,
   "0.28.0": `
+            - ${red(`BREAKING: ${white('introduction of the app type,')} the root component (the first component of your application) will now have to be on type app.
+                this allows a better configuration of your application
+                by adding a head element for example.`)}
+                example:${exampleFormat(`
+                  <template>
+                    <head>
+                      // SEO
+                    </head>
+                    // anything you want
+                  </template>
+                  <proto ${green('type="app"')}>
+                  </proto>`)}
 
             - ${red(`BREAKING: ${white('Ogone is changing it\'s style,')} we will now use curly braces for props and flags, instead of quotes`)}:
                 basically this means instead of typing this:

@@ -70,6 +70,7 @@ export default class Constructor extends Utils {
       repository: {},
       types: {
         component: true,
+        app: true,
         store: false,
         async: false,
         router: false,
@@ -88,7 +89,11 @@ export default class Constructor extends Utils {
 
     // get the type for all the components
     this.ComponentTypeGetter.setTypeOfComponents(bundle);
-    this.trace('Components Protocol\'s Type Checking');
+    this.trace('Components Protocol\'s Type Setting');
+
+    // get the type for all the components
+    this.ComponentTypeGetter.setApplication(bundle);
+    this.trace('App Component switched to component type and Configuration.head is defined if the head is provided');
 
     // @code OIA3
     await this.ImportsAnalyzer.inspect(bundle);

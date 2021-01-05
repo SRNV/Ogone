@@ -12,6 +12,8 @@ export default class Ogone extends EnvServer {
   static main: string = "";
   public readonly contributorMessage: { [k: string]: string } = messages;
   static readonly allowedTypes = [
+    // first component (root component)
+    "app",
     // controls the location of the web page
     "router",
     // controls data of the application

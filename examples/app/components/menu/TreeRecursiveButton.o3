@@ -42,7 +42,7 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
         route: string;
         children: any[]
       })[];
-    } = { route: '', children: []};
+    } = { name: 'no name', route: '', status: 'todo', children: []};
   case 'click:toggle':
     this.openTree = !this.openTree
     break;

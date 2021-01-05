@@ -157,9 +157,13 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               attrs: node.rawAttrs,
             },
           );
-          return getDeepTranslation(result, expressions as { [k: string]: any });
+          return getDeepTranslation(result,
+            expressions as { [k: string]: any },
+            (key) => expressions[key].expression as string);
         }
-        return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
+        return getDeepTranslation(node.rawText || "",
+          expressions as { [k: string]: any },
+          (key) => expressions[key].expression as string,);
       };
       node.getInnerHTML = () => {
         if (node.nodeType === 1) {
@@ -172,7 +176,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               }
             }).join(""),
           });
-          return getDeepTranslation(result, expressions as { [k: string]: any });
+          return getDeepTranslation(result,
+            expressions as { [k: string]: any },
+            (key) => expressions[key].expression as string,);
         }
         return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
       };

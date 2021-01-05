@@ -32,6 +32,8 @@ export default class ComponentBuilder {
   ): Component {
     const template = opts.rootNode.childNodes
       .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
+    const head = template && template.childNodes
+      .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
     const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
     return {
       uuid: `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
@@ -65,6 +67,7 @@ export default class ComponentBuilder {
         styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
         template,
         proto: protos,
+        head,
       },
       context: {
         data: '',

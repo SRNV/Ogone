@@ -111,6 +111,7 @@ export interface Bundle {
   repository: { [k: string]: { [s: string]: string } };
   types: {
     store: boolean;
+    app: boolean;
     router: boolean;
     async: boolean;
     controller: boolean;
@@ -145,13 +146,14 @@ export interface Component {
    * second is the types, unknown if undefined
    */
   requirements: [string, string][] | null;
-  type: "router" | "component" | "store" | "async" | "controller";
+  type: "app" | "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
   mapStyleBundle?: Style["mapStyleBundle"];
   elements: {
     styles: XMLNodeDescription[];
     proto: XMLNodeDescription[];
     template?: XMLNodeDescription;
+    head?: XMLNodeDescription;
   };
   context: {
     data: string;
