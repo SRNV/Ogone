@@ -221,6 +221,9 @@ export default class XMLJSXOutputBuilder extends Utils {
     const nodes = Object.values(expressions).reverse();
     let pragma: null | DOMParserPragmaDescription = null;
     for (let node of nodes) {
+      if(node.tagName === 'head') {
+        continue;
+      }
       const params =
         "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
       if (node.nodeType === 1 && node.tagName !== "style") {

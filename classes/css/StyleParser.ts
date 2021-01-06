@@ -16,13 +16,13 @@ export default class StyleParser extends Utils {
   protected nestedAtRules: RegExp = /^(\@(media|keyframes|supports|document))\b/i;
   public readonly mapStyleBundle: Map<string, StyleBundle> = new Map();
 
-  protected getContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {
+  protected getContextRecursive(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts?: any): string {
     let result = opts && opts.imported ? `(() => {` : '';
     const { expressions } = styleBundle.tokens;
     const varEntries = Array.from(styleBundle.mapVars.entries());
     styleBundle.mapImports.forEach((item) => {
       const { name } = item;
-      result += `\nconst $${name} = ${this.getContext(item.bundle, bundle, component, {
+      result += `\nconst $${name} = ${this.getContextRecursive(item.bundle, bundle, component, {
         imported: true,
       })};`;
     });
@@ -42,7 +42,7 @@ export default class StyleParser extends Utils {
     });
     if (opts && opts.imported) {
       let exported = '{';
-      varEntries.filter(([, item]) => item.exportable && !item.isSelector)
+      varEntries.filter(([, item]) => item.exportable)
         .map(([key]) => {
           exported += `${key}: $${key},`;
         })
@@ -85,7 +85,7 @@ export default class StyleParser extends Utils {
       if (m) {
         const [match, nameOfComponent] = m;
         const functionBody = this.template(
-          this.getContext(styleBundle, bundle, component),
+          this.getContextRecursive(styleBundle, bundle, component),
           {
             context: 'value',
             subject: match,
@@ -118,10 +118,12 @@ export default class StyleParser extends Utils {
           const [block] = isChild;
           result.children.push(rule);
         } else if (isSpread) {
+          // spread of rules
           let [, , variable] = isSpread;
-          variable = this.getDeepTranslation(variable, expressions);
+          variable = this.getDeepTranslation(variable, expressions)
+            .replace(/(\;)$/, '');
           const functionBody = this.template(
-            this.getContext(styleBundle, bundle, component),
+            this.getContextRecursive(styleBundle, bundle, component),
             {
               context: 'spread',
               subject: variable,
@@ -129,9 +131,9 @@ export default class StyleParser extends Utils {
             }
           );
           const renderContext = new Function('$$item', '$$target', functionBody).bind(this);
-          renderContext(result,
-            styleBundle.mapVars.get(variable.replace(/^\$/, ''))
-          );
+          const target = this.getComponentContext(styleBundle, bundle, component, { variable })
+          || styleBundle.mapVars.get(variable.replace(/^\$/, ''))
+          renderContext(result, target);
         } else {
           const item = rule.split(/\:/);
           if (item) {
@@ -174,6 +176,20 @@ export default class StyleParser extends Utils {
       });
     styleBundle.mapSelectors.get(opts.selector).properties = result;
     return result;
+  }
+  protected getComponentContext(styleBundle: StyleBundle, bundle: Bundle, component: Component, opts: { variable: string } = { variable: '' }) {
+    if (opts) {
+      const text = opts.variable;
+      const entries = Array.from(styleBundle.mapImports.entries());
+      const usedComponent = entries.find(([name]) => text.startsWith(`$${name}.`));
+      if (usedComponent && usedComponent[1].bundle) {
+        const { mapVars } = usedComponent[1].bundle;
+        const entriesMapVars = Array.from(mapVars.entries()) as [string, any][];
+        const usedVar = entriesMapVars.find(([name]) => text.endsWith(`$${usedComponent[0]}.${name}`));
+        return usedVar && usedVar[1];
+      }
+    }
+
   }
   static isNotSpecial(selector: string): boolean {
     const special = [

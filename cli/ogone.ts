@@ -1,5 +1,5 @@
 import { Utils } from "../classes/Utils.ts";
-import { Commands } from '../enums/cli-comands.ts';
+import { Commands } from '../enums/cli-commands.ts';
 import { Messages } from "../enums/cli-messages.ts";
 import { Flags } from "../enums/flags.ts";
 import o3 from '../mod.ts';

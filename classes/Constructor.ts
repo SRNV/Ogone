@@ -91,6 +91,10 @@ export default class Constructor extends Utils {
     this.ComponentTypeGetter.setTypeOfComponents(bundle);
     this.trace('Components Protocol\'s Type Setting');
 
+    // @code OSB7
+    await this.StylesheetBuilder.transformAllStyleElements(bundle);
+    this.trace('Style Sheet transformation of all style elements done');
+
     // get the type for all the components
     this.ComponentTypeGetter.setApplication(bundle);
     this.trace('App Component switched to component type and Configuration.head is defined if the head was provided');
@@ -127,7 +131,7 @@ export default class Constructor extends Utils {
 
     // @code OCTLA5
     await this.ComponentTopLevelAnalyzer.cleanRoot(bundle);
-    this.trace('Component\'s Top level checked');
+    this.trace('Component\'s Top level cleaned');
 
     // runtime
     await this.ComponentCompiler.startAnalyze(bundle);
