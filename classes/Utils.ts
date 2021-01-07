@@ -2,6 +2,9 @@ import { colors } from "../deps.ts";
 import getDeepTranslation from '../utils/template-recursive.ts';
 import { absolute } from '../deps.ts';
 import { Flags } from "../enums/flags.ts";
+import Workers from "../enums/workers.ts";
+import OgoneWorkers from "./OgoneWorkers.ts";
+import { Configuration } from "./Configuration.ts";
 
 export abstract class Utils {
   protected getDeepTranslation = getDeepTranslation;
@@ -31,6 +34,12 @@ export abstract class Utils {
       }`,
       { returns: true },
     ) as string;
+    if (Configuration.OgoneDesignerOpened) {
+      OgoneWorkers.lspWebsocketClientWorker.postMessage({
+        type: Workers.LSP_ERROR,
+        message: m,
+      });
+    }
     throw new Error(m);
   }
   static error(message: string, opts?: { [k: string]: any }): void {
@@ -43,6 +52,12 @@ export abstract class Utils {
       }`,
       { returns: true },
     ) as string;
+    if (Configuration.OgoneDesignerOpened) {
+      OgoneWorkers.lspWebsocketClientWorker.postMessage({
+        type: Workers.LSP_ERROR,
+        message: m,
+      });
+    }
     throw new Error(m);
   }
   public success(message: string, opts?: { [k: string]: any }): void {

@@ -3,6 +3,7 @@ import { Utils } from "./Utils.ts";
 import { Component } from '../.d.ts';
 import { Configuration } from "./Configuration.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
+import Workers from "../enums/workers.ts";
 /**
  * a class to display the errors inside the module
  */
@@ -82,6 +83,12 @@ export abstract class ModuleErrors extends Utils {
       `${bgRed("  ERROR  ")} ${red(message)}`,
       { returns: true },
     ) as string;
+    if (Configuration.OgoneDesignerOpened) {
+      OgoneWorkers.lspWebsocketClientWorker.postMessage({
+        type: Workers.LSP_ERROR,
+        message: m,
+      });
+    }
     console.error(m);
   }
 }
