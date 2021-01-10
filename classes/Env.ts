@@ -63,13 +63,17 @@ export default class Env extends Constructor {
     entrypoint: string,
     shouldBundle?: boolean,
   ): Promise<Bundle> {
-    const bundle: Bundle = await this.getBundle(entrypoint);
-    this.sendComponentsToLSP(bundle);
-    if (shouldBundle) {
-      this.setBundle(bundle);
+    try {
+      const bundle: Bundle = await this.getBundle(entrypoint);
+      this.sendComponentsToLSP(bundle);
+      if (shouldBundle) {
+        this.setBundle(bundle);
+        return bundle;
+      }
       return bundle;
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
     }
-    return bundle;
   }
   /**
    * @name sendComponentsToLSP
@@ -77,23 +81,27 @@ export default class Env extends Constructor {
    * sending all the informations of all the components to the LSP
    */
   private sendComponentsToLSP(bundle: Bundle) {
-    const components = Array.from(bundle.components.entries())
-      .map(([p, c]: [string, Component]) => c) as Component[];
-    components.forEach((component) => {
-      const lightComponent = {
-        file: component.file,
-        imports: component.imports,
-        context: component.context,
-        modifiers: component.modifiers,
-        uuid: component.uuid,
-        isTyped: component.isTyped,
-        requirements: component.requirements,
-      };
-      OgoneWorkers.lspWebsocketClientWorker.postMessage({
-        type: Workers.LSP_SEND_COMPONENT_INFORMATIONS,
-        component: lightComponent,
-      });
-    })
+    try {
+      const components = Array.from(bundle.components.entries())
+        .map(([p, c]: [string, Component]) => c) as Component[];
+      components.forEach((component) => {
+        const lightComponent = {
+          file: component.file,
+          imports: component.imports,
+          context: component.context,
+          modifiers: component.modifiers,
+          uuid: component.uuid,
+          isTyped: component.isTyped,
+          requirements: component.requirements,
+        };
+        OgoneWorkers.lspWebsocketClientWorker.postMessage({
+          type: Workers.LSP_SEND_COMPONENT_INFORMATIONS,
+          component: lightComponent,
+        });
+      })
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
+    }
   }
   /**
    * @name listenLSPWebsocket
@@ -102,97 +110,102 @@ export default class Env extends Constructor {
    * it sends two messages
    */
   public listenLSPWebsocket(): void {
-    let timeoutBeforeSendingRequests: number;
-    // send open designer message to the LSP
-    if (Deno.args.includes(Flags.DESIGNER)) {
-      Configuration.OgoneDesignerOpened = true;
-      OgoneWorkers.lspWebsocketClientWorker.postMessage({
-        type: Workers.LSP_OPEN_WEBVIEW,
-      })
-    }
-    OgoneWorkers.lspWebsocketClientWorker.addEventListener('message', (event) => {
-      if (timeoutBeforeSendingRequests !== undefined) {
-        clearTimeout(timeoutBeforeSendingRequests);
+    try {
+      let timeoutBeforeSendingRequests: number;
+      // send open designer message to the LSP
+      if (Deno.args.includes(Flags.DESIGNER)) {
+        Configuration.OgoneDesignerOpened = true;
+        OgoneWorkers.lspWebsocketClientWorker.postMessage({
+          type: Workers.LSP_OPEN_WEBVIEW,
+        })
       }
-      // this timeout fixes all the broken pipe issue
-      timeoutBeforeSendingRequests = setTimeout(() => {
-        const { data } = event;
-        switch (data.type) {
-          case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-            const filePath = data.data.path;
-            const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
-              filePath: filePath.replace(Deno.cwd(), '@'),
-            });
-            // save the content of the file to overwrite
-            // this allows the live edition
-            MapFile.files.set(filePath, {
-              content: data.data.text,
-              original: Deno.readTextFileSync(data.data.path),
-              path: data.data.path,
-            });
-            const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
-            Deno.writeTextFileSync(tmpFile, file);
-            this.compile(tmpFile)
-              .then(async (bundle) => {
-                const application = this.renderBundle(tmpFile,
-                  bundle
-                );
-                OgoneWorkers.serviceDev.postMessage({
-                  type: Workers.LSP_UPDATE_SERVER_COMPONENT,
-                  application,
-                })
-                OgoneWorkers.lspWebsocketClientWorker.postMessage({
-                  type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
-                  application,
-                });
-                await this.TSXContextCreator.read(bundle, {
-                  checkOnly: filePath.replace(Deno.cwd(), ''),
-                });
-              })
-              .then(() => {
-                Deno.remove(tmpFile);
-              })
-              .catch(() => {
-                Deno.remove(tmpFile);
-              })
-            break;
+      OgoneWorkers.lspWebsocketClientWorker.addEventListener('message', (event) => {
+        if (timeoutBeforeSendingRequests !== undefined) {
+          clearTimeout(timeoutBeforeSendingRequests);
         }
-      }, 50);
-    });
+        // this timeout fixes all the broken pipe issue
+        timeoutBeforeSendingRequests = setTimeout(() => {
+          const { data } = event;
+          switch (data.type) {
+            case Workers.LSP_UPDATE_CURRENT_COMPONENT:
+              const filePath = data.data.path;
+              const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
+                filePath: filePath.replace(Deno.cwd(), '@'),
+              });
+              // save the content of the file to overwrite
+              // this allows the live edition
+              MapFile.files.set(filePath, {
+                content: data.data.text,
+                original: Deno.readTextFileSync(data.data.path),
+                path: data.data.path,
+              });
+              const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
+              Deno.writeTextFileSync(tmpFile, file);
+              this.compile(tmpFile)
+                .then(async (bundle) => {
+                  const application = this.renderBundle(tmpFile,
+                    bundle
+                  );
+                  OgoneWorkers.serviceDev.postMessage({
+                    type: Workers.LSP_UPDATE_SERVER_COMPONENT,
+                    application,
+                  })
+                  OgoneWorkers.lspWebsocketClientWorker.postMessage({
+                    type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
+                    application,
+                  });
+                  await this.TSXContextCreator.read(bundle, {
+                    checkOnly: filePath.replace(Deno.cwd(), ''),
+                  });
+                })
+                .then(() => {
+                  Deno.remove(tmpFile);
+                })
+                .catch(() => {
+                  Deno.remove(tmpFile);
+                })
+              break;
+          }
+        }, 50);
+      });
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
+    }
   }
   public renderBundle(entrypoint: string, bundle: Bundle): string {
-    const stylesDev = Array.from(bundle.components.entries())
-      .map((
+    try {
+      const stylesDev = Array.from(bundle.components.entries())
+        .map((
+          entry: any,
+        ) => {
+          let result = "";
+          if (entry[1].style.join("\n").trim().length) {
+            result = `<style id="${entry[1].uuid}">${entry[1].style.join("\n")}</style>`;
+          }
+          return result;
+        }).join("\n");
+      const esm = Array.from(bundle.components.entries()).map((
         entry: any,
-      ) => {
-        let result = "";
-        if (entry[1].style.join("\n").trim().length) {
-          result = `<style id="${entry[1].uuid}">${entry[1].style.join("\n")}</style>`;
+      ) => entry[1].dynamicImportsExpressions).join("\n");
+      const style = stylesDev;
+      const rootComponent = bundle.components.get(entrypoint);
+      if (rootComponent) {
+        if (
+          rootComponent &&
+          ["router", "store", "async"].includes(rootComponent.type)
+        ) {
+          this.error(
+            `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports basic component`,
+          );
         }
-        return result;
-      }).join("\n");
-    const esm = Array.from(bundle.components.entries()).map((
-      entry: any,
-    ) => entry[1].dynamicImportsExpressions).join("\n");
-    const style = stylesDev;
-    const rootComponent = bundle.components.get(entrypoint);
-    if (rootComponent) {
-      if (
-        rootComponent &&
-        ["router", "store", "async"].includes(rootComponent.type)
-      ) {
-        this.error(
-          `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports basic component`,
-        );
-      }
-      const scriptDev = this.template(
-        `
+        const scriptDev = this.template(
+          `
         const ___perfData = window.performance.timing;
 
         ${browserBuild(this.env === "production", {
-          hasDevtool: this.devtool,
-        })
-        }
+            hasDevtool: this.devtool,
+          })
+          }
         ${bundle.datas.join("\n")}
         ${bundle.contexts.slice().reverse().join("\n")}
         ${bundle.render.join("\n")}
@@ -200,10 +213,10 @@ export default class Env extends Constructor {
         ${bundle.customElements.join("\n")}
         {% promise %}
         `,
-        {
-          extension: this.WebComponentExtends.getExtensions(bundle, entrypoint),
-          promise: esm.trim().length
-            ? `
+          {
+            extension: this.WebComponentExtends.getExtensions(bundle, entrypoint),
+            promise: esm.trim().length
+              ? `
             Promise.all([
               ${esm}
             ]).then(() => {
@@ -211,17 +224,17 @@ export default class Env extends Constructor {
               {% debugg %}
             });
           `
-            : "{%start%}",
-          start: `document.body.append(
+              : "{%start%}",
+            start: `document.body.append(
             document.createElement("template", {
               is: "${rootComponent.uuid}-nt",
             })
           );`,
-          render: {},
-          root: bundle.components.get(entrypoint),
-          destroy: {},
-          nodes: {},
-          debugg: `
+            render: {},
+            root: bundle.components.get(entrypoint),
+            destroy: {},
+            nodes: {},
+            debugg: `
           // debug tools
           const ___connectTime = ___perfData.responseEnd - ___perfData.requestStart;
           const ___renderTime = ___perfData.domLoading - ___perfData.domComplete;
@@ -229,90 +242,105 @@ export default class Env extends Constructor {
           console.log('[Ogone] server response', ___connectTime, 'ms');
           console.log('[Ogone] app render time', ___renderTime, 'ms');
           console.log('[Ogone] page load time', ___pageLoadTime, 'ms');`,
-        },
-      );
-      // in production DOM has to be
-      // <template is="${rootComponent.uuid}-nt"></template>
-      const DOMDev = ` `;
-      let script = `
+          },
+        );
+        // in production DOM has to be
+        // <template is="${rootComponent.uuid}-nt"></template>
+        const DOMDev = ` `;
+        let script = `
       <script type="module">
         ${scriptDev.trim()}
       </script>`;
-      let head = `
+        let head = `
           ${style}
           ${Configuration.head || ""}`;
-      let body = this.template(template, {
-        head,
-        script,
-        dom: DOMDev,
-      });
+        let body = this.template(template, {
+          head,
+          script,
+          dom: DOMDev,
+        });
 
-      // start watching components
-      // TODO fix HMR
-      // use websocket
-      // HCR(this.bundle);
-      return body;
-    } else {
-      return "no root-component found";
+        // start watching components
+        // TODO fix HMR
+        // use websocket
+        // HCR(this.bundle);
+        return body;
+      } else {
+        return "no root-component found";
+      }
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
     }
   }
   public get application(): string {
-    if (!this.bundle) {
-      throw this.error(
-        "undefined bundle, please use setBundle method before accessing to the application",
-      );
+    try {
+      if (!this.bundle) {
+        throw this.error(
+          "undefined bundle, please use setBundle method before accessing to the application",
+        );
+      }
+      return this.renderBundle(Configuration.entrypoint, this.bundle);
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
     }
-    return this.renderBundle(Configuration.entrypoint, this.bundle);
   }
 
   public async resolveAndReadText(path: string) {
-    const isFile = path.startsWith("/") ||
-      path.startsWith("./") ||
-      path.startsWith("../") ||
-      !path.startsWith("http://") ||
-      !path.startsWith("https://");
-    const isTsFile = isFile && path.endsWith(".ts");
-    if (Deno.build.os !== "windows") {
-      Deno.chmodSync(path, 0o777);
+    try {
+      const isFile = path.startsWith("/") ||
+        path.startsWith("./") ||
+        path.startsWith("../") ||
+        !path.startsWith("http://") ||
+        !path.startsWith("https://");
+      const isTsFile = isFile && path.endsWith(".ts");
+      if (Deno.build.os !== "windows") {
+        Deno.chmodSync(path, 0o777);
+      }
+      const text = Deno.readTextFileSync(path);
+      return isTsFile
+        ? // @ts-ignore
+        (await Deno.transpileOnly({
+          [path]: text,
+        }, {
+          sourceMap: false,
+        }))[path].source
+        : text;
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
     }
-    const text = Deno.readTextFileSync(path);
-    return isTsFile
-      ? // @ts-ignore
-      (await Deno.transpileOnly({
-        [path]: text,
-      }, {
-        sourceMap: false,
-      }))[path].source
-      : text;
   }
   private recursiveRead(
     opts: { entrypoint: string; onContent: Function },
   ): void {
-    if (!existsSync(opts.entrypoint)) {
-      this.error("can't find entrypoint for this.recursiveRead");
-    }
-    if (Deno.build.os !== "windows") {
-      Deno.chmodSync(opts.entrypoint, 0o777);
-    }
-    const stats = Deno.statSync(opts.entrypoint);
-    if (stats.isFile) {
+    try {
+      if (!existsSync(opts.entrypoint)) {
+        this.error("can't find entrypoint for this.recursiveRead");
+      }
       if (Deno.build.os !== "windows") {
         Deno.chmodSync(opts.entrypoint, 0o777);
       }
-      const content = Deno.readTextFileSync(opts.entrypoint);
-      opts.onContent(opts.entrypoint, content);
-    } else if (stats.isDirectory) {
-      if (Deno.build.os !== "windows") {
-        Deno.chmodSync(opts.entrypoint, 0o777);
+      const stats = Deno.statSync(opts.entrypoint);
+      if (stats.isFile) {
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(opts.entrypoint, 0o777);
+        }
+        const content = Deno.readTextFileSync(opts.entrypoint);
+        opts.onContent(opts.entrypoint, content);
+      } else if (stats.isDirectory) {
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(opts.entrypoint, 0o777);
+        }
+        const dir = Deno.readDirSync(opts.entrypoint);
+        for (let p of dir) {
+          const path = join(opts.entrypoint, p.name);
+          this.recursiveRead({
+            entrypoint: path,
+            onContent: opts.onContent,
+          });
+        }
       }
-      const dir = Deno.readDirSync(opts.entrypoint);
-      for (let p of dir) {
-        const path = join(opts.entrypoint, p.name);
-        this.recursiveRead({
-          entrypoint: path,
-          onContent: opts.onContent,
-        });
-      }
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
     }
   }
   /**
@@ -322,72 +350,78 @@ export default class Env extends Constructor {
   public async getBuild() {
     // TODO use worker instead
     this.error(`\nbuild is not yet ready.\nwaiting for a fix on the ts compiler\nplease check this issue: https://github.com/denoland/deno/issues/7054`);
-    let Style = '';
-    if (!this.bundle) return;
-    if (Configuration && Configuration.compileCSS) {
-      this.recursiveRead({
-        entrypoint: Configuration.entrypoint,
-        onContent: (file: string, content: string) => {
-          if (file.endsWith('.css')) {
-            this.warn(`loading css: ${file}`);
-            Style += content;
+    /*
+    try {
+      let Style = '';
+      if (!this.bundle) return;
+      if (Configuration && Configuration.compileCSS) {
+        this.recursiveRead({
+          entrypoint: Configuration.entrypoint,
+          onContent: (file: string, content: string) => {
+            if (file.endsWith('.css')) {
+              this.warn(`loading css: ${file}`);
+              Style += content;
+            }
           }
-        }
-      });
-    }
-    const stylesProd = Array.from(this.bundle.components.entries()).map((
-      entry: any,
-    ) => entry[1].style.join("\n")).join("\n");
-    const compiledStyle = Configuration.minifyCSS ? Style + stylesProd.replace(/(\n|\s+|\t)/gi, ' ') : Style + stylesProd;
-    const style = `<style>${(compiledStyle)}</style>`;
-    const esmProd = Array.from(this.bundle.components.entries()).map((
-      entry: any,
-    ) => entry[1].dynamicImportsExpressionsProd).join("\n");
-    const rootComponent = this.bundle.components.get(Configuration.entrypoint);
-    if (rootComponent) {
-      if (
-        rootComponent &&
-        ["router", "store", "async"].includes(rootComponent.type)
-      ) {
-        this.error(
-          `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
-        );
+        });
       }
-      // @ts-ignore
-      const [, scriptProd] = await Deno.compile("index.ts", {
-        "index.ts": `
+      const stylesProd = Array.from(this.bundle.components.entries()).map((
+        entry: any,
+      ) => entry[1].style.join("\n")).join("\n");
+      const compiledStyle = Configuration.minifyCSS ? Style + stylesProd.replace(/(\n|\s+|\t)/gi, ' ') : Style + stylesProd;
+      const style = `<style>${(compiledStyle)}</style>`;
+      const esmProd = Array.from(this.bundle.components.entries()).map((
+        entry: any,
+      ) => entry[1].dynamicImportsExpressionsProd).join("\n");
+      const rootComponent = this.bundle.components.get(Configuration.entrypoint);
+      if (rootComponent) {
+        if (
+          rootComponent &&
+          ["router", "store", "async"].includes(rootComponent.type)
+        ) {
+          this.error(
+            `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
+          );
+        }
+        // @ts-ignore
+        const [, scriptProd] = await Deno.compile("index.ts", {
+          "index.ts": `
         import test from "./test.js"
         `,
-        "test.js": "export default 10;",
-      }, {
-        module: "esnext",
-        target: "esnext",
-        experimentalDecorators: true,
-        allowUnreachableCode: false,
-        jsx: "preserve",
-        jsxFactory: "Ogone.r(",
-        inlineSourceMap: false,
-        inlineSources: false,
-        alwaysStrict: false,
-        sourceMap: false,
-        strictFunctionTypes: true,
-        lib: ["esnext"],
-      });
-      // in production DOM has to be
-      // <template is="${rootComponent.uuid}-nt"></template>
-      const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>`;
-      let head = `
+          "test.js": "export default 10;",
+        }, {
+          module: "esnext",
+          target: "esnext",
+          experimentalDecorators: true,
+          allowUnreachableCode: false,
+          jsx: "preserve",
+          jsxFactory: "Ogone.r(",
+          inlineSourceMap: false,
+          inlineSources: false,
+          alwaysStrict: false,
+          sourceMap: false,
+          strictFunctionTypes: true,
+          lib: ["esnext"],
+        });
+        // in production DOM has to be
+        // <template is="${rootComponent.uuid}-nt"></template>
+        const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>`;
+        let head = `
           ${style}
           ${Configuration.head || ""}
           <script>
             ${scriptProd["index.js"].trim()}
           </script>`;
-      let body = template
-        .replace(/%%head%%/, head)
-        .replace(/%%dom%%/, DOMProd);
-      return body;
-    } else {
-      this.error("no root-component found");
+        let body = template
+          .replace(/%%head%%/, head)
+          .replace(/%%dom%%/, DOMProd);
+        return body;
+      } else {
+        this.error("no root-component found");
+      }
+    } catch (err) {
+      this.error(`Env: ${err.message}`);
     }
+    */
   }
 }

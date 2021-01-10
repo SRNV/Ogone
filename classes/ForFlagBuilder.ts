@@ -20,26 +20,30 @@ function readDestructuration(destructured: string, opts: {
   typedExpressions: TypedExpressions;
   readonly registry: string[];
 }) {
-  // we will use the saved blocks tokens into typedExpressions
-  // and save the properties into the registry
-  const {
-    typedExpressions,
-    registry,
-  } = opts;
-  if (!typedExpressions.blocks[destructured]) return null;
-  const content = typedExpressions.blocks[destructured];
-  const blocks = content.match(/(?<=([\:\=]\s*))\d+_block/gi);
-  const propertiesRegExp = /(([\w\d]+)+(?=\s*\}$)|(([\w\d]+)+(?=\s*,))|((?<=([\w\d]+)+\s*\:)([\w\d]+)+)|(([\w\d]+)+(?=\s*\=)))/gi;
-  const properties = content.match(propertiesRegExp);
-  if (properties) {
-    registry.push(...properties as string[]);
+  try {
+    // we will use the saved blocks tokens into typedExpressions
+    // and save the properties into the registry
+    const {
+      typedExpressions,
+      registry,
+    } = opts;
+    if (!typedExpressions.blocks[destructured]) return null;
+    const content = typedExpressions.blocks[destructured];
+    const blocks = content.match(/(?<=([\:\=]\s*))\d+_block/gi);
+    const propertiesRegExp = /(([\w\d]+)+(?=\s*\}$)|(([\w\d]+)+(?=\s*,))|((?<=([\w\d]+)+\s*\:)([\w\d]+)+)|(([\w\d]+)+(?=\s*\=)))/gi;
+    const properties = content.match(propertiesRegExp);
+    if (properties) {
+      registry.push(...properties as string[]);
+    }
+    if (blocks) {
+      blocks.forEach((block: string) => {
+        readDestructuration(block, opts);
+      });
+    }
+    return true;
+  } catch (err) {
+    throw err;
   }
-  if (blocks) {
-    blocks.forEach((block: string) => {
-      readDestructuration(block, opts);
-    });
-  }
-  return true;
 }
 function* gen(i: number): Generator {
   yield i;
@@ -62,9 +66,13 @@ arrayAliasIterator.next().value
  */
 export default class ForFlagBuilder extends Utils {
   public startAnalyze(bundle: Bundle) {
-    const entries = bundle.components.entries();
-    for (let [path, component] of entries) {
-      this.read(bundle, path, component.rootNode);
+    try {
+      const entries = bundle.components.entries();
+      for (let [path, component] of entries) {
+        this.read(bundle, path, component.rootNode);
+      }
+    } catch (err) {
+      this.error(`ForFlagBuiler: ${err.message}`);
     }
   }
   private read(
@@ -176,7 +184,7 @@ export default class ForFlagBuilder extends Utils {
               && ${array} || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`,
-              aliasItem ? `const ${aliasItem} = (${arrayAlias})[${index}];` : '',
+            aliasItem ? `const ${aliasItem} = (${arrayAlias})[${index}];` : '',
             ];
             if (contextLegacy && contextLegacy.declarationScript) {
               contextLegacy.declarationScript = contextLegacy.declarationScript
@@ -249,58 +257,62 @@ export default class ForFlagBuilder extends Utils {
   getForFlagDescription(
     value: string,
   ): ForCtxDescription<string> {
-    const expressions = {};
-    const typedExpressions = getTypedExpressions();
-    const flagValue = read({
-      expressions,
-      value,
-      typedExpressions,
-      array: [
-        ...notParsedElements,
-        ...elements.filter((el) => el.name === 'block'),
-      ],
-    });
-    const itemAndIndexRegExp = /^\((.+?),\s*(\w+?)\)\s+of\s+(.+?)$/gi;
-    const itemRegExp = /^(.+?)\s+of\s+(.+?)$/gi;
-    let oForRegExp = itemAndIndexRegExp.exec(flagValue.trim())
-    const registry: string[] = [];
-    // if the end user uses: (item, index) of array syntax
-    if (oForRegExp) {
+    try {
+      const expressions = {};
+      const typedExpressions = getTypedExpressions();
+      const flagValue = read({
+        expressions,
+        value,
+        typedExpressions,
+        array: [
+          ...notParsedElements,
+          ...elements.filter((el) => el.name === 'block'),
+        ],
+      });
+      const itemAndIndexRegExp = /^\((.+?),\s*(\w+?)\)\s+of\s+(.+?)$/gi;
+      const itemRegExp = /^(.+?)\s+of\s+(.+?)$/gi;
+      let oForRegExp = itemAndIndexRegExp.exec(flagValue.trim())
+      const registry: string[] = [];
+      // if the end user uses: (item, index) of array syntax
+      if (oForRegExp) {
+        itemAndIndexRegExp.exec(flagValue.trim());
+        let [input, item, index, arrayName] = oForRegExp;
+        readDestructuration(item, {
+          typedExpressions,
+          registry,
+        });
+        arrayName = flagValue.split("of")[1].trim();
+        return {
+          index: index ? index : `i${iterator.next().value}`,
+          item: getDeepTranslation(item, expressions),
+          array: getDeepTranslation(arrayName, expressions),
+          content: getDeepTranslation(flagValue, expressions),
+          destructured: registry,
+        };
+      }
+      oForRegExp = itemRegExp.exec(flagValue.trim());
+      // if the end user uses: item of array syntax
+      if (!oForRegExp) {
+        throw this.error(
+          `Syntax Error: ${flagValue} \n\tPlease follow this --for syntax. (item [, i]) of array `,
+        );
+      }
       itemAndIndexRegExp.exec(flagValue.trim());
-      let [input, item, index, arrayName] = oForRegExp;
+      let [input, item, arrayName] = oForRegExp;
       readDestructuration(item, {
         typedExpressions,
         registry,
       });
       arrayName = flagValue.split("of")[1].trim();
       return {
-        index: index ? index : `i${iterator.next().value}`,
+        index: `i${iterator.next().value}`,
         item: getDeepTranslation(item, expressions),
         array: getDeepTranslation(arrayName, expressions),
         content: getDeepTranslation(flagValue, expressions),
         destructured: registry,
       };
+    } catch (err) {
+      this.error(`ForFlagBuiler: ${err.message}`);
     }
-    oForRegExp = itemRegExp.exec(flagValue.trim());
-    // if the end user uses: item of array syntax
-    if (!oForRegExp) {
-      throw this.error(
-        `Syntax Error: ${flagValue} \n\tPlease follow this --for syntax. (item [, i]) of array `,
-      );
-    }
-    itemAndIndexRegExp.exec(flagValue.trim());
-    let [input, item, arrayName] = oForRegExp;
-    readDestructuration(item, {
-      typedExpressions,
-      registry,
-    });
-    arrayName = flagValue.split("of")[1].trim();
-    return {
-      index: `i${iterator.next().value}`,
-      item: getDeepTranslation(item, expressions),
-      array: getDeepTranslation(arrayName, expressions),
-      content: getDeepTranslation(flagValue, expressions),
-      destructured: registry,
-    };
   }
 }

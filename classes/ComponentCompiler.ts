@@ -9,43 +9,52 @@ import { ComponentEngine } from '../enums/componentEngine.ts';
  */
 export default class ComponentCompiler extends Utils {
   public async startAnalyze(bundle: Bundle): Promise<void> {
-    const entries = Array.from(bundle.components);
-    for await (let [, component] of entries) {
-      await this.read(bundle, component);
+    try {
+      const entries = Array.from(bundle.components);
+      for await (let [, component] of entries) {
+        await this.read(bundle, component);
+      }
+    } catch (err) {
+      this.error(`ComponentCompiler: ${err.message}`);
     }
   }
   private getControllers(
     bundle: Bundle,
     component: Component,
   ): [string, any][] {
-    const controllers = Object.entries(component.imports)
-      .filter(([, path]) => {
-        const comp = bundle.components.get(path);
-        return comp && comp.type === "controller";
-      });
-    if (controllers.length && component.type !== "store") {
-      this.error(
-        this.template(
-          `forbidden use of a controller inside a non-store component. \ncomponent: {% component.file %}`,
-          { component },
-        ),
-      );
+    try {
+      const controllers = Object.entries(component.imports)
+        .filter(([, path]) => {
+          const comp = bundle.components.get(path);
+          return comp && comp.type === "controller";
+        });
+      if (controllers.length && component.type !== "store") {
+        this.error(
+          this.template(
+            `forbidden use of a controller inside a non-store component. \ncomponent: {% component.file %}`,
+            { component },
+          ),
+        );
+      }
+      return controllers;
+    } catch (err) {
+      this.error(`ComponentCompiler: ${err.message}`);
     }
-    return controllers;
   }
   public async read(bundle: Bundle, component: Component): Promise<void> {
-    const { mapRender } = bundle;
-    if (component.data instanceof Object) {
-      const { runtime } = component.scripts;
-      const { modules } = component;
-      const controllers = this.getControllers(bundle, component);
-      const controllerDef = controllers.length > 0
-        ? `
+    try {
+      const { mapRender } = bundle;
+      if (component.data instanceof Object) {
+        const { runtime } = component.scripts;
+        const { modules } = component;
+        const controllers = this.getControllers(bundle, component);
+        const controllerDef = controllers.length > 0
+          ? `
             const Controllers = {};
             ${controllers.map(([tagName, path]) => {
-          const subcomp = bundle.components.get(path);
-          let result = subcomp
-            ? `
+            const subcomp = bundle.components.get(path);
+            let result = subcomp
+              ? `
             Controllers["${tagName}"] = {
                 async get(rte) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`)).blob()).text(); },
                 async post(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op, body: JSON.stringify(data || {}), method: 'POST'})).blob()).text(); },
@@ -53,14 +62,14 @@ export default class ComponentCompiler extends Utils {
                 async delete(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'DELETE'})).blob()).text(); },
                 async patch(rte, data = {}, op = {}) { return await (await (await fetch(\`${subcomp.namespace}$\{rte}\`, { ...op,  body: JSON.stringify(data || {}), method: 'PATCH'})).blob()).text(); },
               }`
-            : "";
-          return result;
-        })
-        }
+              : "";
+            return result;
+          })
+          }
             Object.seal(Controllers);
           `
-        : "";
-      const store = `
+          : "";
+        const store = `
         const Store = {
           dispatch: (id, ctx) => {
             const path = id.split('/');
@@ -110,7 +119,7 @@ export default class ComponentCompiler extends Utils {
             }
           },
         };`;
-      const asyncResolve = `
+        const asyncResolve = `
           const Async = {
             resolve: (...args) => {
               if (this.resolve) {
@@ -134,7 +143,7 @@ export default class ComponentCompiler extends Utils {
           // freeze Async Object;
           Object.freeze(Async);
           `;
-      let result: string = `function __component () {
+        let result: string = `function __component () {
             OComponent.call(this);
             {% controllerDef %}
             {% hasStore %}
@@ -157,54 +166,57 @@ export default class ComponentCompiler extends Utils {
             this.runtime = __run.bind(this.data);
           };
           `;
-      const d = {
-        component,
-        modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
-        asyncResolve: component.type === "async" ? asyncResolve : "",
-        protocol: component.protocol ? component.protocol : "",
-        dataSource: component.isTyped
-          ? `new (${component.context.protocolClass})`
-          : JSON.stringify(component.data),
-        data: component.isTyped
-          || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
+        const d = {
+          component,
+          modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
+          asyncResolve: component.type === "async" ? asyncResolve : "",
+          protocol: component.protocol ? component.protocol : "",
+          dataSource: component.isTyped
+            ? `new (${component.context.protocolClass})`
+            : JSON.stringify(component.data),
+          data: component.isTyped
+            || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
             && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction) ?
-          // setReactivity will transform the instance to a proxy
-          `Ogone.setReactivity({% dataSource %}, (prop) => this.update(prop))`
-          // if the end user uses the def modifier, the reactivity is inline
-          : '{% dataSource %}',
-        runtime,
-        controllerDef: component.type === "store" ? controllerDef : "",
-        refs: Object.entries(component.refs).length
-          ? Object.entries(component.refs).map(([key, value]) =>
-            `'${key}': '${value}',`
-          )
-          : "",
-        hasStore: !!component.hasStore ? store : "",
-      };
-      result = (await Deno.transpileOnly({
-        "/transpiled.ts": `  ${this.template(result, d)}`,
-      }, { sourceMap: false, }))["/transpiled.ts"].source;
-      if (mapRender.has(result)) {
-        const item = mapRender.get(result);
-        result = this.template(
-          `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];`,
-          {
-            component,
-            item,
-          },
-        );
-        bundle.datas.push(this.template(result, d));
-      } else {
-        mapRender.set(result, {
-          id: component.uuid,
-        });
-        bundle.datas.push(
-          this.template(
-            `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
-            d,
-          ),
-        );
+            // setReactivity will transform the instance to a proxy
+            `Ogone.setReactivity({% dataSource %}, (prop) => this.update(prop))`
+            // if the end user uses the def modifier, the reactivity is inline
+            : '{% dataSource %}',
+          runtime,
+          controllerDef: component.type === "store" ? controllerDef : "",
+          refs: Object.entries(component.refs).length
+            ? Object.entries(component.refs).map(([key, value]) =>
+              `'${key}': '${value}',`
+            )
+            : "",
+          hasStore: !!component.hasStore ? store : "",
+        };
+        result = (await Deno.transpileOnly({
+          "/transpiled.ts": `  ${this.template(result, d)}`,
+        }, { sourceMap: false, }))["/transpiled.ts"].source;
+        if (mapRender.has(result)) {
+          const item = mapRender.get(result);
+          result = this.template(
+            `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];`,
+            {
+              component,
+              item,
+            },
+          );
+          bundle.datas.push(this.template(result, d));
+        } else {
+          mapRender.set(result, {
+            id: component.uuid,
+          });
+          bundle.datas.push(
+            this.template(
+              `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
+              d,
+            ),
+          );
+        }
       }
+    } catch (err) {
+      this.error(`ComponentCompiler: ${err.message}`);
     }
   }
 }

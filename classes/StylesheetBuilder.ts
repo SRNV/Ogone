@@ -30,98 +30,103 @@ export default class StylesheetBuilder extends Utils {
   private CSSScoper: CSSScoper = new CSSScoper();
   private Style: Style = new Style();
   async read(bundle: Bundle) {
-    const entries = Array.from(bundle.components.entries());
-    this.trace('start component style analyze');
+    try {
+      const entries = Array.from(bundle.components.entries());
+      this.trace('start component style analyze');
 
-    for await (const [, component] of entries) {
-      const { styles } = component.elements;
-      this.trace('start style node analyze');
+      for await (const [, component] of entries) {
+        const { styles } = component.elements;
+        this.trace('start style node analyze');
 
-      for await (const element of styles) {
-        let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
-        const isGlobal = element.attributes.global;
-        if (styleContent) {
-          let compiledCss: string = "";
-          const src = element.attributes.src
-            ? (element.attributes.src as string).trim()
-            : "";
-          const relativePath = join(component.file, src);
-          const remoteRelativePath = absolute(component.file, src);
-          const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
-            src.split("://")[0],
-          );
-          // allows <syle src="path/to/style.css"
-          if (src.length && !component.remote) {
-            const p = existsSync(src)
-              ? src
-              : existsSync(relativePath)
-                ? isAbsoluteRemote
-                  ? await fetchRemoteRessource(src)
-                  : relativePath
-                : null;
-            switch (true && !!p) {
-              case !p:
-                this.error(
-                  `style's src attribute is not found. \ncomponent${component.file}\ninput: ${src}`,
-                );
-              default:
-                this.error(
-                  `style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
-                );
-            }
-          } else if (src.length && component.remote) {
-            this.warn(
-              `Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath
-              }`,
+        for await (const element of styles) {
+          let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
+          const isGlobal = element.attributes.global;
+          if (styleContent) {
+            let compiledCss: string = "";
+            const src = element.attributes.src
+              ? (element.attributes.src as string).trim()
+              : "";
+            const relativePath = join(component.file, src);
+            const remoteRelativePath = absolute(component.file, src);
+            const isAbsoluteRemote = ["http", "ws", "https", "ftp"].includes(
+              src.split("://")[0],
             );
-            const p = isAbsoluteRemote
-              ? await fetchRemoteRessource(src)
-              : await fetchRemoteRessource(remoteRelativePath);
-            switch (true) {
-              case !p:
-                this.error(
-                  `style's src attribute is not reachable. \ncomponent${component.file}\ninput: ${src}`,
-                );
-              default:
-                this.error(
-                  `style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
-                );
+            // allows <syle src="path/to/style.css"
+            if (src.length && !component.remote) {
+              const p = existsSync(src)
+                ? src
+                : existsSync(relativePath)
+                  ? isAbsoluteRemote
+                    ? await fetchRemoteRessource(src)
+                    : relativePath
+                  : null;
+              switch (true && !!p) {
+                case !p:
+                  this.error(
+                    `style's src attribute is not found. \ncomponent${component.file}\ninput: ${src}`,
+                  );
+                default:
+                  this.error(
+                    `style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
+                  );
+              }
+            } else if (src.length && component.remote) {
+              this.warn(
+                `Downloading style: ${isAbsoluteRemote ? src : remoteRelativePath
+                }`,
+              );
+              const p = isAbsoluteRemote
+                ? await fetchRemoteRessource(src)
+                : await fetchRemoteRessource(remoteRelativePath);
+              switch (true) {
+                case !p:
+                  this.error(
+                    `style's src attribute is not reachable. \ncomponent${component.file}\ninput: ${src}`,
+                  );
+                default:
+                  this.error(
+                    `style's src attribute and lang attribute has to be on the same language. \ncomponent${component.file}\ninput: ${src}`,
+                  );
+              }
             }
-          }
-          this.trace('end style element analyze, start assignment');
+            this.trace('end style element analyze, start assignment');
 
-          switch (element.attributes.lang) {
-            default:
-              compiledCss = styleContent as string;
-              break;
-          }
-          if (element.attributes['--keyframes']) {
-            compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
-          }
+            switch (element.attributes.lang) {
+              default:
+                compiledCss = styleContent as string;
+                break;
+            }
+            if (element.attributes['--keyframes']) {
+              compiledCss = `${compiledCss} \n ${this.readKeyframes(element.attributes['--keyframes'] as string)}`
+            }
 
-          this.trace('start component style transformations');
-          compiledCss = await this.Style.read(compiledCss, bundle, component);
+            this.trace('start component style transformations');
+            compiledCss = await this.Style.read(compiledCss, bundle, component);
 
-          this.trace('end component style transformations, start mapStyleBundle assignment');
-          component.mapStyleBundle = this.Style.mapStyleBundle;
-          const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
-          component.style.push(css);
+            this.trace('end component style transformations, start mapStyleBundle assignment');
+            component.mapStyleBundle = this.Style.mapStyleBundle;
+            const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
+            component.style.push(css);
+          }
         }
       }
+    } catch (err) {
+      this.error(`StylesheetBuilder: ${err.message}`);
     }
   }
   public async transformAllStyleElements(bundle: Bundle) {
-    const entries = Array.from(bundle.components.entries());
-    this.trace('start component style analyze');
+    try {
+      const entries = Array.from(bundle.components.entries());
+      this.trace('start component style analyze');
 
-    for await (const [, component] of entries) {
-      const { rootNode } = component;
-      const { nodeList } = rootNode;
-      const { styles } = component.elements;
-      const allStyles = nodeList
-        .filter((el) => !styles.includes(el) && el.tagName === 'style')
-      for await (let element of allStyles) {
-        let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
+      for await (const [, component] of entries) {
+        const { rootNode } = component;
+        const { nodeList } = rootNode;
+        const { styles } = component.elements;
+        const allStyles = nodeList
+          .filter((el) => !styles.includes(el) && el.tagName === 'style')
+        for await (let element of allStyles) {
+          let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
           if (styleContent) {
             let compiledCss: string = "";
             const src = element.attributes.src
@@ -185,18 +190,22 @@ export default class StylesheetBuilder extends Utils {
             compiledCss = await this.Style.read(compiledCss, bundle, component);
             element.childNodes[0].rawText = compiledCss;
           }
+        }
       }
+    } catch (err) {
+      this.error(`StylesheetBuilder: ${err.message}`);
     }
   }
   private readKeyframes(keyframesEvaluated: string) {
-    const fn = new Function('get', `return (${keyframesEvaluated});`)
-    const get = (name: string, opts: any) => {
-      switch (true) {
-        case typeof name !== 'string':
-          this.error('using keyframes fade: argument one has to be a string.')
-          break;
-      }
-      return `
+    try {
+      const fn = new Function('get', `return (${keyframesEvaluated});`)
+      const get = (name: string, opts: any) => {
+        switch (true) {
+          case typeof name !== 'string':
+            this.error('using keyframes fade: argument one has to be a string.')
+            break;
+        }
+        return `
         .${name} {
           animation-name: ${name};
           animation-duration: ${opts.time || 1}s;
@@ -206,8 +215,11 @@ export default class StylesheetBuilder extends Utils {
         }
         ${keyframes[name]}
       `;
-    };
-    const k = fn(get);
-    return Array.isArray(k) ? k.join('\n') : k;
+      };
+      const k = fn(get);
+      return Array.isArray(k) ? k.join('\n') : k;
+    } catch (err) {
+      this.error(`StylesheetBuilder: ${err.message}`);
+    }
   }
 }

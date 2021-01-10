@@ -1,6 +1,7 @@
 import XMLParser from "./XMLParser.ts";
 import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
 import MapFile, { FileDescription } from "./MapFile.ts";
+import { Utils } from "./Utils.ts";
 
 /**
  * @name ComponentBuilder
@@ -17,7 +18,7 @@ import MapFile, { FileDescription } from "./MapFile.ts";
  *   const { childNodes } = component.rootNode
  * ```
  */
-export default class ComponentBuilder {
+export default class ComponentBuilder extends Utils {
   /**
    * instance to parse xml
    * no xml error is thrown
@@ -30,63 +31,67 @@ export default class ComponentBuilder {
   getComponent(
     opts: Pick<Component, "rootNode" | "file" | "remote">,
   ): Component {
-    const template = opts.rootNode.childNodes
-      .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
-    const head = template && template.childNodes
-      .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
-    const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
-    return {
-      uuid: `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
-      isTyped: false,
-      dynamicImportsExpressions: "",
-      esmExpressions: "",
-      exportsExpressions: "",
-      data: {},
-      style: [],
-      scripts: {
-        runtime: "function run(){};",
-      },
-      imports: {},
-      deps: [],
-      flags: [],
-      for: {},
-      refs: {},
-      reactive: {},
-      protocol: null,
-      // if the component type is set as router
-      routes: null,
-      // if the component type is store
-      namespace: null,
-      modules: [],
-      type: "component",
-      requirements: null,
-      hasStore: false,
-      ...opts,
-      mapStyleBundle: undefined,
-      elements: {
-        styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
-        template,
-        proto: protos,
-        head,
-      },
-      context: {
-        data: '',
-        props: '',
-        protocol: '',
-        protocolClass: '',
-        reuse: template?.attributes?.is as string || null,
-        engine: protos[0] && protos[0].attributes.engine
-          ? (protos[0].attributes.engine as string).split(' ')
-          : [],
-      },
-      modifiers: {
-        beforeEach: '',
-        compute: '',
-        cases: [],
-        default: '',
-        build: '',
-      },
-    };
+    try {
+      const template = opts.rootNode.childNodes
+        .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
+      const head = template && template.childNodes
+        .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
+      const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
+      return {
+        uuid: `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
+        isTyped: false,
+        dynamicImportsExpressions: "",
+        esmExpressions: "",
+        exportsExpressions: "",
+        data: {},
+        style: [],
+        scripts: {
+          runtime: "function run(){};",
+        },
+        imports: {},
+        deps: [],
+        flags: [],
+        for: {},
+        refs: {},
+        reactive: {},
+        protocol: null,
+        // if the component type is set as router
+        routes: null,
+        // if the component type is store
+        namespace: null,
+        modules: [],
+        type: "component",
+        requirements: null,
+        hasStore: false,
+        ...opts,
+        mapStyleBundle: undefined,
+        elements: {
+          styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
+          template,
+          proto: protos,
+          head,
+        },
+        context: {
+          data: '',
+          props: '',
+          protocol: '',
+          protocolClass: '',
+          reuse: template?.attributes?.is as string || null,
+          engine: protos[0] && protos[0].attributes.engine
+            ? (protos[0].attributes.engine as string).split(' ')
+            : [],
+        },
+        modifiers: {
+          beforeEach: '',
+          compute: '',
+          cases: [],
+          default: '',
+          build: '',
+        },
+      };
+    } catch (err) {
+      this.error(`ComponentBuilder: ${err.message}`);
+    }
   }
   /**
    *
@@ -94,53 +99,57 @@ export default class ComponentBuilder {
    * @description start reading all files saved inside bundle.files
    */
   read(bundle: Bundle) {
-    // start by local components
-    bundle.files.forEach((local, i) => {
-      const { path, file } = local;
-      const index = path;
-      const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
-      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
-      if (rootNode) {
-        const component = this.getComponent({
-          rootNode,
-          file: index,
-          remote: null,
-        });
-        bundle.components.set(
-          index,
-          component,
-        );
-        bundle.repository[component.uuid] = {};
-      }
-    });
-    // then render remote components
-    bundle.remotes.forEach((remote, i) => {
-      const { path, file } = remote;
-      const index = path;
-      const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
-      if (rootNode) {
-        const component = this.getComponent({
-          remote,
-          rootNode,
-          file: index,
-        });
-        bundle.components.set(
-          index,
-          component,
-        );
-        bundle.repository[component.uuid] = {};
-      }
-    });
-    // finally save it into repository
-    bundle.files.concat(bundle.remotes).forEach((localOrRemote) => {
-      if (localOrRemote.item) {
-        const parent = bundle.components.get(localOrRemote.parent);
-        if (parent) {
-          bundle.repository[parent.uuid] = bundle.repository[parent.uuid] || {};
-          bundle.repository[parent.uuid][localOrRemote.item.path] =
-            localOrRemote.path;
+    try {
+      // start by local components
+      bundle.files.forEach((local, i) => {
+        const { path, file } = local;
+        const index = path;
+        const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
+        const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
+        if (rootNode) {
+          const component = this.getComponent({
+            rootNode,
+            file: index,
+            remote: null,
+          });
+          bundle.components.set(
+            index,
+            component,
+          );
+          bundle.repository[component.uuid] = {};
         }
-      }
-    });
+      });
+      // then render remote components
+      bundle.remotes.forEach((remote, i) => {
+        const { path, file } = remote;
+        const index = path;
+        const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
+        if (rootNode) {
+          const component = this.getComponent({
+            remote,
+            rootNode,
+            file: index,
+          });
+          bundle.components.set(
+            index,
+            component,
+          );
+          bundle.repository[component.uuid] = {};
+        }
+      });
+      // finally save it into repository
+      bundle.files.concat(bundle.remotes).forEach((localOrRemote) => {
+        if (localOrRemote.item) {
+          const parent = bundle.components.get(localOrRemote.parent);
+          if (parent) {
+            bundle.repository[parent.uuid] = bundle.repository[parent.uuid] || {};
+            bundle.repository[parent.uuid][localOrRemote.item.path] =
+              localOrRemote.path;
+          }
+        }
+      });
+    } catch (err) {
+      this.error(`ComponentBuilder: ${err.message}`);
+    }
   }
 }

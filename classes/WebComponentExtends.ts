@@ -15,28 +15,32 @@ const ocr = `Ogone.classes.router = {% getClassRouter %}`;
 const occo = `Ogone.classes.controller = {% getClassController %}`;
 export default class WebComponentExtends extends Utils {
   public getExtensions(bundle: Bundle, entrypoint: string) {
-    const result: string[] = [];
-    result.push(oce, occ);
-    if (bundle.types.store) {
-      result.push(ocs);
+    try {
+      const result: string[] = [];
+      result.push(oce, occ);
+      if (bundle.types.store) {
+        result.push(ocs);
+      }
+      if (bundle.types.controller) {
+        result.push(occo);
+      }
+      if (bundle.types.router) {
+        result.push(ocr);
+      }
+      if (bundle.types.async) {
+        result.push(oca);
+      }
+      return this.template(result.join("\n"), {
+        getClassExtends,
+        getClassController,
+        getClassRouter,
+        getClassAsync,
+        getClassComponent,
+        getClassStore,
+        root: bundle.components.get(entrypoint),
+      });
+    } catch (err) {
+      this.error(`WebcomponentExtends: ${err.message}`);
     }
-    if (bundle.types.controller) {
-      result.push(occo);
-    }
-    if (bundle.types.router) {
-      result.push(ocr);
-    }
-    if (bundle.types.async) {
-      result.push(oca);
-    }
-    return this.template(result.join("\n"), {
-      getClassExtends,
-      getClassController,
-      getClassRouter,
-      getClassAsync,
-      getClassComponent,
-      getClassStore,
-      root: bundle.components.get(entrypoint),
-    });
   }
 }

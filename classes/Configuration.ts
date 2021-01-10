@@ -1,4 +1,5 @@
 import type { OgoneConfiguration } from "../.d.ts";
+import { Utils } from "./Utils.ts";
 export abstract class Configuration {
   /**
    * @property entrypoint
@@ -74,21 +75,25 @@ export abstract class Configuration {
    * set the current global configuration of the compiler
    */
   static setConfig(config: OgoneConfiguration) {
-    if (!config) {
-      throw new TypeError(
-        `no configuration provided to class Configuration\n${import.meta.url}`,
-      );
+    try {
+      if (!config) {
+        throw new TypeError(
+          `no configuration provided to class Configuration\n${import.meta.url}`,
+        );
+      }
+      Configuration.entrypoint = config.entrypoint;
+      Configuration.port = config.port ? config.port : 0;
+      Configuration.static = config.static;
+      Configuration.head = config.head;
+      Configuration.controllers = config.controllers;
+      Configuration.devtool = config.devtool;
+      Configuration.minifyCSS = config.minifyCSS;
+      Configuration.compileCSS = config.compileCSS;
+      Configuration.build = config.build;
+      Configuration.serve = config.serve;
+      Configuration.types = config.types;
+    } catch (err) {
+      Utils.error(`Configuration: ${err.message}`);
     }
-    Configuration.entrypoint = config.entrypoint;
-    Configuration.port = config.port ? config.port : 0;
-    Configuration.static = config.static;
-    Configuration.head = config.head;
-    Configuration.controllers = config.controllers;
-    Configuration.devtool = config.devtool;
-    Configuration.minifyCSS = config.minifyCSS;
-    Configuration.compileCSS = config.compileCSS;
-    Configuration.build = config.build;
-    Configuration.serve = config.serve;
-    Configuration.types = config.types;
   }
 }

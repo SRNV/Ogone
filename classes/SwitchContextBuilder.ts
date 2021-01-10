@@ -8,12 +8,17 @@ import { Utils } from "./Utils.ts";
  */
 export default class SwitchContextBuilder extends Utils {
   public async startAnalyze(bundle: Bundle): Promise<void> {
+    try {
     const entries = Array.from(bundle.components);
     for await (let [path] of entries) {
       await this.read(bundle, path);
     }
+  } catch(err) {
+    this.error(`SwitchContextBuilder: ${err.message}`);
+  }
   }
   read(bundle: Bundle, keyComponent: string) {
+    try {
     const component = bundle.components.get(keyComponent);
     if (component) {
       Object.entries(component.for).forEach(([nId, flag]) => {
@@ -183,5 +188,8 @@ export default class SwitchContextBuilder extends Utils {
         bundle.contexts.push(result);
       });
     }
+  } catch(err) {
+    this.error(`SwitchContextBuilder: ${err.message}`);
+  }
   }
 }

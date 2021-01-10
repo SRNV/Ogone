@@ -8,6 +8,7 @@ import elements from '../utils/elements.ts';
 import read from '../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../utils/typedExpressions.ts';
 import getDeepTranslation from '../utils/template-recursive.ts';
+import { Utils } from './Utils.ts';
 
 
 /**
@@ -21,78 +22,94 @@ import getDeepTranslation from '../utils/template-recursive.ts';
  * - require statement
  * - execute statement
  */
-export default class AssetsParser {
+export default class AssetsParser extends Utils {
   public parseUseStatement(value: string): ProtocolScriptParserReturnType {
-    const result = {
-      value: null,
-      body: getTypedExpressions(),
-    };
-    const expressions = {};
-    read({
-      expressions,
-      value,
-      typedExpressions: result.body,
-      array: [
-        ...notParsedElements,
-        ...elements,
-        ...useSyntaxElements
-      ],
-    });
-    return result;
+    try {
+      const result = {
+        value: null,
+        body: getTypedExpressions(),
+      };
+      const expressions = {};
+      read({
+        expressions,
+        value,
+        typedExpressions: result.body,
+        array: [
+          ...notParsedElements,
+          ...elements,
+          ...useSyntaxElements
+        ],
+      });
+      return result;
+    } catch (err) {
+      this.error(`AssetsParser: ${err.message}`);
+    }
   }
   /** should return the code with the **execute statement** transpiled */
   public transformLinkStatement(value: string): string {
-    const result = {
-      value: null,
-      body: getTypedExpressions(),
-    };
-    const expressions = {};
-    const newValue = read({
-      expressions,
-      value,
-      typedExpressions: result.body,
-      array: [
-        ...notParsedElements,
-        ...elements,
-        ...linkSyntaxElements
-      ],
-    });
-    return getDeepTranslation(newValue, expressions);
+    try {
+      const result = {
+        value: null,
+        body: getTypedExpressions(),
+      };
+      const expressions = {};
+      const newValue = read({
+        expressions,
+        value,
+        typedExpressions: result.body,
+        array: [
+          ...notParsedElements,
+          ...elements,
+          ...linkSyntaxElements
+        ],
+      });
+      return getDeepTranslation(newValue, expressions);
+    } catch (err) {
+      this.error(`AssetsParser: ${err.message}`);
+    }
   }
   public parseImportStatement(value: string): ProtocolScriptParserReturnType {
-    const result = {
-      value: null,
-      body: getTypedExpressions(),
-    };
-    const expressions = {};
-    read({
-      expressions,
-      value,
-      typedExpressions: result.body,
-      array:  [
-        ...notParsedElements,
-        ...elements,
-        ...importsElements
-      ],
-    });
-    return result;
+    try {
+      const result = {
+        value: null,
+        body: getTypedExpressions(),
+      };
+      const expressions = {};
+      read({
+        expressions,
+        value,
+        typedExpressions: result.body,
+        array: [
+          ...notParsedElements,
+          ...elements,
+          ...importsElements
+        ],
+      });
+      return result;
+    } catch (err) {
+      this.error(`AssetsParser: ${err.message}`);
+    }
   }
   public parseRequireStatement(value: string): ProtocolScriptParserReturnType {
-    const result = {
-      value: null,
-      body: getTypedExpressions(),
-    };
-    const expressions = {};
-    read({
-      expressions,
-      value,
-      typedExpressions: result.body,
-      array:  [
-        ...notParsedElements,
-        ...elements,
-        ...requireSyntaxElements
-      ],
-    });
-    return result;
+    try {
+      const result = {
+        value: null,
+        body: getTypedExpressions(),
+      };
+      const expressions = {};
+      read({
+        expressions,
+        value,
+        typedExpressions: result.body,
+        array: [
+          ...notParsedElements,
+          ...elements,
+          ...requireSyntaxElements
+        ],
+      });
+      return result;
+    } catch (err) {
+      this.error(`AssetsParser: ${err.message}`);
+    }
   }
 }

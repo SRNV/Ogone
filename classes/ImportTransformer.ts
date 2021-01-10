@@ -8,6 +8,7 @@ import elements from '../utils/elements.ts';
 import read from '../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../utils/typedExpressions.ts';
 import getDeepTranslation from '../utils/template-recursive.ts';
+import { Utils } from "./Utils.ts";
 
 
 /**
@@ -16,17 +17,21 @@ import getDeepTranslation from '../utils/template-recursive.ts';
  * @description
  * this class should transform any reference of any imported code to a unique id
  */
-export default class ImportTransformer {
+export default class ImportTransformer extends Utils {
   transformCode(bundle: Bundle, component: Component, code: string): string {
-    const typedExpressions = getTypedExpressions();
-    const expressions = {};
-    let result = read({
-      typedExpressions,
-      expressions,
-      array: notParsedElements,
-      value: code,
-    });
-    return result;
+    try {
+      const typedExpressions = getTypedExpressions();
+      const expressions = {};
+      let result = read({
+        typedExpressions,
+        expressions,
+        array: notParsedElements,
+        value: code,
+      });
+      return result;
+    } catch (err) {
+      this.error(`ImportTransformer: ${err.message}`);
+    }
   }
 }
 

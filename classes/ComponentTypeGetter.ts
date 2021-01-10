@@ -14,121 +14,133 @@ const registry: { [k: string]: { [c: string]: boolean } } = {};
 export default class ComponentTypeGetter extends Utils {
   private RouterAnalyzer: RouterAnalyzer = new RouterAnalyzer();
   public async setTypeOfComponents(bundle: Bundle): Promise<void> {
-    bundle.components.forEach((component: Component) => {
-      const proto = component.elements.proto[0];
-      if (proto) {
-        component.type = proto.attributes?.type as Component['type'] || 'component';
-        bundle.types[component.type] = true;
-      }
-    });
+    try {
+      bundle.components.forEach((component: Component) => {
+        const proto = component.elements.proto[0];
+        if (proto) {
+          component.type = proto.attributes?.type as Component['type'] || 'component';
+          bundle.types[component.type] = true;
+        }
+      });
+    } catch (err) {
+      this.error(`ComponentTypeGetter: ${err.message}`);
+    }
   }
   setApplication(bundle: Bundle) {
-    const rootComponent: Component | undefined = bundle.components.get(Configuration.entrypoint);
-    const entries = Array.from(bundle.components.entries()).map(([, c]) => c);
-    if (rootComponent) {
-      const { head, template } = rootComponent.elements;
-      if (rootComponent.type !== "app") {
-        this.error(`${rootComponent.file}\n\troot component type should be defined as app.`);
-      }
-      if (head && head.getInnerHTML) {
-        Configuration.head = head.getInnerHTML();
-        if (template) {
-          // remove the head in the template
-          template.childNodes.splice(
-            template.childNodes.indexOf(head),
-            1
-          );
+    try {
+      const rootComponent: Component | undefined = bundle.components.get(Configuration.entrypoint);
+      const entries = Array.from(bundle.components.entries()).map(([, c]) => c);
+      if (rootComponent) {
+        const { head, template } = rootComponent.elements;
+        if (rootComponent.type !== "app") {
+          this.error(`${rootComponent.file}\n\troot component type should be defined as app.`);
         }
+        if (head && head.getInnerHTML) {
+          Configuration.head = head.getInnerHTML();
+          if (template) {
+            // remove the head in the template
+            template.childNodes.splice(
+              template.childNodes.indexOf(head),
+              1
+            );
+          }
+        }
+        rootComponent.type = "component";
       }
-      rootComponent.type = "component";
+      // change all the sub component that are typed as app
+      entries.forEach((component: Component) => {
+        if (component.type === 'app') {
+          component.type = 'component';
+        }
+      });
+    } catch (err) {
+      this.error(`ComponentTypeGetter: ${err.message}`);
     }
-    // change all the sub component that are typed as app
-    entries.forEach((component: Component) => {
-      if (component.type === 'app') {
-        component.type = 'component';
-      }
-    });
   }
   public assignTypeConfguration(bundle: Bundle): void {
-    registry[bundle.uuid] = registry[bundle.uuid] || {};
-    bundle.components.forEach((component: Component) => {
-      const proto = component.elements.proto[0];
-      const position = MapPosition.mapNodes.get(proto)!;
-      if (proto) {
-        const { type } = component as Component;
-        if (!Ogone.allowedTypes.includes(type as string)) {
-          this.error(
-            `${component.file}:${position.line}:${position.column}\n\t
+    try {
+      registry[bundle.uuid] = registry[bundle.uuid] || {};
+      bundle.components.forEach((component: Component) => {
+        const proto = component.elements.proto[0];
+        const position = MapPosition.mapNodes.get(proto)!;
+        if (proto) {
+          const { type } = component as Component;
+          if (!Ogone.allowedTypes.includes(type as string)) {
+            this.error(
+              `${component.file}:${position.line}:${position.column}\n\t
               ${type} is not supported, in this version.
                 supported types of component: ${Ogone.allowedTypes.join(" ")}`,
-          );
-        }
-        if (type === "controller") {
-          const namespace = proto.attributes.namespace;
-          if (namespace && /[^\w]/gi.test(namespace as string)) {
-            const char = (namespace as string).match(/[^\w]/);
-            this.error(
-              `${component.file}:${position.line}:${position.column}\n\tforbidden character in namespace found. please remove it.\ncharacter: ${char}`,
             );
           }
-          if (namespace && (namespace as string).length) {
-            // set the component type, default is null
-            component.namespace = (namespace as string);
-          } else {
-            this.error(
-              `${component.file}:${position.line}:${position.column}\n\tproto's namespace is missing in ${type} component.\nplease set the attribute namespace, this one can't be empty.`,
-            );
-          }
-          // TODO add possibility to import modules
-          const comp = {
-            namespace: component.namespace,
-            protocol: `(${component.context.protocolClass})`,
-            runtime: `(${component.scripts.runtime})`,
-            file: component.file,
-          };
-          if (registry[bundle.uuid] && registry[bundle.uuid][comp.namespace as string]) {
-            this.error(
-              `${component.file}:${position.line}:${position.column}\n\tnamespace already used`,
-            );
-          }
-          // save the controller
-          Ogone.controllers[comp.namespace as string] = comp;
-          registry[bundle.uuid][comp.namespace as string] = true;
-        }
-        if (type === "router") {
-          if (!component.data.routes) {
-            const position = MapPosition.mapNodes.get(proto)!;
-            this.error(`${component.file}:${position.line}:${position.column}\nall router components should provide routes through a def modifier`);
-          }
-          component.routes = this.RouterAnalyzer.inspectRoutes(
-            bundle,
-            component,
-            Object.values(component.data.routes),
-          );
-          component.data = {};
-        }
-
-        if (type === "store") {
-          if (proto.attributes.namespace) {
-            // set the component type, default is null
-            component.namespace = (proto.attributes.namespace as string);
-          }
-        }
-        if (["store", "controller"].includes(type as string)) {
-          // check if there is any forbidden element
-          component.rootNode.childNodes
-            .filter((child: XMLNodeDescription) => {
-              return child.tagName && child.tagName !== "proto";
-            })
-            .map((child: XMLNodeDescription) => {
-              const position = MapPosition.mapNodes.get(child)!;
+          if (type === "controller") {
+            const namespace = proto.attributes.namespace;
+            if (namespace && /[^\w]/gi.test(namespace as string)) {
+              const char = (namespace as string).match(/[^\w]/);
               this.error(
-                `${component.file}:${position.line}:${position.column}\n\ta forbidden element found in ${type} component.\nelement: ${child.tagName}`,
+                `${component.file}:${position.line}:${position.column}\n\tforbidden character in namespace found. please remove it.\ncharacter: ${char}`,
               );
-            });
+            }
+            if (namespace && (namespace as string).length) {
+              // set the component type, default is null
+              component.namespace = (namespace as string);
+            } else {
+              this.error(
+                `${component.file}:${position.line}:${position.column}\n\tproto's namespace is missing in ${type} component.\nplease set the attribute namespace, this one can't be empty.`,
+              );
+            }
+            // TODO add possibility to import modules
+            const comp = {
+              namespace: component.namespace,
+              protocol: `(${component.context.protocolClass})`,
+              runtime: `(${component.scripts.runtime})`,
+              file: component.file,
+            };
+            if (registry[bundle.uuid] && registry[bundle.uuid][comp.namespace as string]) {
+              this.error(
+                `${component.file}:${position.line}:${position.column}\n\tnamespace already used`,
+              );
+            }
+            // save the controller
+            Ogone.controllers[comp.namespace as string] = comp;
+            registry[bundle.uuid][comp.namespace as string] = true;
+          }
+          if (type === "router") {
+            if (!component.data.routes) {
+              const position = MapPosition.mapNodes.get(proto)!;
+              this.error(`${component.file}:${position.line}:${position.column}\nall router components should provide routes through a def modifier`);
+            }
+            component.routes = this.RouterAnalyzer.inspectRoutes(
+              bundle,
+              component,
+              Object.values(component.data.routes),
+            );
+            component.data = {};
+          }
 
+          if (type === "store") {
+            if (proto.attributes.namespace) {
+              // set the component type, default is null
+              component.namespace = (proto.attributes.namespace as string);
+            }
+          }
+          if (["store", "controller"].includes(type as string)) {
+            // check if there is any forbidden element
+            component.rootNode.childNodes
+              .filter((child: XMLNodeDescription) => {
+                return child.tagName && child.tagName !== "proto";
+              })
+              .map((child: XMLNodeDescription) => {
+                const position = MapPosition.mapNodes.get(child)!;
+                this.error(
+                  `${component.file}:${position.line}:${position.column}\n\ta forbidden element found in ${type} component.\nelement: ${child.tagName}`,
+                );
+              });
+
+          }
         }
-      }
-    });
+      });
+    } catch (err) {
+      this.error(`ComponentTypeGetter: ${err.message}`);
+    }
   }
 }

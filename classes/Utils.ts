@@ -3,11 +3,12 @@ import getDeepTranslation from '../utils/template-recursive.ts';
 import { absolute } from '../deps.ts';
 import { Flags } from "../enums/flags.ts";
 import Workers from "../enums/workers.ts";
-import OgoneWorkers from "./OgoneWorkers.ts";
 import { Configuration } from "./Configuration.ts";
 
+const FIFOMessages: string[] = [];
 export abstract class Utils {
   protected getDeepTranslation = getDeepTranslation;
+  private static client = new WebSocket('ws://localhost:3441/');
   protected static getDeepTranslation = getDeepTranslation;
   protected absolute = absolute;
   trace(message: string) {
@@ -24,7 +25,7 @@ export abstract class Utils {
     const { bgYellow, bold, black, yellow } = colors;
     this.message(`${bgYellow(bold(black("   WARN  ")))} ${yellow(message)}`);
   }
-  public error(message: string, opts?: { [k: string]: any }): void {
+  public error(message: string, opts?: { [k: string]: any }): never {
     const { bgRed, red, bold, yellow } = colors;
     const m: string = this.message(
       `${bgRed("  ERROR  ")} ${red(message)}\n${
@@ -35,14 +36,14 @@ export abstract class Utils {
       { returns: true },
     ) as string;
     if (Configuration.OgoneDesignerOpened) {
-      OgoneWorkers.lspWebsocketClientWorker.postMessage({
+      this.notify({
         type: Workers.LSP_ERROR,
         message: m,
       });
     }
     throw new Error(m);
   }
-  static error(message: string, opts?: { [k: string]: any }): void {
+  static error(message: string, opts?: { [k: string]: any }): never {
     const { bgRed, red, bold, yellow } = colors;
     const m: string = this.message(
       `${bgRed("  ERROR  ")} ${red(message)}\n${
@@ -53,7 +54,7 @@ export abstract class Utils {
       { returns: true },
     ) as string;
     if (Configuration.OgoneDesignerOpened) {
-      OgoneWorkers.lspWebsocketClientWorker.postMessage({
+      this.notify({
         type: Workers.LSP_ERROR,
         message: m,
       });
@@ -142,4 +143,16 @@ export abstract class Utils {
     }
     return result;
   }
+  static notify(data: Object): void {
+    if (Utils.client.readyState !== 1) {
+      FIFOMessages.push(JSON.stringify(data));
+    } else {
+      FIFOMessages.forEach((message) => {
+        Utils.client.send(message);
+      });
+      FIFOMessages.splice(0);
+      Utils.client.send(JSON.stringify(data));
+    }
+  }
+  private notify = Utils.notify.bind(this);
 }

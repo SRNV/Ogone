@@ -42,148 +42,156 @@ export default class ComponentsSubscriber extends Utils {
       item: null,
     },
   ): Promise<void> {
-    const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
-    const tokens = this.AssetsParser.parseImportStatement(splitTextUseFirstPart);
-    if (opts && opts.remote) {
-      bundle.remotes.push({
-        file: textFile,
-        base: opts.base,
-        path: opts.current,
-        item: opts.item,
-        parent: opts.parent,
-      });
-    } else {
-      // only push if it's a local component
-      bundle.files.push({
-        path: p,
-        file: textFile,
-        item: opts.item,
-        parent: opts.parent,
-      });
-    }
-    if (tokens.body && tokens.body.imports) {
-      for await (let item of Object.values(tokens.body.imports)) {
-        const { path: inputPath, type, isComponent }: any = item;
-        if (!isComponent) return;
-        const path = inputPath.replace(/^@\//, '');
-        if (path === p) {
-          if (opts.recursive) {
+    try {
+      const splitTextUseFirstPart = textFile.split(/\<([a-zA-Z0-9]*)+/i)[0];
+      const tokens = this.AssetsParser.parseImportStatement(splitTextUseFirstPart);
+      if (opts && opts.remote) {
+        bundle.remotes.push({
+          file: textFile,
+          base: opts.base,
+          path: opts.current,
+          item: opts.item,
+          parent: opts.parent,
+        });
+      } else {
+        // only push if it's a local component
+        bundle.files.push({
+          path: p,
+          file: textFile,
+          item: opts.item,
+          parent: opts.parent,
+        });
+      }
+      if (tokens.body && tokens.body.imports) {
+        for await (let item of Object.values(tokens.body.imports)) {
+          const { path: inputPath, type, isComponent }: any = item;
+          if (!isComponent) return;
+          const path = inputPath.replace(/^@\//, '');
+          if (path === p) {
+            if (opts.recursive) {
+              continue;
+            }
+            await this.startRecursiveInspectionOfComponent(
+              textFile,
+              path,
+              bundle,
+              {
+                item,
+                parent: path,
+                recursive: true,
+              },
+            );
             continue;
           }
-          await this.startRecursiveInspectionOfComponent(
-            textFile,
-            path,
-            bundle,
-            {
-              item,
-              parent: path,
-              recursive: true,
-            },
-          );
-          continue;
-        }
 
-        if (type === "remote") {
-          this.warn("Downloading", path);
-          const file = await fetchRemoteRessource(path);
-          if (file) {
+          if (type === "remote") {
+            this.warn("Downloading", path);
+            const file = await fetchRemoteRessource(path);
+            if (file) {
+              await this.startRecursiveInspectionOfComponent(file, path, bundle, {
+                remote: true,
+                base: path.match(
+                  /(http|https|ws|wss|ftp|tcp|fttp)(\:\/{2}[^\/]+)/gi,
+                )[0],
+                current: path,
+                item,
+                parent: p,
+              });
+            } else {
+              this.error(
+                `unreachable remote component.\t\t\ninput: ${path}`,
+              );
+            }
+          } else if (type === "absolute" && existsSync(path)) {
+            // absolute  and local
+            if (Deno.build.os !== "windows") {
+              Deno.chmodSync(path, 0o777);
+            }
+            const file = Deno.readTextFileSync(path);
             await this.startRecursiveInspectionOfComponent(file, path, bundle, {
-              remote: true,
-              base: path.match(
-                /(http|https|ws|wss|ftp|tcp|fttp)(\:\/{2}[^\/]+)/gi,
-              )[0],
-              current: path,
               item,
               parent: p,
             });
-          } else {
-            this.error(
-              `unreachable remote component.\t\t\ninput: ${path}`,
-            );
-          }
-        } else if (type === "absolute" && existsSync(path)) {
-          // absolute  and local
-          if (Deno.build.os !== "windows") {
-            Deno.chmodSync(path, 0o777);
-          }
-          const file = Deno.readTextFileSync(path);
-          await this.startRecursiveInspectionOfComponent(file, path, bundle, {
-            item,
-            parent: p,
-          });
-        } else if (opts.remote && type === "relative" && opts.base) {
-          // relative and remote
-          const newPath = `${opts.current.split("://")[0]}://${absolute(opts.current.split("://")[1], path)
-            }`;
-          this.warn(`Downloading ${newPath}`);
-          const file = await fetchRemoteRessource(newPath);
-          if (file) {
-            await this.startRecursiveInspectionOfComponent(
-              file,
-              newPath,
-              bundle,
-              {
-                ...opts,
-                item,
-                current: newPath,
-                parent: p,
-              },
-            );
-          } else {
-            this.error(
-              `unreachable remote component.\t\t\ninput: ${newPath}`,
-            );
-          }
-        } else if (!opts.remote && type === "relative") {
-          const newPath = absolute(p, path);
-          if (existsSync(newPath)) {
-            if (Deno.build.os !== "windows") {
-              Deno.chmodSync(newPath, 0o777);
+          } else if (opts.remote && type === "relative" && opts.base) {
+            // relative and remote
+            const newPath = `${opts.current.split("://")[0]}://${absolute(opts.current.split("://")[1], path)
+              }`;
+            this.warn(`Downloading ${newPath}`);
+            const file = await fetchRemoteRessource(newPath);
+            if (file) {
+              await this.startRecursiveInspectionOfComponent(
+                file,
+                newPath,
+                bundle,
+                {
+                  ...opts,
+                  item,
+                  current: newPath,
+                  parent: p,
+                },
+              );
+            } else {
+              this.error(
+                `unreachable remote component.\t\t\ninput: ${newPath}`,
+              );
             }
-            const file = Deno.readTextFileSync(newPath);
-            await this.startRecursiveInspectionOfComponent(
-              file,
-              newPath,
-              bundle,
-              {
-                item,
-                parent: p,
-              },
-            );
+          } else if (!opts.remote && type === "relative") {
+            const newPath = absolute(p, path);
+            if (existsSync(newPath)) {
+              if (Deno.build.os !== "windows") {
+                Deno.chmodSync(newPath, 0o777);
+              }
+              const file = Deno.readTextFileSync(newPath);
+              await this.startRecursiveInspectionOfComponent(
+                file,
+                newPath,
+                bundle,
+                {
+                  item,
+                  parent: p,
+                },
+              );
+            } else {
+              this.error(
+                `component not found. input: ${path}`,
+              );
+            }
           } else {
             this.error(
               `component not found. input: ${path}`,
             );
           }
-        } else {
-          this.error(
-            `component not found. input: ${path}`,
-          );
         }
       }
+    } catch (err) {
+      this.error(`ComponentSubscriber: ${err.message}`);
     }
   }
   async inspect(entrypoint: string, bundle: Bundle) {
-    if (existsSync(entrypoint)) {
-      if (Deno.build.os !== "windows") {
-        Deno.chmodSync(entrypoint, 0o777);
-      }
-      const rootComponentFile = Deno.readTextFileSync(entrypoint);
-      await this.startRecursiveInspectionOfComponent(
-        rootComponentFile,
-        entrypoint,
-        bundle,
-        {
-          item: {
-            path: entrypoint,
+    try {
+      if (existsSync(entrypoint)) {
+        if (Deno.build.os !== "windows") {
+          Deno.chmodSync(entrypoint, 0o777);
+        }
+        const rootComponentFile = Deno.readTextFileSync(entrypoint);
+        await this.startRecursiveInspectionOfComponent(
+          rootComponentFile,
+          entrypoint,
+          bundle,
+          {
+            item: {
+              path: entrypoint,
+            },
+            parent: entrypoint,
           },
-          parent: entrypoint,
-        },
-      );
-    } else {
-      this.error(
-        `entrypoint file doesn't exist \n\t${entrypoint}`,
-      );
+        );
+      } else {
+        this.error(
+          `entrypoint file doesn't exist \n\t${entrypoint}`,
+        );
+      }
+    } catch (err) {
+      this.error(`ComponentSubscriber: ${err.message}`);
     }
   }
 }
