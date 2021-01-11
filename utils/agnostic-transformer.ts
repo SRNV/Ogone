@@ -1,6 +1,6 @@
-import type { ProtocolScriptRegExpList } from '../.d.ts';
+import type { ProtocolScriptRegExpList } from '../src/.d.ts';
 import getDeepTranslation from './template-recursive.ts';
-import { MapPosition } from '../classes/MapPosition.ts';
+import { MapPosition } from '../src/classes/MapPosition.ts';
 function savePosition (id: string, start: number, end: number) {
   return MapPosition.mapTokens.set(id, {
     start,

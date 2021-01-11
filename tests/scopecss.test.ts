@@ -1,5 +1,5 @@
 import scopeCss from "../lib/html-this/scopeCSS.ts";
-import { assertEquals } from "../deps.ts";
+import { assertEquals } from "../deps/deps.ts";
 
 Deno.test("- scopecss can scope classes", () => {
   const scoped = scopeCss(`.class1 .class2 .class3{}`, "data-1");

@@ -1,6 +1,6 @@
 import gen from "../generator.ts";
 import getDeepTranslation from "../template-recursive.ts";
-import type { ProtocolScriptRegExpList, MapIndexable } from "../../.d.ts";
+import type { ProtocolScriptRegExpList, MapIndexable } from "../../src/.d.ts";
 
 export interface ReflectionTranslater {
   body: string;

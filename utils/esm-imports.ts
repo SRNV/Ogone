@@ -2,11 +2,11 @@ import gen from "./generator.ts";
 import type {
   hmrModuleSystemOptions,
   ProtocolScriptRegExpList,
-} from "../.d.ts";
+} from "../src/.d.ts";
 import getDeepTranslation from "./template-recursive.ts";
 import exports from "./esm-exports.ts";
 import { getMembersKeys, getMembers } from './get-members.ts';
-import { join } from '../deps.ts';
+import { join } from '../deps/deps.ts';
 function getHmrModuleSystem({
   variable,
   registry,

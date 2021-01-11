@@ -7,7 +7,7 @@ import {
   assertStringContains,
   assertArrayContains,
   fail,
-} from "../deps.ts";
+} from "../deps/deps.ts";
 
 function renderDefExpression(str: string, opts?: any): string {
   let typedExpressions = getTypedExpression();

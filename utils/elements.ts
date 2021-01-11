@@ -1,5 +1,5 @@
 import gen from "./generator.ts";
-import type { ProtocolScriptRegExpList } from "../.d.ts";
+import type { ProtocolScriptRegExpList } from "../src/.d.ts";
 
 const tokens: ProtocolScriptRegExpList = [
   {

@@ -1,5 +1,5 @@
 import iterator from "../lib/iterator.ts";
-import { assertEquals } from "../deps.ts";
+import { assertEquals } from "../deps/deps.ts";
 
 Deno.test("- iterator increments", () => {
   const def = iterator.next().value;

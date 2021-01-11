@@ -1,4 +1,4 @@
-import type { ProtocolScriptRegExpList } from "../../.d.ts";
+import type { ProtocolScriptRegExpList } from "../../src/.d.ts";
 let rid = 0;
 
 const items: ProtocolScriptRegExpList = [

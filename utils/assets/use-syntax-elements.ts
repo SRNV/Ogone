@@ -1,6 +1,6 @@
 import gen from "../generator.ts";
 import getDeepTranslation from "../template-recursive.ts";
-import type { ProtocolScriptRegExpList } from "../../.d.ts";
+import type { ProtocolScriptRegExpList } from "../../src/.d.ts";
 const items: ProtocolScriptRegExpList = [
   // use syntax
   // use @/path/to/comp.o3 as element-name

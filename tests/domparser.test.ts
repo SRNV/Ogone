@@ -5,7 +5,7 @@ import {
   assertStringContains,
   assertArrayContains,
   fail,
-} from "../deps.ts";
+} from "../deps/deps.ts";
 
 Deno.test("- domparser first node is a template", () => {
   const root = domparse("");

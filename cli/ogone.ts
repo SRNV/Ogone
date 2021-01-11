@@ -1,7 +1,7 @@
-import { Utils } from "../classes/Utils.ts";
-import { Commands } from '../enums/cli-commands.ts';
-import { Messages } from "../enums/cli-messages.ts";
-import { Flags } from "../enums/flags.ts";
+import { Utils } from "../src/classes/Utils.ts";
+import { Commands } from '../src/enums/cli-commands.ts';
+import { Messages } from "../src/enums/cli-messages.ts";
+import { Flags } from "../src/enums/flags.ts";
 import o3 from '../mod.ts';
 
 export class OgoneCLI extends Utils {

@@ -1,7 +1,7 @@
 import gen from "./generator.ts";
 import type {
   ProtocolScriptRegExpList,
-} from "../.d.ts";
+} from "../src/.d.ts";
 import getDeepTranslation from "./template-recursive.ts";
 import { getMembers } from './get-members.ts';
 

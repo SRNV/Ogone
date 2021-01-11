@@ -1,4 +1,4 @@
-import component AsyncRecursiveComponent from '@/cli/boilerplate/components/atoms/li-menu.o3';
+import component AsyncRecursiveComponent from '@/examples/boilerplate/components/atoms/li-menu.o3';
 
 <template>
   <li
