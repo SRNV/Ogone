@@ -1,7 +1,7 @@
 // @ts-nocheck
-import type { OgoneBrowser } from "../../types/ogone.ts";
-import { NestedOgoneParameters } from '../../types/template.ts';
-import { OnodeComponent } from '../../types/component.ts';
+import type { OgoneBrowser } from "../types/ogone.ts";
+import { NestedOgoneParameters } from '../types/template.ts';
+import { OnodeComponent } from '../types/component.ts';
 let document: any;
 function _OGONE_BROWSER_CONTEXT() {
   function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {

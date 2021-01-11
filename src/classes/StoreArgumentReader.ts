@@ -1,5 +1,5 @@
 import type { Bundle } from "../.d.ts";
-import { YAML } from '../dep-yaml.ts';
+import { YAML } from '../../deps/yaml.ts';
 import { Utils } from "./Utils.ts";
 
 /**

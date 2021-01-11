@@ -1,6 +1,6 @@
 // @ts-nocheck
-import type { OgoneBrowser } from "../../types/ogone.ts";
-import type { BCE } from "../../types/component.ts";
+import type { OgoneBrowser } from "../types/ogone.ts";
+import type { BCE } from "../types/component.ts";
 declare const Ogone: OgoneBrowser;
 declare type TextElements =
   | HTMLInputElement

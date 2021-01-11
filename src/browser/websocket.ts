@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { OgoneBrowser } from "../../types/ogone.ts";
+import { OgoneBrowser } from "../types/ogone.ts";
 
 let Ogone: OgoneBrowser;
 function _OGONE_BROWSER_CONTEXT() {

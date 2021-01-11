@@ -1,7 +1,7 @@
 import type { Bundle, Component } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import Env from './Env.ts';
-import { ComponentEngine } from '../src/enums/componentEngine.ts';
+import { ComponentEngine } from '../enums/componentEngine.ts';
 /**
  * @name ComponentCompiler
  * @code OCC2-ORC8-OC0
