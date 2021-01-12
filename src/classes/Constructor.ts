@@ -12,6 +12,7 @@ import { Utils } from "./Utils.ts";
 import ProtocolDataProvider from './ProtocolDataProvider.ts';
 import ComponentTypeGetter from './ComponentTypeGetter.ts';
 import ForFlagBuilder from './ForFlagBuilder.ts';
+import MapOutput from './MapOutput.ts';
 
 /**
  * @name Constructor
@@ -52,12 +53,8 @@ export default class Constructor extends Utils {
     try {
       const bundle: Bundle = {
         uuid: `b${crypto.getRandomValues(new Uint32Array(10)).join('')}`,
+        output: '',
         files: [],
-        datas: [],
-        context: [],
-        classes: [],
-        contexts: [],
-        customElements: [],
         // @ts-ignore
         components: new Map(),
         // @ts-ignore
@@ -66,7 +63,6 @@ export default class Constructor extends Utils {
         mapClasses: new Map(),
         // @ts-ignore
         mapContexts: new Map(),
-        render: [],
         remotes: [],
         repository: {},
         types: {
@@ -87,6 +83,9 @@ export default class Constructor extends Utils {
       // @code OCB2
       await this.ComponentBuilder.read(bundle);
       this.trace('Components created');
+
+      await MapOutput.startSavingComponentsOutput(bundle);
+      this.trace('MapOuput: start saving components output');
 
       // get the type for all the components
       this.ComponentTypeGetter.setTypeOfComponents(bundle);
@@ -140,6 +139,8 @@ export default class Constructor extends Utils {
 
       await this.NodeAnalyzerCompiler.startAnalyze(bundle);
       this.trace('Node Analyzer done.');
+
+      await MapOutput.getOutputs(bundle);
 
       return bundle;
     } catch (err) {

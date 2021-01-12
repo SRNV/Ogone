@@ -15,6 +15,7 @@ import { DenoStdInternalError } from "https://deno.land/std@0.61.0/_util/assert.
 import MapFile from "./MapFile.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
+import MapOutput from "./MapOutput.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -189,6 +190,9 @@ export default class Env extends Constructor {
       ) => entry[1].dynamicImportsExpressions).join("\n");
       const style = stylesDev;
       const rootComponent = bundle.components.get(entrypoint);
+      const runtime = browserBuild(this.env === "production", {
+        hasDevtool: this.devtool,
+      });
       if (rootComponent) {
         if (
           rootComponent &&
@@ -202,16 +206,13 @@ export default class Env extends Constructor {
           `
         const ___perfData = window.performance.timing;
 
-        ${browserBuild(this.env === "production", {
-            hasDevtool: this.devtool,
-          })
-          }
-        ${bundle.datas.join("\n")}
-        ${bundle.contexts.slice().reverse().join("\n")}
-        ${bundle.render.join("\n")}
+        ${runtime.ogone}
+        ${runtime.router}
+        ${runtime.devTool}
         {% extension %}
-        ${bundle.customElements.join("\n")}
-        {% promise %}
+        ${bundle.output}
+        ${runtime.components}
+          {% promise %}
         `,
           {
             extension: this.WebComponentExtends.getExtensions(bundle, entrypoint),

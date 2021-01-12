@@ -96,14 +96,9 @@ export interface ImportDescription {
 }
 export interface Bundle {
   uuid: string;
+  output: string;
   files: Local[];
   remotes: Remote[];
-  datas: string[];
-  render: string[];
-  context: string[];
-  classes: string[];
-  contexts: string[];
-  customElements: string[];
   components: Map<string, Component>;
   mapRender: Map<string, any>;
   mapClasses: Map<string, any>;

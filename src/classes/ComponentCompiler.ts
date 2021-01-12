@@ -2,6 +2,8 @@ import type { Bundle, Component } from "../.d.ts";
 import { Utils } from "./Utils.ts";
 import Env from './Env.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
+import MapOutput from "./MapOutput.ts";
+// TODO create a file dedicated to the APIs
 /**
  * @name ComponentCompiler
  * @code OCC2-ORC8-OC0
@@ -78,13 +80,13 @@ export default class ComponentCompiler extends Utils {
               const mod = this.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{action}\`, ctx)
-                  .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
+                  .catch((err) => Ogone.displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             } else {
               const mod = this.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{id}\`, ctx)
-                  .catch((err) => Ogone.error(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
+                  .catch((err) => Ogone.displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             }
           },
@@ -94,12 +96,12 @@ export default class ComponentCompiler extends Utils {
               const [namespace, mutation] = path;
               const mod = this.store[namespace];
               if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
+                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => Ogone.displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
               }
             } else {
               const mod = this.store[null];
               if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => Ogone.error(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
+                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => Ogone.displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
               }
             }
           },
@@ -133,7 +135,7 @@ export default class ComponentCompiler extends Utils {
                 return promise;
               } else if (this.resolve === null) {
                 const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
-                Ogone.error(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
+                Ogone.displayError(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
                  message: \`component: {% component.file %}\`
                 });
                 throw DoubleUseOfResolveException;
@@ -143,7 +145,7 @@ export default class ComponentCompiler extends Utils {
           // freeze Async Object;
           Object.freeze(Async);
           `;
-        let result: string = `function __component () {
+        let result: string = `function OgoneComponentRuntime () {
             OComponent.call(this);
             {% controllerDef %}
             {% hasStore %}
@@ -193,6 +195,10 @@ export default class ComponentCompiler extends Utils {
         result = (await Deno.transpileOnly({
           "/transpiled.ts": `  ${this.template(result, d)}`,
         }, { sourceMap: false, }))["/transpiled.ts"].source;
+        const componentOutput = MapOutput.outputs.get(component.file);
+        if(!componentOutput) {
+          this.error('component output not found in MapOutput');
+        }
         if (mapRender.has(result)) {
           const item = mapRender.get(result);
           result = this.template(
@@ -202,17 +208,19 @@ export default class ComponentCompiler extends Utils {
               item,
             },
           );
-          bundle.datas.push(this.template(result, d));
+          if (componentOutput) {
+            componentOutput.data = this.template(result, d);
+          }
         } else {
           mapRender.set(result, {
             id: component.uuid,
           });
-          bundle.datas.push(
-            this.template(
+          if (componentOutput) {
+            componentOutput.data = this.template(
               `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
               d,
-            ),
-          );
+            );
+          }
         }
       }
     } catch (err) {

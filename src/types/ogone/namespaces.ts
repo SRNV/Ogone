@@ -79,14 +79,6 @@ export const members: Analysis[] = [
         value: `export const firstErrorPerf: any;`,
       },
       {
-        reg: /\bOgone.oscillator\b/,
-        value: `export const oscillator: any;`,
-      },
-      {
-        reg: /\bOgone.sound\b/,
-        value: `export const sound: ((opts: any) => void) | null;`,
-      },
-      {
         reg: /\bOgone.router\b/,
         value: `export const router: RouterBrowser;`,
       },

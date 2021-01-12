@@ -1,5 +1,6 @@
 import type { Bundle } from "../.d.ts";
 import type { XMLNodeDescription } from "../.d.ts";
+import MapOutput from "./MapOutput.ts";
 import { Utils } from "./Utils.ts";
 /**
  * @name SwitchContextBuilder
@@ -134,7 +135,7 @@ export default class SwitchContextBuilder extends Utils {
                 return eval('('+GET_TEXT+')');
               } catch(err) {
                 if (!({% itemName %})) { return undefined }
-                Ogone.error('Error in component:\\n\\t {%component.file%} '+\`$\{GET_TEXT}\`, err.message ,err);
+                Ogone.displayError('Error in component:\\n\\t {%component.file%} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }
             }
@@ -185,7 +186,11 @@ export default class SwitchContextBuilder extends Utils {
           value: script.value || "",
           modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
         });
-        bundle.contexts.push(result);
+        const componentOutput = MapOutput.outputs.get(component.file);
+        if (!componentOutput) {
+          this.error('component output not found in MapOutput');
+        }
+        componentOutput.context = result;
       });
     }
   } catch(err) {

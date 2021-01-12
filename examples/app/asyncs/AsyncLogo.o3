@@ -8,7 +8,7 @@
  */
 <template>
   <div class="container">
-    <img --await class="img" src="/public/ogone.svg"/>
+    <img --await class="img" src="src/public/ogone.svg"/>
   </div>
 </template>
 <proto type="async">

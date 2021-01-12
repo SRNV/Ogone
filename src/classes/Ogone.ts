@@ -2,11 +2,82 @@ import { Configuration } from "./Configuration.ts";
 import { serve } from "../../deps/deps.ts";
 import { existsSync } from "../../utils/exists.ts";
 import EnvServer from "./EnvServer.ts";
-import type { OgoneConfiguration } from "../.d.ts";
+import type { Component, OgoneConfiguration, XMLNodeDescription } from "../.d.ts";
 import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
 
+type OgoneStoreClientReaction = (namespace: string, key: string, overwrite?: boolean) => boolean;
+/**
+ * All the reactions related to a store,
+ * the first key is the namespace of the store.
+ *
+ */
+type OgoneStoreClient = [string, OgoneStoreClientReaction];
+/**
+ * namespaced stores
+ * saved with the namespace
+ */
+type OgoneStores = { [namespace: string]: {
+  [data: string]: any
+}};
+/**
+ * the ouput factory rendered by Ogone foreach dynamic elements or components
+ */
+type OgoneRenderFactory = (ctx: Component, pos: number[], i: number, l: number, ...args: Function[]) => XMLNodeDescription;
+/**
+ * where the factories are saved with the id of the customElement
+ */
+type OgoneRenderRegistry = {
+  [componentId: string]: OgoneRenderFactory;
+}
+/**
+ * a function that evaluate what the end user put in a prop or a dynamic attribute or a flag
+ * can return also the length of node that should be rendered if the user uses the flag --for
+ */
+type OgoneContext = (opts: { getText: string, position: number[], getLength: boolean }) => any;
+/**
+ * all the contexts available in the runtime
+ */
+type OgoneContexts = { [componentId: string]: OgoneContext };
+/**
+ * all the components available in the runtime
+ * all the values of the registry are a function that should construct the runtime of the component,
+ * this function is built by the compiler
+ */
+type OgoneComponentsRegistry = { [componentId: string]: Function };
+/**
+ * those functions will help for the extension of the customElement's constructor
+ */
+type OgoneClassesRegistry = Partial<Record<"app" | "async" | "store" | "controller" | "component" | "router", (construct: FunctionConstructor) => FunctionConstructor>>
+/**
+ * @deprecated
+ * all the modules saved with their path
+ * this is used for the first implementation of the hmr
+ */
+type OgoneModules = {
+  '*': [];
+  [moduleName: string]: any;
+};
 export default class Ogone extends EnvServer {
+  // usable on browser side
+  static stores: OgoneStores = {};
+  static clients: OgoneStoreClient[] = [];
+  static render: OgoneRenderRegistry = {};
+  static contexts: OgoneContexts = {};
+  static components: OgoneComponentsRegistry = {};
+  static classes: OgoneClassesRegistry = {};
+  static errorPanel: XMLNodeDescription | null = null;
+  static warnPanel: XMLNodeDescription | null = null;
+  static successPanel: XMLNodeDescription | null = null;
+  static infosPanel: XMLNodeDescription | null = null;
+  static errors: number = 0;
+  static firstErrorPerf: number | null = null;
+  static mod: OgoneModules = {
+    '*': []
+  };
+  static instances: { [componentUuid: string]: any[] } = {};
+  static bindValue: any;
+  // usable on Deno side
   static files: string[] = [];
   static directories: string[] = [];
   static controllers: { [key: string]: any } = {};

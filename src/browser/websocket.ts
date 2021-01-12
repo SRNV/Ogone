@@ -16,7 +16,7 @@ function _OGONE_BROWSER_CONTEXT() {
         });
       return mod;
     } catch (err) {
-      Ogone.error(err.message, "HMR-Error", {
+      Ogone.displayError(err.message, "HMR-Error", {
         message: `
         module's url: ${url}
         `,
@@ -34,13 +34,13 @@ function _OGONE_BROWSER_CONTEXT() {
       }
       return templates;
     } catch (err) {
-      Ogone.error(err.message, "HMR-Error", err);
+      Ogone.displayError(err.message, "HMR-Error", err);
       throw err;
     }
   };
   Ogone.hmrRuntime = async function (uuid, runtime) {
     try {
-      const components = Ogone.run[uuid];
+      const components = Ogone.instances[uuid];
       if (components) {
         components.forEach((c, i, arr) => {
           if (c.activated) {
@@ -54,7 +54,7 @@ function _OGONE_BROWSER_CONTEXT() {
       }
       return components;
     } catch (err) {
-      Ogone.error(err.message, "HMR-Error", err);
+      Ogone.displayError(err.message, "HMR-Error", err);
       throw err;
     }
   };

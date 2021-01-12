@@ -1,26 +1,29 @@
-import components from "./component.ts";
-import ogone from "./ogone.ts";
-import router from "./router.ts";
-import websocket from "./websocket.ts";
 import devTool from "./dev-tool/index.ts";
-
-export const browserBuild = (isProduction: boolean, opts?: any): string => {
+const components = Deno.readTextFileSync(new URL('./component.ts', import.meta.url));
+const websocket = Deno.readTextFileSync(new URL('./websocket.ts', import.meta.url));
+const ogone = Deno.readTextFileSync(new URL('./ogone.ts', import.meta.url));
+const router = Deno.readTextFileSync(new URL('./router.ts', import.meta.url));
+interface OgoneRuntime {
+  ogone: string;
+  components: string;
+  router: string;
+  devTool?: string;
+}
+export const browserBuild = (isProduction: boolean, opts?: any): OgoneRuntime => {
   if (isProduction) {
-    return [
+    return {
       components,
       ogone,
       router,
-    ].join("\n");
+      devTool: '',
+    }
   }
-  return [
+  return {
     components,
     ogone,
     router,
-    // TODO fix HMR
-    // use std websokect
-    // websocket,
-    opts.hasDevtool ? devTool({}) : "",
-  ].join("\n");
+    devTool: opts.hasDevtool ? devTool({}) : "",
+  }
 };
 
 export const template: string = `

@@ -1,6 +1,7 @@
 import Env from "./Env.ts";
 import type { Bundle, Component, XMLNodeDescription } from "./../.d.ts";
 import { Utils } from "./Utils.ts";
+import MapOutput from './MapOutput.ts';
 /**
  * @name WebComponentDefinition
  * @code OWCD1-ONAC3-ORC8-OC0
@@ -30,34 +31,37 @@ export default class WebComponentDefinition extends Utils {
       }
       const templateSlots = {
         component,
-        classId: isTemplate
+        elementId: isTemplate
           ? `${component.uuid}-nt`
           : `${component.uuid}-${node.id}`,
         extension: isTemplate ? "HTMLTemplateElement" : `HTMLElement`,
       };
       let componentExtension = ``;
       let definition =
-        `customElements.define('{% classId %}', Ogone.classes['{% component.type %}']({% extension %}), { extends: 'template' });`;
+        `customElements.define('{% elementId %}', Ogone.classes['{% component.type %}']({% extension %}), { extends: 'template' });`;
 
       if (!isTemplate) {
         definition =
-          `customElements.define('{% classId %}', Ogone.classes['{% component.type %}']({% extension %}));`;
+          `customElements.define('{% elementId %}', Ogone.classes['{% component.type %}']({% extension %}));`;
       }
       if (!isProduction) {
         // for HMR
         // asking if the customElement is already defined
         definition = `
-        if (!customElements.get("{% classId %}")) {
+        if (!customElements.get("{% elementId %}")) {
           ${definition}
         }
       `;
       }
-      const render = `Ogone.render['{% classId %}'] = ${componentPragma
+      const render = `Ogone.render['{% elementId %}'] = ${componentPragma
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
         }`;
-      bundle.customElements.push(this.template(definition, templateSlots));
-      bundle.render.push(this.template(render, templateSlots));
+      const componentOutput = MapOutput.outputs.get(component.file);
+      if (componentOutput) {
+        componentOutput.customElement = this.template(definition, templateSlots);
+        componentOutput.render = this.template(render, templateSlots);
+      }
       if (["controller"].includes(component.type)) {
         return `class extends HTMLTemplateElement {
         constructor(){super();}
