@@ -1,5 +1,168 @@
+/// <reference lib="dom" />
+/// <reference lib="esnext" />
 import type Style from "./classes/css/Style.ts";
 
+declare type HTMLOgoneElement = HTMLTemplateElement & {
+  ogone: OgoneParameters;
+  component: OnodeComponent;
+  isComponent: boolean;
+  firstNode: HTMLElement | HTMLOgoneElement;
+  lastNode: HTMLElement | HTMLOgoneElement;
+  connectedCallback(): void;
+  context: {
+    list: HTMLOgoneElement[],
+    placeholder: HTMLTemplateElement,
+    parentNode: HTMLElement,
+    name: string,
+  };
+  extends: string;
+  type: string;
+  dependencies: string[] | null;
+  positionInParentComponent: number[];
+};
+
+export interface OgoneParameters {
+  uuid?: string;
+  promise?: null | Promise<void>;
+  actualRouteName?: null | string;
+  actualRoute?: null | any;
+  routeChanged?: boolean | null;
+  locationPath?: string | null;
+  historyState?: { query: Map<unknown, unknown> } | null;
+  actualTemplate?: (HTMLElement | HTMLOgoneElement)[] | null;
+  replacer?: HTMLElement | HTMLOgoneElement | null;
+  getContext?:
+    | null
+    | ((opt: {
+      position: OgoneParameters["position"];
+      getLength?: boolean;
+      getText?: string;
+    }) => number | { [k: string]: any })
+    | any;
+  type?:
+    | "store"
+    | "component"
+    | "router"
+    | "async"
+    | "controller";
+  methodsCandidate?: Function[];
+  isTemplate: boolean;
+  isAsync: boolean;
+  isAsyncNode: boolean;
+  isStore: boolean;
+  isRouter: boolean;
+  isRoot?: boolean;
+  isRemote?: boolean;
+  isImported?: boolean;
+
+  extends?: string;
+  key?: string;
+  parentNodeKey?: string;
+  name?: string;
+  tree?: string;
+
+  index?: number;
+  originalNode: boolean;
+  level?: number;
+  position?: number[];
+  flags: any;
+  original?: HTMLOgoneElement;
+  component?: OnodeComponent | null;
+  props: any;
+  nodeProps?: [string, string][];
+  params?: any;
+  parentComponent?: OnodeComponent | null;
+  parentCTXId: string;
+  positionInParentComponent?: number[];
+  levelInParentComponent?: number;
+  nodes?: (HTMLOgoneElement & HTMLElement)[];
+  namespace?: string;
+  requirements: [string, string][] | null;
+  dependencies: string[] | null;
+  routes: null | Route[];
+  render?: ((
+    ctx: OnodeComponent,
+    position?: number[],
+    index?: number,
+    level?: number,
+  ) => HTMLOgoneElement | HTMLElement) | null;
+}
+
+export type OnodeComponentRenderOptions = {
+  callingNewComponent?: boolean;
+  length: number;
+};
+export interface RouterBrowser {
+  react: Function[];
+  actualRoute: null | string;
+  go: (url: string, state: any) => void;
+  openDevTool?: (opts: any) => void;
+}
+export interface OnodeComponent {
+  key: string | null;
+  data: { [s: string]: any } | null;
+  type: "store" | "async" | "component" | "router" | "controller";
+  dependencies: null | string[];
+  state: number;
+  activated: boolean;
+  namespace: null | string;
+  store: any;
+  contexts: any;
+  promises: Promise<any>[];
+  async: {
+    then: null | any;
+    catch: null | any;
+    finally: null | any;
+  };
+  promiseResolved: boolean;
+  texts: (() => any)[];
+  childs: OnodeComponent[];
+  parent: OnodeComponent | null;
+  requirements: any;
+  positionInParentComponent: number[];
+  props: [string, string, ...any[]][];
+  pluggedWebComponent?: any;
+  pluggedWebComponentIsSync: boolean;
+  startLifecycle: (params?: any, event?: Event | OgoneParameters['historyState']) => any;
+  initStore(): any;
+  runtime(_state: number | string, ctx?: any, event?: Event): any;
+  update(dependency?: string, ctx?: any): void;
+  updateStore(dependency?: string): void;
+  react: Function[];
+  updateProps(dependency?: string): void;
+  updateService(dependency?: string, value?: unknown, force?: boolean): void;
+  resolve: Function | null;
+  dispatchAwait: Function | null;
+  render(Onode: HTMLOgoneElement, opts: OnodeComponentRenderOptions): void;
+  reactTo(dependency: string): void;
+  renderTexts(dependency: string | boolean): void;
+  parentContext(ctx: any): any;
+  plugWebComponent(webcomponent: any, isSync: boolean): any;
+  destroyPluggedWebcomponent(): void;
+}
+/**
+ * for dev tool display
+ */
+export interface ComponentItem {
+  name: string;
+  key: string;
+  parentNodeKey: string;
+  tree?: string[];
+  isRoot: boolean;
+  parent?: ComponentItem;
+  ctx: OnodeComponent;
+  parentCTX: OnodeComponent | null;
+  type: "root" | "component" | "element" | "async" | "router" | "store";
+  node?: {
+    figure: XMLNodeDescription;
+    element: XMLNodeDescription;
+    setPosition(coord?: ComponentItem["position"]): void;
+    lineToParent?: any;
+  };
+  position: { x: number; y: number; delta?: number };
+  childs: ComponentItem[];
+  getSize(): number;
+}
 
 export type Environment = "development" | "production" | "staging";
 export type MapIndexable = { [key: string]: string };
@@ -284,6 +447,7 @@ export interface Route {
   children: Route[];
   title: string;
   once: boolean;
+  params?: { [k: string]: string };
 }
 export interface LegacyDescription {
   ctx?: any;

@@ -1,6 +1,3 @@
-/// <reference lib="dom" />
-/// <reference lib="esnext" />
-
 import Ogone from '../classes/Ogone.ts';
 
 Ogone.bindValue = function (Onode: any) {
