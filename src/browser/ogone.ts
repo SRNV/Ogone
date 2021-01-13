@@ -1,7 +1,6 @@
-import { OnodeComponent } from '../types/component.ts';
 import Ogone from '../classes/Ogone.ts';
 import { OgoneRecycleOptions } from '../classes/Ogone.ts';
-import type { Route, HTMLOgoneElement, OgoneParameters } from '../.d.ts';
+import type { Route, HTMLOgoneElement, OgoneParameters, OnodeComponent } from '../.d.ts';
 
 Ogone.setReactivity = function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   const proxies: { [k: string]: Object } = {};
@@ -151,6 +150,7 @@ Ogone.setOgone = function (node: HTMLOgoneElement, def: OgoneParameters) {
     node.ogone.routeChanged = true;
     node.ogone.historyState = (() => {
       const url = new URL(location.href);
+      // @ts-ignore
       const query = new Map(url.searchParams.entries());
       return { query };
     })();
@@ -165,7 +165,7 @@ Ogone.setNodeProps = function (Onode: HTMLOgoneElement) {
       position: o.position,
       getText: `(${p[1]})`,
     });
-    n.setAttribute(p[0], vl);
+    n.setAttribute(p[0], vl as string);
     return n.isConnected;
   }
   for (let n of o.nodes) {
@@ -189,16 +189,17 @@ Ogone.setProps = function (Onode: HTMLOgoneElement) {
   }
   oc.props = o.props;
   if (!o.positionInParentComponent || o.levelInParentComponent !== undefined) {
-    oc.positionInParentComponent = o.positionInParentComponent;
-    o.positionInParentComponent[
-      o.levelInParentComponent
+    oc.positionInParentComponent = o.positionInParentComponent!;
+    o.positionInParentComponent![
+      o.levelInParentComponent!
     ] = o.index;
   }
   oc.updateProps();
 }
 Ogone.useSpread = function (Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = o.component, op = oc.parent;
+  const o = Onode.ogone, oc = o.component;
   if (!oc) return;
+  const op = oc.parent;
   let reaction, parent;
   if (o.isTemplate && o.flags && o.flags.spread && op) {
     reaction = () => {

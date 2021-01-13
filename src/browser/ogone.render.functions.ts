@@ -137,13 +137,13 @@ Ogone.renderAsyncStores = function (Onode: HTMLOgoneElement) {
 }
 Ogone.renderAsyncComponent = function (Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
-  if (!oc) return;
+  if (!oc || !o || !o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "async";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
     const awaitingNodes = Array.from(node.querySelectorAll("template"))
       .filter(filter) as HTMLOgoneElement[];
     if (
-      node.isComponent && node.ogone && node.ogone.component.type === "async"
+      node.isComponent && node.ogone && node.ogone.component && node.ogone.component.type === "async"
     ) {
       awaitingNodes.push(node);
     }

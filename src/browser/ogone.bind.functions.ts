@@ -134,10 +134,12 @@ Ogone.bindValue = function (Onode: any) {
       if (typeof vl === "string") {
         Object.keys(n.style)
           .forEach((key: string) => {
+            // @ts-ignore
             n.style[key] = vl[key];
           });
       } else if (typeof vl === "object") {
         Object.entries(vl)
+          // @ts-ignore
           .forEach(([k, v]: [string, boolean]) => n.style[k] = v);
       }
       return n.isConnected;

@@ -2,10 +2,8 @@ import { Configuration } from "./Configuration.ts";
 import { existsSync } from "../../utils/exists.ts";
 import EnvServer from "./EnvServer.ts";
 import type {
-  Component,
   Route,
   OgoneConfiguration,
-  XMLNodeDescription,
   HTMLOgoneElement,
   OgoneParameters,
   OnodeComponent,
@@ -116,6 +114,16 @@ export default class Ogone extends EnvServer {
    * for the flag --spread
    */
   static useSpread: (Onode: HTMLOgoneElement) => void;
+  static imp: (id: string, url: string) => void;
+  /**
+   * set the props into the component from the OgoneParameters.props
+   * OgoneParameters.props is passed during the creation of the node
+   */
+  static setProps: (Onode: HTMLOgoneElement) => void;
+  /**
+   * for dynamic attributes of any elements
+   */
+  static setNodeProps: (Onode: HTMLOgoneElement) => void;
   /**
    * will set the position of the node
    * using the level, assigned during the creation of the template, depending on how many ancestors has the element

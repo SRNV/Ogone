@@ -1,3 +1,4 @@
+/// <reference no-default-lib="true"/>
 /// <reference lib="dom" />
 /// <reference lib="esnext" />
 import type Style from "./classes/css/Style.ts";
