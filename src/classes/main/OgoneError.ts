@@ -1,6 +1,7 @@
-import Ogone from '../classes/Ogone.ts';
+import Ogone from './Ogone.ts';
 
-Ogone.displayError = function (this: Ogone, message: string, errorType: string, errorObject: Error) {
+export default abstract class OgoneError {
+  static displayError(message: string, errorType: string, errorObject: Error) {
     // here we render the errors in development
     if (!Ogone.errorPanel) {
       const p = document.createElement("div");
@@ -17,7 +18,7 @@ Ogone.displayError = function (this: Ogone, message: string, errorType: string, 
         display: "grid",
         flexDirection: "column",
       }).forEach(([key, value]: [string, string]) => {
-        p.style[key] = value;
+        p.style[key as unknown as number] = value;
       });
       Ogone.errorPanel = p;
     }
@@ -34,7 +35,7 @@ Ogone.displayError = function (this: Ogone, message: string, errorType: string, 
       margin: "auto",
       display: "inline-flex",
       flexDirection: "column",
-    }).forEach(([key, value]) => err.style[key] = value);
+    }).forEach(([key, value]) => err.style[key as unknown as number] = value);
     const errorId = Ogone.errors;
     const code = document.createElement("code");
     const stack = document.createElement("code");
@@ -108,3 +109,5 @@ Ogone.displayError = function (this: Ogone, message: string, errorType: string, 
       ? document.body.append(Ogone.errorPanel)
       : [];
   };
+
+}

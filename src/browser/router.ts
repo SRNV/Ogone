@@ -1,4 +1,4 @@
-import Ogone from '../classes/Ogone.ts';
+import Ogone from '../classes/main/Ogone.ts';
 Ogone.router = {
   react: [],
   actualRoute: null,

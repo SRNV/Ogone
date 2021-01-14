@@ -1,79 +1,18 @@
-import { Configuration } from "./Configuration.ts";
-import { existsSync } from "../../utils/exists.ts";
-import EnvServer from "./EnvServer.ts";
 import type {
   Route,
-  OgoneConfiguration,
   HTMLOgoneElement,
   OgoneParameters,
-  OnodeComponent,
   RouterBrowser,
-} from "../.d.ts";
-import messages from "../../docs/chore/messages.ts";
-import { Flags } from "../enums/flags.ts";
-
-type OgoneStoreClientReaction = (namespace: string, key: string, overwrite?: boolean) => boolean;
-/**
- * All the reactions related to a store,
- * the first key is the namespace of the store.
- *
- */
-type OgoneStoreClient = [string, OgoneStoreClientReaction];
-/**
- * namespaced stores
- * saved with the namespace
- */
-type OgoneStores = { [namespace: string]: {
-  [data: string]: any
-}};
-/**
- * the ouput factory rendered by Ogone foreach dynamic elements or components
- */
-type OgoneRenderFactory = (ctx: OnodeComponent, pos?: number[], i?: number, l?: number, ...args: Function[]) => HTMLOgoneElement;
-/**
- * where the factories are saved with the id of the customElement
- */
-type OgoneRenderRegistry = {
-  [componentId: string]: OgoneRenderFactory;
-}
-/**
- * a function that evaluate what the end user put in a prop or a dynamic attribute or a flag
- * can return also the length of node that should be rendered if the user uses the flag --for
- */
-type OgoneContext = (opts: { getText: string, position: number[], getLength: boolean }) => any;
-/**
- * all the contexts available in the runtime
- */
-type OgoneContexts = { [componentId: string]: OgoneContext };
-/**
- * all the components available in the runtime
- * all the values of the registry are a function that should construct the runtime of the component,
- * this function is built by the compiler
- */
-type OgoneComponentsRegistry = { [componentId: string]: FunctionConstructor };
-/**
- * those functions will help for the extension of the customElement's constructor
- */
-type OgoneClassesRegistry = Partial<Record<"app" | "async" | "store" | "controller" | "component" | "router", (construct: FunctionConstructor) => FunctionConstructor>>
-/**
- * @deprecated
- * all the modules saved with their path
- * this is used for the first implementation of the hmr
- */
-type OgoneModules = {
-  '*': [];
-  [moduleName: string]: any;
-};
-
-export type OgoneRecycleOptions = {
-  injectionStyle: 'append' | 'prepend';
-  id: string;
-  name: string;
-  component: any;
-  isSync: boolean;
-  extends?: string;
-}
-export default class Ogone extends EnvServer {
+  OgoneStores,
+  OgoneStoreClient,
+  OgoneRenderRegistry,
+  OgoneContexts,
+  OgoneComponentsRegistry,
+  OgoneClassesRegistry,
+  OgoneModules,
+  OgoneRecycleOptions
+} from "../../.d.ts";
+export default abstract class OgoneInterface {
   // usable on browser side
   static stores: OgoneStores = {};
   static clients: OgoneStoreClient[] = [];
@@ -91,9 +30,10 @@ export default class Ogone extends EnvServer {
   static mod: OgoneModules = {
     '*': []
   };
+  static ComponentCollectionManager: any;
   static instances: { [componentUuid: string]: any[] } = {};
   static setReactivity: (target: Object, updateFunction: Function, parentKey?: string) => Object;
-  static displayError: (message: string, errorType: string, errorObject: { message: string }) => void;
+  static displayError: (message: string, errorType: string, errorObject: Error) => void;
   /**
    * for the flag --bind
    */
@@ -146,6 +86,9 @@ export default class Ogone extends EnvServer {
    * adds Listeners on nodes
    */
   static setEvents: (Onode: HTMLOgoneElement) => void;
+  static setContext: (Onode: HTMLOgoneElement) => void;
+  static setHMRContext: (Onode: HTMLOgoneElement) => void;
+  static setDevToolContext: (Onode: HTMLOgoneElement) => void;
   /**
    * set the context when the user uses the flags: then, catch, finally
    * the context is saved into OComponent.async
@@ -261,7 +204,6 @@ export default class Ogone extends EnvServer {
   static directories: string[] = [];
   static controllers: { [key: string]: any } = {};
   static main: string = "";
-  public readonly contributorMessage: { [k: string]: string } = messages;
   static readonly allowedTypes = [
     // first component (root component)
     "app",
@@ -275,73 +217,4 @@ export default class Ogone extends EnvServer {
     "async",
     "component",
   ];
-  constructor(opts: OgoneConfiguration) {
-    super();
-    try {
-      if (!opts) {
-        this.error("run method is expecting for 1 argument, got 0.");
-      }
-      Configuration.setConfig(opts);
-      Ogone.main = `${Deno.cwd()}${Configuration.entrypoint}`;
-      // message for contributions, ideas, issues and any help.
-      if (Deno.args.includes(Flags.RELEASE)) {
-        Object.entries(this.contributorMessage)
-          .map(([version, message]: any) => this.message(`[${version}] ${message}`))
-      }
-
-      if (opts.build) {
-        if (!existsSync(opts.build)) {
-          Deno.mkdirSync(opts.build);
-        }
-        if (Deno.build.os !== "windows") {
-          Deno.chmodSync(opts.build, 0o777);
-        }
-        const stats = Deno.statSync(opts.build);
-        if (stats.isFile) {
-          this.error(
-            `build: build destination should be a directory. \n\tinput: ${opts.build}`,
-          );
-        }
-        //start compilation of o3 files
-        this.setEnv("production");
-        this.setDevTool(false);
-        this.compile(Configuration.entrypoint, true)
-          .then(async () => {
-            //start compilation of o3 files
-            const b = await this.getBuild();
-            /*
-            TODO use workers for build
-            const application = `${opts.build}/index.html`;
-            Deno.writeTextFileSync(application, b as string);
-            this.success(
-              `your application successfully rendered. ${application}`,
-            );
-            if (opts.serve) {
-              this.runService(application, server, opts.port);
-            } else {
-              server.close();
-              Deno.exit();
-            }
-            */
-          }).then(() => {
-            // message for any interested developer.
-            this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
-          });
-      } else {
-        //start compilation of o3 files
-        this.setDevTool(Configuration.devtool as boolean);
-        this.listenLSPWebsocket();
-        this.compile(Configuration.entrypoint, true)
-          .then(() => {
-            // Ogone is now ready to serve
-            this.startDevelopment();
-          }).then(() => {
-            // message for any interested developer.
-            this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
-          });
-      }
-    } catch (err) {
-      this.error(`Ogone: ${err.message}`);
-    }
-  }
 }

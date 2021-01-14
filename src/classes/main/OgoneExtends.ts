@@ -1,8 +1,14 @@
-import Ogone from '../classes/Ogone.ts';
-import { OgoneRecycleOptions } from '../classes/Ogone.ts';
-import type { Route, HTMLOgoneElement, OgoneParameters, OnodeComponent } from '../.d.ts';
+import Ogone from './Ogone.ts';
+import type {
+  OgoneRecycleOptions,
+  Route,
+  HTMLOgoneElement,
+  OgoneParameters,
+  OnodeComponent
+} from '../../.d.ts';
 
-Ogone.setReactivity = function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
+export default abstract class OgoneExtends {
+static setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   const proxies: { [k: string]: Object } = {};
   return new Proxy(target, {
     get(obj: { [k: string]: unknown }, key: string, ...args: unknown[]) {
@@ -11,7 +17,7 @@ Ogone.setReactivity = function setReactivity(target: Object, updateFunction: Fun
       if (key === 'prototype') {
         v = Reflect.get(obj, key, ...args)
       } else if (obj[key] instanceof Object && !proxies[id]) {
-        v = setReactivity(obj[key] as Object, updateFunction, id);
+        v = OgoneExtends.setReactivity(obj[key] as Object, updateFunction, id);
         proxies[id] = v;
       } else {
         v = Reflect.get(obj, key, ...args);
@@ -35,7 +41,7 @@ Ogone.setReactivity = function setReactivity(target: Object, updateFunction: Fun
   });
 };
 
-Ogone.imp = async function (id: string, url: string) {
+static async imp(id: string, url: string) {
   if (Ogone.mod[id]) return;
   try {
     if (!url) {
@@ -48,17 +54,15 @@ Ogone.imp = async function (id: string, url: string) {
       return mod;
     }
   } catch (err) {
-    Ogone.displayError(err.message, "Error in Dynamic Import", {
-      message: `
-        module's url: ${id}
-        `,
-    });
+    Ogone.displayError(err.message, "Error in Dynamic Import", new Error(`
+    module's url: ${id}
+    `));
   }
 };
 /**
  * Component utils
  */
-Ogone.construct = function (node: HTMLOgoneElement) {
+static construct(node: HTMLOgoneElement) {
   const o = node.ogone;
   if (!o.type) return;
   node.dependencies = o.dependencies;
@@ -75,7 +79,7 @@ Ogone.construct = function (node: HTMLOgoneElement) {
   // define templates of hmr
   // Ogone.mod[node.extends] = Ogone.mod[node.extends] || [];
 }
-Ogone.setOgone = function (node: HTMLOgoneElement, def: OgoneParameters) {
+static setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
   node.ogone = {
     isRemote: false,
     isRoot: false,
@@ -157,7 +161,7 @@ Ogone.setOgone = function (node: HTMLOgoneElement, def: OgoneParameters) {
   }
   Ogone.construct(node);
 }
-Ogone.setNodeProps = function (Onode: HTMLOgoneElement) {
+static setNodeProps(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!o || !oc || !o.nodes || !o.nodeProps) return;
   function r(n: HTMLElement, p: [string, string]) {
@@ -175,13 +179,13 @@ Ogone.setNodeProps = function (Onode: HTMLOgoneElement) {
     }
   }
 }
-Ogone.setPosition = function (Onode: HTMLOgoneElement) {
+static setPosition(Onode: HTMLOgoneElement) {
   const o = Onode.ogone;
   if (o.position && typeof o.level === 'number' && typeof o.index === 'number') {
     o.position[o.level as number] = o.index;
   }
 }
-Ogone.setProps = function (Onode: HTMLOgoneElement) {
+static setProps(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!o || !oc) return;
   if (!o.index) {
@@ -196,7 +200,7 @@ Ogone.setProps = function (Onode: HTMLOgoneElement) {
   }
   oc.updateProps();
 }
-Ogone.useSpread = function (Onode: HTMLOgoneElement) {
+static useSpread(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   const op = oc.parent;
@@ -235,7 +239,7 @@ Ogone.useSpread = function (Onode: HTMLOgoneElement) {
     && reaction
     && (parent as unknown as OnodeComponent).react.push(reaction as Function);
 }
-Ogone.setNodes = function (Onode: HTMLOgoneElement) {
+static setNodes(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc || !o.render) return;
   if (o.isTemplate) {
@@ -260,7 +264,7 @@ Ogone.setNodes = function (Onode: HTMLOgoneElement) {
     });
   }
 }
-Ogone.setDeps = function (Onode: HTMLOgoneElement) {
+static setDeps(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   if (o.originalNode && o.getContext) {
@@ -270,7 +274,7 @@ Ogone.setDeps = function (Onode: HTMLOgoneElement) {
     Ogone.renderContext(Onode);
   }
 }
-Ogone.removeNodes = function (Onode: HTMLOgoneElement) {
+static removeNodes(Onode: HTMLOgoneElement) {
   const o = Onode.ogone;
   if (!o.nodes) return Onode;
   /* use it before removing template node */
@@ -295,7 +299,7 @@ Ogone.removeNodes = function (Onode: HTMLOgoneElement) {
   }
   return Onode;
 }
-Ogone.destroy = function (Onode: HTMLOgoneElement) {
+static destroy(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   Onode.context.list.forEach((n) => {
@@ -312,7 +316,7 @@ Ogone.destroy = function (Onode: HTMLOgoneElement) {
   Onode.context.placeholder.remove();
   Onode.remove();
 }
-Ogone.setEvents = function (Onode: HTMLOgoneElement) {
+static setEvents(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!o.flags || !o.getContext || !oc || !o.nodes) return;
   const position = Onode.isComponent
@@ -514,7 +518,7 @@ Ogone.setEvents = function (Onode: HTMLOgoneElement) {
     }
   }
 }
-Ogone.insertElement = function (
+static insertElement(
   Onode: HTMLOgoneElement,
   p: "beforebegin" | "afterbegin" | "beforeend" | "afterend",
   el: HTMLElement,
@@ -552,7 +556,7 @@ Ogone.insertElement = function (
 /**
  * RouterComponent utils
  */
-Ogone.triggerLoad = function (Onode: HTMLOgoneElement) {
+static triggerLoad(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   const rr = Ogone.router.react;
@@ -564,7 +568,7 @@ Ogone.triggerLoad = function (Onode: HTMLOgoneElement) {
     return oc.activated;
   });
 }
-Ogone.routerSearch = function (Onode: HTMLOgoneElement, route: Route, locationPath: string) {
+static routerSearch(Onode: HTMLOgoneElement, route: Route, locationPath: string) {
   if (typeof locationPath !== "string") return false;
   const { path } = route;
   const splitted = path.toString().split("/");
@@ -592,7 +596,7 @@ Ogone.routerSearch = function (Onode: HTMLOgoneElement, route: Route, locationPa
   route.params = result;
   return true;
 }
-Ogone.setActualRouterTemplate = function (node: any) {
+static setActualRouterTemplate(node: any) {
   const o = node.ogone, oc = o.component;
   oc.routes = o.routes;
   oc.locationPath = o.locationPath;
@@ -670,7 +674,7 @@ Ogone.setActualRouterTemplate = function (node: any) {
 /**
  * AsyncComponent utils
  */
-Ogone.setNodeAsyncContext = function (Onode: HTMLOgoneElement) {
+static setNodeAsyncContext(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   if (o.flags && o.flags.await) {
@@ -692,7 +696,7 @@ Ogone.setNodeAsyncContext = function (Onode: HTMLOgoneElement) {
     oc.promises.push(promise);
   }
 }
-Ogone.setAsyncContext = function (Onode: HTMLOgoneElement) {
+static setAsyncContext(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   if (o.flags && o.flags.then) {
@@ -715,7 +719,7 @@ Ogone.setAsyncContext = function (Onode: HTMLOgoneElement) {
 /**
  * recycle feature utils
  */
-Ogone.recycleWebComponent = function (Onode: HTMLOgoneElement, opts: OgoneRecycleOptions): HTMLElement {
+static recycleWebComponent(Onode: HTMLOgoneElement, opts: OgoneRecycleOptions): HTMLElement {
   const { injectionStyle, id, name, component, isSync } = opts;
   let webcomponent;
   if (opts.extends) {
@@ -733,4 +737,6 @@ Ogone.recycleWebComponent = function (Onode: HTMLOgoneElement, opts: OgoneRecycl
   // plug the webcomponent to the component
   component.plugWebComponent(webcomponent, isSync);
   return webcomponent;
+}
+
 }

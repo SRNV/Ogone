@@ -33,19 +33,19 @@ export interface OgoneParameters {
   actualTemplate?: (HTMLElement | HTMLOgoneElement)[] | null;
   replacer?: HTMLElement | HTMLOgoneElement | null;
   getContext?:
-    | null
-    | ((opt: {
-      position: OgoneParameters["position"];
-      getLength?: boolean;
-      getText?: string;
-    }) => number | { [k: string]: any })
-    | any;
+  | null
+  | ((opt: {
+    position: OgoneParameters["position"];
+    getLength?: boolean;
+    getText?: string;
+  }) => number | { [k: string]: any })
+  | any;
   type?:
-    | "store"
-    | "component"
-    | "router"
-    | "async"
-    | "controller";
+  | "store"
+  | "component"
+  | "router"
+  | "async"
+  | "controller";
   methodsCandidate?: Function[];
   isTemplate: boolean;
   isAsync: boolean;
@@ -87,6 +87,70 @@ export interface OgoneParameters {
     index?: number,
     level?: number,
   ) => HTMLOgoneElement | HTMLElement) | null;
+}
+
+type OgoneStoreClientReaction = (namespace: string, key: string, overwrite?: boolean) => boolean;
+/**
+ * All the reactions related to a store,
+ * the first key is the namespace of the store.
+ *
+ */
+type OgoneStoreClient = [string, OgoneStoreClientReaction];
+/**
+ * namespaced stores
+ * saved with the namespace
+ */
+type OgoneStores = {
+  [namespace: string]: {
+    [data: string]: any
+  }
+};
+/**
+ * the ouput factory rendered by Ogone foreach dynamic elements or components
+ */
+type OgoneRenderFactory = (ctx: OnodeComponent, pos?: number[], i?: number, l?: number, ...args: Function[]) => HTMLOgoneElement;
+/**
+ * where the factories are saved with the id of the customElement
+ */
+type OgoneRenderRegistry = {
+  [componentId: string]: OgoneRenderFactory;
+}
+/**
+ * a function that evaluate what the end user put in a prop or a dynamic attribute or a flag
+ * can return also the length of node that should be rendered if the user uses the flag --for
+ */
+type OgoneContext = (opts: { getText: string, position: number[], getLength: boolean }) => any;
+/**
+ * all the contexts available in the runtime
+ */
+type OgoneContexts = { [componentId: string]: OgoneContext };
+/**
+ * all the components available in the runtime
+ * all the values of the registry are a function that should construct the runtime of the component,
+ * this function is built by the compiler
+ */
+type OgoneComponentsRegistry = { [componentId: string]: FunctionConstructor };
+/**
+ * those functions will help for the extension of the customElement's constructor
+ */
+type OgoneClassesRegistry = Partial<Record<"app" | "async" | "store" | "controller" | "component" | "router", (construct: FunctionConstructor) => FunctionConstructor>>
+/**
+ * @deprecated
+ * all the modules saved with their path
+ * this is used for the first implementation of the hmr
+ */
+type OgoneModules = {
+  '*': [];
+  [moduleName: string]: any;
+};
+
+export type OgoneRecycleOptions = {
+  injectionStyle: 'append' | 'prepend';
+  id: string;
+  name: string;
+  component: any;
+  isSync: boolean;
+  extends?: string;
 }
 
 export type OnodeComponentRenderOptions = {

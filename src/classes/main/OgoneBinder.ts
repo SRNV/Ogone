@@ -1,6 +1,7 @@
-import Ogone from '../classes/Ogone.ts';
+import { HTMLOgoneElement } from '../../.d.ts';
 
-Ogone.bindValue = function (Onode: any) {
+export default abstract class OgoneBinder {
+  static bindValue(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.bind || !oc || !o.nodes) return;
     function r(n: HTMLInputElement, dependency: boolean | string) {
@@ -23,13 +24,13 @@ Ogone.bindValue = function (Onode: any) {
       return n.isConnected;
     }
     for (let n of o.nodes) {
-      (n as HTMLInputElement).addEventListener("keydown", (ev: Event) => {
+      (n as unknown as HTMLInputElement).addEventListener("keydown", (ev: Event) => {
         const k = o.flags.bind;
         const evl = o.getContext({
           position: o.position,
           getText: k,
         });
-        if (evl !== (n as HTMLInputElement).value) {
+        if (evl !== (n as unknown as HTMLInputElement).value) {
           const ctx = o.getContext({
             position: o.position,
           });
@@ -40,13 +41,13 @@ Ogone.bindValue = function (Onode: any) {
           oc.update(k, ev);
         }
       });
-      (n as HTMLInputElement).addEventListener("keyup", (ev: Event) => {
+      (n as unknown as HTMLInputElement).addEventListener("keyup", (ev: Event) => {
         const k = o.flags.bind;
         const evl = o.getContext({
           position: o.position,
           getText: k,
         });
-        if (evl !== (n as HTMLInputElement).value) {
+        if (evl !== (n as unknown as HTMLInputElement).value) {
           const ctx = o.getContext({
             position: o.position,
           });
@@ -57,13 +58,13 @@ Ogone.bindValue = function (Onode: any) {
           oc.update(k, ev);
         }
       });
-      (n as HTMLInputElement).addEventListener("change", (ev: Event) => {
+      (n as unknown as HTMLInputElement).addEventListener("change", (ev: Event) => {
         const k = o.flags.bind;
         const evl = o.getContext({
           position: o.position,
           getText: k,
         });
-        if (evl !== (n as HTMLInputElement).value) {
+        if (evl !== (n as unknown as HTMLInputElement).value) {
           const ctx = o.getContext({
             position: o.position,
           });
@@ -75,12 +76,12 @@ Ogone.bindValue = function (Onode: any) {
         }
       });
       oc.react.push((dependency: string | boolean) =>
-        r((n as HTMLInputElement), dependency)
+        r((n as unknown as HTMLInputElement), dependency)
       );
-      r((n as HTMLInputElement), true);
+      r((n as unknown as HTMLInputElement), true);
     }
   }
-  Ogone.bindClass = function (Onode: any) {
+  static bindClass(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.class || !oc || !o.nodes) return;
     function r(n: HTMLElement) {
@@ -104,7 +105,7 @@ Ogone.bindValue = function (Onode: any) {
       r(node as HTMLElement);
     }
   }
-  Ogone.bindHTML = function (Onode: any) {
+  static bindHTML(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.html || !oc || !o.nodes || o.isTemplate) return;
     function r(n: HTMLElement) {
@@ -123,7 +124,7 @@ Ogone.bindValue = function (Onode: any) {
       r(node as HTMLElement);
     }
   }
-  Ogone.bindStyle = function (Onode: any) {
+  static bindStyle(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.style || !oc || !o.nodes) return;
     function r(n: HTMLElement) {
@@ -149,3 +150,4 @@ Ogone.bindValue = function (Onode: any) {
       r(n as HTMLElement);
     }
   }
+}
