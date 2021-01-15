@@ -3,7 +3,7 @@ import { browserBuild, template } from "../browser/readfiles.ts";
 // TODO fix HMR
 // use std websocket instead of deno.x one
 // import { HCR } from "../../lib/hmr/index.ts";
-import type { Bundle, Environment, Component } from "./../.d.ts";
+import type { Bundle, Environment, Component } from "./../ogone.main.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps/deps.ts";
 import Constructor from "./Constructor.ts";

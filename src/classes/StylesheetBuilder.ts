@@ -4,7 +4,7 @@ import {
   join,
   fetchRemoteRessource,
 } from "../../deps/deps.ts";
-import type { Bundle } from "../.d.ts";
+import type { Bundle } from "../ogone.main.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "./Utils.ts";
 import keyframes from "../../utils/keyframes.ts";

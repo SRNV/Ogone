@@ -1,6 +1,6 @@
 import { Context } from '../enums/templateContext.ts';
 import { Utils } from './Utils.ts';
-import { Bundle, Component, ModifierContext, XMLNodeDescription } from '../.d.ts';
+import { Bundle, Component, ModifierContext, XMLNodeDescription } from '../ogone.main.d.ts';
 import OgoneNS from "../types/ogone/namespaces.ts";
 import ProtocolEnum from '../enums/templateProtocol.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';

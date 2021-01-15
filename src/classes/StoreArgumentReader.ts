@@ -1,4 +1,4 @@
-import type { Bundle } from "../.d.ts";
+import type { Bundle } from "../ogone.main.d.ts";
 import { YAML } from '../../deps/yaml.ts';
 import { Utils } from "./Utils.ts";
 

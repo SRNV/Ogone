@@ -1,4 +1,4 @@
-import type { Bundle, Component } from "../.d.ts";
+import type { Bundle, Component } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import Env from './Env.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';

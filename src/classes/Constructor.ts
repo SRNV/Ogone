@@ -7,7 +7,7 @@ import ComponentCompiler from "./ComponentCompiler.ts";
 import NodeAnalyzerCompiler from "./NodeAnalyzerCompiler.ts";
 import ComponentTopLevelAnalyzer from "./ComponentTopLevelAnalyzer.ts";
 import StoreArgumentReader from "./StoreArgumentReader.ts";
-import type { Bundle } from "../.d.ts";
+import type { Bundle } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import ProtocolDataProvider from './ProtocolDataProvider.ts';
 import ComponentTypeGetter from './ComponentTypeGetter.ts';

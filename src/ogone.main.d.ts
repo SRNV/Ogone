@@ -1,15 +1,15 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="dom" />
-/// <reference lib="esnext" />
-import type Style from "./classes/css/Style.ts";
+import type OgoneStyle from "./classes/css/Style.ts";
+import { HTMLTemplateElement, HTMLElement } from './ogone.dom.d.ts';
 
-declare type HTMLOgoneElement = HTMLTemplateElement & {
+export interface HTMLOgoneElement extends HTMLTemplateElement {
+  name: string;
   ogone: OgoneParameters;
   component: OnodeComponent;
   isComponent: boolean;
+  isConnected: boolean;
+  isRecursiveConnected: boolean;
   firstNode: HTMLElement | HTMLOgoneElement;
   lastNode: HTMLElement | HTMLOgoneElement;
-  connectedCallback(): void;
   context: {
     list: HTMLOgoneElement[],
     placeholder: HTMLTemplateElement,
@@ -20,7 +20,8 @@ declare type HTMLOgoneElement = HTMLTemplateElement & {
   type: string;
   dependencies: string[] | null;
   positionInParentComponent: number[];
-};
+  connectedCallback(): void;
+}
 
 export interface OgoneParameters {
   uuid?: string;
@@ -371,7 +372,7 @@ export interface Component {
   requirements: [string, string][] | null;
   type: "app" | "router" | "component" | "store" | "async" | "controller";
   protocol: null | string;
-  mapStyleBundle?: Style["mapStyleBundle"];
+  mapStyleBundle?: OgoneStyle["mapStyleBundle"];
   elements: {
     styles: XMLNodeDescription[];
     proto: XMLNodeDescription[];

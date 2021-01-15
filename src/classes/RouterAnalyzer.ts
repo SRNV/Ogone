@@ -1,5 +1,5 @@
 import { Utils } from './Utils.ts';
-import type { Bundle, Component, Route } from "../.d.ts";
+import type { Bundle, Component, Route } from "../ogone.main.d.ts";
 /**
  * @name RouterAnalyzer
  * @code ORA-OSB4

@@ -9,7 +9,7 @@ import read from '../../utils/agnostic-transformer.ts';
 import { Utils } from "./Utils.ts";
 import type {
   TypedExpressions,
-} from "../.d.ts";
+} from "../ogone.main.d.ts";
 
 export interface GetReactivityOptions {
   /** the code to transform */

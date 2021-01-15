@@ -1,4 +1,4 @@
-import type { Bundle, Component, ProtocolScriptParserReturnType } from '../.d.ts';
+import type { Bundle, Component, ProtocolScriptParserReturnType } from '../ogone.main.d.ts';
 import useSyntaxElements from '../../utils/assets/use-syntax-elements.ts';
 import linkSyntaxElements from '../../utils/assets/link-cases-syntax-elements.ts';
 import requireSyntaxElements from '../../utils/assets/require-syntax-elements.ts';

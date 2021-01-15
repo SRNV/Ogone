@@ -1,5 +1,5 @@
 import Env from "./Env.ts";
-import type { Bundle, Component, XMLNodeDescription } from "./../.d.ts";
+import type { Bundle, Component, XMLNodeDescription } from "./../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import MapOutput from './MapOutput.ts';
 /**

@@ -2,7 +2,7 @@ import gen from "./generator.ts";
 import type {
   hmrModuleSystemOptions,
   ProtocolScriptRegExpList,
-} from "../src/.d.ts";
+} from "../src/ogone.main.d.ts";
 import getDeepTranslation from "./template-recursive.ts";
 import exports from "./esm-exports.ts";
 import { getMembersKeys, getMembers } from './get-members.ts';

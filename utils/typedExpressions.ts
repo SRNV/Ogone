@@ -1,4 +1,4 @@
-import type { TypedExpressions } from "../src/.d.ts";
+import type { TypedExpressions } from "../src/ogone.main.d.ts";
 
 export default (): TypedExpressions => ({
   blocks: {},

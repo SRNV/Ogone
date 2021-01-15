@@ -1,4 +1,4 @@
-import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../ogone.main.d.ts';
 import StyleMemory from './StyleMemory.ts';
 // TODO needs more explications on the process and how to add things to Style
 /**

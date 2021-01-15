@@ -1,4 +1,4 @@
-import type { FileBundle, ScopeBundle } from "../.d.ts";
+import type { FileBundle, ScopeBundle } from "../ogone.main.d.ts";
 import SusanoImportInspector from "./SusanoImportInspector.ts";
 import {
   existsSync,

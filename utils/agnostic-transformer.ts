@@ -1,4 +1,4 @@
-import type { ProtocolScriptRegExpList } from '../src/.d.ts';
+import type { ProtocolScriptRegExpList } from '../src/ogone.main.d.ts';
 import getDeepTranslation from './template-recursive.ts';
 import { MapPosition } from '../src/classes/MapPosition.ts';
 function savePosition (id: string, start: number, end: number) {

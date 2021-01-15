@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Template } from "./template.ts";
-import type { XMLNodeDescription } from "../.d.ts";
+import type { XMLNodeDescription } from "../ogone.main.d.ts";
 import { NestedOgoneParameters } from "./template.ts";
 export type OnodeComponentRenderOptions = {
   callingNewComponent?: boolean;

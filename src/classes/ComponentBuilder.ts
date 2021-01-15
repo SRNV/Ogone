@@ -1,5 +1,5 @@
 import XMLParser from "./XMLParser.ts";
-import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
+import type { Bundle, XMLNodeDescription, Component } from "../ogone.main.d.ts";
 import MapFile, { FileDescription } from "./MapFile.ts";
 import { Utils } from "./Utils.ts";
 

@@ -1,4 +1,4 @@
-import Ogone from "./Ogone.ts";
+import Ogone from "./main/Ogone.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
 import Workers from '../enums/workers.ts';
@@ -6,7 +6,7 @@ import OgoneWorkers from "./OgoneWorkers.ts";
 import { existsSync } from "../../utils/exists.ts";
 import type {
   OgoneConfiguration,
-} from "../.d.ts";
+} from "../ogone.main.d.ts";
 import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
 export default class EnvServer extends Env {

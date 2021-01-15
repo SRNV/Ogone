@@ -8,7 +8,7 @@ import ProtocolReactivity from './ProtocolReactivity.ts';
 import type {
   TypedExpressions,
   ModifierContext
-} from "../.d.ts";
+} from "../ogone.main.d.ts";
 
 export interface ModifierProvider {
   /** token used to split the protocol */

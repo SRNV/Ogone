@@ -9,7 +9,7 @@ import ProtocolClassConstructor from "./src/classes/ProtocolClassConstructor.ts"
 import ProtocolDataProvider from "./src/classes/ProtocolDataProvider.ts";
 import ProtocolModifierGetter from "./src/classes/ProtocolModifierGetter.ts";
 import ProtocolReactivity from "./src/classes/ProtocolReactivity.ts";
-import type { OgoneConfiguration } from "./src/.d.ts";
+import type { OgoneConfiguration } from "./src/ogone.main.d.ts";
 import { Configuration } from "./src/classes/Configuration.ts";
 import XMLParser from './src/classes/XMLParser.ts';
 import AssetsParser from './src/classes/AssetsParser.ts';

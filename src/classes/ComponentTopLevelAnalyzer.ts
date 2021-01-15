@@ -1,4 +1,4 @@
-import type { Bundle, XMLNodeDescription, Component } from "../.d.ts";
+import type { Bundle, XMLNodeDescription, Component } from "../ogone.main.d.ts";
 import { MapPosition } from "./MapPosition.ts";
 import { Utils } from "./Utils.ts";
 /**

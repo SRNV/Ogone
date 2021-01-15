@@ -7,7 +7,7 @@ import type {
   DOMParserExpressions,
   TypedExpressions,
   Component
-} from "../.d.ts";
+} from "../ogone.main.d.ts";
 import ForFlagBuilder from "./ForFlagBuilder.ts";
 import elements from '../../utils/elements.ts';
 import notParsed from '../../utils/not-parsed.ts';

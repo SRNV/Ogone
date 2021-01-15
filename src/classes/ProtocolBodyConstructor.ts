@@ -1,5 +1,5 @@
 import { Utils } from './Utils.ts';
-import { Component, ModifierContext } from '../.d.ts';
+import { Component, ModifierContext } from '../ogone.main.d.ts';
 import read from '../../utils/agnostic-transformer.ts';
 import notParsedElements from '../../utils/not-parsed.ts';
 import elements from '../../utils/elements.ts';

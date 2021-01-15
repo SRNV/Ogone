@@ -1,5 +1,5 @@
 import getDeepTranslation from "../template-recursive.ts";
-import type { ProtocolScriptRegExpList, MapIndexable } from "../../src/.d.ts";
+import type { ProtocolScriptRegExpList, MapIndexable } from "../../src/ogone.main.d.ts";
 
 const items: ProtocolScriptRegExpList = [
   // require syntax

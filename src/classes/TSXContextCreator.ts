@@ -1,4 +1,4 @@
-import { Bundle, Component } from '../.d.ts';
+import { Bundle, Component } from '../ogone.main.d.ts';
 import { colors, join } from '../../deps/deps.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";

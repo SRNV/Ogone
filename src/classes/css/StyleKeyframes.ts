@@ -1,4 +1,4 @@
-import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../ogone.main.d.ts';
 import { Utils } from "../Utils.ts";
 
 // TODO comments here

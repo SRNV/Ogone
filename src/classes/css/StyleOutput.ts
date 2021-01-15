@@ -1,4 +1,4 @@
-import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../ogone.main.d.ts';
 import StyleDocument from "./StyleDocument.ts";
 import StyleKeyframes from "./StyleKeyframes.ts";
 import StyleMediaQueries from "./StyleMediaQueries.ts";

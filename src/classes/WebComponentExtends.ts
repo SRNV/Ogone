@@ -1,4 +1,4 @@
-import type { Bundle } from "../.d.ts";
+import type { Bundle } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import getClassController from "./BrowserController.ts";
 import getClassRouter from "./BrowserRouterComponent.ts";

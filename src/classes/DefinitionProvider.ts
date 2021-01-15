@@ -1,4 +1,4 @@
-import type { Component, ModifierContext } from '../.d.ts';
+import type { Component, ModifierContext } from '../ogone.main.d.ts';
 import { join, absolute, existsSync, fetchRemoteRessource } from '../../deps/deps.ts';
 import { YAML } from '../../deps/yaml.ts';
 import { MapPosition } from "./MapPosition.ts";

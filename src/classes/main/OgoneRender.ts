@@ -1,7 +1,19 @@
-import { HTMLOgoneElement } from '../../.d.ts';
-import Ogone from './Ogone.ts';
+import { HTMLOgoneElement } from '../../ogone.main.d.ts';
+import OgoneBinder from './OgoneBinder.ts';
+import {
+  Location,
+  HTMLElement,
+  History,
+  Document,
+  Node,
+  Text,
+} from "../../ogone.dom.d.ts";
 
-export default abstract class OgoneRender {
+declare const location: Location;
+declare const history: History;
+declare const document: Document;
+
+export default abstract class OgoneRender extends OgoneBinder {
   static renderSlots(Onode: HTMLOgoneElement) {
     const o = Onode.ogone;
     if (!o.nodes) return;
@@ -34,7 +46,7 @@ export default abstract class OgoneRender {
       // update Props before replace the element
       oc.updateProps();
       if (Onode.childNodes.length) {
-        Ogone.renderSlots(Onode);
+        OgoneRender.renderSlots(Onode);
       }
       // replace the element
       if (o.type === "async") {
@@ -59,7 +71,7 @@ export default abstract class OgoneRender {
       }
     } else if (oc) {
       if (Onode.childNodes.length) {
-        Ogone.renderSlots(Onode);
+        OgoneRender.renderSlots(Onode);
       }
       oc.renderTexts(true);
       Onode.replaceWith(...(o.nodes as Node[]));
@@ -72,14 +84,14 @@ export default abstract class OgoneRender {
       const error =
         "the attribute namespace is not the same provided in the component store";
       const BadNamspaceException = new Error(`[Ogone] ${error}`);
-      Ogone.displayError(error, "Store Module: Bad Namsepace Exception", new Error(`
+      OgoneRender.displayError(error, "Store Module: Bad Namsepace Exception", new Error(`
       store namespace: ${o.namespace}
       attribute namespace: ${oc.namespace}
       `));
       throw BadNamspaceException;
     }
     oc.startLifecycle();
-    Ogone.removeNodes(Onode)
+    OgoneRender.removeNodes(Onode)
     Onode.remove();
   }
   static renderRouter(Onode: HTMLOgoneElement) {
@@ -130,7 +142,7 @@ export default abstract class OgoneRender {
     }
     for (let t of asyncStores) {
       t.connectedCallback();
-      Ogone.removeNodes(t)
+      OgoneRender.removeNodes(t)
       t.remove();
     }
   }
@@ -156,7 +168,7 @@ export default abstract class OgoneRender {
 
         // force rendering of awaiting node
         // TODO revert force async render
-        // Ogone.forceAsyncRender(awaitingNode);
+        // OgoneRender.forceAsyncRender(awaitingNode);
 
         const promise = new Promise((resolve) => {
           if (awaitingNode.component.promiseResolved) {
@@ -191,8 +203,8 @@ export default abstract class OgoneRender {
       for (let onode of components) {
         // force rendering of awaiting node
         // TODO revert froce Async render
-        // Ogone.forceAsyncRender(onode);
-        Ogone.renderingProcess(onode);
+        // OgoneRender.forceAsyncRender(onode);
+        OgoneRender.renderingProcess(onode);
       }
     }
   }
@@ -200,16 +212,16 @@ export default abstract class OgoneRender {
     const o = Onode.ogone, oc = o.component;
     if (!oc) return;
     // first render child stores component
-    Ogone.renderAsyncStores(Onode);
+    OgoneRender.renderAsyncStores(Onode);
 
     // first render child router component
-    Ogone.renderAsyncRouter(Onode);
+    OgoneRender.renderAsyncRouter(Onode);
 
     // render components
-    Ogone.renderComponent(Onode);
+    OgoneRender.renderComponent(Onode);
 
     // then render child async components
-    Ogone.renderAsyncComponent(Onode);
+    OgoneRender.renderAsyncComponent(Onode);
 
     const chs = Array.from(Onode.childNodes) as (HTMLElement | HTMLOgoneElement)[];
     const placeholder = Onode.context.placeholder;
@@ -220,7 +232,7 @@ export default abstract class OgoneRender {
             Please wrap this text into an element.
             textnode data: "${txt.data}"`,
       );
-      Ogone.displayError(
+      OgoneRender.displayError(
         UnwrappedTextnodeOnAsyncComponentException.message,
         "Async Component placeholder TypeError",
         UnwrappedTextnodeOnAsyncComponentException,
@@ -239,7 +251,7 @@ export default abstract class OgoneRender {
         // for --defer flag
         setTimeout(() => {
           // set Async context for Async Components
-          Ogone.setAsyncContext(Onode);
+          OgoneRender.setAsyncContext(Onode);
 
           // replace childnodes by template
           if (chs.length) {
@@ -247,7 +259,7 @@ export default abstract class OgoneRender {
             if (isConnected) {
               chs.slice(1).forEach((ch) => {
                 if ((ch as HTMLOgoneElement).ogone) {
-                  Ogone.removeNodes(ch as HTMLOgoneElement)
+                  OgoneRender.removeNodes(ch as HTMLOgoneElement)
                   ch.remove();
                   return;
                 }
@@ -262,7 +274,7 @@ export default abstract class OgoneRender {
         Promise.all(oc.promises)
           .then((p) => {
             // render the element;
-            Ogone.renderNode(Onode);
+            OgoneRender.renderNode(Onode);
             if (oc.async.then && shouldReportToParentComponent && oc.parent) {
               // handle resolution with --then:...
               oc.parent.runtime(oc.async.then, { value: args, await: p });
@@ -272,7 +284,7 @@ export default abstract class OgoneRender {
               // handle error with --catch:...
               oc.parent.runtime(oc.async.catch, err);
             }
-            Ogone.displayError(
+            OgoneRender.displayError(
               err.message,
               `Error in Async component. component: ${o.name}`,
               err,
@@ -290,41 +302,41 @@ export default abstract class OgoneRender {
   static renderingProcess(Onode: HTMLOgoneElement) {
     const o = Onode.ogone;
     // use the jsx renderer only for templates
-    Ogone.setNodes(Onode);
+    OgoneRender.setNodes(Onode);
     // set Async context for Async nodes
     if (o.isAsyncNode) {
-      Ogone.setNodeAsyncContext(Onode);
+      OgoneRender.setNodeAsyncContext(Onode);
     }
     // use the previous jsx and push the result into ogone.nodes
     // set the dependencies of the node into the component
-    if (o.originalNode) Ogone.setDeps(Onode);
+    if (o.originalNode) OgoneRender.setDeps(Onode);
 
     // set dynamic attributes through o.props
     if (!o.isTemplate && o.nodeProps) {
-      Ogone.setNodeProps(Onode);
+      OgoneRender.setNodeProps(Onode);
     }
 
     // set the events
-    Ogone.setEvents(Onode);
+    OgoneRender.setEvents(Onode);
 
     // bind classList
-    Ogone.bindClass(Onode);
+    OgoneRender.bindClass(Onode);
 
     // bind style
-    Ogone.bindStyle(Onode);
+    OgoneRender.bindStyle(Onode);
 
     // bind value
-    Ogone.bindValue(Onode);
+    OgoneRender.bindValue(Onode);
 
     // bind HTML
-    Ogone.bindHTML(Onode);
+    OgoneRender.bindHTML(Onode);
 
     // spread parent Property
-    Ogone.useSpread(Onode);
+    OgoneRender.useSpread(Onode);
 
     // set history state and trigger default code for router
     if (o.type === "router") {
-      Ogone.triggerLoad(Onode);
+      OgoneRender.triggerLoad(Onode);
     }
   }
   static renderContext(Onode: HTMLOgoneElement) {

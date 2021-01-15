@@ -1,5 +1,5 @@
 import { ComponentEngine } from '../enums/componentEngine.ts';
-import type { Bundle, XMLNodeDescription } from "../.d.ts";
+import type { Bundle, XMLNodeDescription } from "../ogone.main.d.ts";
 import WebComponentDefinition from "./WebComponentDefinition.ts";
 /**
  * @name NodeAnalyzerCompiler

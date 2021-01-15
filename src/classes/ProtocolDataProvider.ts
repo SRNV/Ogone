@@ -1,4 +1,4 @@
-import type { Bundle, Component, ModifierContext, TypedExpressions } from '../.d.ts';
+import type { Bundle, Component, ModifierContext, TypedExpressions } from '../ogone.main.d.ts';
 import ProtocolModifierGetter from './ProtocolModifierGetter.ts';
 import { Utils } from './Utils.ts';
 import DefinitionProvider from './DefinitionProvider.ts';

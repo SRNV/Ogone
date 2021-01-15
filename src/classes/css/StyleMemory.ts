@@ -1,4 +1,4 @@
-import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../ogone.main.d.ts';
 import StyleOutput from './StyleOutput.ts';
 // TODO needs more explications on the process
 /**

@@ -5,7 +5,7 @@ import type {
   LegacyDescription,
   ForCtxDescription,
   TypedExpressions,
-} from "../.d.ts";
+} from "../ogone.main.d.ts";
 import notParsedElements from '../../utils/not-parsed.ts';
 import elements from '../../utils/elements.ts';
 import read from '../../utils/agnostic-transformer.ts';

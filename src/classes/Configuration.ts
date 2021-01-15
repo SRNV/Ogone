@@ -1,4 +1,4 @@
-import type { OgoneConfiguration } from "../.d.ts";
+import type { OgoneConfiguration } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 export abstract class Configuration {
   /**

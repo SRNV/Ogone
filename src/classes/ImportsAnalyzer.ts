@@ -1,4 +1,4 @@
-import type { Bundle, ImportDescription } from "../.d.ts";
+import type { Bundle, ImportDescription } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import AssetsParser from './AssetsParser.ts';
 /**

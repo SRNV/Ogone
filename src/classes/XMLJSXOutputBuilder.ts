@@ -8,7 +8,7 @@ import type {
   DOMParserExpressions,
   DOMParserPragmaDescription,
   ParseFlagsOutput,
-} from "../.d.ts";
+} from "../ogone.main.d.ts";
 /**
  * @class
  * @name XMLJSXOutputBuilder

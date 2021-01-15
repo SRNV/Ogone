@@ -1,4 +1,4 @@
-import { Bundle } from "../.d.ts";
+import { Bundle } from "../ogone.main.d.ts";
 
 interface ComponentOutput {
   /**

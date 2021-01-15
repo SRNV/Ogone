@@ -1,4 +1,4 @@
-import type { Bundle, Component, StyleBundle } from '../../.d.ts';
+import type { Bundle, Component, StyleBundle } from '../../ogone.main.d.ts';
 import read from '../../../utils/agnostic-transformer.ts';
 import { Utils } from '../Utils.ts';
 import elements from "../../../utils/elements.ts";

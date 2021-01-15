@@ -1,5 +1,5 @@
 import { existsSync } from "../../utils/exists.ts";
-import type { Bundle } from "../.d.ts";
+import type { Bundle } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import AssetsParser from "./AssetsParser.ts";
 import {

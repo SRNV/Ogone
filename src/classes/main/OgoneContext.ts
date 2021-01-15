@@ -1,7 +1,8 @@
-import { HTMLOgoneElement, OnodeComponent } from "../../.d.ts";
-import Ogone from './Ogone.ts';
+import { HTMLElement } from "../../ogone.dom.d.ts";
+import { HTMLOgoneElement, OnodeComponent } from "../../ogone.main.d.ts";
+import OgoneExtends from './OgoneExtends.ts';
 
-export default abstract class OgoneContext {
+export default abstract class OgoneContext extends OgoneExtends {
   static setContext(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!oc || !o.key) return;
@@ -12,15 +13,15 @@ export default abstract class OgoneContext {
         oc.parent = o.parentComponent;
         oc.parent.childs.push(oc);
       }
-      if (Ogone.contexts[o.parentCTXId] && o.parentComponent) {
-        const gct = Ogone.contexts[o.parentCTXId].bind(
+      if (OgoneContext.contexts[o.parentCTXId] && o.parentComponent) {
+        const gct = OgoneContext.contexts[o.parentCTXId].bind(
           o.parentComponent.data,
         );
         oc.parentContext = gct;
         o.getContext = gct;
       }
-    } else if (Ogone.contexts[Onode.extends] && oc) {
-      o.getContext = Ogone.contexts[Onode.extends].bind(oc.data);
+    } else if (OgoneContext.contexts[Onode.extends] && oc) {
+      o.getContext = OgoneContext.contexts[Onode.extends].bind(oc.data);
     }
     if (o.type === "store" && oc.parent) {
       oc.namespace = Onode.getAttribute("namespace") || null;
@@ -31,22 +32,22 @@ export default abstract class OgoneContext {
     const o = Onode.ogone, oc = o.component;
     // register to hmr
     if (o.isTemplate && oc && o.uuid) {
-      Ogone.instances[o.uuid].push(oc);
+      OgoneContext.instances[o.uuid].push(oc);
     }
-    Ogone.mod[Onode.extends].push((pragma: string) => {
-      Ogone.render[Onode.extends] = eval(pragma);
+    OgoneContext.mod[Onode.extends].push((pragma: string) => {
+      OgoneContext.render[Onode.extends] = eval(pragma);
       if (!o.nodes) return;
       if (o.isTemplate) {
         return true;
       } else if (oc) {
         const invalidatedNodes = o.nodes.slice();
         const ns = Array.from(o.nodes);
-        o.render = Ogone.render[Onode.extends];
-        Ogone.renderingProcess(Onode);
+        o.render = OgoneContext.render[Onode.extends];
+        OgoneContext.renderingProcess(Onode);
         invalidatedNodes.forEach((n, i) => {
           if (n.ogone) {
             if (i === 0) n.firstNode.replaceWith(...ns);
-            Ogone.destroy(n);
+            OgoneContext.destroy(n);
           } else {
             if (i === 0) n.replaceWith(...ns);
             (n as HTMLElement).remove();
@@ -69,7 +70,7 @@ export default abstract class OgoneContext {
         )
         .split(">")
       : [o.key];
-    Ogone.ComponentCollectionManager.read({
+    OgoneContext.ComponentCollectionManager.read({
       tree,
       key: o.key,
       parentNodeKey: o.parentNodeKey,

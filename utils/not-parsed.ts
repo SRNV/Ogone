@@ -1,7 +1,7 @@
 import gen from "./generator.ts";
 import type {
   ProtocolScriptRegExpList,
-} from "../src/.d.ts";
+} from "../src/ogone.main.d.ts";
 
 const nullish: ProtocolScriptRegExpList = [
   // strings

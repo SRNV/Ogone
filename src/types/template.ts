@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { OnodeComponent } from "./component.ts";
-import type { Route } from "../.d.ts";
+import type { Route } from "../ogone.main.d.ts";
 export interface NestedOgoneParameters {
   uuid: string;
   promise?: null | Promise<void>;

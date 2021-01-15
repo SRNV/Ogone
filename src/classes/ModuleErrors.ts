@@ -1,6 +1,6 @@
 import { colors } from "../../deps/deps.ts";
 import { Utils } from "./Utils.ts";
-import { Component } from '../.d.ts';
+import { Component } from '../ogone.main.d.ts';
 import { Configuration } from "./Configuration.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
 import Workers from "../enums/workers.ts";

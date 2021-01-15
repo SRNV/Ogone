@@ -1,13 +1,25 @@
-import Ogone from './Ogone.ts';
+import OgoneError from './OgoneError.ts';
 import type {
   OgoneRecycleOptions,
   Route,
   HTMLOgoneElement,
   OgoneParameters,
   OnodeComponent
-} from '../../.d.ts';
+} from '../../ogone.main.d.ts';
+import {
+  Location,
+  HTMLElement,
+  MouseEvent,
+  History,
+  Document,
+  Element,
+  Comment,
+} from "../../ogone.dom.d.ts";
 
-export default abstract class OgoneExtends {
+declare const location: Location;
+declare const history: History;
+declare const document: Document;
+export default abstract class OgoneExtends extends OgoneError {
 static setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   const proxies: { [k: string]: Object } = {};
   return new Proxy(target, {
@@ -42,19 +54,19 @@ static setReactivity(target: Object, updateFunction: Function, parentKey: string
 };
 
 static async imp(id: string, url: string) {
-  if (Ogone.mod[id]) return;
+  if (OgoneExtends.mod[id]) return;
   try {
     if (!url) {
       const mod = await import(id);
-      Ogone.mod[id] = mod;
+      OgoneExtends.mod[id] = mod;
       return mod;
     } else {
       const mod = await import(`/?import=${url}`);
-      Ogone.mod[id] = mod;
+      OgoneExtends.mod[id] = mod;
       return mod;
     }
   } catch (err) {
-    Ogone.displayError(err.message, "Error in Dynamic Import", new Error(`
+    OgoneExtends.displayError(err.message, "Error in Dynamic Import", new Error(`
     module's url: ${id}
     `));
   }
@@ -69,15 +81,15 @@ static construct(node: HTMLOgoneElement) {
   if (o.isTemplate) {
     node.positionInParentComponent = [];
     o.component =
-      (new Ogone.components[o.uuid as string]() as unknown) as OnodeComponent;
+      (new OgoneExtends.components[o.uuid as string]() as unknown) as OnodeComponent;
     o.component!.requirements = o.requirements;
     o.component!.dependencies = o.dependencies;
     o.component!.type = o.type;
     // define runtime for hmr
-    // Ogone.instances[o.uuid] = Ogone.instances[o.uuid] || [];
+    // OgoneExtends.instances[o.uuid] = OgoneExtends.instances[o.uuid] || [];
   }
   // define templates of hmr
-  // Ogone.mod[node.extends] = Ogone.mod[node.extends] || [];
+  // OgoneExtends.mod[node.extends] = OgoneExtends.mod[node.extends] || [];
 }
 static setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
   node.ogone = {
@@ -143,7 +155,7 @@ static setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
   };
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
-  node.ogone.render = Ogone.render[node.extends];
+  node.ogone.render = OgoneExtends.render[node.extends];
   if (!node.ogone.isTemplate) {
     node.type = `${node.type}-node`;
   }
@@ -159,7 +171,7 @@ static setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
       return { query };
     })();
   }
-  Ogone.construct(node);
+  OgoneExtends.construct(node);
 }
 static setNodeProps(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
@@ -254,7 +266,7 @@ static setNodes(Onode: HTMLOgoneElement) {
       if (o.nodes) {
         for (let n of o.nodes) {
           if (n.ogone) {
-            Ogone.saveUntilRender(n, f);
+            OgoneExtends.saveUntilRender(n, f);
           } else {
             f(n);
           }
@@ -269,9 +281,9 @@ static setDeps(Onode: HTMLOgoneElement) {
   if (!oc) return;
   if (o.originalNode && o.getContext) {
     (Onode.isComponent && oc.parent ? oc.parent : oc).react.push(() =>
-      Ogone.renderContext(Onode)
+      OgoneExtends.renderContext(Onode)
     );
-    Ogone.renderContext(Onode);
+    OgoneExtends.renderContext(Onode);
   }
 }
 static removeNodes(Onode: HTMLOgoneElement) {
@@ -280,7 +292,7 @@ static removeNodes(Onode: HTMLOgoneElement) {
   /* use it before removing template node */
   function rm(n: any) {
     if (n.ogone) {
-      Ogone.destroy(n);
+      OgoneExtends.destroy(n);
       n.context.placeholder.remove();
     } else {
       (n as HTMLElement).remove();
@@ -303,10 +315,10 @@ static destroy(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   Onode.context.list.forEach((n) => {
-    Ogone.removeNodes(n);
+    OgoneExtends.removeNodes(n);
     n.remove();
   });
-  Ogone.removeNodes(Onode);
+  OgoneExtends.removeNodes(Onode);
   if (o.isTemplate) {
     oc.destroyPluggedWebcomponent();
     oc.runtime("destroy");
@@ -332,7 +344,7 @@ static setEvents(Onode: HTMLOgoneElement) {
           // if it's one
           // node.ogone.nodes can be empty at Onode moment
           // so we need to save the following function and remove it
-          Ogone.saveUntilRender(node, (nr: HTMLElement & { hasWheel: boolean }) => {
+          OgoneExtends.saveUntilRender(node, (nr: HTMLElement & { hasWheel: boolean }) => {
             nr.hasWheel = true;
             nr.addEventListener(flag.type, (ev) => {
               const foundWheel = ev.path.find((n: HTMLElement & { hasWheel: boolean }) =>
@@ -435,10 +447,10 @@ static setEvents(Onode: HTMLOgoneElement) {
       } else if (flag.name === "router-go" && flag.eval) {
         /* special for router-go flag */
         if (node.ogone) {
-          Ogone.saveUntilRender(node, (nr: HTMLElement) => {
+          OgoneExtends.saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener("click", (ev: MouseEvent) => {
-              if (Ogone.router) {
-                Ogone.router.go(
+              if (OgoneExtends.router) {
+                OgoneExtends.router.go(
                   o.getContext({
                     getText: `${flag.eval}`,
                     position,
@@ -451,8 +463,8 @@ static setEvents(Onode: HTMLOgoneElement) {
         } else {
           (node as HTMLElement)
             .addEventListener("click", (ev: MouseEvent) => {
-              if (Ogone.router) {
-                Ogone.router.go(
+              if (OgoneExtends.router) {
+                OgoneExtends.router.go(
                   o.getContext({
                     getText: `${flag.eval}`,
                     position,
@@ -464,13 +476,13 @@ static setEvents(Onode: HTMLOgoneElement) {
         }
       } else if (flag.name === 'router-dev-tool' && flag.eval) { // special for router-dev-tool flag
         node.addEventListener("click", () => {
-          if (Ogone.router.openDevTool) {
-            Ogone.router.openDevTool({});
+          if (OgoneExtends.router.openDevTool) {
+            OgoneExtends.router.openDevTool({});
           }
         });
       } else if (flag.name === "event" && flag.type.startsWith('animation')) {
         if (node.ogone) {
-          Ogone.saveUntilRender(node, (nr: HTMLElement) => {
+          OgoneExtends.saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener(flag.type, (ev) => {
               if (flag.eval !== ev.animationName) return;
               const ctx = o.getContext({
@@ -494,7 +506,7 @@ static setEvents(Onode: HTMLOgoneElement) {
         }
       } /* DOM L3 */ else {
         if (node.ogone) {
-          Ogone.saveUntilRender(node, (nr: HTMLElement) => {
+          OgoneExtends.saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener(flag.type, (ev) => {
               const ctx = o.getContext({
                 position,
@@ -522,7 +534,7 @@ static insertElement(
   Onode: HTMLOgoneElement,
   p: "beforebegin" | "afterbegin" | "beforeend" | "afterend",
   el: HTMLElement,
-) {
+): undefined | Element | null {
   if (!Onode.firstNode) {
     Onode.insertAdjacentElement(p, el);
     return;
@@ -543,7 +555,7 @@ static insertElement(
       break;
   }
   return (!!(target as HTMLOgoneElement).ogone
-    ? Ogone.insertElement((target as HTMLOgoneElement).context.list[
+    ? OgoneExtends.insertElement((target as HTMLOgoneElement).context.list[
       (target as HTMLOgoneElement).context.list.length - 1
     ], p, el)
     : (target as HTMLElement).insertAdjacentElement(p, el));
@@ -559,12 +571,12 @@ static insertElement(
 static triggerLoad(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
-  const rr = Ogone.router.react;
+  const rr = OgoneExtends.router.react;
   oc.runtime(0, o.historyState);
   rr.push((path: string) => {
     o.locationPath = path;
-    Ogone.setActualRouterTemplate(Onode);
-    Ogone.renderRouter(Onode);
+    OgoneExtends.setActualRouterTemplate(Onode);
+    OgoneExtends.renderRouter(Onode);
     return oc.activated;
   });
 }
@@ -602,7 +614,7 @@ static setActualRouterTemplate(node: any) {
   oc.locationPath = o.locationPath;
   const l = oc.locationPath;
   let rendered = oc.routes.find((r: any) =>
-    r.path === l || Ogone.routerSearch(node, r, l) || r.path === 404
+    r.path === l || OgoneExtends.routerSearch(node, r, l) || r.path === 404
   );
   let preservedParams = rendered.params;
   // redirections
@@ -658,7 +670,7 @@ static setActualRouterTemplate(node: any) {
       name: rendered.name || rendered.component,
       parentNodeKey: o.key,
     };
-    Ogone.setOgone(co, ogoneOpts);
+    OgoneExtends.setOgone(co, ogoneOpts);
     ogoneOpts = null;
     // if the route provide any title
     // we change the title of the document
