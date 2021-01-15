@@ -64,6 +64,7 @@ Ogone.classes.extends = (
 Ogone.classes.component = (
   klass: FunctionConstructor,
   componentType: string = "component",
+  uuid: string = '',
 ) =>
   (class extends (Ogone.classes.extends!(klass) as unknown as FunctionConstructor) {
     declare public type: string;
@@ -92,7 +93,7 @@ Ogone.classes.component = (
           originalNode: true,
           // TODO pass the root component inside a template function to fill this field
           // ex: bundle.components.get(entrypoint)
-          uuid: '{% root.uuid %}',
+          uuid,
           extends: '-nt',
         };
         Ogone.setOgone(this as unknown as HTMLOgoneElement, opts);
