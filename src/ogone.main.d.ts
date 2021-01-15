@@ -9,9 +9,10 @@ export interface HTMLOgoneElement extends HTMLTemplateElement {
   isConnected: boolean;
   isRecursiveConnected: boolean;
   firstNode: HTMLElement | HTMLOgoneElement;
+  renderedList: boolean;
   lastNode: HTMLElement | HTMLOgoneElement;
   context: {
-    list: HTMLOgoneElement[],
+    list: (HTMLOgoneElement | HTMLElement)[],
     placeholder: HTMLTemplateElement,
     parentNode: HTMLElement,
     name: string,

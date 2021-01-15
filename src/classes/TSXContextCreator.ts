@@ -45,26 +45,28 @@ export default class TSXContextCreator extends Utils {
       const startPerf = performance.now();
       const { protocol } = component.context;
       Deno.writeTextFileSync(newpath, protocol);
-      const [diags] = await Deno.compile(newpath, undefined, {
-        module: "esnext",
-        target: "esnext",
-        noImplicitThis: false,
-        noFallthroughCasesInSwitch: false,
-        allowJs: false,
-        removeComments: false,
-        experimentalDecorators: true,
-        noImplicitAny: true,
-        allowUnreachableCode: false,
-        jsx: "react",
-        jsxFactory: "h",
-        // @ts-ignore
-        jsxFragmentFactory: "hf",
-        lib: ["dom", "esnext"],
-        inlineSourceMap: false,
-        inlineSources: false,
-        alwaysStrict: false,
-        sourceMap: false,
-        strictFunctionTypes: true,
+      const { diagnostics: diags } = await Deno.emit(newpath, {
+        compilerOptions: {
+          module: "esnext",
+          target: "esnext",
+          noImplicitThis: false,
+          noFallthroughCasesInSwitch: false,
+          allowJs: false,
+          removeComments: false,
+          experimentalDecorators: true,
+          noImplicitAny: true,
+          allowUnreachableCode: false,
+          jsx: "react",
+          jsxFactory: "h",
+          // @ts-ignore
+          jsxFragmentFactory: "hf",
+          lib: ["dom", "esnext"],
+          inlineSourceMap: false,
+          inlineSources: false,
+          alwaysStrict: false,
+          sourceMap: false,
+          strictFunctionTypes: true,
+        }
       });
       Deno.removeSync(newpath);
       ModuleErrors.checkDiagnostics(component, diags as unknown[]);

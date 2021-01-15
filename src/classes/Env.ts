@@ -8,7 +8,6 @@ import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps/deps.ts";
 import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
-import WebComponentExtends from "./WebComponentExtends.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
 import MapFile from "./MapFile.ts";
@@ -20,7 +19,6 @@ export default class Env extends Constructor {
   public devtool?: boolean;
   public static _devtool?: boolean;
   public static _env: Environment = "development";
-  public WebComponentExtends: WebComponentExtends = new WebComponentExtends();
   protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
   constructor() {
     super();

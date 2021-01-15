@@ -317,7 +317,7 @@ static destroy(Onode: HTMLOgoneElement) {
   const o = Onode.ogone, oc = o.component;
   if (!oc) return;
   Onode.context.list.forEach((n) => {
-    OgoneExtends.removeNodes(n);
+    OgoneExtends.removeNodes(n as HTMLOgoneElement);
     n.remove();
   });
   OgoneExtends.removeNodes(Onode);
@@ -559,7 +559,7 @@ static insertElement(
   return (!!(target as HTMLOgoneElement).ogone
     ? OgoneExtends.insertElement((target as HTMLOgoneElement).context.list[
       (target as HTMLOgoneElement).context.list.length - 1
-    ], p, el)
+    ] as HTMLOgoneElement, p, el)
     : (target as HTMLElement).insertAdjacentElement(p, el));
 }
 

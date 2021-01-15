@@ -222,9 +222,12 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
             : "",
         },
       );
-      const runtime = (await Deno.transpileOnly({
-        "/transpiled.ts": script
-      }, { sourceMap: false }))["/transpiled.ts"].source
+      const runtime = (await Deno.emit("/transpiled.ts", {
+        sources: {
+          "/transpiled.ts": script
+        },
+        compilerOptions: { sourceMap: false }
+      })).files["/transpiled.ts"]
       // save the runtime
       component.scripts.runtime = component.isTyped && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction)
         || !component.isTyped && component.context.engine.includes(ComponentEngine.ComponentProxyReaction)

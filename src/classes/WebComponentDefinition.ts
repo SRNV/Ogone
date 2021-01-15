@@ -38,11 +38,11 @@ export default class WebComponentDefinition extends Utils {
       };
       let componentExtension = ``;
       let definition =
-        `customElements.define('{% elementId %}', Ogone.classes['{% component.type %}']({% extension %}), { extends: 'template' });`;
+        `customElements.define('{% elementId %}', Ogone.classes.component({% extension %}, '{% component.type %}'), { extends: 'template' });`;
 
       if (!isTemplate) {
         definition =
-          `customElements.define('{% elementId %}', Ogone.classes['{% component.type %}']({% extension %}));`;
+          `customElements.define('{% elementId %}', Ogone.classes.component({% extension %}, '{% component.type %}'));`;
       }
       if (!isProduction) {
         // for HMR

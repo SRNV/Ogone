@@ -2,12 +2,13 @@ import type {
   OnodeComponent,
   OnodeComponentRenderOptions,
 } from "../types/component.ts";
-import type { OgoneBrowser } from "../types/ogone.ts";
-import type { Template } from "../types/template.ts";
+import Ogone from '../classes/main/Ogone.ts';
+import { HTMLOgoneElement } from '../ogone.main.d.ts';
+import { Document } from "../ogone.dom.d.ts";
 
-let Ogone: OgoneBrowser;
+declare const document: Document;
 
-function OComponent(this: OnodeComponent): OnodeComponent {
+export function OComponent(this: OnodeComponent): OnodeComponent {
   this.key = null;
   this.data = null;
   this.pluggedWebComponentIsSync = false;
@@ -104,11 +105,10 @@ function OComponent(this: OnodeComponent): OnodeComponent {
   };
   this.updateStore = (dependency: string) => {
     // find the reaction of this store module with the key
-    // @ts-ignore
+    // @ts-ignore VSCode error on iterators
     const [key, client] = Ogone.clients.find(([key]) => key === this.key);
     if (client) {
       // use the namespace, the dependency or property that should change
-      // @ts-ignore
       client(this.namespace, dependency, true);
       // update other modules
       Ogone.clients.filter(([key]) => key !== this.key).forEach(
@@ -192,7 +192,7 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     }
   };
   this.render = (
-    Onode: Template, /** original node */
+    Onode: HTMLOgoneElement, /** original node */
     opts: OnodeComponentRenderOptions,
   ) => {
     if (!Onode || !opts) return;
@@ -207,14 +207,13 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     if (context.list.length === dataLength) return;
     // first we add missing nodes
     for (let i = context.list.length, a = dataLength; i < a; i++) {
-      let node;
-      // @ts-ignore
-      node = document.createElement(context.name, { is: Onode.extends });
+      let node: HTMLOgoneElement;
+      node = document.createElement(context.name, { is: Onode.extends }) as HTMLOgoneElement;
       let ogoneOpts: any = {
         index: i,
         originalNode: false,
         level: Onode.ogone.level,
-        position: Onode.ogone.position.slice(),
+        position: Onode.ogone.position!.slice(),
         flags: Onode.ogone.flags,
         original: Onode,
         isRoot: false,
@@ -248,7 +247,6 @@ function OComponent(this: OnodeComponent): OnodeComponent {
             levelInParentComponent: Onode.ogone.levelInParentComponent,
           }),
       };
-      // @ts-ignore
       Ogone.setOgone(node, ogoneOpts);
       ogoneOpts = null;
       let previous = node;
@@ -257,15 +255,11 @@ function OComponent(this: OnodeComponent): OnodeComponent {
       } else {
         let lastEl = context.list[i - 1];
         if (lastEl && lastEl.isConnected) {
-          // @ts-ignore
-          Ogone.insertElement(lastEl, "afterend", node);
-          // @ts-ignore
+          Ogone.insertElement(lastEl as HTMLOgoneElement, "afterend", node);
         } else if (Onode && Onode.parentNode && !Onode.renderedList) {
           Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
-          // @ts-ignore
           Onode.renderedList = true;
           previous = node;
-          // @ts-ignore
         } else if (Onode && Onode.parentNode && Onode.renderedList) {
           Onode.parentNode.insertBefore(node, previous.nextElementSibling);
           previous = node;
@@ -279,23 +273,20 @@ function OComponent(this: OnodeComponent): OnodeComponent {
     for (let i = context.list.length, a = dataLength; i > a; i--) {
       if (context.list.length === 1) {
         // get the first element of the webcomponent
-        let firstEl = context.list[0];
+        let firstEl = context.list[0] as HTMLOgoneElement;
         if (firstEl && firstEl.firstNode && firstEl.isConnected) {
-          // @ts-ignore
           Ogone.insertElement(firstEl, "beforebegin", context.placeholder);
         } else if (Onode.parentNode) {
           const { parentNode } = context;
           parentNode.insertBefore(context.placeholder, Onode);
         }
       }
-      const rm = context.list.pop();
+      const rm = context.list.pop() as HTMLOgoneElement;
       // don't use destroy here
       // if rm.destroy is used, it will not allow empty list to rerender
-      // @ts-ignore
       Ogone.removeNodes(rm);
       rm.remove();
     }
   };
   return this;
 }
-export default OComponent.toString();

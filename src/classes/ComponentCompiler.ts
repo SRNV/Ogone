@@ -192,11 +192,14 @@ export default class ComponentCompiler extends Utils {
             : "",
           hasStore: !!component.hasStore ? store : "",
         };
-        result = (await Deno.transpileOnly({
-          "/transpiled.ts": `  ${this.template(result, d)}`,
-        }, { sourceMap: false, }))["/transpiled.ts"].source;
+        result = (await Deno.emit('/transpiled.ts', {
+          sources: {
+            "/transpiled.ts": `  ${this.template(result, d)}`,
+          },
+          compilerOptions: { sourceMap: false, }
+        })).files["/transpiled.ts"];
         const componentOutput = MapOutput.outputs.get(component.file);
-        if(!componentOutput) {
+        if (!componentOutput) {
           this.error('component output not found in MapOutput');
         }
         if (mapRender.has(result)) {

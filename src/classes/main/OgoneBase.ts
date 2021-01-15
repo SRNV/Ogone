@@ -16,8 +16,10 @@ import type {
   OgoneModules,
   OgoneRecycleOptions
 } from "../../ogone.main.d.ts";
-export default abstract class OgoneBase {
+import EnvServer from "../EnvServer.ts";
+export default abstract class OgoneBase extends EnvServer {
   // usable on browser side
+  static root: boolean;
   static stores: OgoneStores = {};
   static clients: OgoneStoreClient[] = [];
   static render: OgoneRenderRegistry = {};
