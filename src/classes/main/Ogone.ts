@@ -91,8 +91,6 @@ Ogone.classes.component = (
           position: [0],
           flags: null,
           originalNode: true,
-          // TODO pass the root component inside a template function to fill this field
-          // ex: bundle.components.get(entrypoint)
           uuid,
           extends: '-nt',
         };
