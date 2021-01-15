@@ -1,7 +1,7 @@
 import OgoneBase from "./OgoneBase.ts";
 import { Document } from '../../ogone.dom.d.ts';
 declare const document: Document;
-export default abstract class OgoneError extends OgoneBase {
+export default class OgoneError extends OgoneBase {
   static displayError(message: string, errorType: string, errorObject: Error) {
     // here we render the errors in development
     if (!OgoneError.errorPanel) {

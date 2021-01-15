@@ -2,7 +2,7 @@ import { HTMLElement } from "../../ogone.dom.d.ts";
 import { HTMLOgoneElement, OnodeComponent } from "../../ogone.main.d.ts";
 import OgoneExtends from './OgoneExtends.ts';
 
-export default abstract class OgoneContext extends OgoneExtends {
+export default class OgoneContext extends OgoneExtends {
   static setContext(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!oc || !o.key) return;

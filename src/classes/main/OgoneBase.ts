@@ -17,7 +17,7 @@ import type {
   OgoneRecycleOptions
 } from "../../ogone.main.d.ts";
 import EnvServer from "../EnvServer.ts";
-export default abstract class OgoneBase extends EnvServer {
+export default class OgoneBase extends EnvServer {
   // usable on browser side
   static root: boolean;
   static stores: OgoneStores = {};

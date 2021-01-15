@@ -19,7 +19,7 @@ import {
 declare const location: Location;
 declare const history: History;
 declare const document: Document;
-export default abstract class OgoneExtends extends OgoneError {
+export default class OgoneExtends extends OgoneError {
 static setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   const proxies: { [k: string]: Object } = {};
   return new Proxy(target, {

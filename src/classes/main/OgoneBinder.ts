@@ -2,7 +2,7 @@ import { HTMLElement, HTMLInputElement } from "../../ogone.dom.d.ts";
 import { HTMLOgoneElement } from '../../ogone.main.d.ts';
 import OgoneContext from './OgoneContext.ts';
 
-export default abstract class OgoneBinder extends OgoneContext {
+export default class OgoneBinder extends OgoneContext {
   static bindValue(Onode: HTMLOgoneElement) {
     const o = Onode.ogone, oc = o.component;
     if (!o.flags || !o.flags.bind || !oc || !o.nodes) return;

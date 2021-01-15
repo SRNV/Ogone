@@ -1,5 +1,4 @@
 import Ogone from "./src/classes/main/Ogone.ts";
-import EnvServer from "./src/classes/EnvServer.ts";
 import ComponentTopLevelAnalyzer from "./src/classes/ComponentTopLevelAnalyzer.ts";
 import Constructor from "./src/classes/Constructor.ts";
 import ComponentTypeGetter from "./src/classes/ComponentTypeGetter.ts";
@@ -41,7 +40,6 @@ export {
 export default {
   async run(opts: OgoneConfiguration): Promise<void> {
     Configuration.setConfig(opts);
-    const env = new EnvServer();
-    await env.run(opts);
+    await new Ogone().run(opts);
   },
 };

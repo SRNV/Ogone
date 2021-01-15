@@ -3,7 +3,7 @@ import { Document } from "../../ogone.dom.d.ts";
 import { HTMLOgoneElement, OgoneParameters } from "../../ogone.main.d.ts";
 declare const document: Document;
 
-export default abstract class Ogone extends OgoneRender {}
+export default class Ogone extends OgoneRender {}
 /**
  * returns the base extension classe of all HTMLOgoneElement (webcomponents)
  */

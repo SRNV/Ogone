@@ -13,7 +13,7 @@ declare const location: Location;
 declare const history: History;
 declare const document: Document;
 
-export default abstract class OgoneRender extends OgoneBinder {
+export default class OgoneRender extends OgoneBinder {
   static renderSlots(Onode: HTMLOgoneElement) {
     const o = Onode.ogone;
     if (!o.nodes) return;
