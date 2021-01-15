@@ -11,11 +11,9 @@ import { Configuration } from "./Configuration.ts";
 import WebComponentExtends from "./WebComponentExtends.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
-import { DenoStdInternalError } from "https://deno.land/std@0.61.0/_util/assert.ts";
 import MapFile from "./MapFile.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
-import MapOutput from "./MapOutput.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -209,13 +207,11 @@ export default class Env extends Constructor {
         ${runtime.ogone}
         ${runtime.router}
         ${runtime.devTool}
-        {% extension %}
         ${bundle.output}
         ${runtime.components}
           {% promise %}
         `,
           {
-            extension: this.WebComponentExtends.getExtensions(bundle, entrypoint),
             promise: esm.trim().length
               ? `
             Promise.all([

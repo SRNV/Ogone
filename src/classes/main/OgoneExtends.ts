@@ -99,6 +99,8 @@ static setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
     position: [0],
     index: 0,
     level: 0,
+    // TODO pass the root component inside a template function to fill this field
+    // ex: bundle.components.get(entrypoint)
     uuid: '{% root.uuid %}',
     extends: '-nt',
     // int[]

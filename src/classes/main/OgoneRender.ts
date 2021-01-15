@@ -208,7 +208,7 @@ export default abstract class OgoneRender extends OgoneBinder {
       }
     }
   }
-  static renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent: boolean) {
+  static renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: boolean) {
     const o = Onode.ogone, oc = o.component;
     if (!oc) return;
     // first render child stores component

@@ -134,7 +134,7 @@ type OgoneComponentsRegistry = { [componentId: string]: FunctionConstructor };
 /**
  * those functions will help for the extension of the customElement's constructor
  */
-type OgoneClassesRegistry = Partial<Record<"app" | "async" | "store" | "controller" | "component" | "router", (construct: FunctionConstructor) => FunctionConstructor>>
+type OgoneClassesRegistry = Partial<Record<"extends" | "async" | "store" | "controller" | "component" | "router",  (construct:FunctionConstructor) => HTMLOgoneElement>>
 /**
  * @deprecated
  * all the modules saved with their path
