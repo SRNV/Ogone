@@ -146,7 +146,7 @@ export default class ComponentCompiler extends Utils {
           Object.freeze(Async);
           `;
         let result: string = `function OgoneComponentRuntime () {
-            OComponent.call(this);
+            Ogone.createComponent.call(this);
             {% controllerDef %}
             {% hasStore %}
             const ___ = (prop, inst, value) => {

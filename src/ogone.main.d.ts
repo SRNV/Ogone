@@ -192,7 +192,7 @@ export interface OnodeComponent {
   pluggedWebComponentIsSync: boolean;
   startLifecycle: (params?: any, event?: Event | OgoneParameters['historyState']) => any;
   initStore(): any;
-  runtime(_state: number | string, ctx?: any, event?: Event): any;
+  runtime(_state: number | string, ctx?: any, event?: Parameters<OnodeComponent['startLifecycle']>[1]): any;
   update(dependency?: string, ctx?: any): void;
   updateStore(dependency?: string): void;
   react: Function[];

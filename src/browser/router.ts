@@ -1,4 +1,6 @@
 import Ogone from '../classes/main/Ogone.ts';
+import { PopStateEvent, Location } from '../ogone.dom.d.ts';
+declare const location: Location;
 Ogone.router = {
   react: [],
   actualRoute: null,
@@ -14,6 +16,7 @@ Ogone.router = {
     history.pushState(state || {}, "", url || "/");
   },
 };
+// @ts-ignore
 window.onpopstate = function (event: PopStateEvent) {
   Ogone.router.go(location.pathname, event.state);
 };

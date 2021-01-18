@@ -13,6 +13,7 @@ import type {
   OgoneContexts,
   OgoneComponentsRegistry,
   OgoneClassesRegistry,
+  OnodeComponent,
   OgoneModules,
   OgoneRecycleOptions
 } from "../../ogone.main.d.ts";
@@ -40,6 +41,14 @@ export default class OgoneBase extends EnvServer {
   static instances: { [componentUuid: string]: any[] } = {};
   static setReactivity: (target: Object, updateFunction: Function, parentKey?: string) => Object;
   static displayError: (message: string, errorType: string, errorObject: Error) => void;
+  /**
+   * this constructor is used as a base function for components
+   * ```typescript
+   * // actual usage
+   * Ogone.createComponent.call(this);
+   * ```
+   */
+  static createComponent: (this:OnodeComponent) => OnodeComponent;
   /**
    * for the flag --bind
    */
@@ -223,4 +232,8 @@ export default class OgoneBase extends EnvServer {
     "async",
     "component",
   ];
+  static get isDeno() {
+    return typeof Deno !== "undefined"
+      && Deno.chmod
+  }
 }
