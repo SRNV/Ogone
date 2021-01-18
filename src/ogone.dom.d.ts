@@ -1,3 +1,134 @@
+/** A window containing a DOM document; the document property points to the DOM document loaded in that window. */
+interface OgoneWindow extends EventTarget, AnimationFrameProvider, GlobalEventHandlers, WindowEventHandlers, WindowLocalStorage, WindowOrWorkerGlobalScope, WindowSessionStorage {
+    readonly applicationCache: ApplicationCache;
+    readonly clientInformation: Navigator;
+    readonly closed: boolean;
+    customElements: CustomElementRegistry;
+    defaultStatus: string;
+    readonly devicePixelRatio: number;
+    readonly doNotTrack: string;
+    readonly document: Document;
+    /** @deprecated */
+    readonly event: Event | undefined;
+    /** @deprecated */
+    readonly external: External;
+    readonly frameElement: Element;
+    readonly frames: OgoneWindow;
+    readonly history: History;
+    readonly innerHeight: number;
+    readonly innerWidth: number;
+    readonly length: number;
+    location: Location;
+    readonly locationbar: BarProp;
+    readonly menubar: BarProp;
+    readonly msContentScript: ExtensionScriptApis;
+    name: string;
+    readonly navigator: Navigator;
+    offscreenBuffering: string | boolean;
+    oncompassneedscalibration: ((this: OgoneWindow, ev: Event) => any) | null;
+    ondevicelight: ((this: OgoneWindow, ev: DeviceLightEvent) => any) | null;
+    ondevicemotion: ((this: OgoneWindow, ev: DeviceMotionEvent) => any) | null;
+    ondeviceorientation: ((this: OgoneWindow, ev: DeviceOrientationEvent) => any) | null;
+    ondeviceorientationabsolute: ((this: OgoneWindow, ev: DeviceOrientationEvent) => any) | null;
+    onmousewheel: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsgesturechange: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsgesturedoubletap: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsgestureend: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsgesturehold: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsgesturestart: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsgesturetap: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmsinertiastart: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointercancel: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointerdown: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointerenter: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointerleave: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointermove: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointerout: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointerover: ((this: OgoneWindow, ev: Event) => any) | null;
+    onmspointerup: ((this: OgoneWindow, ev: Event) => any) | null;
+    /** @deprecated */
+    onorientationchange: ((this: OgoneWindow, ev: Event) => any) | null;
+    onreadystatechange: ((this: OgoneWindow, ev: ProgressEvent<OgoneWindow>) => any) | null;
+    onvrdisplayactivate: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplayblur: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplayconnect: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplaydeactivate: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplaydisconnect: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplayfocus: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplaypointerrestricted: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplaypointerunrestricted: ((this: OgoneWindow, ev: Event) => any) | null;
+    onvrdisplaypresentchange: ((this: OgoneWindow, ev: Event) => any) | null;
+    opener: any;
+    /** @deprecated */
+    readonly orientation: string | number;
+    readonly outerHeight: number;
+    readonly outerWidth: number;
+    readonly pageXOffset: number;
+    readonly pageYOffset: number;
+    readonly parent: OgoneWindow;
+    readonly personalbar: BarProp;
+    readonly screen: Screen;
+    readonly screenLeft: number;
+    readonly screenTop: number;
+    readonly screenX: number;
+    readonly screenY: number;
+    readonly scrollX: number;
+    readonly scrollY: number;
+    readonly scrollbars: BarProp;
+    readonly self: OgoneWindow & typeof globalThis;
+    readonly speechSynthesis: SpeechSynthesis;
+    status: string;
+    readonly statusbar: BarProp;
+    readonly styleMedia: StyleMedia;
+    readonly toolbar: BarProp;
+    readonly top: OgoneWindow;
+    readonly visualViewport: VisualViewport;
+    readonly window: OgoneWindow & typeof globalThis;
+    alert(message?: any): void;
+    blur(): void;
+    /** @deprecated */
+    captureEvents(): void;
+    close(): void;
+    confirm(message?: string): boolean;
+    departFocus(navigationReason: NavigationReason, origin: FocusNavigationOrigin): void;
+    focus(): void;
+    getComputedStyle(elt: Element, pseudoElt?: string | null): CSSStyleDeclaration;
+    getMatchedCSSRules(elt: Element, pseudoElt?: string | null): CSSRuleList;
+    getSelection(): Selection | null;
+    matchMedia(query: string): MediaQueryList;
+    moveBy(x: number, y: number): void;
+    moveTo(x: number, y: number): void;
+    msWriteProfilerMark(profilerMarkName: string): void;
+    open(url?: string, target?: string, features?: string, replace?: boolean): OgoneWindow | null;
+    postMessage(message: any, targetOrigin: string, transfer?: Transferable[]): void;
+    print(): void;
+    prompt(message?: string, _default?: string): string | null;
+    /** @deprecated */
+    releaseEvents(): void;
+    resizeBy(x: number, y: number): void;
+    resizeTo(width: number, height: number): void;
+    scroll(options?: ScrollToOptions): void;
+    scroll(x: number, y: number): void;
+    scrollBy(options?: ScrollToOptions): void;
+    scrollBy(x: number, y: number): void;
+    scrollTo(options?: ScrollToOptions): void;
+    scrollTo(x: number, y: number): void;
+    stop(): void;
+    webkitCancelAnimationFrame(handle: number): void;
+    webkitConvertPointFromNodeToPage(node: Node, pt: WebKitPoint): WebKitPoint;
+    webkitConvertPointFromPageToNode(node: Node, pt: WebKitPoint): WebKitPoint;
+    webkitRequestAnimationFrame(callback: FrameRequestCallback): number;
+    addEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: OgoneWindow, ev: WindowEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+    removeEventListener<K extends keyof WindowEventMap>(type: K, listener: (this: OgoneWindow, ev: WindowEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
+    [index: number]: OgoneWindow;
+}
+
+declare var OgoneWindow: {
+    prototype: OgoneWindow;
+    new(): OgoneWindow;
+};
 export interface Account {
     displayName: string;
     id: string;
@@ -1566,7 +1697,7 @@ export interface RequestInit {
      */
     signal?: AbortSignal | null;
     /**
-     * Can only be null. Used to disassociate request from any Window.
+     * Can only be null. Used to disassociate request from any OgoneWindow.
      */
     window?: any;
 }
@@ -1788,7 +1919,7 @@ export interface TransitionEventInit extends EventInit {
 
 export interface UIEventInit extends EventInit {
     detail?: number;
-    view?: Window | null;
+    view?: OgoneWindow | null;
 }
 
 export interface ULongRange {
@@ -5200,7 +5331,7 @@ declare var GamepadButton: {
     new(): GamepadButton;
 };
 
-/** This Gamepad API export interface contains references to gamepads connected to the system, which is what the gamepad events Window.gamepadconnected and Window.gamepaddisconnected are fired in response to. */
+/** This Gamepad API export interface contains references to gamepads connected to the system, which is what the gamepad events OgoneWindow.gamepadconnected and OgoneWindow.gamepaddisconnected are fired in response to. */
 export interface GamepadEvent extends Event {
     readonly gamepad: Gamepad;
 }
@@ -6200,7 +6331,7 @@ declare var HTMLDivElement: {
     new(): HTMLDivElement;
 };
 
-/** The HTMLDocument property of Window objects is an alias that browsers expose for the Document export interface object. */
+/** The HTMLDocument property of OgoneWindow objects is an alias that browsers expose for the Document export interface object. */
 export interface HTMLDocument extends Document {
     addEventListener<K extends keyof DocumentEventMap>(type: K, listener: (this: HTMLDocument, ev: DocumentEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
@@ -9316,7 +9447,7 @@ declare var ListeningStateChangedEvent: {
     new(): ListeningStateChangedEvent;
 };
 
-/** The location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and Window export interface have such a linked Location, accessible via Document.location and Window.location respectively. */
+/** The location (URL) of the object it is linked to. Changes done on it are reflected on the object it relates to. Both the Document and OgoneWindow export interface have such a linked Location, accessible via Document.location and OgoneWindow.location respectively. */
 export interface Location {
     /**
      * Returns a DOMStringList object listing the origins of the ancestor browsing contexts, from the parent browsing context to the top-level browsing context.
@@ -9483,7 +9614,7 @@ export interface MSGestureEvent extends UIEvent {
     readonly velocityExpansion: number;
     readonly velocityX: number;
     readonly velocityY: number;
-    initGestureEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: Window, detailArg: number, screenXArg: number, screenYArg: number, clientXArg: number, clientYArg: number, offsetXArg: number, offsetYArg: number, translationXArg: number, translationYArg: number, scaleArg: number, expansionArg: number, rotationArg: number, velocityXArg: number, velocityYArg: number, velocityExpansionArg: number, velocityAngularArg: number, hwTimestampArg: number): void;
+    initGestureEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: OgoneWindow, detailArg: number, screenXArg: number, screenYArg: number, clientXArg: number, clientYArg: number, offsetXArg: number, offsetYArg: number, translationXArg: number, translationYArg: number, scaleArg: number, expansionArg: number, rotationArg: number, velocityXArg: number, velocityYArg: number, velocityExpansionArg: number, velocityAngularArg: number, hwTimestampArg: number): void;
     readonly MSGESTURE_FLAG_BEGIN: number;
     readonly MSGESTURE_FLAG_CANCEL: number;
     readonly MSGESTURE_FLAG_END: number;
@@ -9630,7 +9761,7 @@ export interface MSPointerEvent extends MouseEvent {
     readonly width: number;
     getCurrentPoint(element: Element): void;
     getIntermediatePoints(element: Element): void;
-    initPointerEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: Window, detailArg: number, screenXArg: number, screenYArg: number, clientXArg: number, clientYArg: number, ctrlKeyArg: boolean, altKeyArg: boolean, shiftKeyArg: boolean, metaKeyArg: boolean, buttonArg: number, relatedTargetArg: EventTarget, offsetXArg: number, offsetYArg: number, widthArg: number, heightArg: number, pressure: number, rotation: number, tiltX: number, tiltY: number, pointerIdArg: number, pointerType: any, hwTimestampArg: number, isPrimary: boolean): void;
+    initPointerEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: OgoneWindow, detailArg: number, screenXArg: number, screenYArg: number, clientXArg: number, clientYArg: number, ctrlKeyArg: boolean, altKeyArg: boolean, shiftKeyArg: boolean, metaKeyArg: boolean, buttonArg: number, relatedTargetArg: EventTarget, offsetXArg: number, offsetYArg: number, widthArg: number, heightArg: number, pressure: number, rotation: number, tiltX: number, tiltY: number, pointerIdArg: number, pointerType: any, hwTimestampArg: number, isPrimary: boolean): void;
 }
 
 declare var MSPointerEvent: {
@@ -10127,7 +10258,7 @@ export interface MouseEvent extends UIEvent {
     readonly x: number;
     readonly y: number;
     getModifierState(keyArg: string): boolean;
-    initMouseEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: Window, detailArg: number, screenXArg: number, screenYArg: number, clientXArg: number, clientYArg: number, ctrlKeyArg: boolean, altKeyArg: boolean, shiftKeyArg: boolean, metaKeyArg: boolean, buttonArg: number, relatedTargetArg: EventTarget | null): void;
+    initMouseEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: OgoneWindow, detailArg: number, screenXArg: number, screenYArg: number, clientXArg: number, clientYArg: number, ctrlKeyArg: boolean, altKeyArg: boolean, shiftKeyArg: boolean, metaKeyArg: boolean, buttonArg: number, relatedTargetArg: EventTarget | null): void;
 }
 
 declare var MouseEvent: {
@@ -14248,7 +14379,7 @@ declare var SecurityPolicyViolationEvent: {
     new(type: string, eventInitDict?: SecurityPolicyViolationEventInit): SecurityPolicyViolationEvent;
 };
 
-/** A Selection object represents the range of text selected by the user or the current position of the caret. To obtain a Selection object for examination or modification, call Window.getSelection(). */
+/** A Selection object represents the range of text selected by the user or the current position of the caret. To obtain a Selection object for examination or modification, call OgoneWindow.getSelection(). */
 export interface Selection {
     readonly anchorNode: Node | null;
     readonly anchorOffset: number;
@@ -14812,7 +14943,7 @@ declare var StyleSheetList: {
     new(): StyleSheetList;
 };
 
-/** This Web Crypto API export interface provides a number of low-level cryptographic functions. It is accessed via the Crypto.subtle properties available in a window context (via Window.crypto). */
+/** This Web Crypto API export interface provides a number of low-level cryptographic functions. It is accessed via the Crypto.subtle properties available in a window context (via OgoneWindow.crypto). */
 export interface SubtleCrypto {
     decrypt(algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesCmacParams | AesGcmParams | AesCfbParams, key: CryptoKey, data: Int8Array | Int16Array | Int32Array | Uint8Array | Uint16Array | Uint32Array | Uint8ClampedArray | Float32Array | Float64Array | DataView | ArrayBuffer): Promise<ArrayBuffer>;
     deriveBits(algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | DhKeyDeriveParams | ConcatParams | HkdfParams | Pbkdf2Params, baseKey: CryptoKey, length: number): Promise<ArrayBuffer>;
@@ -14912,7 +15043,7 @@ declare var TextEncoderStream: {
 
 export interface TextEvent extends UIEvent {
     readonly data: string;
-    initTextEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: Window, dataArg: string, inputMethod: number, locale: string): void;
+    initTextEvent(typeArg: string, canBubbleArg: boolean, cancelableArg: boolean, viewArg: OgoneWindow, dataArg: string, inputMethod: number, locale: string): void;
     readonly DOM_INPUT_METHOD_DROP: number;
     readonly DOM_INPUT_METHOD_HANDWRITING: number;
     readonly DOM_INPUT_METHOD_IME: number;
@@ -15290,7 +15421,7 @@ declare var TreeWalker: {
 /** Simple user export interface events. */
 export interface UIEvent extends Event {
     readonly detail: number;
-    readonly view: Window | null;
+    readonly view: OgoneWindow | null;
     /** @deprecated */
     readonly which: number;
 }
@@ -17647,9 +17778,9 @@ export interface WindowEventMap extends GlobalEventHandlersEventMap, WindowEvent
     "play": Event;
     "playing": Event;
     "popstate": PopStateEvent;
-    "progress": ProgressEvent<Window>;
+    "progress": ProgressEvent<OgoneWindow>;
     "ratechange": Event;
-    "readystatechange": ProgressEvent<Window>;
+    "readystatechange": ProgressEvent<OgoneWindow>;
     "reset": Event;
     "resize": UIEvent;
     "scroll": Event;
@@ -17823,11 +17954,11 @@ export interface XMLHttpRequest extends XMLHttpRequestEventTarget {
      *
      * Can be set to change the response export type. Values are: the empty string (default), "arraybuffer", "blob", "document", "json", and "text".
      *
-     * When set: setting to "document" is ignored if current global object is not a Window object.
+     * When set: setting to "document" is ignored if current global object is not a OgoneWindow object.
      *
      * When set: throws an "InvalidStateError" DOMException if state is loading or done.
      *
-     * When set: throws an "InvalidAccessError" DOMException if the synchronous flag is set and current global object is a Window object.
+     * When set: throws an "InvalidAccessError" DOMException if the synchronous flag is set and current global object is a OgoneWindow object.
      */
     responseType: XMLHttpRequestResponseType;
     readonly responseURL: string;
@@ -17842,7 +17973,7 @@ export interface XMLHttpRequest extends XMLHttpRequestEventTarget {
     /**
      * Can be set to a time in milliseconds. When set to a non-zero value will cause fetching to terminate after the given time has passed. When the time has passed, the request has not yet completed, and the synchronous flag is unset, a timeout event will then be dispatched, or a "TimeoutError" DOMException will be thrown otherwise (for the send() method).
      *
-     * When set: throws an "InvalidAccessError" DOMException if the synchronous flag is set and current global object is a Window object.
+     * When set: throws an "InvalidAccessError" DOMException if the synchronous flag is set and current global object is a OgoneWindow object.
      */
     timeout: number;
     /**
@@ -17868,7 +17999,7 @@ export interface XMLHttpRequest extends XMLHttpRequestEventTarget {
      *
      * Throws a "SecurityError" DOMException if method is a case-insensitive match for `CONNECT`, `TRACE`, or `TRACK`.
      *
-     * Throws an "InvalidAccessError" DOMException if async is false, current global object is a Window object, and the timeout attribute is not zero or the responseType attribute is not the empty string.
+     * Throws an "InvalidAccessError" DOMException if async is false, current global object is a OgoneWindow object, and the timeout attribute is not zero or the responseType attribute is not the empty string.
      */
     open(method: string, url: string): void;
     open(method: string, url: string, async: boolean, username?: string | null, password?: string | null): void;
@@ -18409,7 +18540,7 @@ declare var event: Event | undefined;
 /** @deprecated */
 declare var external: External;
 declare var frameElement: Element;
-declare var frames: Window;
+declare var frames: OgoneWindow;
 declare var history: History;
 declare var innerHeight: number;
 declare var innerWidth: number;
@@ -18422,39 +18553,39 @@ declare var msContentScript: ExtensionScriptApis;
 declare const name: void;
 declare var navigator: Navigator;
 declare var offscreenBuffering: string | boolean;
-declare var oncompassneedscalibration: ((this: Window, ev: Event) => any) | null;
-declare var ondevicelight: ((this: Window, ev: DeviceLightEvent) => any) | null;
-declare var ondevicemotion: ((this: Window, ev: DeviceMotionEvent) => any) | null;
-declare var ondeviceorientation: ((this: Window, ev: DeviceOrientationEvent) => any) | null;
-declare var ondeviceorientationabsolute: ((this: Window, ev: DeviceOrientationEvent) => any) | null;
-declare var onmousewheel: ((this: Window, ev: Event) => any) | null;
-declare var onmsgesturechange: ((this: Window, ev: Event) => any) | null;
-declare var onmsgesturedoubletap: ((this: Window, ev: Event) => any) | null;
-declare var onmsgestureend: ((this: Window, ev: Event) => any) | null;
-declare var onmsgesturehold: ((this: Window, ev: Event) => any) | null;
-declare var onmsgesturestart: ((this: Window, ev: Event) => any) | null;
-declare var onmsgesturetap: ((this: Window, ev: Event) => any) | null;
-declare var onmsinertiastart: ((this: Window, ev: Event) => any) | null;
-declare var onmspointercancel: ((this: Window, ev: Event) => any) | null;
-declare var onmspointerdown: ((this: Window, ev: Event) => any) | null;
-declare var onmspointerenter: ((this: Window, ev: Event) => any) | null;
-declare var onmspointerleave: ((this: Window, ev: Event) => any) | null;
-declare var onmspointermove: ((this: Window, ev: Event) => any) | null;
-declare var onmspointerout: ((this: Window, ev: Event) => any) | null;
-declare var onmspointerover: ((this: Window, ev: Event) => any) | null;
-declare var onmspointerup: ((this: Window, ev: Event) => any) | null;
+declare var oncompassneedscalibration: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var ondevicelight: ((this: OgoneWindow, ev: DeviceLightEvent) => any) | null;
+declare var ondevicemotion: ((this: OgoneWindow, ev: DeviceMotionEvent) => any) | null;
+declare var ondeviceorientation: ((this: OgoneWindow, ev: DeviceOrientationEvent) => any) | null;
+declare var ondeviceorientationabsolute: ((this: OgoneWindow, ev: DeviceOrientationEvent) => any) | null;
+declare var onmousewheel: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsgesturechange: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsgesturedoubletap: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsgestureend: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsgesturehold: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsgesturestart: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsgesturetap: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmsinertiastart: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointercancel: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointerdown: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointerenter: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointerleave: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointermove: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointerout: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointerover: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmspointerup: ((this: OgoneWindow, ev: Event) => any) | null;
 /** @deprecated */
-declare var onorientationchange: ((this: Window, ev: Event) => any) | null;
-declare var onreadystatechange: ((this: Window, ev: ProgressEvent<Window>) => any) | null;
-declare var onvrdisplayactivate: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplayblur: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplayconnect: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplaydeactivate: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplaydisconnect: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplayfocus: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplaypointerrestricted: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplaypointerunrestricted: ((this: Window, ev: Event) => any) | null;
-declare var onvrdisplaypresentchange: ((this: Window, ev: Event) => any) | null;
+declare var onorientationchange: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onreadystatechange: ((this: OgoneWindow, ev: ProgressEvent<OgoneWindow>) => any) | null;
+declare var onvrdisplayactivate: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplayblur: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplayconnect: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplaydeactivate: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplaydisconnect: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplayfocus: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplaypointerrestricted: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplaypointerunrestricted: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onvrdisplaypresentchange: ((this: OgoneWindow, ev: Event) => any) | null;
 declare var opener: any;
 /** @deprecated */
 declare var orientation: string | number;
@@ -18462,7 +18593,7 @@ declare var outerHeight: number;
 declare var outerWidth: number;
 declare var pageXOffset: number;
 declare var pageYOffset: number;
-declare var parent: Window;
+declare var parent: OgoneWindow;
 declare var personalbar: BarProp;
 declare var screen: Screen;
 declare var screenLeft: number;
@@ -18477,7 +18608,7 @@ declare var status: string;
 declare var statusbar: BarProp;
 declare var styleMedia: StyleMedia;
 declare var toolbar: BarProp;
-declare var top: Window;
+declare var top: OgoneWindow;
 declare var visualViewport: VisualViewport;
 declare function blur(): void;
 /** @deprecated */
@@ -18492,7 +18623,7 @@ declare function matchMedia(query: string): MediaQueryList;
 declare function moveBy(x: number, y: number): void;
 declare function moveTo(x: number, y: number): void;
 declare function msWriteProfilerMark(profilerMarkName: string): void;
-declare function open(url?: string, target?: string, features?: string, replace?: boolean): Window | null;
+declare function open(url?: string, target?: string, features?: string, replace?: boolean): OgoneWindow | null;
 declare function postMessage(message: any, targetOrigin: string, transfer?: Transferable[]): void;
 declare function print(): void;
 /** @deprecated */
@@ -18517,93 +18648,93 @@ declare var localStorage: Storage;
  * Fires when the user aborts the download.
  * @param ev The event.
  */
-declare var onabort: ((this: Window, ev: UIEvent) => any) | null;
-declare var onanimationcancel: ((this: Window, ev: AnimationEvent) => any) | null;
-declare var onanimationend: ((this: Window, ev: AnimationEvent) => any) | null;
-declare var onanimationiteration: ((this: Window, ev: AnimationEvent) => any) | null;
-declare var onanimationstart: ((this: Window, ev: AnimationEvent) => any) | null;
-declare var onauxclick: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onabort: ((this: OgoneWindow, ev: UIEvent) => any) | null;
+declare var onanimationcancel: ((this: OgoneWindow, ev: AnimationEvent) => any) | null;
+declare var onanimationend: ((this: OgoneWindow, ev: AnimationEvent) => any) | null;
+declare var onanimationiteration: ((this: OgoneWindow, ev: AnimationEvent) => any) | null;
+declare var onanimationstart: ((this: OgoneWindow, ev: AnimationEvent) => any) | null;
+declare var onauxclick: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Fires when the object loses the input focus.
  * @param ev The focus event.
  */
-declare var onblur: ((this: Window, ev: FocusEvent) => any) | null;
-declare var oncancel: ((this: Window, ev: Event) => any) | null;
+declare var onblur: ((this: OgoneWindow, ev: FocusEvent) => any) | null;
+declare var oncancel: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when playback is possible, but would require further buffering.
  * @param ev The event.
  */
-declare var oncanplay: ((this: Window, ev: Event) => any) | null;
-declare var oncanplaythrough: ((this: Window, ev: Event) => any) | null;
+declare var oncanplay: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var oncanplaythrough: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the contents of the object or selection have changed.
  * @param ev The event.
  */
-declare var onchange: ((this: Window, ev: Event) => any) | null;
+declare var onchange: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the user clicks the left mouse button on the object
  * @param ev The mouse event.
  */
-declare var onclick: ((this: Window, ev: MouseEvent) => any) | null;
-declare var onclose: ((this: Window, ev: Event) => any) | null;
+declare var onclick: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
+declare var onclose: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the user clicks the right mouse button in the client area, opening the context menu.
  * @param ev The mouse event.
  */
-declare var oncontextmenu: ((this: Window, ev: MouseEvent) => any) | null;
-declare var oncuechange: ((this: Window, ev: Event) => any) | null;
+declare var oncontextmenu: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
+declare var oncuechange: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the user double-clicks the object.
  * @param ev The mouse event.
  */
-declare var ondblclick: ((this: Window, ev: MouseEvent) => any) | null;
+declare var ondblclick: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Fires on the source object continuously during a drag operation.
  * @param ev The event.
  */
-declare var ondrag: ((this: Window, ev: DragEvent) => any) | null;
+declare var ondrag: ((this: OgoneWindow, ev: DragEvent) => any) | null;
 /**
  * Fires on the source object when the user releases the mouse at the close of a drag operation.
  * @param ev The event.
  */
-declare var ondragend: ((this: Window, ev: DragEvent) => any) | null;
+declare var ondragend: ((this: OgoneWindow, ev: DragEvent) => any) | null;
 /**
  * Fires on the target element when the user drags the object to a valid drop target.
  * @param ev The drag event.
  */
-declare var ondragenter: ((this: Window, ev: DragEvent) => any) | null;
-declare var ondragexit: ((this: Window, ev: Event) => any) | null;
+declare var ondragenter: ((this: OgoneWindow, ev: DragEvent) => any) | null;
+declare var ondragexit: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires on the target object when the user moves the mouse out of a valid drop target during a drag operation.
  * @param ev The drag event.
  */
-declare var ondragleave: ((this: Window, ev: DragEvent) => any) | null;
+declare var ondragleave: ((this: OgoneWindow, ev: DragEvent) => any) | null;
 /**
  * Fires on the target element continuously while the user drags the object over a valid drop target.
  * @param ev The event.
  */
-declare var ondragover: ((this: Window, ev: DragEvent) => any) | null;
+declare var ondragover: ((this: OgoneWindow, ev: DragEvent) => any) | null;
 /**
  * Fires on the source object when the user starts to drag a text selection or selected object.
  * @param ev The event.
  */
-declare var ondragstart: ((this: Window, ev: DragEvent) => any) | null;
-declare var ondrop: ((this: Window, ev: DragEvent) => any) | null;
+declare var ondragstart: ((this: OgoneWindow, ev: DragEvent) => any) | null;
+declare var ondrop: ((this: OgoneWindow, ev: DragEvent) => any) | null;
 /**
  * Occurs when the duration attribute is updated.
  * @param ev The event.
  */
-declare var ondurationchange: ((this: Window, ev: Event) => any) | null;
+declare var ondurationchange: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the media element is reset to its initial state.
  * @param ev The event.
  */
-declare var onemptied: ((this: Window, ev: Event) => any) | null;
+declare var onemptied: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the end of playback is reached.
  * @param ev The event
  */
-declare var onended: ((this: Window, ev: Event) => any) | null;
+declare var onended: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when an error occurs during object loading.
  * @param ev The event.
@@ -18613,167 +18744,167 @@ declare var onerror: OnErrorEventHandler;
  * Fires when the object receives focus.
  * @param ev The event.
  */
-declare var onfocus: ((this: Window, ev: FocusEvent) => any) | null;
-declare var ongotpointercapture: ((this: Window, ev: PointerEvent) => any) | null;
-declare var oninput: ((this: Window, ev: Event) => any) | null;
-declare var oninvalid: ((this: Window, ev: Event) => any) | null;
+declare var onfocus: ((this: OgoneWindow, ev: FocusEvent) => any) | null;
+declare var ongotpointercapture: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var oninput: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var oninvalid: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the user presses a key.
  * @param ev The keyboard event
  */
-declare var onkeydown: ((this: Window, ev: KeyboardEvent) => any) | null;
+declare var onkeydown: ((this: OgoneWindow, ev: KeyboardEvent) => any) | null;
 /**
  * Fires when the user presses an alphanumeric key.
  * @param ev The event.
  */
-declare var onkeypress: ((this: Window, ev: KeyboardEvent) => any) | null;
+declare var onkeypress: ((this: OgoneWindow, ev: KeyboardEvent) => any) | null;
 /**
  * Fires when the user releases a key.
  * @param ev The keyboard event
  */
-declare var onkeyup: ((this: Window, ev: KeyboardEvent) => any) | null;
+declare var onkeyup: ((this: OgoneWindow, ev: KeyboardEvent) => any) | null;
 
 /**
  * Occurs when media data is loaded at the current playback position.
  * @param ev The event.
  */
-declare var onloadeddata: ((this: Window, ev: Event) => any) | null;
+declare var onloadeddata: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the duration and dimensions of the media have been determined.
  * @param ev The event.
  */
-declare var onloadedmetadata: ((this: Window, ev: Event) => any) | null;
+declare var onloadedmetadata: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when Internet Explorer begins looking for media data.
  * @param ev The event.
  */
-declare var onloadstart: ((this: Window, ev: Event) => any) | null;
-declare var onlostpointercapture: ((this: Window, ev: PointerEvent) => any) | null;
+declare var onloadstart: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onlostpointercapture: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
 /**
  * Fires when the user clicks the object with either mouse button.
  * @param ev The mouse event.
  */
-declare var onmousedown: ((this: Window, ev: MouseEvent) => any) | null;
-declare var onmouseenter: ((this: Window, ev: MouseEvent) => any) | null;
-declare var onmouseleave: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onmousedown: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
+declare var onmouseenter: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
+declare var onmouseleave: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Fires when the user moves the mouse over the object.
  * @param ev The mouse event.
  */
-declare var onmousemove: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onmousemove: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Fires when the user moves the mouse pointer outside the boundaries of the object.
  * @param ev The mouse event.
  */
-declare var onmouseout: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onmouseout: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Fires when the user moves the mouse pointer into the object.
  * @param ev The mouse event.
  */
-declare var onmouseover: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onmouseover: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Fires when the user releases a mouse button while the mouse is over the object.
  * @param ev The mouse event.
  */
-declare var onmouseup: ((this: Window, ev: MouseEvent) => any) | null;
+declare var onmouseup: ((this: OgoneWindow, ev: MouseEvent) => any) | null;
 /**
  * Occurs when playback is paused.
  * @param ev The event.
  */
-declare var onpause: ((this: Window, ev: Event) => any) | null;
+declare var onpause: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the play method is requested.
  * @param ev The event.
  */
-declare var onplay: ((this: Window, ev: Event) => any) | null;
+declare var onplay: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the audio or video has started playing.
  * @param ev The event.
  */
-declare var onplaying: ((this: Window, ev: Event) => any) | null;
-declare var onpointercancel: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointerdown: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointerenter: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointerleave: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointermove: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointerout: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointerover: ((this: Window, ev: PointerEvent) => any) | null;
-declare var onpointerup: ((this: Window, ev: PointerEvent) => any) | null;
+declare var onplaying: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onpointercancel: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointerdown: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointerenter: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointerleave: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointermove: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointerout: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointerover: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
+declare var onpointerup: ((this: OgoneWindow, ev: PointerEvent) => any) | null;
 /**
  * Occurs to indicate progress while downloading media data.
  * @param ev The event.
  */
-declare var onprogress: ((this: Window, ev: ProgressEvent) => any) | null;
+declare var onprogress: ((this: OgoneWindow, ev: ProgressEvent) => any) | null;
 /**
  * Occurs when the playback rate is increased or decreased.
  * @param ev The event.
  */
-declare var onratechange: ((this: Window, ev: Event) => any) | null;
+declare var onratechange: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the user resets a form.
  * @param ev The event.
  */
-declare var onreset: ((this: Window, ev: Event) => any) | null;
-declare var onresize: ((this: Window, ev: UIEvent) => any) | null;
+declare var onreset: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onresize: ((this: OgoneWindow, ev: UIEvent) => any) | null;
 /**
  * Fires when the user repositions the scroll box in the scroll bar on the object.
  * @param ev The event.
  */
-declare var onscroll: ((this: Window, ev: Event) => any) | null;
-declare var onsecuritypolicyviolation: ((this: Window, ev: SecurityPolicyViolationEvent) => any) | null;
+declare var onscroll: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onsecuritypolicyviolation: ((this: OgoneWindow, ev: SecurityPolicyViolationEvent) => any) | null;
 /**
  * Occurs when the seek operation ends.
  * @param ev The event.
  */
-declare var onseeked: ((this: Window, ev: Event) => any) | null;
+declare var onseeked: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the current playback position is moved.
  * @param ev The event.
  */
-declare var onseeking: ((this: Window, ev: Event) => any) | null;
+declare var onseeking: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Fires when the current selection changes.
  * @param ev The event.
  */
-declare var onselect: ((this: Window, ev: Event) => any) | null;
-declare var onselectionchange: ((this: Window, ev: Event) => any) | null;
-declare var onselectstart: ((this: Window, ev: Event) => any) | null;
+declare var onselect: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onselectionchange: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onselectstart: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when the download has stopped.
  * @param ev The event.
  */
-declare var onstalled: ((this: Window, ev: Event) => any) | null;
-declare var onsubmit: ((this: Window, ev: Event) => any) | null;
+declare var onstalled: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onsubmit: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs if the load operation has been intentionally halted.
  * @param ev The event.
  */
-declare var onsuspend: ((this: Window, ev: Event) => any) | null;
+declare var onsuspend: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs to indicate the current playback position.
  * @param ev The event.
  */
-declare var ontimeupdate: ((this: Window, ev: Event) => any) | null;
-declare var ontoggle: ((this: Window, ev: Event) => any) | null;
-declare var ontouchcancel: ((this: Window, ev: TouchEvent) => any) | null | undefined;
-declare var ontouchend: ((this: Window, ev: TouchEvent) => any) | null | undefined;
-declare var ontouchmove: ((this: Window, ev: TouchEvent) => any) | null | undefined;
-declare var ontouchstart: ((this: Window, ev: TouchEvent) => any) | null | undefined;
-declare var ontransitioncancel: ((this: Window, ev: TransitionEvent) => any) | null;
-declare var ontransitionend: ((this: Window, ev: TransitionEvent) => any) | null;
-declare var ontransitionrun: ((this: Window, ev: TransitionEvent) => any) | null;
-declare var ontransitionstart: ((this: Window, ev: TransitionEvent) => any) | null;
+declare var ontimeupdate: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var ontoggle: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var ontouchcancel: ((this: OgoneWindow, ev: TouchEvent) => any) | null | undefined;
+declare var ontouchend: ((this: OgoneWindow, ev: TouchEvent) => any) | null | undefined;
+declare var ontouchmove: ((this: OgoneWindow, ev: TouchEvent) => any) | null | undefined;
+declare var ontouchstart: ((this: OgoneWindow, ev: TouchEvent) => any) | null | undefined;
+declare var ontransitioncancel: ((this: OgoneWindow, ev: TransitionEvent) => any) | null;
+declare var ontransitionend: ((this: OgoneWindow, ev: TransitionEvent) => any) | null;
+declare var ontransitionrun: ((this: OgoneWindow, ev: TransitionEvent) => any) | null;
+declare var ontransitionstart: ((this: OgoneWindow, ev: TransitionEvent) => any) | null;
 /**
  * Occurs when the volume is changed, or playback is muted or unmuted.
  * @param ev The event.
  */
-declare var onvolumechange: ((this: Window, ev: Event) => any) | null;
+declare var onvolumechange: ((this: OgoneWindow, ev: Event) => any) | null;
 /**
  * Occurs when playback stops because the next frame of a video resource is not available.
  * @param ev The event.
  */
-declare var onwaiting: ((this: Window, ev: Event) => any) | null;
-declare var onwheel: ((this: Window, ev: WheelEvent) => any) | null;
+declare var onwaiting: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onwheel: ((this: OgoneWindow, ev: WheelEvent) => any) | null;
 declare function cancelAnimationFrame(handle: number): void;
 declare function requestAnimationFrame(callback: FrameRequestCallback): number;
 declare var caches: CacheStorage;
@@ -18782,21 +18913,21 @@ declare var isSecureContext: boolean;
 declare var origin: string;
 declare function createImageBitmap(image: ImageBitmapSource, options?: ImageBitmapOptions): Promise<ImageBitmap>;
 declare function createImageBitmap(image: ImageBitmapSource, sx: number, sy: number, sw: number, sh: number, options?: ImageBitmapOptions): Promise<ImageBitmap>;
-declare var onafterprint: ((this: Window, ev: Event) => any) | null;
-declare var onbeforeprint: ((this: Window, ev: Event) => any) | null;
-declare var onbeforeunload: ((this: Window, ev: BeforeUnloadEvent) => any) | null;
-declare var onhashchange: ((this: Window, ev: HashChangeEvent) => any) | null;
-declare var onlanguagechange: ((this: Window, ev: Event) => any) | null;
-declare var onmessage: ((this: Window, ev: MessageEvent) => any) | null;
-declare var onmessageerror: ((this: Window, ev: MessageEvent) => any) | null;
-declare var onoffline: ((this: Window, ev: Event) => any) | null;
-declare var ononline: ((this: Window, ev: Event) => any) | null;
-declare var onpagehide: ((this: Window, ev: PageTransitionEvent) => any) | null;
-declare var onpageshow: ((this: Window, ev: PageTransitionEvent) => any) | null;
-declare var onpopstate: ((this: Window, ev: PopStateEvent) => any) | null;
-declare var onrejectionhandled: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
-declare var onstorage: ((this: Window, ev: StorageEvent) => any) | null;
-declare var onunhandledrejection: ((this: Window, ev: PromiseRejectionEvent) => any) | null;
+declare var onafterprint: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onbeforeprint: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onbeforeunload: ((this: OgoneWindow, ev: BeforeUnloadEvent) => any) | null;
+declare var onhashchange: ((this: OgoneWindow, ev: HashChangeEvent) => any) | null;
+declare var onlanguagechange: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onmessage: ((this: OgoneWindow, ev: MessageEvent) => any) | null;
+declare var onmessageerror: ((this: OgoneWindow, ev: MessageEvent) => any) | null;
+declare var onoffline: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var ononline: ((this: OgoneWindow, ev: Event) => any) | null;
+declare var onpagehide: ((this: OgoneWindow, ev: PageTransitionEvent) => any) | null;
+declare var onpageshow: ((this: OgoneWindow, ev: PageTransitionEvent) => any) | null;
+declare var onpopstate: ((this: OgoneWindow, ev: PopStateEvent) => any) | null;
+declare var onrejectionhandled: ((this: OgoneWindow, ev: PromiseRejectionEvent) => any) | null;
+declare var onstorage: ((this: OgoneWindow, ev: StorageEvent) => any) | null;
+declare var onunhandledrejection: ((this: OgoneWindow, ev: PromiseRejectionEvent) => any) | null;
 export type HeadersInit = Headers | string[][] | Record<string, string>;
 export type BodyInit = Blob | BufferSource | FormData | URLSearchParams | ReadableStream<Uint8Array> | string;
 export type RequestInfo = Request | string;
@@ -18855,7 +18986,7 @@ export type RTCIceGatherCandidate = RTCIceCandidateDictionary | RTCIceCandidateC
 export type RTCTransport = RTCDtlsTransport | RTCSrtpSdesTransport;
 /** @deprecated */
 export type MouseWheelEvent = WheelEvent;
-export type WindowProxy = Window;
+export type WindowProxy = OgoneWindow;
 export type AlignSetting = "center" | "end" | "left" | "right" | "start";
 export type AnimationPlayState = "finished" | "idle" | "paused" | "running";
 export type AppendMode = "segments" | "sequence";

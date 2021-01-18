@@ -69,9 +69,13 @@ async function initControllers(data: { controllers: Controllers }): Promise<void
   controllers = { ...data.controllers };
   const entries = Object.entries(data.controllers)
   for await (const [key, controller] of entries) {
-    const protocol = (await Deno.transpileOnly({
+    const protocol = (await Deno.emit('/transpiled.ts', { sources: {
       "/transpiled.ts": controller.protocol
-    }, { sourceMap: false }))["/transpiled.ts"].source
+    },
+    check: false,
+    compilerOptions: {
+      sourceMap: false
+    } })).files["file:///transpiled.ts.js"]
     controllers[key].protocol = (eval(protocol));
     const run = eval(controller.runtime);
     if (typeof run === 'function') {

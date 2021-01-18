@@ -195,11 +195,12 @@ ${err.stack}`);
           hasStore: !!component.hasStore ? store : "",
         };
         result = (await Deno.emit('/transpiled.ts', {
+          check: false,
           sources: {
             "/transpiled.ts": `  ${this.template(result, d)}`,
           },
           compilerOptions: { sourceMap: false, }
-        })).files["/transpiled.ts"];
+        })).files["file:///transpiled.ts.js"];
         const componentOutput = MapOutput.outputs.get(component.file);
         if (!componentOutput) {
           this.error('component output not found in MapOutput');

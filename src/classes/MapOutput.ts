@@ -53,6 +53,5 @@ export default abstract class MapOutput {
       ${output.customElement}
       `;
     }
-    console.log(bundle.output);
   }
 }

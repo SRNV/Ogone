@@ -234,8 +234,11 @@ ${err.stack}`);
         sources: {
           "/transpiled.ts": script
         },
-        compilerOptions: { sourceMap: false }
-      })).files["/transpiled.ts"]
+        check: false,
+        compilerOptions: {
+          sourceMap: false
+        }
+      })).files["file:///transpiled.ts.js"]
       // save the runtime
       component.scripts.runtime = component.isTyped && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction)
         || !component.isTyped && component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
