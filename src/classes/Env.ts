@@ -1,5 +1,5 @@
+import HTMLDocument from '../enums/templateDocumentHTML.ts';
 import { BoilerPlate } from '../enums/templateComponent.ts';
-import { browserBuild, template } from "../browser/readfiles.ts";
 // TODO fix HMR
 // use std websocket instead of deno.x one
 // import { HCR } from "../../lib/hmr/index.ts";
@@ -186,9 +186,9 @@ export default class Env extends Constructor {
       ) => entry[1].dynamicImportsExpressions).join("\n");
       const style = stylesDev;
       const rootComponent = bundle.components.get(entrypoint);
-      const runtime = browserBuild(this.env === "production", {
-        hasDevtool: this.devtool,
-      });
+      // TODO fix runtime
+      // TODO use Deno.emit to bundle Ogone's runtime
+      //    and components
       if (rootComponent) {
         if (
           rootComponent &&
@@ -202,11 +202,7 @@ export default class Env extends Constructor {
           `
         const ___perfData = window.performance.timing;
 
-        ${runtime.ogone}
-        ${runtime.router}
-        ${runtime.devTool}
         ${bundle.output}
-        ${runtime.components}
           {% promise %}
         `,
           {
@@ -249,7 +245,7 @@ export default class Env extends Constructor {
         let head = `
           ${style}
           ${Configuration.head || ""}`;
-        let body = this.template(template, {
+        let body = this.template(HTMLDocument.PAGE, {
           head,
           script,
           dom: DOMDev,

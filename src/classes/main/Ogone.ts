@@ -1,7 +1,8 @@
 import OgoneComponent from './OgoneComponent.ts';
-import { Document } from "../../ogone.dom.d.ts";
+import { Document, PopStateEvent, Location } from "../../ogone.dom.d.ts";
 import { HTMLOgoneElement, OgoneParameters } from "../../ogone.main.d.ts";
 declare const document: Document;
+declare const location: Location;
 
 export default class Ogone extends OgoneComponent {}
 /**
@@ -140,3 +141,7 @@ Ogone.classes.component = (
       }
     }
   }) as unknown as HTMLOgoneElement;
+// Router implementation
+window.addEventListener('popstate', (event: Event) => {
+  Ogone.routerGo(location.pathname, (event as PopStateEvent).state);
+});

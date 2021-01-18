@@ -76,7 +76,7 @@ import component OBtn from '../atoms/button.o3';
   break;
   case 'event:animationend:fade-out':
     this.display = false;
-    Ogone.router.go('/ogone');
+    Ogone.routerGo('/ogone');
   break;
   case 'click:fade-out:exit':
     this.visible = false;

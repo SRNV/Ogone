@@ -42,19 +42,12 @@ export default abstract class MapOutput {
   }
   static async getOutputs(bundle: Bundle) {
     const entries = Array.from(this.outputs.entries());
-    for await (let [file, output] of entries.slice().reverse()) {
-      bundle.output += `
-      /**
-       * OUTPUT context for ${file}
-       */
-      ${output.context}
-      `;
-    }
     for await (let [file, output] of entries) {
       bundle.output += `
       /**
        * OUTPUT for ${file}
        */
+      ${output.context}
       ${output.data}
       ${output.render}
       ${output.customElement}

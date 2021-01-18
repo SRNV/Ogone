@@ -1,26 +1,27 @@
-Ogone.DiagnosticsPanelManager = new (class {
-  constructor() {
-      this.renderedDiagnosticsPanel = false;
-      this.panels = null; // array
-      this.diagnostics = null; // HTMLElement
-      this.compContainer = null; // HTMLDivElement
-      this.treeContainer = null; // HTMLDivElement
-      this.itemTypeNode = null // HTMLDivElement
-      this.itemName = null // HTMLDivElement
-      this.data = null;
-      this.actualItem = null; // ComponentCollectionManager
-  }
-  set subject(item) {
+// @ts-nocheck
+// TODO fix all types here
+import { HTMLElement, HTMLDivElement } from '../../ogone.dom.d.ts';
+class OgoneDiagnosticsPanelManager {
+  static renderedDiagnosticsPanel: boolean = false;
+  static panels: any[] | null = null; // array
+  static diagnostics: HTMLElement | null = null; // HTMLElement
+  static compContainer: HTMLDivElement | null = null; // HTMLDivElement
+  static treeContainer: HTMLDivElement | null = null; // HTMLDivElement
+  static itemTypeNode: HTMLDivElement | null= null // HTMLDivElement
+  static itemName: HTMLDivElement | null = null // HTMLDivElement
+  static data = null;
+  static actualItem: ComponentCollectionManager = null; // ComponentCollectionManager
+  static set subject(item) {
     this.renderCompPanel(item);
     this.renderTreePanel(item);
   }
-  renderDiagnostics(item) {
+  static renderDiagnostics(item) {
     if (!item) return;
     this.setDiagnosticsPanel();
     this.data = JSON.stringify(item.ctx.data, null, '  ');
     this.subject = item;
   }
-  setDiagnosticsPanel() {
+  static setDiagnosticsPanel() {
     if (!this.renderedDiagnosticsPanel) {
       this.renderedDiagnosticsPanel = true;
       const el = Ogone.DevTool.document.createElement('div');
@@ -97,7 +98,7 @@ Ogone.DiagnosticsPanelManager = new (class {
       }
     }
   }
-  renderTreePanel(item) {
+  static renderTreePanel(item) {
     if (!this.treeContainer) {
       this.treeContainer = Ogone.DevTool.document.createElement('div');
       this.treeContainer.classList.add('diagnostics-container');
@@ -148,7 +149,7 @@ Ogone.DiagnosticsPanelManager = new (class {
       typeFigure.classList.add(`diagnostics-${item.type}`);
     }
   }
-  recursiveDetails(obj, prop = 'undefined') {
+  static recursiveDetails(obj, prop = 'undefined') {
     const details = Ogone.DevTool.document.createElement('details');
     const summary = Ogone.DevTool.document.createElement('summary');
     const span = Ogone.DevTool.document.createElement('span');
@@ -206,7 +207,7 @@ Ogone.DiagnosticsPanelManager = new (class {
     }
     return details;
   }
-  renderCompPanel(item) {
+  static renderCompPanel(item) {
     if (!this.compContainer) {
       this.compContainer = Ogone.DevTool.document.createElement('div');
       this.compContainer.classList.add('diagnostics-container');
@@ -236,4 +237,4 @@ Ogone.DiagnosticsPanelManager = new (class {
       this.itemName.append(item.type === 'root' ? '< root-component >' : `< ${item.name} >`);
     }
   }
-})();
+};

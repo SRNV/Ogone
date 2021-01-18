@@ -6,10 +6,10 @@ import {
   OgoneParameters
 } from '../../ogone.main.d.ts';
 import { Document } from "../../ogone.dom.d.ts";
-import OgoneRender from './OgoneRender.ts';
+import OgoneRouter from './OgoneRouter.ts';
 
 declare const document: Document;
-export default class OgoneComponent extends OgoneRender {
+export default class OgoneComponent extends OgoneRouter {
   createComponent(this: OnodeComponent): OnodeComponent {
     this.key = null;
     this.data = null;

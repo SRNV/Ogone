@@ -118,7 +118,7 @@ export default class OgoneBase extends EnvServer {
    */
   static recycleWebComponent: (Onode: HTMLOgoneElement, opts: OgoneRecycleOptions) => HTMLElement;
   /**
-   * used inside a reaction, this will create a new component each time the route is updated, via Ogone.router.go(...)
+   * used inside a reaction, this will create a new component each time the route is updated, via Ogone.routerGo(...)
    */
   static setActualRouterTemplate: (Onode: HTMLOgoneElement) => void;
   /**

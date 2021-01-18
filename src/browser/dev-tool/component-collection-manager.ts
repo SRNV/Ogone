@@ -1,15 +1,15 @@
-Ogone.ComponentCollectionManager = new class {
-  constructor() {
-    this.collection = new Map();
-    this.container = null;
-    this.informations = null;
-    this.isReady = false;
-    this.renderedDiagnosticsPanel = false;
-  }
-  getItem(key) {
+// @ts-nocheck
+// TODO fix all types here
+export default class ComponentCollectionManager {
+  static collection: Map<string, any> = new Map();
+  static container: any = null;
+  static informations: any = null;
+  static isReady: boolean = false;
+  static renderedDiagnosticsPanel: boolean = false;
+  static getItem(key: string) {
       return this.collection.get(key);
   }
-  read(infos) {
+  static read(infos) {
     if (!this.collection.has(infos.key)) {
       this.subscribe(infos);
       if (Ogone.router.devtoolIsOpen) {
@@ -19,7 +19,7 @@ Ogone.ComponentCollectionManager = new class {
       this.update(infos.key);
     }
   }
-  subscribe(infos) {
+  static subscribe(infos) {
     let node;
     infos.childs = [];
     let parent = this.getItem(infos.parentNodeKey);
@@ -65,12 +65,12 @@ Ogone.ComponentCollectionManager = new class {
     }
     this.saveReaction(item.key);
   }
-  setModifiers() {
+  static setModifiers() {
     this.collection.forEach((item) => {
       this.setModifier(item.key);
     })
   }
-  setModifier(key) {
+  static setModifier(key) {
     if (!Ogone.DevTool) return;
     const modifier = Ogone.DevTool.document.createElement('div');
     modifier.classList.add('devtool-modifier');
@@ -104,7 +104,7 @@ Ogone.ComponentCollectionManager = new class {
       return !!figure && figure.isConnected;
     });
   }
-  saveReaction(key) {
+  static saveReaction(key) {
     const item = this.getItem(key);
     if (item && item.ctx && item.node && item.type !== 'element') {
       let timeout;
@@ -121,19 +121,19 @@ Ogone.ComponentCollectionManager = new class {
 
     }
   }
-  update(key) {
+  static update(key) {
     const item = this.getItem(key);
     if (item && item.node) {
       Ogone.ComponentCollectionManager.render();
     }
   }
-  updateDevToolView(ev) {
+  static updateDevToolView(ev) {
     if (!this.isReady) return;
     Ogone.DevTool.updateView.forEach((f, i, arr) => {
       if (f && !f(ev)) delete arr[i];
     })
   }
-  render() {
+  static render() {
     const collection = Array.from(this.collection);
     const { PI, sin, cos, round, atan2 } = Math;
     collection.forEach(([,item]) => {

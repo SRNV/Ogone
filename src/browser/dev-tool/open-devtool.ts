@@ -1,4 +1,6 @@
-function openOgoneDevTool() {
+// @ts-nocheck
+// TODO fix all types here
+export default function openOgoneDevTool() {
   Ogone.DevTool = window.open('', 'Ogone Dev Tool', devTool_window_parameters);
   if (!Ogone.DevTool) {
     Ogone.displayError('Dev Tool is blocked', 'Ogone Dev Tool has been blocked by the browser. please allow pop-up to have access to Dev Tool', {
@@ -10,13 +12,10 @@ function openOgoneDevTool() {
   diagnostics.classList.add('diagnostics');
   const informations = new Text('[Ogone] Dev Tool');
   const informationsContainer = Ogone.DevTool.document.createElement('div');
-  informationsContainer.classList.add('dev-tool-informations');
-  informationsContainer.append(informations);
-  Ogone.DevTool.document.body.style.background = '#424242';
 
   Ogone.DevTool.document.head.innerHTML += `
   <style>
-    {% devToolCss %}
+    {% devToolCSS %}
   <style>
   `;
   Ogone.DevTool.document.body.innerHTML = `
@@ -30,11 +29,6 @@ function openOgoneDevTool() {
   </svg>`;
   const logo = Ogone.DevTool.document.querySelector('.ogone-logo');
   const viewer = Ogone.DevTool.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  viewer.classList.add('dev-tool-viewer');
-  const container = Ogone.DevTool.document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  container.classList.add('dev-tool-container');
-  let containerx = 0;
-  let containery = 0;
   let actualScale = 0.4;
   viewer.style.transform = `scale(${actualScale})`;
   // keyboard control
@@ -81,12 +75,6 @@ function openOgoneDevTool() {
     Ogone.ComponentCollectionManager.updateDevToolView(ev);
   });
   const componentDef = Ogone.DevTool.document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  componentDef.classList.add('dev-tool-component');
-  componentDef.setAttribute('id', 'component');
-  const dynamicNodeDef = Ogone.DevTool.document.createElementNS('http://www.w3.org/2000/svg', 'g');
-  dynamicNodeDef.classList.add('dev-tool-node');
-  dynamicNodeDef.setAttribute('id', 'element');
-  const figure = Ogone.DevTool.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   figure.setAttribute('rx', '7');
   figure.setAttribute('width', '50');
   figure.setAttribute('height', '50');
@@ -112,5 +100,5 @@ function openOgoneDevTool() {
   Ogone.ComponentCollectionManager.container = container;
   Ogone.DiagnosticsPanelManager.diagnostics = diagnostics;
   Ogone.ComponentCollectionManager.informations = informations;
-Ogone.ComponentCollectionManager.setModifiers();
+  Ogone.ComponentCollectionManager.setModifiers();
 }
