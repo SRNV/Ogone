@@ -31,7 +31,8 @@ export default class ComponentTopLevelAnalyzer extends Utils {
         );
       });
     } catch (err) {
-      this.error(`ComponentTopLevelAnalyzer: ${err.message}`);
+      this.error(`ComponentTopLevelAnalyzer: ${err.message}
+${err.stack}`);
     }
   }
   /**
@@ -53,7 +54,8 @@ export default class ComponentTopLevelAnalyzer extends Utils {
         });
       });
     } catch (err) {
-      this.error(`ComponentTopLevelAnalyzer: ${err.message}`);
+      this.error(`ComponentTopLevelAnalyzer: ${err.message}
+${err.stack}`);
     }
   }
   /**
@@ -96,7 +98,8 @@ export default class ComponentTopLevelAnalyzer extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ComponentTopLevelAnalyzer: ${err.message}`);
+      this.error(`ComponentTopLevelAnalyzer: ${err.message}
+${err.stack}`);
     }
   }
 }

@@ -164,7 +164,8 @@ export default class ComponentsSubscriber extends Utils {
         }
       }
     } catch (err) {
-      this.error(`ComponentSubscriber: ${err.message}`);
+      this.error(`ComponentSubscriber: ${err.message}
+${err.stack}`);
     }
   }
   async inspect(entrypoint: string, bundle: Bundle) {
@@ -191,7 +192,8 @@ export default class ComponentsSubscriber extends Utils {
         );
       }
     } catch (err) {
-      this.error(`ComponentSubscriber: ${err.message}`);
+      this.error(`ComponentSubscriber: ${err.message}
+${err.stack}`);
     }
   }
 }

@@ -72,7 +72,8 @@ export default class ForFlagBuilder extends Utils {
         this.read(bundle, path, component.rootNode);
       }
     } catch (err) {
-      this.error(`ForFlagBuiler: ${err.message}`);
+      this.error(`ForFlagBuiler: ${err.message}
+${err.stack}`);
     }
   }
   private read(
@@ -312,7 +313,8 @@ export default class ForFlagBuilder extends Utils {
         destructured: registry,
       };
     } catch (err) {
-      this.error(`ForFlagBuiler: ${err.message}`);
+      this.error(`ForFlagBuiler: ${err.message}
+${err.stack}`);
     }
   }
 }

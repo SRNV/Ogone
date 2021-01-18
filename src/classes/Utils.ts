@@ -41,7 +41,9 @@ export abstract class Utils {
         message: m,
       });
     }
-    throw new Error(m);
+    const e = new Error(m);
+    console.error(e.stack);
+    Deno.exit(1);
   }
   static error(message: string, opts?: { [k: string]: any }): never {
     const { bgRed, red, bold, yellow } = colors;
@@ -59,6 +61,7 @@ export abstract class Utils {
         message: m,
       });
     }
+    Deno.exit(1);
     throw new Error(m);
   }
   public success(message: string, opts?: { [k: string]: any }): void {

@@ -66,7 +66,8 @@ export default class StoreArgumentReader extends Utils {
         });
       });
     } catch (err) {
-      this.error(`StoreArgumentReader: ${err.message}`);
+      this.error(`StoreArgumentReader: ${err.message}
+${err.stack}`);
     }
   }
 }

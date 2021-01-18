@@ -31,7 +31,8 @@ export abstract class MapPosition extends Utils {
       const result = currentColumn.find((line) => line.length)?.length || 0;
       return result - startIndex > 0 ? result - startIndex : 0;
     } catch (err) {
-      this.error(`MapPosition: ${err.message}`);
+      this.error(`MapPosition: ${err.message}
+${err.stack}`);
     }
   }
   static getLine(text: string, position: Position, startIndex = 0): number {
@@ -44,7 +45,8 @@ export abstract class MapPosition extends Utils {
       const result = currentLine && array.indexOf(currentLine) || 0;
       return result;
     } catch (err) {
-      this.error(`MapPosition: ${err.message}`);
+      this.error(`MapPosition: ${err.message}
+${err.stack}`);
     }
   }
 }

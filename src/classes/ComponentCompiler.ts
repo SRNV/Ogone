@@ -17,7 +17,8 @@ export default class ComponentCompiler extends Utils {
         await this.read(bundle, component);
       }
     } catch (err) {
-      this.error(`ComponentCompiler: ${err.message}`);
+      this.error(`ComponentCompiler: ${err.message}
+${err.stack}`);
     }
   }
   private getControllers(
@@ -40,7 +41,8 @@ export default class ComponentCompiler extends Utils {
       }
       return controllers;
     } catch (err) {
-      this.error(`ComponentCompiler: ${err.message}`);
+      this.error(`ComponentCompiler: ${err.message}
+${err.stack}`);
     }
   }
   public async read(bundle: Bundle, component: Component): Promise<void> {
@@ -227,7 +229,8 @@ export default class ComponentCompiler extends Utils {
         }
       }
     } catch (err) {
-      this.error(`ComponentCompiler: ${err.message}`);
+      this.error(`ComponentCompiler: ${err.message}
+${err.stack}`);
     }
   }
 }

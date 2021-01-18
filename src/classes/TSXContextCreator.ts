@@ -32,7 +32,8 @@ export default class TSXContextCreator extends Utils {
         this.success('no type error found.');
       }
     } catch (err) {
-      this.error(`TSXContextCreator: ${err.message}`);
+      this.error(`TSXContextCreator: ${err.message}
+${err.stack}`);
     }
   }
   private async createContext(bundle: Bundle, component: Component): Promise<boolean> {
@@ -79,7 +80,8 @@ export default class TSXContextCreator extends Utils {
         return false;
       }
     } catch (err) {
-      this.error(`TSXContextCreator: ${err.message}`);
+      this.error(`TSXContextCreator: ${err.message}
+${err.stack}`);
     }
   }
 }

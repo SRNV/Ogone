@@ -12,7 +12,8 @@ export default class DefinitionProvider extends Utils {
       const data = YAML.parse(value);
       this.mapData.set(component.uuid, { data });
     } catch (err) {
-      this.error(`DefinitionProvider: ${err.message}`);
+      this.error(`DefinitionProvider: ${err.message}
+${err.stack}`);
     }
   }
   public async setDataToComponentFromFile(component: Component): Promise<void> {
@@ -113,7 +114,8 @@ export default class DefinitionProvider extends Utils {
       }
       this.saveContextToComponent(component);
     } catch (err) {
-      this.error(`DefinitionProvider: ${err.message}`);
+      this.error(`DefinitionProvider: ${err.message}
+${err.stack}`);
     }
   }
   saveContextToComponent(component: Component): void {
@@ -123,7 +125,8 @@ export default class DefinitionProvider extends Utils {
           return `const ${key} = this.${key};`;
         }).join('\n') : '';
     } catch (err) {
-      this.error(`DefinitionProvider: ${err.message}`);
+      this.error(`DefinitionProvider: ${err.message}
+${err.stack}`);
     }
   }
   public transformInheritedProperties(component: Component): void {
@@ -145,7 +148,8 @@ export default class DefinitionProvider extends Utils {
         });
       this.trace('Inherit statements on def modifier done.');
     } catch (err) {
-      this.error(`DefinitionProvider: ${err.message}`);
+      this.error(`DefinitionProvider: ${err.message}
+${err.stack}`);
     }
   }
 }

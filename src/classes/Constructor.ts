@@ -144,7 +144,8 @@ export default class Constructor extends Utils {
 
       return bundle;
     } catch (err) {
-      this.error(`Constructor: ${err.message}`);
+      this.error(`Constructor: ${err.message}
+${err.stack}`);
     }
   }
 }

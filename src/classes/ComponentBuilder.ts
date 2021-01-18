@@ -90,7 +90,8 @@ export default class ComponentBuilder extends Utils {
         },
       };
     } catch (err) {
-      this.error(`ComponentBuilder: ${err.message}`);
+      this.error(`ComponentBuilder: ${err.message}
+${err.stack}`);
     }
   }
   /**
@@ -149,7 +150,8 @@ export default class ComponentBuilder extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ComponentBuilder: ${err.message}`);
+      this.error(`ComponentBuilder: ${err.message}
+${err.stack}`);
     }
   }
 }

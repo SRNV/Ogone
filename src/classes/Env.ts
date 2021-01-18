@@ -69,7 +69,8 @@ export default class Env extends Constructor {
       }
       return bundle;
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
   /**
@@ -97,7 +98,8 @@ export default class Env extends Constructor {
         });
       })
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
   /**
@@ -166,7 +168,8 @@ export default class Env extends Constructor {
         }, 50);
       });
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
   public renderBundle(entrypoint: string, bundle: Bundle): string {
@@ -260,7 +263,8 @@ export default class Env extends Constructor {
         return "no root-component found";
       }
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
   public get application(): string {
@@ -272,7 +276,8 @@ export default class Env extends Constructor {
       }
       return this.renderBundle(Configuration.entrypoint, this.bundle);
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
 
@@ -297,7 +302,8 @@ export default class Env extends Constructor {
         }))[path].source
         : text;
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
   private recursiveRead(
@@ -331,7 +337,8 @@ export default class Env extends Constructor {
         }
       }
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
   }
   /**
@@ -411,7 +418,8 @@ export default class Env extends Constructor {
         this.error("no root-component found");
       }
     } catch (err) {
-      this.error(`Env: ${err.message}`);
+      this.error(`Env: ${err.message}
+${err.stack}`);
     }
     */
   }

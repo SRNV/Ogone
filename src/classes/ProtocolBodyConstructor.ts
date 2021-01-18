@@ -13,7 +13,8 @@ export default class ProtocolBodyConstructor extends Utils {
         component.modifiers.beforeEach = ctx.value;
       }
     } catch (err) {
-      this.error(`ProtocolBodyConstructor: ${err.message}`);
+      this.error(`ProtocolBodyConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public setComputeContext(component: Component, ctx: ModifierContext) {
@@ -30,7 +31,8 @@ export default class ProtocolBodyConstructor extends Utils {
         component.modifiers.compute = typedExpressions.reflections.join('\n');
       }
     } catch (err) {
-      this.error(`ProtocolBodyConstructor: ${err.message}`);
+      this.error(`ProtocolBodyConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public setCaseContext(component: Component, ctx: ModifierContext) {
@@ -39,7 +41,8 @@ export default class ProtocolBodyConstructor extends Utils {
         component.modifiers.cases.push(ctx);
       }
     } catch (err) {
-      this.error(`ProtocolBodyConstructor: ${err.message}`);
+      this.error(`ProtocolBodyConstructor: ${err.message}
+${err.stack}`);
     }
   }
 }

@@ -69,7 +69,8 @@ export default class WebComponentDefinition extends Utils {
       }
       return this.template(componentExtension, templateSlots);
     } catch (err) {
-      this.error(`WebComponentDefinition: ${err.message}`);
+      this.error(`WebComponentDefinition: ${err.message}
+${err.stack}`);
     }
   }
 }

@@ -61,7 +61,8 @@ export default class ProtocolReactivity extends Utils {
         });
       return getDeepTranslation(result, this.expressions);
     } catch (err) {
-      this.error(`ProtoolReactivity: ${err.message}`);
+      this.error(`ProtoolReactivity: ${err.message}
+${err.stack}`);
     }
   }
   private renderInvalidations(text: string): string {
@@ -81,7 +82,8 @@ export default class ProtocolReactivity extends Utils {
       result = result.replace(arrayModifier, `${this.reactWith || '___'}("$2", this, $&)`);
       return result;
     } catch (err) {
-      this.error(`ProtoolReactivity: ${err.message}`);
+      this.error(`ProtoolReactivity: ${err.message}
+${err.stack}`);
     }
   }
 }

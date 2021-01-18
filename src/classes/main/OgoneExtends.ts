@@ -6,16 +6,17 @@ import type {
   OgoneParameters,
   OnodeComponent
 } from '../../ogone.main.d.ts';
-import {
+import type {
   Location,
   HTMLElement,
   MouseEvent,
   History,
   Document,
   Element,
-  Comment,
+  Comment as Com,
 } from "../../ogone.dom.d.ts";
 
+declare class Comment extends Com {};
 declare const location: Location;
 declare const history: History;
 declare const document: Document;

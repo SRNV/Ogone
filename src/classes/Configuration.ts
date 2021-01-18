@@ -93,7 +93,8 @@ export abstract class Configuration {
       Configuration.serve = config.serve;
       Configuration.types = config.types;
     } catch (err) {
-      Utils.error(`Configuration: ${err.message}`);
+      Utils.error(`Configuration: ${err.message}
+${err.stack}`);
     }
   }
 }

@@ -23,7 +23,8 @@ export default class ComponentTypeGetter extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ComponentTypeGetter: ${err.message}`);
+      this.error(`ComponentTypeGetter: ${err.message}
+${err.stack}`);
     }
   }
   setApplication(bundle: Bundle) {
@@ -54,7 +55,8 @@ export default class ComponentTypeGetter extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ComponentTypeGetter: ${err.message}`);
+      this.error(`ComponentTypeGetter: ${err.message}
+${err.stack}`);
     }
   }
   public assignTypeConfguration(bundle: Bundle): void {
@@ -140,7 +142,8 @@ export default class ComponentTypeGetter extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ComponentTypeGetter: ${err.message}`);
+      this.error(`ComponentTypeGetter: ${err.message}
+${err.stack}`);
     }
   }
 }

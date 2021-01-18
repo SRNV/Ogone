@@ -137,7 +137,8 @@ import { ImportDescription } from '../';
         }
       }
     } catch (err) {
-      this.error(`ImportsAnalyzer: ${err.message}`);
+      this.error(`ImportsAnalyzer: ${err.message}
+${err.stack}`);
     }
   }
 }

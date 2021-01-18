@@ -17,6 +17,7 @@ export default function (
     before?: (str: string) => string;
   },
 ) {
+  try {
   const {
     typedExpressions,
     expressions,
@@ -60,6 +61,7 @@ export default function (
     if (item.open && item.close && item.id && !item.pair) {
       // console.warn(2);
       while (
+        result &&
         result.indexOf(item.open as string) > -1 &&
         result.indexOf(item.close as string) > -1 &&
         result.match(item.reg as RegExp)
@@ -83,7 +85,7 @@ export default function (
     }
     if (item.open === false && item.close === false && item.id) {
       // console.warn(3);
-      while (result.match(item.reg as RegExp)) {
+      while (result && result.match(item.reg as RegExp)) {
         const matches = result.match(item.reg as RegExp);
         const value = matches ? matches[0] : null;
         if (matches && value) {
@@ -101,7 +103,7 @@ export default function (
       }
     }
     if (item.split && item.splittedId) {
-      while (result.indexOf(item.split[0]) > -1
+      while (result && result.indexOf(item.split[0]) > -1
         && result.indexOf(item.split[1]) > -1
         && result.indexOf(item.split[0]) < result.indexOf(item.split[1])) {
         const part1 = result.substring(
@@ -113,4 +115,7 @@ export default function (
     }
   });
   return result;
+  } catch (err) {
+    throw err;
+  }
 }

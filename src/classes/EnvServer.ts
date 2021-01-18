@@ -65,7 +65,8 @@ export default class EnvServer extends Env {
           });
       }
     } catch (err) {
-      this.error(`Ogone: ${err.message}`);
+      this.error(`Ogone: ${err.message}
+${err.stack}`);
     }
   }
   public async startDevelopment(): Promise<void> {
@@ -95,7 +96,8 @@ export default class EnvServer extends Env {
         }
       });
     } catch (err) {
-      this.error(`EnvServer: ${err.message}`);
+      this.error(`EnvServer: ${err.message}
+${err.stack}`);
     }
   }
 }

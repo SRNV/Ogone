@@ -84,7 +84,8 @@ export default class RouterAnalyzer extends Utils {
       }
       opts.routes.push(route);
     } catch (err) {
-      this.error(`RouterAnalyzer: ${err.message}`);
+      this.error(`RouterAnalyzer: ${err.message}
+${err.stack}`);
     }
   }
   public inspectRoutes(
@@ -108,7 +109,8 @@ export default class RouterAnalyzer extends Utils {
     });
     return opts.routes;
   } catch(err) {
-    this.error(`RouterAnalyzer: ${err.message}`);
+    this.error(`RouterAnalyzer: ${err.message}
+${err.stack}`);
   }
   }
 };

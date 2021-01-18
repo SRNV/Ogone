@@ -26,7 +26,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         importedComponentsTypes: [],
       });
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   static getInterfaceProps(component: Component): string {
@@ -34,7 +35,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
       return component.requirements ? component.requirements.map(
         ([name, type]) => `\n${name}: ${type};`).join('') : ''
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   static getPropsFromNode(node: XMLNodeDescription): string {
@@ -45,7 +47,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         `\n${key.slice(1)}: ${value === '=""' ? null : value}`
       ).join("\n,")
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public saveProtocol(component: Component, ctx: ModifierContext) {
@@ -59,7 +62,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         }
       }
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   private recursiveInspectionOfNodes(bundle: Bundle, component: Component, opts: { importedComponent: Component, tagName: string, n: XMLNodeDescription }) {
@@ -109,7 +113,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         }
       }
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   };
   getAllUsedComponents(bundle: Bundle, component: Component): void {
@@ -125,7 +130,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         }
       }
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public buildProtocol(component: Component) {
@@ -153,7 +159,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         });
       }
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public getComponentTSX(component: Component): string {
@@ -165,7 +172,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
       }
       return result;
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public getComponentRuntime(component: Component): string {
@@ -194,7 +202,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
       );
       return script;
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
   public async setComponentRuntime(component: Component) {
@@ -233,7 +242,8 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
         ? runtime
         : this.getReactivity({ text: runtime });
     } catch (err) {
-      this.error(`ProtocolClassConstructor: ${err.message}`);
+      this.error(`ProtocolClassConstructor: ${err.message}
+${err.stack}`);
     }
   }
 }

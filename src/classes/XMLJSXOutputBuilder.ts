@@ -218,7 +218,8 @@ export default class XMLJSXOutputBuilder extends Utils {
         },
       );
     } catch (err) {
-      this.error(`XMLJSXOutputBuilder: ${err.message}`);
+      this.error(`XMLJSXOutputBuilder: ${err.message}
+${err.stack}`);
     }
   }
   protected setNodesPragma(expressions: DOMParserExpressions) {
@@ -458,7 +459,8 @@ export default class XMLJSXOutputBuilder extends Utils {
         node.pragma = pragma;
       }
     } catch (err) {
-      this.error(`XMLJSXOutputBuilder: ${err.message}`);
+      this.error(`XMLJSXOutputBuilder: ${err.message}
+${err.stack}`);
     }
   }
 
@@ -608,7 +610,8 @@ export default class XMLJSXOutputBuilder extends Utils {
       }
       return null;
     } catch (err) {
-      this.error(`XMLJSXOutputBuilder: ${err.message}`);
+      this.error(`XMLJSXOutputBuilder: ${err.message}
+${err.stack}`);
     }
   }
   private getSyntaxEventException(event: string) {
@@ -618,7 +621,8 @@ export default class XMLJSXOutputBuilder extends Utils {
         { returns: true },
       );
     } catch (err) {
-      this.error(`XMLJSXOutputBuilder: ${err.message}`);
+      this.error(`XMLJSXOutputBuilder: ${err.message}
+${err.stack}`);
     }
   }
 }

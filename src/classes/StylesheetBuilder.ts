@@ -111,7 +111,8 @@ export default class StylesheetBuilder extends Utils {
         }
       }
     } catch (err) {
-      this.error(`StylesheetBuilder: ${err.message}`);
+      this.error(`StylesheetBuilder: ${err.message}
+${err.stack}`);
     }
   }
   public async transformAllStyleElements(bundle: Bundle) {
@@ -193,7 +194,8 @@ export default class StylesheetBuilder extends Utils {
         }
       }
     } catch (err) {
-      this.error(`StylesheetBuilder: ${err.message}`);
+      this.error(`StylesheetBuilder: ${err.message}
+${err.stack}`);
     }
   }
   private readKeyframes(keyframesEvaluated: string) {
@@ -219,7 +221,8 @@ export default class StylesheetBuilder extends Utils {
       const k = fn(get);
       return Array.isArray(k) ? k.join('\n') : k;
     } catch (err) {
-      this.error(`StylesheetBuilder: ${err.message}`);
+      this.error(`StylesheetBuilder: ${err.message}
+${err.stack}`);
     }
   }
 }

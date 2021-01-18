@@ -72,7 +72,8 @@ export default class ProtocolModifierGetter extends Utils {
       this.hasDuplicateModifierImplementation(transformedText, result);
       this.triggerParsedModifiers(result, modifiers)
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   triggerExclusion(modifier: ModifierProvider, savedModifiers: { [k: string]: string[] }) {
@@ -91,7 +92,8 @@ export default class ProtocolModifierGetter extends Utils {
         });
       }
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   triggerParsedModifiers(savedModifiers: { [k: string]: string[] }, modifiers: ModifierProvider[]): void {
@@ -116,7 +118,8 @@ export default class ProtocolModifierGetter extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   /** helps for handling separated string that isn't starting with a \n */
@@ -130,7 +133,8 @@ export default class ProtocolModifierGetter extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   /** should throw an error if one modifier's argument is not using a good type */
@@ -151,7 +155,8 @@ export default class ProtocolModifierGetter extends Utils {
         });
       }
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   /** should throw an error if one modifier is used multiple time */
@@ -175,7 +180,8 @@ export default class ProtocolModifierGetter extends Utils {
         }
       });
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   /** returns strings with regexp that should just be used for testing regexp of modifiers */
@@ -188,7 +194,8 @@ export default class ProtocolModifierGetter extends Utils {
         return `(?:\\s*)${modifierProvider.token}\\s*\\:`;
       });
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   /** returns strings with regexp, you can capture all groups */
@@ -201,7 +208,8 @@ export default class ProtocolModifierGetter extends Utils {
         return `\\n(\\s*)${modifierProvider.token}\\s*\\:`;
       });
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
   getModifierContents(contents: string[]): { [k: string]: string[] } {
@@ -253,7 +261,8 @@ export default class ProtocolModifierGetter extends Utils {
       })
       return result;
     } catch (err) {
-      this.error(`ProtocolModifierGetter: ${err.message}`);
+      this.error(`ProtocolModifierGetter: ${err.message}
+${err.stack}`);
     }
   }
 }

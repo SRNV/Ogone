@@ -92,7 +92,8 @@ export default class ProtocolDataProvider extends Utils {
             },
           ],
           onError: (err) => {
-            this.error(`Error in component: ${component.file}:${position.line}:${position.column} \n\t${err.message}`);
+            this.error(`Error in component: ${component.file}:${position.line}:${position.column} \n\t${err.message}
+${err.stack}`);
           }
         });
       });
@@ -106,7 +107,8 @@ export default class ProtocolDataProvider extends Utils {
         await this.ProtocolClassConstructor.setComponentRuntime(component);
       }
     } catch (err) {
-      this.error(`ProtocolDataProvider: ${err.message}`);
+      this.error(`ProtocolDataProvider: ${err.message}
+${err.stack}`);
     }
   }
   // set the automatic reactivity helper
@@ -115,7 +117,8 @@ export default class ProtocolDataProvider extends Utils {
     try {
       return this.ProtocolReactivity.getReactivity({ text });
     } catch (err) {
-      this.error(`ProtocolDataProvider: ${err.message}`);
+      this.error(`ProtocolDataProvider: ${err.message}
+${err.stack}`);
     }
   }
   private transformInheritedPropertiesInContext(component: Component, ctx: ModifierContext) {
@@ -150,7 +153,8 @@ export default class ProtocolDataProvider extends Utils {
       });
       ctx.value = getDeepTranslation(result, expressions);
     } catch (err) {
-      this.error(`ProtocolDataProvider: ${err.message}`);
+      this.error(`ProtocolDataProvider: ${err.message}
+${err.stack}`);
     }
   }
 }

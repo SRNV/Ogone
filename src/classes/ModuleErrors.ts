@@ -78,7 +78,8 @@ export abstract class ModuleErrors extends Utils {
         return;
       }
     } catch (err) {
-      this.error(`ModuleErrors: ${err.message}`);
+      this.error(`ModuleErrors: ${err.message}
+${err.stack}`);
     }
   }
   static ShowErrors(message: string, opts?: { [k: string]: unknown }): void {
@@ -96,7 +97,8 @@ export abstract class ModuleErrors extends Utils {
       }
       console.error(m);
     } catch (err) {
-      this.error(`ModuleErrors: ${err.message}`);
+      this.error(`ModuleErrors: ${err.message}
+${err.stack}`);
     }
   }
 }

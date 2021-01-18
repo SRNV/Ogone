@@ -15,7 +15,8 @@ export default class SwitchContextBuilder extends Utils {
       await this.read(bundle, path);
     }
   } catch(err) {
-    this.error(`SwitchContextBuilder: ${err.message}`);
+    this.error(`SwitchContextBuilder: ${err.message}
+${err.stack}`);
   }
   }
   read(bundle: Bundle, keyComponent: string) {
@@ -194,7 +195,8 @@ export default class SwitchContextBuilder extends Utils {
       });
     }
   } catch(err) {
-    this.error(`SwitchContextBuilder: ${err.message}`);
+    this.error(`SwitchContextBuilder: ${err.message}
+${err.stack}`);
   }
   }
 }

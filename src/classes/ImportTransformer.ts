@@ -30,7 +30,8 @@ export default class ImportTransformer extends Utils {
       });
       return result;
     } catch (err) {
-      this.error(`ImportTransformer: ${err.message}`);
+      this.error(`ImportTransformer: ${err.message}
+${err.stack}`);
     }
   }
 }

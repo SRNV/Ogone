@@ -16,7 +16,8 @@ export default class NodeAnalyzerCompiler extends WebComponentDefinition {
         await this.read(bundle, path, component.rootNode);
       }
     } catch (err) {
-      this.error(`Constructor: ${err.message}`);
+      this.error(`Constructor: ${err.message}
+${err.stack}`);
     }
   }
   async read(
@@ -94,7 +95,8 @@ import { ComponentEngine } from '../enums/componentEngine';
         }
       }
     } catch (err) {
-      this.error(`NodeAnalyzerCompiler: ${err.message}`);
+      this.error(`NodeAnalyzerCompiler: ${err.message}
+${err.stack}`);
     }
   }
 }

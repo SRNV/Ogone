@@ -42,7 +42,8 @@ export default class AssetsParser extends Utils {
       });
       return result;
     } catch (err) {
-      this.error(`AssetsParser: ${err.message}`);
+      this.error(`AssetsParser: ${err.message}
+${err.stack}`);
     }
   }
   /** should return the code with the **execute statement** transpiled */
@@ -65,7 +66,8 @@ export default class AssetsParser extends Utils {
       });
       return getDeepTranslation(newValue, expressions);
     } catch (err) {
-      this.error(`AssetsParser: ${err.message}`);
+      this.error(`AssetsParser: ${err.message}
+${err.stack}`);
     }
   }
   public parseImportStatement(value: string): ProtocolScriptParserReturnType {
@@ -87,7 +89,8 @@ export default class AssetsParser extends Utils {
       });
       return result;
     } catch (err) {
-      this.error(`AssetsParser: ${err.message}`);
+      this.error(`AssetsParser: ${err.message}
+${err.stack}`);
     }
   }
   public parseRequireStatement(value: string): ProtocolScriptParserReturnType {
@@ -109,7 +112,8 @@ export default class AssetsParser extends Utils {
       });
       return result;
     } catch (err) {
-      this.error(`AssetsParser: ${err.message}`);
+      this.error(`AssetsParser: ${err.message}
+${err.stack}`);
     }
   }
 }
