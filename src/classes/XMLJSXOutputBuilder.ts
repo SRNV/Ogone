@@ -139,7 +139,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           isRouter: !!isImported && !!subcomp && subcomp.type === "router",
           isStore: !!isImported && !!subcomp && subcomp.type === "store",
           recycleWebcomponent: isRoot && reuseStatement ? `
-          Ogone.recycleWebComponent({% nId %}, {
+          recycleWebComponent({% nId %}, {
             id: '${idComponent}',
             name: '${reuseStatement.split(':')[0]}',
             extends: '${reuseStatement.split(':')[1]}',
@@ -192,7 +192,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               {%setOgone.positionInParentComponent%}
               {% setOgone.nodeProps %}
             };
-              Ogone.setOgone({%nId%}, o); o = null;`
+              setOgone({%nId%}, o); o = null;`
               : "",
             inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
             flags: `flags: ${flags}`,

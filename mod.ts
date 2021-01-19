@@ -1,4 +1,4 @@
-import Ogone from "./src/classes/main/Ogone.ts";
+import Ogone from "./src/main/OgoneBase.ts";
 import EnvServer from './src/classes/EnvServer.ts';
 import ComponentTopLevelAnalyzer from "./src/classes/ComponentTopLevelAnalyzer.ts";
 import Constructor from "./src/classes/Constructor.ts";

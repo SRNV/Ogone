@@ -1,7 +1,7 @@
 import type { Bundle, Component, XMLNodeDescription } from '../ogone.main.d.ts';
 import { Configuration } from "./Configuration.ts";
 import { MapPosition } from "./MapPosition.ts";
-import Ogone from "./main/Ogone.ts";
+import Ogone from "../main/OgoneBase.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
 import { Utils } from "./Utils.ts";
 

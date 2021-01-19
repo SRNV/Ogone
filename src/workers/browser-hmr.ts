@@ -7,7 +7,7 @@ import {
   WebSocketServer,
 } from "../../deps/deps.ts";
 import Env from "../../src/classes/env/Env.ts";
-import Ogone from "../../src/classes/main/index.ts";
+import Ogone from "../../sr../main/index.ts";
 import { Bundle, Component, XMLNodeDescription } from "./../../ogone.main.d.ts";
 
 let ws: WebSocket | null = null;

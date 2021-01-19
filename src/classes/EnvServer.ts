@@ -1,4 +1,4 @@
-import Ogone from "./main/Ogone.ts";
+import Ogone from "../main/OgoneBase.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
 import Workers from '../enums/workers.ts';

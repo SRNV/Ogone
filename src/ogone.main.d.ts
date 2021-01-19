@@ -1,5 +1,5 @@
 import type OgoneStyle from "./classes/css/Style.ts";
-import { HTMLTemplateElement, HTMLElement } from './ogone.dom.d.ts';
+import { HTMLTemplateElement, HTMLElement, HTMLDivElement } from './ogone.dom.d.ts';
 
 export interface HTMLOgoneElement extends HTMLTemplateElement {
   name: string;
@@ -24,6 +24,35 @@ export interface HTMLOgoneElement extends HTMLTemplateElement {
   connectedCallback(): void;
 }
 
+export interface OgoneInterface {
+  // usable on browser side
+  root: boolean;
+  stores: OgoneStores;
+  clients: OgoneStoreClient[];
+  render: OgoneRenderRegistry;
+  contexts: OgoneContexts;
+  components: OgoneComponentsRegistry;
+  classes: OgoneClassesRegistry;
+  errorPanel: HTMLDivElement | null;
+  warnPanel: HTMLDivElement | null;
+  successPanel: HTMLDivElement | null;
+  infosPanel: HTMLDivElement | null;
+  errors: number;
+  firstErrorPerf: number | null;
+  mod: OgoneModules;
+  ComponentCollectionManager: any;
+  instances: { [componentUuid: string]: any[] };
+  routerReactions: Function[];
+  actualRoute: string | null;
+  websocketPort: number;
+  // usable on Deno side
+  files: string[];
+  directories: string[];
+  controllers: { [key: string]: any };
+  main: string;
+  readonly allowedTypes: string[];
+  isDeno: boolean;
+}
 export interface OgoneParameters {
   uuid?: string;
   promise?: null | Promise<void>;
@@ -135,7 +164,7 @@ type OgoneComponentsRegistry = { [componentId: string]: FunctionConstructor };
 /**
  * those functions will help for the extension of the customElement's constructor
  */
-type OgoneClassesRegistry = Partial<Record<"extends" | "async" | "store" | "controller" | "component" | "router",  (construct:FunctionConstructor) => HTMLOgoneElement>>
+type OgoneClassesRegistry = Partial<Record<"extends" | "async" | "store" | "controller" | "component" | "router", (construct: FunctionConstructor) => HTMLOgoneElement>>
 /**
  * @deprecated
  * all the modules saved with their path

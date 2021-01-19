@@ -136,7 +136,7 @@ ${err.stack}`);
                 return eval('('+GET_TEXT+')');
               } catch(err) {
                 if (!({% itemName %})) { return undefined }
-                Ogone.displayError('Error in component:\\n\\t {%component.file%} '+\`$\{GET_TEXT}\`, err.message ,err);
+                displayError('Error in component:\\n\\t {%component.file%} '+\`$\{GET_TEXT}\`, err.message ,err);
                 throw err;
               }
             }

@@ -16,7 +16,7 @@ export enum Context {
       {% body %}
     } catch(err) {
       // @ts-ignore
-      Ogone.displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
+      displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
       throw err;
     }
   });`,
@@ -38,7 +38,7 @@ export enum Context {
       {% body %}
     } catch(err) {
       // @ts-ignore
-      Ogone.displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
+      displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
       throw err;
     }
   }`,
@@ -50,7 +50,7 @@ export enum Context {
       {% body %}
     } catch(err) {
       // @ts-ignore
-      Ogone.displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
+      displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
       throw err;
     }
   }`,

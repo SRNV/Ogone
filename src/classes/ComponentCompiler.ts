@@ -83,13 +83,13 @@ ${err.stack}`);
               const mod = this.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{action}\`, ctx)
-                  .catch((err) => Ogone.displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
+                  .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             } else {
               const mod = this.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{id}\`, ctx)
-                  .catch((err) => Ogone.displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
+                  .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             }
           },
@@ -99,12 +99,12 @@ ${err.stack}`);
               const [namespace, mutation] = path;
               const mod = this.store[namespace];
               if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => Ogone.displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
+                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
               }
             } else {
               const mod = this.store[null];
               if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => Ogone.displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
+                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
               }
             }
           },
@@ -138,7 +138,7 @@ ${err.stack}`);
                 return promise;
               } else if (this.resolve === null) {
                 const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
-                Ogone.displayError(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
+                displayError(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
                  message: \`component: {% component.file %}\`
                 });
                 throw DoubleUseOfResolveException;
@@ -149,7 +149,7 @@ ${err.stack}`);
           Object.freeze(Async);
           `;
         let result: string = `function OgoneComponentRuntime () {
-            Ogone.createComponent.call(this);
+            createComponent.call(this);
             {% controllerDef %}
             {% hasStore %}
             const ___ = (prop, inst, value) => {
@@ -183,7 +183,7 @@ ${err.stack}`);
             || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
             && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction) ?
             // setReactivity will transform the instance to a proxy
-            `Ogone.setReactivity({% dataSource %}, (prop) => this.update(prop))`
+            `setReactivity({% dataSource %}, (prop) => this.update(prop))`
             // if the end user uses the def modifier, the reactivity is inline
             : '{% dataSource %}',
           runtime,
