@@ -4,6 +4,7 @@ import { existsSync } from "../../utils/exists.ts";
 import { serve } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
+import TSTranspiler from "../classes/TSTranspiler.ts";
 
 const registry = {
   application: '',
@@ -69,13 +70,7 @@ async function initControllers(data: { controllers: Controllers }): Promise<void
   controllers = { ...data.controllers };
   const entries = Object.entries(data.controllers)
   for await (const [key, controller] of entries) {
-    const protocol = (await Deno.emit('/transpiled.ts', { sources: {
-      "/transpiled.ts": controller.protocol
-    },
-    check: false,
-    compilerOptions: {
-      sourceMap: false
-    } })).files["file:///transpiled.ts.js"]
+    const protocol = await TSTranspiler.transpile(controller.protocol);
     controllers[key].protocol = (eval(protocol));
     const run = eval(controller.runtime);
     if (typeof run === 'function') {

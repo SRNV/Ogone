@@ -4,6 +4,7 @@ import OgoneNS from "../types/ogone/namespaces.ts";
 import ProtocolEnum from '../enums/templateProtocol.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
+import TSTranspiler from './TSTranspiler.ts';
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
   value: string;
@@ -230,15 +231,7 @@ ${err.stack}`);
             : "",
         },
       );
-      const runtime = (await Deno.emit("/transpiled.ts", {
-        sources: {
-          "/transpiled.ts": script
-        },
-        check: false,
-        compilerOptions: {
-          sourceMap: false
-        }
-      })).files["file:///transpiled.ts.js"]
+      const runtime = await TSTranspiler.transpile(script);
       // save the runtime
       component.scripts.runtime = component.isTyped && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction)
         || !component.isTyped && component.context.engine.includes(ComponentEngine.ComponentProxyReaction)

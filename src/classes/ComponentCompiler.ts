@@ -3,6 +3,7 @@ import { Utils } from "./Utils.ts";
 import Env from './Env.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
 import MapOutput from "./MapOutput.ts";
+import TSTranspiler from "./TSTranspiler.ts";
 // TODO create a file dedicated to the APIs
 /**
  * @name ComponentCompiler
@@ -194,13 +195,7 @@ ${err.stack}`);
             : "",
           hasStore: !!component.hasStore ? store : "",
         };
-        result = (await Deno.emit('/transpiled.ts', {
-          check: false,
-          sources: {
-            "/transpiled.ts": `  ${this.template(result, d)}`,
-          },
-          compilerOptions: { sourceMap: false, }
-        })).files["file:///transpiled.ts.js"];
+        result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
         const componentOutput = MapOutput.outputs.get(component.file);
         if (!componentOutput) {
           this.error('component output not found in MapOutput');
