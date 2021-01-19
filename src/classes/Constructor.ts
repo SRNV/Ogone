@@ -109,7 +109,7 @@ export default class Constructor extends Utils {
       this.trace('Root Node changed to the template node');
 
       // --for flag - creates sub context
-      this.ForFlagBuilder.startAnalyze(bundle);
+      await this.ForFlagBuilder.startAnalyze(bundle);
       this.trace('Contexts analyzes done');
 
       // move back after second runtime

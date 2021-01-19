@@ -65,18 +65,18 @@ arrayAliasIterator.next().value
  * this is only a build made through a string composition
  */
 export default class ForFlagBuilder extends Utils {
-  public startAnalyze(bundle: Bundle) {
+  public async startAnalyze(bundle: Bundle) {
     try {
       const entries = bundle.components.entries();
-      for (let [path, component] of entries) {
-        this.read(bundle, path, component.rootNode);
+      for await (let [path, component] of entries) {
+        await this.read(bundle, path, component.rootNode);
       }
     } catch (err) {
       this.error(`ForFlagBuiler: ${err.message}
 ${err.stack}`);
     }
   }
-  private read(
+  private async read(
     bundle: Bundle,
     keyComponent: string,
     node: XMLNodeDescription,
@@ -88,7 +88,7 @@ ${err.stack}`);
       declarationScript: [],
       callbackDeclaration: "",
     },
-  ) {
+  ): Promise<void> {
     try {
       const component = bundle.components.get(keyComponent);
       let contextLegacy: LegacyDescription = {};
@@ -180,8 +180,9 @@ ${err.stack}`);
           // @ts-ignore
           legacy.destructured = destructured;
           if (contextLegacy) {
+            const parentItem = array.replace(/(?<=this|^)(\w.+?)(\b.*?)/, '$1')
             const declarationScript = [`const ${arrayAlias} =
-              !!${array.split(/(?<!\bthis)(\.)/)[0]}
+              !!${parentItem}
               && ${array} || [];`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`,
@@ -195,38 +196,38 @@ ${err.stack}`);
         }
       }
       if (node.childNodes?.length) {
-        node.childNodes
-          .forEach((el, i) => {
-            if (component && component.data && el.nodeType === 3) {
-              const data = el.rawText;
-              Object.keys(component.data).forEach((key) => {
-                const result = data;
-                // need to be more precise here
-                if (
-                  result &&
-                  result.indexOf("\${") > -1 && result.indexOf(`${key}`) > -1
-                ) {
-                  if (!node.dependencies.includes(key)) {
-                    node.dependencies.push(key);
-                  }
+        for await (let el of node.childNodes) {
+          const i = node.childNodes.indexOf(el);
+          if (component && component.data && el.nodeType === 3) {
+            const data = el.rawText;
+            Object.keys(component.data).forEach((key) => {
+              const result = data;
+              // need to be more precise here
+              if (
+                result &&
+                result.indexOf("\${") > -1 && result.indexOf(`${key}`) > -1
+              ) {
+                if (!node.dependencies.includes(key)) {
+                  node.dependencies.push(key);
                 }
-              });
-            }
-            if (contextLegacy) {
-              this.read(bundle, keyComponent, el, {
-                ...contextLegacy,
-                ctx: { ...contextLegacy.ctx },
-                declarationScript: [
-                  ...(contextLegacy && contextLegacy.declarationScript
-                    ? contextLegacy.declarationScript
-                    : []),
-                ],
-                callbackDeclaration: "",
-                // @ts-ignore
-                limit: contextLegacy.limit + 1,
-              });
-            }
-          });
+              }
+            });
+          }
+          if (contextLegacy) {
+            this.read(bundle, keyComponent, el, {
+              ...contextLegacy,
+              ctx: { ...contextLegacy.ctx },
+              declarationScript: [
+                ...(contextLegacy && contextLegacy.declarationScript
+                  ? contextLegacy.declarationScript
+                  : []),
+              ],
+              callbackDeclaration: "",
+              // @ts-ignore
+              limit: contextLegacy.limit + 1,
+            });
+          }
+        }
       }
       if (contextLegacy) {
         const value = `${contextLegacy.declarationScript

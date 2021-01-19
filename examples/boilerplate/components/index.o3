@@ -4,6 +4,7 @@ import component RouterMain from './routers/main.o3';
   <RouterMain namespace="global"/>
 </template>
 
+<proto type="app" />
 <style global>
   body {
     color: grey;
