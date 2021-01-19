@@ -13,6 +13,7 @@ import ProtocolDataProvider from './ProtocolDataProvider.ts';
 import ComponentTypeGetter from './ComponentTypeGetter.ts';
 import ForFlagBuilder from './ForFlagBuilder.ts';
 import MapOutput from './MapOutput.ts';
+import TSTranspiler from "./TSTranspiler.ts";
 
 /**
  * @name Constructor
@@ -141,6 +142,10 @@ export default class Constructor extends Utils {
       this.trace('Node Analyzer done.');
 
       await MapOutput.getOutputs(bundle);
+      this.trace('outputs of all components, done.');
+
+      await TSTranspiler.getRuntime(bundle);
+      this.trace('Ogone\'s runtime output, done.');
 
       return bundle;
     } catch (err) {

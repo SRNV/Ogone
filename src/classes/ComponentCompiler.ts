@@ -196,10 +196,6 @@ ${err.stack}`);
           hasStore: !!component.hasStore ? store : "",
         };
         result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
-        const componentOutput = MapOutput.outputs.get(component.file);
-        if (!componentOutput) {
-          this.error('component output not found in MapOutput');
-        }
         if (mapRender.has(result)) {
           const item = mapRender.get(result);
           result = this.template(
@@ -209,19 +205,15 @@ ${err.stack}`);
               item,
             },
           );
-          if (componentOutput) {
-            componentOutput.data = this.template(result, d);
-          }
+          MapOutput.outputs.data.push(this.template(result, d))
         } else {
           mapRender.set(result, {
             id: component.uuid,
           });
-          if (componentOutput) {
-            componentOutput.data = this.template(
-              `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
-              d,
-            );
-          }
+          MapOutput.outputs.data.push(this.template(
+            `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
+            d,
+          ));
         }
       }
     } catch (err) {

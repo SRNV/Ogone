@@ -13,6 +13,7 @@ import Workers from "../enums/workers.ts";
 import MapFile from "./MapFile.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
+import MapOutput from "./MapOutput.ts";
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -205,7 +206,7 @@ ${err.stack}`);
           `
         const ___perfData = window.performance.timing;
 
-        ${bundle.output}
+        ${MapOutput.runtime}
           {% promise %}
         `,
           {
@@ -215,7 +216,6 @@ ${err.stack}`);
               ${esm}
             ]).then(() => {
               {% start %}
-              {% debugg %}
             });
           `
               : "{%start%}",
@@ -228,14 +228,6 @@ ${err.stack}`);
             root: bundle.components.get(entrypoint),
             destroy: {},
             nodes: {},
-            debugg: `
-          // debug tools
-          const ___connectTime = ___perfData.responseEnd - ___perfData.requestStart;
-          const ___renderTime = ___perfData.domLoading - ___perfData.domComplete;
-          const ___pageLoadTime = ___perfData.navigationStart - ___perfData.loadEventEnd;
-          console.log('[Ogone] server response', ___connectTime, 'ms');
-          console.log('[Ogone] app render time', ___renderTime, 'ms');
-          console.log('[Ogone] page load time', ___pageLoadTime, 'ms');`,
           },
         );
         // in production DOM has to be

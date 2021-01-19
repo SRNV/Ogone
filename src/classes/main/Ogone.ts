@@ -1,6 +1,16 @@
 import OgoneComponent from './OgoneComponent.ts';
 import { Document, PopStateEvent, Location } from "../../ogone.dom.d.ts";
 import { HTMLOgoneElement, OgoneParameters } from "../../ogone.main.d.ts";
+import { setActualRouterTemplate, setOgone, setPosition, setProps } from "./OgoneExtends.ts";
+import { setContext } from "./OgoneContext.ts";
+import {
+  renderAsync,
+  renderingProcess,
+  renderNode,
+  renderRouter,
+  renderStore
+} from "./OgoneRender.ts";
+import { routerGo } from "./OgoneRouter.ts";
 declare const document: Document;
 declare const location: Location;
 
@@ -95,7 +105,7 @@ Ogone.classes.component = (
           uuid,
           extends: '-nt',
         };
-        Ogone.setOgone(this as unknown as HTMLOgoneElement, opts);
+        setOgone(this as unknown as HTMLOgoneElement, opts);
         opts = null;
         Ogone.root = true;
       }
@@ -107,41 +117,41 @@ Ogone.classes.component = (
       }
       const o = this.ogone;
       // set position of the template/component
-      Ogone.setPosition(this);
+      setPosition(this);
 
       // set the context of the node
-      Ogone.setContext(this);
-      // Ogone.setHMRContext();
+      setContext(this);
+      // setHMRContext();
 
       // parse the route that match with location.pathname
       if (o.type === "router") {
-        Ogone.setActualRouterTemplate(this);
+        setActualRouterTemplate(this);
       }
 
       // set the props required by the node
       if (o.isTemplate && o.component) {
-        Ogone.setProps(this);
+        setProps(this);
         o.component.updateProps();
       }
-      Ogone.renderingProcess(this);
+      renderingProcess(this);
 
       switch (true) {
         case o.type === "router":
-          Ogone.renderRouter(this);
+          renderRouter(this);
           break;
         case o.type === "store":
-          Ogone.renderStore(this);
+          renderStore(this);
           break;
         case o.type === "async":
-          Ogone.renderAsync(this);
+          renderAsync(this);
           break;
         default:
-          Ogone.renderNode(this);
+          renderNode(this);
           break;
       }
     }
   }) as unknown as HTMLOgoneElement;
 // Router implementation
 window.addEventListener('popstate', (event: Event) => {
-  Ogone.routerGo(location.pathname, (event as PopStateEvent).state);
+  routerGo(location.pathname, (event as PopStateEvent).state);
 });

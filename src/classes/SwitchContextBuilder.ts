@@ -187,11 +187,7 @@ ${err.stack}`);
           value: script.value || "",
           modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
         });
-        const componentOutput = MapOutput.outputs.get(component.file);
-        if (!componentOutput) {
-          this.error('component output not found in MapOutput');
-        }
-        componentOutput.context = result;
+        MapOutput.outputs.context.push(result);
       });
     }
   } catch(err) {

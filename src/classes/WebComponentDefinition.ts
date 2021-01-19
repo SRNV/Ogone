@@ -57,11 +57,8 @@ export default class WebComponentDefinition extends Utils {
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
         }`;
-      const componentOutput = MapOutput.outputs.get(component.file);
-      if (componentOutput) {
-        componentOutput.customElement = this.template(definition, templateSlots);
-        componentOutput.render = this.template(render, templateSlots);
-      }
+      MapOutput.outputs.render.push(this.template(render, templateSlots));
+      MapOutput.outputs.customElement.push(this.template(definition, templateSlots));
       if (["controller"].includes(component.type)) {
         return `class extends HTMLTemplateElement {
         constructor(){super();}
