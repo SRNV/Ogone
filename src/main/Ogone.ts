@@ -27,13 +27,14 @@ Ogone.classes.extends = (
   declare uuid: OgoneParameters['uuid'];
   declare isTemplate: OgoneParameters['isTemplate'];
   declare component: OgoneParameters['component'];
+  declare extends: OgoneParameters['extends'];
   get firstNode() {
     return this.nodes![0];
   }
   get lastNode() {
     return this.nodes![this.nodes!.length - 1];
   }
-  get extends(): string {
+  get extending(): string {
     return `${this.uuid}${this.extends}`;
   }
   get name() {
@@ -259,7 +260,7 @@ function construct(Onode: HTMLOgoneElement) {
     // Ogone.instances[o.uuid] = Ogone.instances[o.uuid] || [];
   }
   // define templates of hmr
-  // Ogone.mod[node.extends] = Ogone.mod[node.extends] || [];
+  // Ogone.mod[node.extending] = Ogone.mod[node.extending] || [];
 }
 /**
  * function that will add the ogone parameters into the customElement
@@ -332,11 +333,13 @@ function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
   };
   Object.entries(params)
     .forEach(([key, value]: string[]) => {
-      (Onode as {[k: string]: any})[key] = value;
+      try {
+        (Onode as {[k: string]: any})[key] = value;
+      } catch {}
     })
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
-  Onode.renderNodes = Ogone.render[Onode.extends!];
+  Onode.renderNodes = Ogone.render[Onode.extending!];
   if (Onode.type === "router" && def.routes) {
     Onode.locationPath = location.pathname;
     Onode.routes = def.routes;
@@ -462,7 +465,7 @@ function setNodes(Onode: HTMLOgoneElement) {
     o.methodsCandidate.forEach((f, i, arr) => {
       if (o.nodes) {
         for (let n of o.nodes) {
-          if (n.extends) {
+          if (n.extending) {
             saveUntilRender(n, f);
           } else {
             f(n);
@@ -481,7 +484,7 @@ function removeNodes(Onode: HTMLOgoneElement) {
   if (!o.nodes) return Onode;
   /* use it before removing template node */
   function rm(n: any) {
-    if (n.extends) {
+    if (n.extending) {
       destroy(n);
       n.context.placeholder.remove();
     } else {
@@ -535,7 +538,7 @@ function setEvents(Onode: HTMLOgoneElement) {
     for (let flag of o.flags.events) {
       if (flag.type === "wheel") {
         /* for wheel events */
-        if (node.extends) {
+        if (node.extending) {
           // check if it's an ogone element
           // if it's one
           // node.ogone.nodes can be empty at Onode moment
@@ -642,7 +645,7 @@ function setEvents(Onode: HTMLOgoneElement) {
       );
       } else if (flag.name === "router-go" && flag.eval) {
         /* special for router-go flag */
-        if (node.extends) {
+        if (node.extending) {
           saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener("click", (ev: MouseEvent) => {
               routerGo(
@@ -675,7 +678,7 @@ function setEvents(Onode: HTMLOgoneElement) {
           */
         });
       } else if (flag.name === "event" && flag.type.startsWith('animation')) {
-        if (node.extends) {
+        if (node.extending) {
           saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener(flag.type, (ev) => {
               if (flag.eval !== ev.animationName) return;
@@ -699,7 +702,7 @@ function setEvents(Onode: HTMLOgoneElement) {
           });
         }
       } /* DOM L3 */ else {
-        if (node.extends) {
+        if (node.extending) {
           saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener(flag.type, (ev) => {
               const ctx = o.getContext({
@@ -751,7 +754,7 @@ function insertElement(
       target = Onode.lastNode;
       break;
   }
-  return (!!(target as HTMLOgoneElement).extends
+  return (!!(target as HTMLOgoneElement).extending
     ? insertElement((target as HTMLOgoneElement).context.list[
       (target as HTMLOgoneElement).context.list.length - 1
     ] as HTMLOgoneElement, p, el)
@@ -1128,8 +1131,8 @@ function setContext(Onode: HTMLOgoneElement) {
       oc.parentContext = gct;
       o.getContext = gct;
     }
-  } else if (Ogone.contexts[Onode.extends!] && oc) {
-    o.getContext = Ogone.contexts[Onode.extends!].bind(oc.data);
+  } else if (Ogone.contexts[Onode.extending!] && oc) {
+    o.getContext = Ogone.contexts[Onode.extending!].bind(oc.data);
   }
   if (o.type === "store" && oc.parent) {
     oc.namespace = Onode.getAttribute("namespace") || undefined;
@@ -1637,7 +1640,7 @@ function renderComponent(Onode: HTMLOgoneElement) {
       .filter(filter) as HTMLOgoneElement[];
     let n = (node as HTMLOgoneElement);
     if (
-      n.isComponent && n.extends && n.component && n.component.type === "component"
+      n.isComponent && n.extending && n.component && n.component.type === "component"
     ) {
       components.push(n as HTMLOgoneElement);
     }
@@ -1842,18 +1845,18 @@ function setHMRContext(Onode: HTMLOgoneElement) {
   if (o.isTemplate && oc && o.uuid) {
     Ogone.instances[o.uuid].push(oc);
   }
-  Ogone.mod[Onode.extends!].push((pragma: string) => {
-    Ogone.render[Onode.extends!] = eval(pragma);
+  Ogone.mod[Onode.extending!].push((pragma: string) => {
+    Ogone.render[Onode.extending!] = eval(pragma);
     if (!o.nodes) return;
     if (o.isTemplate) {
       return true;
     } else if (oc) {
       const invalidatedNodes = o.nodes.slice();
       const ns = Array.from(o.nodes);
-      o.renderNodes = Ogone.render[Onode.extends!];
+      o.renderNodes = Ogone.render[Onode.extending!];
       renderingProcess(Onode);
       invalidatedNodes.forEach((n, i) => {
-        if (n.extends) {
+        if (n.extending) {
           if (i === 0) n.firstNode.replaceWith(...ns);
           destroy(n);
         } else {

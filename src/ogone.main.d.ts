@@ -1,6 +1,7 @@
 import type OgoneStyle from "./classes/css/Style.ts";
 import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment } from './ogone.dom.d.ts';
 
+// @ts-ignore
 export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, OgoneParameters {
   data: any;
   isComponent: boolean;
@@ -45,6 +46,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   isImported?: boolean;
 
   extends?: string;
+  extending?: string;
   key?: string;
   parentNodeKey?: string;
   name?: string;
