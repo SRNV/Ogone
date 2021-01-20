@@ -65,11 +65,11 @@ arrayAliasIterator.next().value
  * this is only a build made through a string composition
  */
 export default class ForFlagBuilder extends Utils {
-  public async startAnalyze(bundle: Bundle) {
+  public startAnalyze(bundle: Bundle) {
     try {
       const entries = bundle.components.entries();
-      for await (let [path, component] of entries) {
-        await this.read(bundle, path, component.rootNode);
+      for (let [path, component] of entries) {
+        this.read(bundle, path, component.rootNode);
       }
     } catch (err) {
       this.error(`ForFlagBuiler: ${err.message}
@@ -180,7 +180,8 @@ ${err.stack}`);
           // @ts-ignore
           legacy.destructured = destructured;
           if (contextLegacy) {
-            const parentItem = array.replace(/(?<=this|^)(\w.+?)(\b.*?)/, '$1')
+            const parentItem = array.replace(/^((this\.){0,1}.+?)(\b)(.*?)$/i, '$1')
+            console.warn(parentItem, array);
             const declarationScript = [`const ${arrayAlias} =
               !!${parentItem}
               && ${array} || [];`, `
@@ -196,7 +197,7 @@ ${err.stack}`);
         }
       }
       if (node.childNodes?.length) {
-        for await (let el of node.childNodes) {
+        for (let el of node.childNodes) {
           const i = node.childNodes.indexOf(el);
           if (component && component.data && el.nodeType === 3) {
             const data = el.rawText;
