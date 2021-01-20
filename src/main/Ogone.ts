@@ -23,18 +23,18 @@ declare class Comment extends Com { };
 Ogone.classes.extends = (
   klass: FunctionConstructor,
 ) => (class extends (klass) {
-  declare private ogone: OgoneParameters;
+  declare nodes: OgoneParameters['nodes'];
+  declare uuid: OgoneParameters['uuid'];
+  declare isTemplate: OgoneParameters['isTemplate'];
+  declare component: OgoneParameters['component'];
   get firstNode() {
-    const o = this.ogone;
-    return o.nodes![0];
+    return this.nodes![0];
   }
   get lastNode() {
-    const o = this.ogone;
-    return o.nodes![o.nodes!.length - 1];
+    return this.nodes![this.nodes!.length - 1];
   }
-  get extends() {
-    const o = this.ogone;
-    return `${o.uuid}${o.extends}`;
+  get extends(): string {
+    return `${this.uuid}${this.extends}`;
   }
   get name() {
     return this.isComponent
@@ -42,20 +42,19 @@ Ogone.classes.extends = (
       : (this as unknown as HTMLOgoneElement).tagName.toLowerCase();
   }
   get isComponent() {
-    const o = this.ogone;
-    return o.isTemplate;
+    return this.isTemplate;
   }
   get isRecursiveConnected() {
-    return !!(this.ogone?.nodes?.length && this.firstNode.isConnected && this.lastNode.isConnected);
+    return !!(this.nodes?.length && this.firstNode.isConnected && this.lastNode.isConnected);
   }
   get isConnected() {
     if (!this.firstNode) {
       return false;
     }
-    return !!this.ogone?.nodes?.find((n) => n.isConnected);
+    return !!this.nodes?.find((n) => n.isConnected);
   }
   get context() {
-    const o = this.ogone, oc = o.component!;
+    const o = this, oc = this.component!;
     if (!oc) return;
     if (!oc.contexts.for[o.key!]) {
       oc.contexts.for[o.key!] = {
@@ -69,7 +68,6 @@ Ogone.classes.extends = (
   }
   constructor() {
     super();
-    ((this as unknown as HTMLOgoneElement).ogone as Partial<HTMLOgoneElement['ogone']>) = {};
   }
   public key = null;
   public data = null;
@@ -149,8 +147,7 @@ Ogone.classes.component = (
         this.remove();
         return;
       }
-      const o = this.ogone;
-      console.warn(this.ogone);
+      const o = this;
       // set position of the template/component
       setPosition(this);
 
@@ -246,7 +243,7 @@ export async function imp(id: string, url?: string) {
  * Ogone.setOgone is called when the customElement is created by document.createElement
  */
 function construct(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (!o.type) return;
   Onode.dependencies = o.dependencies;
   if (Onode.isComponent) {
@@ -254,7 +251,7 @@ function construct(Onode: HTMLOgoneElement) {
     const { data, runtime } = Ogone.components[o.uuid as string](Onode);
     Onode.data = data;
     Onode.runtime = runtime;
-    Onode.ogone.component = Onode;
+    Onode.component = Onode;
     Onode.requirements = o.requirements;
     Onode.props = o.props;
     Onode.type = o.type;
@@ -269,8 +266,8 @@ function construct(Onode: HTMLOgoneElement) {
  * those parameters are passed right after the creation of the customElement
  * in Ogone.render
  */
-function setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
-  node.ogone = {
+function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
+  const params = {
     isRemote: false,
     isRoot: false,
     isImported: false,
@@ -333,28 +330,31 @@ function setOgone(node: HTMLOgoneElement, def: OgoneParameters) {
     // overwrite properties
     ...def,
   };
+  Object.entries(params)
+    .forEach(([key, value]: string[]) => {
+      (Onode as {[k: string]: any})[key] = value;
+    })
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
-  node.ogone.render = Ogone.render[node.extends];
-  node.ogone.type = node.type as OgoneParameters["type"];
-  if (node.type === "router" && def.routes) {
-    node.ogone.locationPath = location.pathname;
-    node.ogone.routes = def.routes;
-    node.ogone.routeChanged = true;
-    node.ogone.historyState = (() => {
+  Onode.renderNodes = Ogone.render[Onode.extends!];
+  if (Onode.type === "router" && def.routes) {
+    Onode.locationPath = location.pathname;
+    Onode.routes = def.routes;
+    Onode.routeChanged = true;
+    Onode.historyState = (() => {
       const url = new URL(location.href);
       // @ts-ignore
       const query = new Map(url.searchParams.entries());
       return { query };
     })();
   }
-  construct(node);
+  construct(Onode);
 }
 /**
  * for dynamic attributes of any elements
  */
 function setNodeProps(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o || !oc || !o.nodes || !o.nodeProps) return;
   function r(n: HTMLElement, p: [string, string]) {
     const vl: string | ({ [k: string]: boolean }) = o.getContext({
@@ -378,7 +378,7 @@ function setNodeProps(Onode: HTMLOgoneElement) {
  * each element in the rendered loop has it's own index
  */
 function setPosition(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (o.position && typeof o.level === 'number' && typeof o.index === 'number') {
     o.position[o.level as number] = o.index;
   }
@@ -388,7 +388,7 @@ function setPosition(Onode: HTMLOgoneElement) {
  * OgoneParameters.props is passed during the creation of the node
  */
 function setProps(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o || !oc) return;
   if (!o.index) {
     o.index = 0;
@@ -406,7 +406,7 @@ function setProps(Onode: HTMLOgoneElement) {
  * for the flag --spread
  */
 function useSpread(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   const op = oc.parent;
   let reaction, parent;
@@ -449,20 +449,20 @@ function useSpread(Onode: HTMLOgoneElement) {
  * which returns all the template of the component or the dynamic node
  */
 function setNodes(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
-  if (!oc || !o.render) return;
+  const o = Onode, oc = Onode;
+  if (!oc || !o.renderNodes) return;
   if (o.isTemplate) {
     o.nodes = Array.from(
-      o.render(Onode).childNodes,
+      o.renderNodes(Onode).childNodes,
     ) as (HTMLOgoneElement & HTMLElement)[];
   } else {
-    o.nodes = [o.render(Onode, o.position, o.index, o.level) as HTMLOgoneElement];
+    o.nodes = [o.renderNodes(Onode, o.position, o.index, o.level) as HTMLOgoneElement];
   }
   if (o.methodsCandidate && o.methodsCandidate.length) {
     o.methodsCandidate.forEach((f, i, arr) => {
       if (o.nodes) {
         for (let n of o.nodes) {
-          if (n.ogone) {
+          if (n.extends) {
             saveUntilRender(n, f);
           } else {
             f(n);
@@ -477,11 +477,11 @@ function setNodes(Onode: HTMLOgoneElement) {
  * will remove all nodes of the component
  */
 function removeNodes(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (!o.nodes) return Onode;
   /* use it before removing template node */
   function rm(n: any) {
-    if (n.ogone) {
+    if (n.extends) {
       destroy(n);
       n.context.placeholder.remove();
     } else {
@@ -496,8 +496,8 @@ function removeNodes(Onode: HTMLOgoneElement) {
   o.nodes.forEach((n) => {
     rm(n);
   });
-  if (Onode.ogone.component) {
-    Onode.ogone.component.activated = false;
+  if (Onode.component) {
+    Onode.component.activated = false;
   }
   return Onode;
 }
@@ -505,7 +505,7 @@ function removeNodes(Onode: HTMLOgoneElement) {
  * will destroy the component and use the case 'destroy'
  */
 function destroy(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   Onode.context.list.forEach((n) => {
     removeNodes(n as HTMLOgoneElement);
@@ -525,17 +525,17 @@ function destroy(Onode: HTMLOgoneElement) {
  * adds Listeners on nodes
  */
 function setEvents(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o.flags || !o.getContext || !oc || !o.nodes) return;
   const position = Onode.isComponent
     ? oc.positionInParentComponent
     : o.position;
-  const c = Onode.isComponent ? Onode.ogone.parentComponent : oc;
+  const c = Onode.isComponent ? Onode.parentComponent : oc;
   for (let node of o.nodes) {
     for (let flag of o.flags.events) {
       if (flag.type === "wheel") {
         /* for wheel events */
-        if (node.ogone) {
+        if (node.extends) {
           // check if it's an ogone element
           // if it's one
           // node.ogone.nodes can be empty at Onode moment
@@ -642,7 +642,7 @@ function setEvents(Onode: HTMLOgoneElement) {
       );
       } else if (flag.name === "router-go" && flag.eval) {
         /* special for router-go flag */
-        if (node.ogone) {
+        if (node.extends) {
           saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener("click", (ev: MouseEvent) => {
               routerGo(
@@ -675,7 +675,7 @@ function setEvents(Onode: HTMLOgoneElement) {
           */
         });
       } else if (flag.name === "event" && flag.type.startsWith('animation')) {
-        if (node.ogone) {
+        if (node.extends) {
           saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener(flag.type, (ev) => {
               if (flag.eval !== ev.animationName) return;
@@ -699,7 +699,7 @@ function setEvents(Onode: HTMLOgoneElement) {
           });
         }
       } /* DOM L3 */ else {
-        if (node.ogone) {
+        if (node.extends) {
           saveUntilRender(node, (nr: HTMLElement) => {
             nr.addEventListener(flag.type, (ev) => {
               const ctx = o.getContext({
@@ -751,7 +751,7 @@ function insertElement(
       target = Onode.lastNode;
       break;
   }
-  return (!!(target as HTMLOgoneElement).ogone
+  return (!!(target as HTMLOgoneElement).extends
     ? insertElement((target as HTMLOgoneElement).context.list[
       (target as HTMLOgoneElement).context.list.length - 1
     ] as HTMLOgoneElement, p, el)
@@ -793,7 +793,7 @@ function routerSearch(Onode: HTMLOgoneElement, route: Route, locationPath: strin
  * used inside a reaction, this will create a new component each time the route is updated, via routerGo(...)
  */
 function setActualRouterTemplate(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   oc.routes = o.routes;
   oc.locationPath = o.locationPath;
   const l = oc.locationPath;
@@ -871,7 +871,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
  * to any element that has the flag --await
  */
 function setNodeAsyncContext(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   if (o.flags && o.flags.await) {
     const promise = new Promise((resolve, reject) => {
@@ -897,7 +897,7 @@ function setNodeAsyncContext(Onode: HTMLOgoneElement) {
  * the context is saved into OComponent.async
  */
 function setAsyncContext(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   if (o.flags && o.flags.then) {
     oc.async.then = o.flags.then;
@@ -946,15 +946,15 @@ export function OnodeRecycleWebComponent(Onode: HTMLOgoneElement, opts: OgoneRec
  * the saved function will trigger when everything is ready in the HTMLOgoneElement
  */
 function saveUntilRender(Onode: HTMLOgoneElement, f: Function): void {
-  if (Onode.ogone.methodsCandidate) {
-    Onode.ogone.methodsCandidate.push(f);
+  if (Onode.methodsCandidate) {
+    Onode.methodsCandidate.push(f);
   }
 }
 /**
  * for the flag --bind
  */
 function bindValue(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.bind || !oc || !o.nodes) return;
   function r(n: HTMLInputElement, dependency: boolean | string) {
     const k = o.flags.bind;
@@ -1037,7 +1037,7 @@ function bindValue(Onode: HTMLOgoneElement) {
  * for the flag --class
  */
 function bindClass(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.class || !oc || !o.nodes) return;
   function r(n: HTMLElement) {
     const vl = o.getContext({
@@ -1064,7 +1064,7 @@ function bindClass(Onode: HTMLOgoneElement) {
  * for the flag --html
  */
 function bindHTML(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.html || !oc || !o.nodes || o.isTemplate) return;
   function r(n: HTMLElement) {
     const vl = o.getContext({
@@ -1086,7 +1086,7 @@ function bindHTML(Onode: HTMLOgoneElement) {
  * for the flag --style
  */
 function bindStyle(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.style || !oc || !o.nodes) return;
   function r(n: HTMLElement) {
     const vl: string | ({ [k: string]: boolean }) = o.getContext({
@@ -1112,7 +1112,7 @@ function bindStyle(Onode: HTMLOgoneElement) {
   }
 }
 function setContext(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc || !o.key) return;
   if (o.isTemplate) {
     oc.key = o.key;
@@ -1128,16 +1128,16 @@ function setContext(Onode: HTMLOgoneElement) {
       oc.parentContext = gct;
       o.getContext = gct;
     }
-  } else if (Ogone.contexts[Onode.extends] && oc) {
-    o.getContext = Ogone.contexts[Onode.extends].bind(oc.data);
+  } else if (Ogone.contexts[Onode.extends!] && oc) {
+    o.getContext = Ogone.contexts[Onode.extends!].bind(oc.data);
   }
   if (o.type === "store" && oc.parent) {
-    oc.namespace = Onode.getAttribute("namespace") || null;
+    oc.namespace = Onode.getAttribute("namespace") || undefined;
     oc.parent.store[oc.namespace as string] = oc;
   }
 }
 function setDevToolContext(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   const ocp = oc.parent as HTMLOgoneElement;
   const tree = o.tree
@@ -1429,7 +1429,7 @@ function createClient() {
  * // TODO use native slot implementation
  */
 function renderSlots(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (!o.nodes) return;
   const slots = Array.from(Onode.querySelectorAll("[slot]"));
   for (
@@ -1458,7 +1458,7 @@ function renderSlots(Onode: HTMLOgoneElement) {
  * will render all the dynamic textnodes and replace all the slots elements
  */
 function renderNode(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   if (o.isTemplate) {
     // update Props before replace the element
@@ -1501,7 +1501,7 @@ function renderNode(Onode: HTMLOgoneElement) {
  * throws if the namespace doesn't match with the namespace inside the store component
  */
 function renderStore(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   if (oc.namespace !== o.namespace) {
     const error =
@@ -1522,7 +1522,7 @@ function renderStore(Onode: HTMLOgoneElement) {
  * this will use a HTMLSectionElement and alays replace it's innerHTML
  */
 function renderRouter(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   // update Props before replacement of the element
   OnodeUpdateProps(Onode);
@@ -1543,7 +1543,7 @@ function renderRouter(Onode: HTMLOgoneElement) {
  * rendering instructions for the router components inside an async component context
  */
 function renderAsyncRouter(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "router";
   const s = o.nodes.filter(filter) as HTMLOgoneElement[];
@@ -1562,7 +1562,7 @@ function renderAsyncRouter(Onode: HTMLOgoneElement) {
  * rendering instructions for the store components inside an async component context
  */
 function renderAsyncStores(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "store";
   const asyncStores = o.nodes.filter(filter) as HTMLOgoneElement[];
@@ -1583,43 +1583,45 @@ function renderAsyncStores(Onode: HTMLOgoneElement) {
  * rendering instructions for async components inside an async component context
  */
 function renderAsyncComponent(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc || !o || !o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "async";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
     const awaitingNodes = Array.from(node.querySelectorAll("template"))
       .filter(filter) as HTMLOgoneElement[];
     if (
-      node.isComponent && node.ogone && node.ogone.component && node.ogone.component.type === "async"
+      node.isComponent && node && node.component && node.component.type === "async"
     ) {
       awaitingNodes.push(node);
     }
     for (let awaitingNode of awaitingNodes) {
-      // create a custom Event for parent component
-      // parent component will wait the event to be dispatched
-      const ev = new CustomEvent(`${o.key}:${awaitingNode.ogone.key}:resolve`);
-      awaitingNode.component.dispatchAwait = () => {
-        awaitingNode.dispatchEvent(ev);
-      };
+      if (awaitingNode.component) {
+        // create a custom Event for parent component
+        // parent component will wait the event to be dispatched
+        const ev = new CustomEvent(`${o.key}:${awaitingNode.key}:resolve`);
+        awaitingNode.component.dispatchAwait = () => {
+          awaitingNode.dispatchEvent(ev);
+        };
 
-      // force rendering of awaiting node
-      // TODO revert force async render
-      // forceAsyncRender(awaitingNode);
+        // force rendering of awaiting node
+        // TODO revert force async render
+        // forceAsyncRender(awaitingNode);
 
-      const promise = new Promise((resolve) => {
-        if (awaitingNode.component.promiseResolved) {
-          // if the async child component resolve directly the promise
-          resolve(true);
-        } else {
-          awaitingNode.addEventListener(
-            `${o.key}:${awaitingNode.ogone.key}:resolve`,
-            () => {
-              resolve(true);
-            },
-          );
-        }
-      });
-      oc.promises.push(promise);
+        const promise = new Promise((resolve) => {
+          if (awaitingNode && awaitingNode.component?.promiseResolved) {
+            // if the async child component resolve directly the promise
+            resolve(true);
+          } else {
+            awaitingNode.addEventListener(
+              `${o.key}:${awaitingNode.key}:resolve`,
+              () => {
+                resolve(true);
+              },
+            );
+          }
+        });
+        oc.promises.push(promise);
+      }
     }
   }
 }
@@ -1627,7 +1629,7 @@ function renderAsyncComponent(Onode: HTMLOgoneElement) {
  * rendering instructions for the basic components inside an async component context
  */
 function renderComponent(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "component";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
@@ -1635,7 +1637,7 @@ function renderComponent(Onode: HTMLOgoneElement) {
       .filter(filter) as HTMLOgoneElement[];
     let n = (node as HTMLOgoneElement);
     if (
-      n.isComponent && n.ogone && n.ogone.component && n.ogone.component.type === "component"
+      n.isComponent && n.extends && n.component && n.component.type === "component"
     ) {
       components.push(n as HTMLOgoneElement);
     }
@@ -1651,7 +1653,7 @@ function renderComponent(Onode: HTMLOgoneElement) {
  * instructions for the async components
  */
 function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: boolean) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc || !Onode.context) return;
   // first render child stores component
   renderAsyncStores(Onode);
@@ -1700,7 +1702,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
           const { isConnected } = chs[0];
           if (isConnected) {
             chs.slice(1).forEach((ch) => {
-              if ((ch as HTMLOgoneElement).ogone) {
+              if ((ch as HTMLOgoneElement).extends) {
                 removeNodes(ch as HTMLOgoneElement)
                 ch.remove();
                 return;
@@ -1746,7 +1748,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
  * all the instructions involved in the rendering of the components or dynamic nodes
  */
 function renderingProcess(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone;
+  const o = Onode;
   // use the jsx renderer only for templates
   setNodes(Onode);
   // set Async context for Async nodes
@@ -1791,13 +1793,13 @@ function renderingProcess(Onode: HTMLOgoneElement) {
  * the component render function will duplicate the element using the user's --for flag
  */
 function renderContext(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc || !o.getContext || !o.originalNode) return false;
   const length = o.getContext(
     { getLength: true, position: o.position },
   ) as number;
   // HERE maximum callstack
-  OnodeListRendering((o.isTemplate && Onode.ogone.parentComponent ? Onode.ogone.parentComponent : Onode), {
+  OnodeListRendering((o.isTemplate && Onode.parentComponent ? Onode.parentComponent : Onode), {
     callingNewComponent: o.isTemplate,
     length,
   });
@@ -1808,7 +1810,7 @@ function renderContext(Onode: HTMLOgoneElement) {
  * and save a reaction in the component. this reaction will use the functions Ogone.setActualRouterTemplate && Ogone.renderRouter
  */
 function triggerLoad(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   const rr = Ogone.routerReactions;
   oc.runtime(0, o.historyState);
@@ -1825,33 +1827,33 @@ function triggerLoad(Onode: HTMLOgoneElement) {
 * renderContext is used for the updates
 */
 function setDeps(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   if (!oc) return;
   if (o.originalNode && o.getContext && o.original) {
-    (Onode.isComponent && Onode.ogone.parentComponent ? Onode.ogone.parentComponent : oc).react.push(() =>
+    (Onode.isComponent && Onode.parentComponent ? Onode.parentComponent : oc).react.push(() =>
       renderContext(Onode)
     );
     renderContext(Onode);
   }
 }
 function setHMRContext(Onode: HTMLOgoneElement) {
-  const o = Onode.ogone, oc = Onode;
+  const o = Onode, oc = Onode;
   // register to hmr
   if (o.isTemplate && oc && o.uuid) {
     Ogone.instances[o.uuid].push(oc);
   }
-  Ogone.mod[Onode.extends].push((pragma: string) => {
-    Ogone.render[Onode.extends] = eval(pragma);
+  Ogone.mod[Onode.extends!].push((pragma: string) => {
+    Ogone.render[Onode.extends!] = eval(pragma);
     if (!o.nodes) return;
     if (o.isTemplate) {
       return true;
     } else if (oc) {
       const invalidatedNodes = o.nodes.slice();
       const ns = Array.from(o.nodes);
-      o.render = Ogone.render[Onode.extends];
+      o.renderNodes = Ogone.render[Onode.extends!];
       renderingProcess(Onode);
       invalidatedNodes.forEach((n, i) => {
-        if (n.ogone) {
+        if (n.extends) {
           if (i === 0) n.firstNode.replaceWith(...ns);
           destroy(n);
         } else {
@@ -1917,7 +1919,7 @@ function initStore(Onode: HTMLOgoneElement) {
   // save the component's reaction into Ogone.clients with the key of the component
   // and a function
   Ogone.clients.push([Onode.key as string, (namespace, key, overwrite) => {
-    const parent = Onode.ogone.parentComponent;
+    const parent = Onode.parentComponent;
     if (
       namespace === Onode.namespace &&
       Onode.data &&
@@ -2040,7 +2042,6 @@ function OnodeListRendering(
   if (!context) return;
   // no need to render if it's the same
   if (context.list.length === dataLength) return;
-  console.warn(Onode.data, Onode.ogone, Onode.ogone.original, Onode.ogone.originalNode, Onode.ogone.originalNode === Onode);
   // first we add missing nodes
   for (let i = context.list.length, a = dataLength; i < a; i++) {
     let node: HTMLOgoneElement;
@@ -2048,39 +2049,39 @@ function OnodeListRendering(
     let ogoneOpts: Partial<OgoneParameters> | null = {
       index: i,
       originalNode: false,
-      level: Onode.ogone.level,
-      position: Onode.ogone.position!.slice(),
-      flags: Onode.ogone.flags,
+      level: Onode.level,
+      position: Onode.position!.slice(),
+      flags: Onode.flags,
       original: Onode,
       isRoot: false,
-      name: Onode.ogone.name,
-      tree: Onode.ogone.tree,
-      namespace: Onode.ogone.namespace,
-      isTemplate: Onode.ogone.isTemplate,
-      isImported: Onode.ogone.isImported,
-      isAsync: Onode.ogone.isAsync,
-      isAsyncNode: Onode.ogone.isAsyncNode,
-      isRouter: Onode.ogone.isRouter,
-      isStore: Onode.ogone.isStore,
-      isRemote: Onode.ogone.isRemote,
-      extends: Onode.ogone.extends,
-      uuid: Onode.ogone.uuid,
-      routes: Onode.ogone.routes,
+      name: Onode.name,
+      tree: Onode.tree,
+      namespace: Onode.namespace,
+      isTemplate: Onode.isTemplate,
+      isImported: Onode.isImported,
+      isAsync: Onode.isAsync,
+      isAsyncNode: Onode.isAsyncNode,
+      isRouter: Onode.isRouter,
+      isStore: Onode.isStore,
+      isRemote: Onode.isRemote,
+      extends: Onode.extends,
+      uuid: Onode.uuid,
+      routes: Onode.routes,
 
-      parentNodeKey: Onode.ogone.parentNodeKey,
+      parentNodeKey: Onode.parentNodeKey,
       ...(!callingNewComponent ? {
         component: Onode,
-        nodeProps: Onode.ogone.nodeProps,
+        nodeProps: Onode.nodeProps,
       } : {
-          props: Onode.ogone.props,
-          dependencies: Onode.ogone.dependencies,
-          requirements: Onode.ogone.requirements,
-          params: Onode.ogone.params,
-          parentComponent: Onode.ogone.parentComponent,
-          parentCTXId: Onode.ogone.parentCTXId,
-          positionInParentComponent: Onode.ogone.positionInParentComponent ? Onode.ogone.positionInParentComponent
+          props: Onode.props,
+          dependencies: Onode.dependencies,
+          requirements: Onode.requirements,
+          params: Onode.params,
+          parentComponent: Onode.parentComponent,
+          parentCTXId: Onode.parentCTXId,
+          positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
             .slice() : [],
-          levelInParentComponent: Onode.ogone.levelInParentComponent,
+          levelInParentComponent: Onode.levelInParentComponent,
         }),
     };
     setOgone(node, ogoneOpts as unknown as OgoneParameters);

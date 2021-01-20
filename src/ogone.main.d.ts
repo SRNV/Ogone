@@ -1,13 +1,8 @@
 import type OgoneStyle from "./classes/css/Style.ts";
 import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment } from './ogone.dom.d.ts';
 
-export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent {
+export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, OgoneParameters {
   data: any;
-  name: string;
-  routes: OgoneParameters['routes'];
-  locationPath: OgoneParameters['locationPath'];
-  ogone: OgoneParameters;
-  component: OnodeComponent;
   isComponent: boolean;
   isConnected: boolean;
   isRecursiveConnected: boolean;
@@ -20,11 +15,66 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent {
     parentNode: HTMLElement,
     name: string,
   };
-  extends: string;
   type: "store" | "async" | "component" | "router" | "controller";
-  dependencies: string[] | null;
-  positionInParentComponent: number[];
   connectedCallback(): void;
+  uuid?: string;
+  promise?: null | Promise<void>;
+  actualRouteName?: null | string;
+  actualRoute?: null | any;
+  routeChanged?: boolean | null;
+  locationPath?: string | null;
+  historyState?: { query: Map<unknown, unknown> } | null;
+  actualTemplate?: (HTMLElement | HTMLOgoneElement)[] | Comment | HTMLOgoneElement | null;
+  replacer?: HTMLElement | HTMLOgoneElement | null;
+  getContext?:
+    null
+    | ((opt: {
+      position: OgoneParameters["position"];
+      getLength?: boolean;
+      getText?: string;
+    }) => number | { [k: string]: any })
+    | any;
+  methodsCandidate?: Function[];
+  isTemplate: boolean;
+  isAsync: boolean;
+  isAsyncNode: boolean;
+  isStore: boolean;
+  isRouter: boolean;
+  isRoot?: boolean;
+  isRemote?: boolean;
+  isImported?: boolean;
+
+  extends?: string;
+  key?: string;
+  parentNodeKey?: string;
+  name?: string;
+  tree?: string;
+
+  index?: number;
+  originalNode: boolean;
+  level?: number;
+  position?: number[];
+  flags: any;
+  original?: HTMLOgoneElement;
+  component?: HTMLOgoneElement | null;
+  props: any;
+  nodeProps?: [string, string][];
+  params?: any;
+  parentComponent?: HTMLOgoneElement | null;
+  parentCTXId: string;
+  positionInParentComponent?: number[];
+  levelInParentComponent?: number;
+  nodes?: (HTMLOgoneElement & HTMLElement)[];
+  namespace?: string;
+  requirements: [string, string][] | null;
+  dependencies: string[] | null;
+  routes: null | Route[];
+  renderNodes?: ((
+    ctx: HTMLOgoneElement,
+    position?: number[],
+    index?: number,
+    level?: number,
+  ) => HTMLOgoneElement | HTMLElement) | null;
 }
 
 export interface OgoneInterface {
@@ -147,7 +197,7 @@ type OgoneRenderFactory = (ctx: OnodeComponent, pos?: number[], i?: number, l?: 
  * where the factories are saved with the id of the customElement
  */
 type OgoneRenderRegistry = {
-  [componentId: string]: OgoneRenderFactory;
+  [componentId: string]: OgoneParameters['render'];
 }
 /**
  * a function that evaluate what the end user put in a prop or a dynamic attribute or a flag
@@ -198,7 +248,7 @@ export interface RouterBrowser {
   openDevTool?: (opts: any) => void;
 }
 export interface OnodeComponent {
-  key: string | null;
+  key: OgoneParameters['key'];
   data: { [s: string]: any } | null;
   type: "store" | "async" | "component" | "router" | "controller";
   dependencies: null | string[];
