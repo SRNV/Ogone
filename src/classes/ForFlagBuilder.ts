@@ -181,7 +181,6 @@ ${err.stack}`);
           legacy.destructured = destructured;
           if (contextLegacy) {
             const parentItem = array.replace(/^((this\.){0,1}.+?)(\b)(.*?)$/i, '$1')
-            console.warn(parentItem, array);
             const declarationScript = [`const ${arrayAlias} =
               !!${parentItem}
               && ${array} || [];`, `
