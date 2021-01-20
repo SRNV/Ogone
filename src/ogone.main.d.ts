@@ -1,8 +1,11 @@
 import type OgoneStyle from "./classes/css/Style.ts";
-import { HTMLTemplateElement, HTMLElement, HTMLDivElement } from './ogone.dom.d.ts';
+import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment } from './ogone.dom.d.ts';
 
-export interface HTMLOgoneElement extends HTMLTemplateElement {
+export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent {
+  data: any;
   name: string;
+  routes: OgoneParameters['routes'];
+  locationPath: OgoneParameters['locationPath'];
   ogone: OgoneParameters;
   component: OnodeComponent;
   isComponent: boolean;
@@ -18,7 +21,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement {
     name: string,
   };
   extends: string;
-  type: string;
+  type: "store" | "async" | "component" | "router" | "controller";
   dependencies: string[] | null;
   positionInParentComponent: number[];
   connectedCallback(): void;
@@ -61,7 +64,7 @@ export interface OgoneParameters {
   routeChanged?: boolean | null;
   locationPath?: string | null;
   historyState?: { query: Map<unknown, unknown> } | null;
-  actualTemplate?: (HTMLElement | HTMLOgoneElement)[] | null;
+  actualTemplate?: (HTMLElement | HTMLOgoneElement)[] | Comment | null;
   replacer?: HTMLElement | HTMLOgoneElement | null;
   getContext?:
   | null
@@ -99,11 +102,11 @@ export interface OgoneParameters {
   position?: number[];
   flags: any;
   original?: HTMLOgoneElement;
-  component?: OnodeComponent | null;
+  component?: HTMLOgoneElement | null;
   props: any;
   nodeProps?: [string, string][];
   params?: any;
-  parentComponent?: OnodeComponent | null;
+  parentComponent?: HTMLOgoneElement | null;
   parentCTXId: string;
   positionInParentComponent?: number[];
   levelInParentComponent?: number;
@@ -113,7 +116,7 @@ export interface OgoneParameters {
   dependencies: string[] | null;
   routes: null | Route[];
   render?: ((
-    ctx: OnodeComponent,
+    ctx: HTMLOgoneElement,
     position?: number[],
     index?: number,
     level?: number,
@@ -160,7 +163,7 @@ type OgoneContexts = { [componentId: string]: OgoneContext };
  * all the values of the registry are a function that should construct the runtime of the component,
  * this function is built by the compiler
  */
-type OgoneComponentsRegistry = { [componentId: string]: FunctionConstructor };
+type OgoneComponentsRegistry = { [componentId: string]: (Onode: HTMLOgoneElement) => ({ data: OnodeComponent['data']; runtime: OnodeComponent['runtime'] }) };
 /**
  * those functions will help for the extension of the customElement's constructor
  */
@@ -212,29 +215,20 @@ export interface OnodeComponent {
   };
   promiseResolved: boolean;
   texts: (() => any)[];
-  childs: OnodeComponent[];
-  parent: OnodeComponent | null;
+  childs: HTMLOgoneElement[];
+  parent: HTMLOgoneElement | null;
   requirements: any;
   positionInParentComponent: number[];
   props: [string, string, ...any[]][];
   pluggedWebComponent?: any;
   pluggedWebComponentIsSync: boolean;
-  startLifecycle: (params?: any, event?: Event | OgoneParameters['historyState']) => any;
-  initStore(): any;
-  runtime(_state: number | string, ctx?: any, event?: Parameters<OnodeComponent['startLifecycle']>[1]): any;
-  update(dependency?: string, ctx?: any): void;
-  updateStore(dependency?: string): void;
-  react: Function[];
-  updateProps(dependency?: string): void;
-  updateService(dependency?: string, value?: unknown, force?: boolean): void;
-  resolve: Function | null;
-  dispatchAwait: Function | null;
-  render(Onode: HTMLOgoneElement, opts: OnodeComponentRenderOptions): void;
-  reactTo(dependency: string): void;
-  renderTexts(dependency: string | boolean): void;
+  OnodeTriggerDefault: (params?: any, event?: Event | OgoneParameters['historyState']) => any;
   parentContext(ctx: any): any;
-  plugWebComponent(webcomponent: any, isSync: boolean): any;
-  destroyPluggedWebcomponent(): void;
+  initStore(): any;
+  resolve: Function | null;
+  runtime(_state: number | string, ctx?: any, event?: Parameters<OnodeComponent['OnodeTriggerDefault']>[1]): any;
+  react: Function[];
+  dispatchAwait: Function | null;
 }
 /**
  * for dev tool display

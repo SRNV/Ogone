@@ -139,7 +139,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           isRouter: !!isImported && !!subcomp && subcomp.type === "router",
           isStore: !!isImported && !!subcomp && subcomp.type === "store",
           recycleWebcomponent: isRoot && reuseStatement ? `
-          recycleWebComponent({% nId %}, {
+          OnodeRecycleWebComponent({% nId %}, {
             id: '${idComponent}',
             name: '${reuseStatement.split(':')[0]}',
             extends: '${reuseStatement.split(':')[1]}',

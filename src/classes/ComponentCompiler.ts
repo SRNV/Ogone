@@ -53,7 +53,7 @@ ${err.stack}`);
         const { runtime } = component.scripts;
         const { modules } = component;
         const controllers = this.getControllers(bundle, component);
-        const controllerDef = controllers.length > 0
+        const ControllersAPI = controllers.length > 0
           ? `
             const Controllers = {};
             ${controllers.map(([tagName, path]) => {
@@ -80,13 +80,13 @@ ${err.stack}`);
             const path = id.split('/');
             if (path.length > 1) {
               const [namespace, action] = path;
-              const mod = this.store[namespace];
+              const mod = Onode.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{action}\`, ctx)
                   .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             } else {
-              const mod = this.store[null];
+              const mod = Onode.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{id}\`, ctx)
                   .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
@@ -97,12 +97,12 @@ ${err.stack}`);
             const path = id.split('/');
             if (path.length > 1) {
               const [namespace, mutation] = path;
-              const mod = this.store[namespace];
+              const mod = Onode.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
               }
             } else {
-              const mod = this.store[null];
+              const mod = Onode.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
               }
@@ -112,31 +112,31 @@ ${err.stack}`);
             const path = id.split('/');
             if (path.length > 1) {
               const [namespace, get] = path;
-              const mod = this.store[namespace];
+              const mod = Onode.store[namespace];
               if (mod && mod.data) {
                 return mod.data[get];
               }
             } else {
-              const mod = this.store[null];
+              const mod = Onode.store[null];
               if (mod && mod.data) {
                 return mod.data[id];
               }
             }
           },
         };`;
-        const asyncResolve = `
+        const AsyncAPI = `
           const Async = {
             resolve: (...args) => {
-              if (this.resolve) {
-                const promise = this.resolve(...args);
-                if (this.dispatchAwait) {
-                  this.dispatchAwait();
-                  this.dispatchAwait = false;
-                  this.promiseResolved = true;
+              if (Onode.resolve) {
+                const promise = Onode.resolve(...args);
+                if (Onode.dispatchAwait) {
+                  Onode.dispatchAwait();
+                  Onode.dispatchAwait = false;
+                  Onode.promiseResolved = true;
                 }
-                this.resolve = null;
+                Onode.resolve = null;
                 return promise;
-              } else if (this.resolve === null) {
+              } else if (Onode.resolve === null) {
                 const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
                 displayError(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
                  message: \`component: {% component.file %}\`
@@ -148,33 +148,34 @@ ${err.stack}`);
           // freeze Async Object;
           Object.freeze(Async);
           `;
-        let result: string = `function OgoneComponentRuntime () {
-            createComponent.call(this);
-            {% controllerDef %}
-            {% hasStore %}
+        let result: string = `function OgoneComponentRuntime (Onode) {
+            const data = {% data %};
+            {% ControllersAPI %}
+            {% StoreAPI %}
             const ___ = (prop, inst, value) => {
-              this.update(prop);
+              OnodeUpdate(Onode, prop);
               return value;
             };
             const ____r = (name, use, once) => {
-              this.runtime(name, use[0], use[1], once);
+              Onode.runtime(name, use[0], use[1], once);
             };
-            this.data = {% data %};
-            this.refs = {
+            const Refs = {
               {% refs %}
             };
-            const Refs = this.refs;
-            {% asyncResolve %}
+            Onode.refs = Refs;
+            {% AsyncAPI %}
             {% modules %}
             {% protocol %}
-            const __run = {% runtime %}
-            this.runtime = __run.bind(this.data);
+            return {
+              data,
+              runtime: ({% runtime %}).bind(data),
+            }
           };
           `;
         const d = {
           component,
           modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
-          asyncResolve: component.type === "async" ? asyncResolve : "",
+          AsyncAPI: component.type === "async" ? AsyncAPI : "let Async;",
           protocol: component.protocol ? component.protocol : "",
           dataSource: component.isTyped
             ? `new (${component.context.protocolClass})`
@@ -183,17 +184,17 @@ ${err.stack}`);
             || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
             && !component.context.engine.includes(ComponentEngine.ComponentInlineReaction) ?
             // setReactivity will transform the instance to a proxy
-            `setReactivity({% dataSource %}, (prop) => this.update(prop))`
+            `setReactivity({% dataSource %}, (prop) => OnodeUpdate(Onode, prop))`
             // if the end user uses the def modifier, the reactivity is inline
             : '{% dataSource %}',
           runtime,
-          controllerDef: component.type === "store" ? controllerDef : "",
+          ControllersAPI: component.type === "store" ? ControllersAPI : "let Controllers;",
           refs: Object.entries(component.refs).length
             ? Object.entries(component.refs).map(([key, value]) =>
               `'${key}': '${value}',`
             )
             : "",
-          hasStore: !!component.hasStore ? store : "",
+          StoreAPI: !!component.hasStore ? store : "let Store;",
         };
         result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
         if (mapRender.has(result)) {
