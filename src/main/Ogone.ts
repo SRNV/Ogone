@@ -55,7 +55,7 @@ Ogone.classes.extends = (
     return !!this.nodes?.find((n) => n.isConnected);
   }
   get context() {
-    const o = this, oc = this.component!;
+    const o = this, oc = this.component;
     if (!oc) return;
     if (!oc.contexts.for[o.key!]) {
       oc.contexts.for[o.key!] = {
@@ -249,10 +249,12 @@ function construct(Onode: HTMLOgoneElement) {
   Onode.dependencies = o.dependencies;
   if (Onode.isComponent) {
     Onode.positionInParentComponent = [];
-    const { data, runtime } = Ogone.components[o.uuid as string](Onode);
+    const { data, runtime, Refs } = Ogone.components[o.uuid as string](Onode);
     Onode.data = data;
-    Onode.runtime = runtime;
     Onode.component = Onode;
+    Onode.runtime = runtime;
+    Onode.component.runtime = runtime;
+    Onode.component.refs = Refs;
     Onode.requirements = o.requirements;
     Onode.props = o.props;
     Onode.type = o.type;
@@ -340,16 +342,13 @@ function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
   Onode.renderNodes = Ogone.render[Onode.extending!];
-  if (Onode.type === "router" && def.routes) {
+  if (Onode.type === "router") {
     Onode.locationPath = location.pathname;
-    Onode.routes = def.routes;
     Onode.routeChanged = true;
-    Onode.historyState = (() => {
-      const url = new URL(location.href);
-      // @ts-ignore
-      const query = new Map(url.searchParams.entries());
-      return { query };
-    })();
+    const url = new URL(location.href);
+    // @ts-ignore
+    const query = new Map(url.searchParams.entries());
+    Onode.historyState = { query };
   }
   construct(Onode);
 }
@@ -422,7 +421,7 @@ function useSpread(Onode: HTMLOgoneElement) {
       Object.entries(v).forEach(([k, value]) => {
         OnodeUpdateService(oc, k, value);
       });
-      return oc.activated;
+      return oc.component.activated;
     };
     parent = oc.parent;
   } else if (!o.isTemplate && o.flags && o.flags.spread) {
@@ -438,7 +437,7 @@ function useSpread(Onode: HTMLOgoneElement) {
           }
         }
       });
-      return oc.activated;
+      return oc.component.activated;
     };
     parent = oc.react
   }
@@ -517,8 +516,8 @@ function destroy(Onode: HTMLOgoneElement) {
   removeNodes(Onode);
   if (o.isTemplate) {
     OnodeDestroyPluggedWebcomponent(oc);
-    oc.runtime("destroy");
-    oc.activated = false;
+    oc.component.runtime("destroy");
+    oc.component.activated = false;
   }
   // ogone: {% destroy.devTool %}
   Onode.context.placeholder.remove();
@@ -560,19 +559,19 @@ function setEvents(Onode: HTMLOgoneElement) {
                 });
                 switch (true) {
                   case filter === "right" && ev.wheelDeltaX < 0:
-                    c.runtime(flag.case, ctx, ev);
+                    c.component.runtime(flag.case, ctx, ev);
                     break;
                   case filter === "left" && ev.wheelDeltaX > 0:
-                    c.runtime(flag.case, ctx, ev);
+                    c.component.runtime(flag.case, ctx, ev);
                     break;
                   case filter === "up" && ev.wheelDeltaY > 0:
-                    c.runtime(flag.case, ctx, ev);
+                    c.component.runtime(flag.case, ctx, ev);
                     break;
                   case filter === "down" && ev.wheelDeltaY < 0:
-                    c.runtime(flag.case, ctx, ev);
+                    c.component.runtime(flag.case, ctx, ev);
                     break;
                   case filter === null:
-                    c.runtime(flag.case, ctx, ev);
+                    c.component.runtime(flag.case, ctx, ev);
                     break;
                 }
               }
@@ -595,19 +594,19 @@ function setEvents(Onode: HTMLOgoneElement) {
               });
               switch (true) {
                 case filter === "right" && ev.wheelDeltaX < 0:
-                  c.runtime(flag.case, ctx, ev);
+                  c.component.runtime(flag.case, ctx, ev);
                   break;
                 case filter === "left" && ev.wheelDeltaX > 0:
-                  c.runtime(flag.case, ctx, ev);
+                  c.component.runtime(flag.case, ctx, ev);
                   break;
                 case filter === "up" && ev.wheelDeltaY > 0:
-                  c.runtime(flag.case, ctx, ev);
+                  c.component.runtime(flag.case, ctx, ev);
                   break;
                 case filter === "down" && ev.wheelDeltaY < 0:
-                  c.runtime(flag.case, ctx, ev);
+                  c.component.runtime(flag.case, ctx, ev);
                   break;
                 case filter === null:
-                  c.runtime(flag.case, ctx, ev);
+                  c.component.runtime(flag.case, ctx, ev);
                   break;
               }
             }
@@ -626,19 +625,19 @@ function setEvents(Onode: HTMLOgoneElement) {
           });
           switch (true) {
             case ev.charCode === filter:
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
               break;
             case ev.key === filter:
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
               break;
             case ev.keyCode === filter:
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
               break;
             case ev.code.toLowerCase() === filter:
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
               break;
             case !filter:
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
               break;
           }
         },
@@ -686,7 +685,7 @@ function setEvents(Onode: HTMLOgoneElement) {
                 position,
               });
               if (c) {
-                c.runtime(flag.case, ctx, ev);
+                c.component.runtime(flag.case, ctx, ev);
               }
             });
           })
@@ -697,7 +696,7 @@ function setEvents(Onode: HTMLOgoneElement) {
               position,
             });
             if (c) {
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
             }
           });
         }
@@ -709,7 +708,7 @@ function setEvents(Onode: HTMLOgoneElement) {
                 position,
               });
               if (c) {
-                c.runtime(flag.case, ctx, ev);
+                c.component.runtime(flag.case, ctx, ev);
               }
             });
           })
@@ -719,7 +718,7 @@ function setEvents(Onode: HTMLOgoneElement) {
               position,
             });
             if (c) {
-              c.runtime(flag.case, ctx, ev);
+              c.component.runtime(flag.case, ctx, ev);
             }
           });
         }
@@ -892,7 +891,7 @@ function setNodeAsyncContext(Onode: HTMLOgoneElement) {
         });
       }
     });
-    oc.promises.push(promise);
+    oc.component.promises.push(promise);
   }
 }
 /**
@@ -916,7 +915,7 @@ function setAsyncContext(Onode: HTMLOgoneElement) {
       getText: o.flags.defer,
       position: o.positionInParentComponent,
     });
-    oc.promises.push(promise);
+    oc.component.promises.push(promise);
   }
 }
 /**
@@ -992,7 +991,7 @@ function bindValue(Onode: HTMLOgoneElement) {
         const values = Object.values(ctx);
         const keys = Object.keys(ctx);
         const fn = new Function(...keys, "n", `${k} = n.value;`);
-        fn.bind(oc.data)(...values, n);
+        fn.bind(oc.component.data)(...values, n);
         OnodeUpdate(oc, k);
       }
     });
@@ -1009,7 +1008,7 @@ function bindValue(Onode: HTMLOgoneElement) {
         const values = Object.values(ctx);
         const keys = Object.keys(ctx);
         const fn = new Function(...keys, "n", `${k} = n.value;`);
-        fn.bind(oc.data)(...values, n);
+        fn.bind(oc.component.data)(...values, n);
         OnodeUpdate(oc, k);
       }
     });
@@ -1026,7 +1025,7 @@ function bindValue(Onode: HTMLOgoneElement) {
         const values = Object.values(ctx);
         const keys = Object.keys(ctx);
         const fn = new Function(...keys, "n", `${k} = n.value;`);
-        fn.bind(oc.data)(...values, n);
+        fn.bind(oc.component.data)(...values, n);
         OnodeUpdate(oc, k)
       }
     });
@@ -1115,28 +1114,26 @@ function bindStyle(Onode: HTMLOgoneElement) {
   }
 }
 function setContext(Onode: HTMLOgoneElement) {
-  const o = Onode, oc = Onode;
-  if (!oc || !o.key) return;
+  const o = Onode;
+  if (!o.key) return;
   if (o.isTemplate) {
-    oc.key = o.key;
-    oc.dependencies = o.dependencies;
     if (o.parentComponent) {
-      oc.parent = o.parentComponent;
-      oc.parent.childs.push(oc);
+      o.parent = o.parentComponent;
+      o.parent.childs.push(o);
     }
     if (Ogone.contexts[o.parentCTXId] && o.parentComponent) {
       const gct = Ogone.contexts[o.parentCTXId].bind(
         o.parentComponent.data,
       );
-      oc.parentContext = gct;
+      o.parentContext = gct;
       o.getContext = gct;
     }
-  } else if (Ogone.contexts[Onode.extending!] && oc) {
-    o.getContext = Ogone.contexts[Onode.extending!].bind(oc.data);
+  } else if (Ogone.contexts[Onode.extending!] && o && o.component) {
+    o.getContext = Ogone.contexts[Onode.extending!].bind(o.component.data);
   }
-  if (o.type === "store" && oc.parent) {
-    oc.namespace = Onode.getAttribute("namespace") || undefined;
-    oc.parent.store[oc.namespace as string] = oc;
+  if (o.type === "store" && o.parent) {
+    o.namespace = Onode.getAttribute("namespace") || undefined;
+    o.parent.store[o.namespace as string] = o;
   }
 }
 function setDevToolContext(Onode: HTMLOgoneElement) {
@@ -1349,9 +1346,9 @@ export async function hmrRuntime(uuid: string | number, runtime: { bind: (arg0: 
     const components = Ogone.instances[uuid];
     if (components) {
       components.forEach((c, i, arr) => {
-        if (c.activated) {
-          c.runtime = runtime.bind(c.data);
-          c.runtime(0);
+        if (c.component.activated) {
+          c.component.runtime = runtime.bind(c.component.data);
+          c.component.runtime(0);
           OnodeRenderTexts(c, true);
         } else {
           delete arr[i];
@@ -1473,6 +1470,8 @@ function renderNode(Onode: HTMLOgoneElement) {
     if (o.type === "async") {
       Onode.context.placeholder.replaceWith(...(o.nodes as Node[]));
     } else {
+      // HERE maximum callstack: recursive component
+      // this occurs if the data is retrieved
       Onode.replaceWith(...(o.nodes as Node[]));
     }
     // template/node is already connected
@@ -1540,7 +1539,7 @@ function renderRouter(Onode: HTMLOgoneElement) {
     o.replacer.append(o.actualTemplate as unknown as Node);
   }
   // run case router:xxx on the router component
-  oc.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
+  oc.component.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
 }
 /**
  * rendering instructions for the router components inside an async component context
@@ -1611,7 +1610,7 @@ function renderAsyncComponent(Onode: HTMLOgoneElement) {
         // forceAsyncRender(awaitingNode);
 
         const promise = new Promise((resolve) => {
-          if (awaitingNode && awaitingNode.component?.promiseResolved) {
+          if (awaitingNode && awaitingNode.component.promiseResolved) {
             // if the async child component resolve directly the promise
             resolve(true);
           } else {
@@ -1623,7 +1622,7 @@ function renderAsyncComponent(Onode: HTMLOgoneElement) {
             );
           }
         });
-        oc.promises.push(promise);
+        oc.component.promises.push(promise);
       }
     }
   }
@@ -1692,7 +1691,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
   } else {
     Onode.replaceWith(placeholder);
   }
-  oc.resolve = (...args: unknown[]) => {
+  oc.component.resolve = (...args: unknown[]) => {
     return new Promise((resolve) => {
       // we need to delay the execution
       // for --defer flag
@@ -1718,7 +1717,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
         resolve(true);
       }, 0);
     }).then(() => {
-      Promise.all(oc.promises)
+      Promise.all(oc.component.promises)
         .then((p) => {
           // render the element;
           renderNode(Onode);
@@ -1816,12 +1815,12 @@ function triggerLoad(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   const rr = Ogone.routerReactions;
-  oc.runtime(0, o.historyState);
+  oc.component.runtime(0, o.historyState);
   rr.push((path: string) => {
     o.locationPath = path;
     setActualRouterTemplate(Onode);
     renderRouter(Onode);
-    return oc.activated;
+    return oc.component.activated;
   });
 }
 /**
@@ -1830,13 +1829,12 @@ function triggerLoad(Onode: HTMLOgoneElement) {
 * renderContext is used for the updates
 */
 function setDeps(Onode: HTMLOgoneElement) {
-  const o = Onode, oc = Onode;
-  if (!oc) return;
+  const o = Onode;
   if (o.originalNode && o.getContext && o.original) {
-    (Onode.isComponent && Onode.parentComponent ? Onode.parentComponent : oc).react.push(() =>
-      renderContext(Onode)
+    (o.isComponent && o.parentComponent ? o.parentComponent : o).react.push(() =>
+      renderContext(o)
     );
-    renderContext(Onode);
+    renderContext(o);
   }
 }
 function setHMRContext(Onode: HTMLOgoneElement) {
@@ -1879,30 +1877,30 @@ function routerGo(url: string, state: any) {
   history.pushState(state || {}, "", url || "/");
 }
 function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event?: Event | OgoneParameters['historyState']) {
-  if (!Onode.activated) return;
+  if (!Onode.component.activated) return;
   if (Onode.type === "store") {
     initStore(Onode);
   }
   OnodeUpdateProps(Onode);
-  Onode.runtime(0, params, event);
+  Onode.component.runtime(0, params, event);
 };
 function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   if (Onode.type === "store") {
     OnodeUpdateStore(Onode, dependency!);
     return;
   }
-  Onode.runtime(`update:${dependency}`);
+  Onode.component.runtime(`update:${dependency}`);
   OnodeReactions(Onode, dependency as string);
   OnodeRenderTexts(Onode, dependency as string);
-  Onode.childs.filter((c: HTMLOgoneElement) => c.type !== "store").forEach(
+  Onode.component.childs.filter((c: HTMLOgoneElement) => c.type !== "store").forEach(
     (c: HTMLOgoneElement) => {
       OnodeUpdateProps(c, dependency as string);
     },
   );
 };
 function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
-  if (!Onode.activated) return;
-  Onode.texts.forEach((t: Function, i: number, arr: Function[]) => {
+  if (!Onode.component.component.activated) return;
+  Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
     // if there is no update of the texts
     // this can be the reason why
     if (t && !t(dependency)) delete arr[i];
@@ -1916,43 +1914,44 @@ function OnodeReactions(Onode: HTMLOgoneElement, dependency: string) {
 function initStore(Onode: HTMLOgoneElement) {
   if (!Ogone.stores[Onode.namespace as string]) {
     Ogone.stores[Onode.namespace as string] = {
-      ...Onode.data,
+      ...Onode.component.data,
     };
   }
   // save the component's reaction into Ogone.clients with the key of the component
   // and a function
   Ogone.clients.push([Onode.key as string, (namespace, key, overwrite) => {
     const parent = Onode.parentComponent;
+    const { data } = Onode.component;
     if (
       namespace === Onode.namespace &&
-      Onode.data &&
+      data &&
       parent &&
       parent.data
     ) {
       if (!overwrite) {
-        Onode.data[key] = Ogone.stores[Onode.namespace][key];
+        data[key] = Ogone.stores[Onode.namespace][key];
       } else {
-        Ogone.stores[Onode.namespace][key] = Onode.data[key];
+        Ogone.stores[Onode.namespace][key] = data[key];
       }
-      if (parent.data[key] !== Onode.data[key]) {
-        parent.data[key] = Onode.data[key];
+      if (parent.data[key] !== data[key]) {
+        parent.data[key] = data[key];
         OnodeUpdate(parent, key);
       }
     }
-    return Onode.activated;
+    return Onode.component.activated;
   }]);
 };
 function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
   // find the reaction of this store module with the key
   // @ts-ignore VSCode error on iterators
-  const [key, client] = Ogone.clients.find(([key]) => key === this.key);
+  const [key, client] = Ogone.clients.find(([key]) => key === Onode.key);
   if (client) {
     // use the namespace, the dependency or property that should change
-    client(Onode.namespace, dependency, true);
+    client(Onode.component.namespace, dependency, true);
     // update other modules
     Ogone.clients.filter(([key]) => key !== Onode.key).forEach(
       ([key, f], i, arr) => {
-        if (f && !f(Onode.namespace as string, dependency, false)) {
+        if (f && !f(Onode.component.namespace as string, dependency, false)) {
           delete arr[i];
         }
       },
@@ -1960,9 +1959,10 @@ function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
   }
 };
 function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown, force?: boolean) {
-  if (Onode.data && value !== Onode.data[key] || force && Onode.data) {
-    const previous = Onode.data[key];
-    Onode.data[key] = value;
+  const { data } = Onode.component;
+  if (data && value !== data[key] || force && data) {
+    const previous = data[key];
+    data[key] = value;
     /**
      * for recycle Webcomponent feature
      * pluggedWebComponent is a WebComponent that is used
@@ -1970,7 +1970,7 @@ function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown
      */
     if (Onode.pluggedWebComponentIsSync) {
       if (Onode.pluggedWebComponent && typeof Onode.pluggedWebComponent.beforeUpdate === 'function') {
-        Onode.pluggedWebComponent.beforeUpdate(key, Onode.data[key], value)
+        Onode.pluggedWebComponent.beforeUpdate(key, data[key], value)
       }
       /**
        * update the webcomponent
@@ -1990,7 +1990,7 @@ function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown
         Onode.dependencies.find((d: string) => d.indexOf(key) > -1)
       ) {
         // let the user rerender
-        Onode.runtime("async:update", {
+        Onode.component.runtime("async:update", {
           updatedParentProp: key,
         });
       }
@@ -1998,7 +1998,7 @@ function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown
   }
 };
 function OnodeUpdateProps(Onode: HTMLOgoneElement, dependency?: string) {
-  if (!Onode.activated) return;
+  if (!Onode.component.activated) return;
   if (Onode.type === "store") return;
   if (!Onode.requirements || !Onode.requirements.length || !Onode.props) return;
   Onode.requirements.forEach(([key]: [string, string]) => {
@@ -2073,7 +2073,7 @@ function OnodeListRendering(
 
       parentNodeKey: Onode.parentNodeKey,
       ...(!callingNewComponent ? {
-        component: Onode,
+        component: Onode.parentComponent,
         nodeProps: Onode.nodeProps,
       } : {
           props: Onode.props,

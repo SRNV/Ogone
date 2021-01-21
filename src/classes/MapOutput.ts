@@ -39,7 +39,6 @@ export default abstract class MapOutput {
    * this one will bundle all Ogone classes to one
    */
   static runtime: string = '';
-  static async startSavingComponentsOutput(bundle: Bundle): Promise<void> {}
   static async getOutputs(bundle: Bundle) {
     bundle.output += `
       ${this.outputs.data.join('\n')}

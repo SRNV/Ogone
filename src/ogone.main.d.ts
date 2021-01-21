@@ -58,7 +58,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   position?: number[];
   flags: any;
   original?: HTMLOgoneElement;
-  component?: HTMLOgoneElement | null;
+  component: HTMLOgoneElement;
   props: any;
   nodeProps?: [string, string][];
   params?: any;
@@ -215,7 +215,13 @@ type OgoneContexts = { [componentId: string]: OgoneContext };
  * all the values of the registry are a function that should construct the runtime of the component,
  * this function is built by the compiler
  */
-type OgoneComponentsRegistry = { [componentId: string]: (Onode: HTMLOgoneElement) => ({ data: OnodeComponent['data']; runtime: OnodeComponent['runtime'] }) };
+type OgoneComponentsRegistry = { [componentId: string]: (Onode: HTMLOgoneElement) => ({
+  data: OnodeComponent['data'];
+  runtime: OnodeComponent['runtime'];
+  Refs: {
+    [k: string]: HTMLElement;
+  }
+}) };
 /**
  * those functions will help for the extension of the customElement's constructor
  */

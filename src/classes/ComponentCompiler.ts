@@ -80,13 +80,13 @@ ${err.stack}`);
             const path = id.split('/');
             if (path.length > 1) {
               const [namespace, action] = path;
-              const mod = Onode.store[namespace];
+              const mod = Onode.component.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{action}\`, ctx)
                   .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             } else {
-              const mod = Onode.store[null];
+              const mod = Onode.component.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`action:$\{id}\`, ctx)
                   .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
@@ -97,12 +97,12 @@ ${err.stack}`);
             const path = id.split('/');
             if (path.length > 1) {
               const [namespace, mutation] = path;
-              const mod = Onode.store[namespace];
+              const mod = Onode.component.store[namespace];
               if (mod && mod.runtime) {
                 return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
               }
             } else {
-              const mod = Onode.store[null];
+              const mod = Onode.component.store[null];
               if (mod && mod.runtime) {
                 return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
               }
@@ -112,12 +112,12 @@ ${err.stack}`);
             const path = id.split('/');
             if (path.length > 1) {
               const [namespace, get] = path;
-              const mod = Onode.store[namespace];
+              const mod = Onode.component.store[namespace];
               if (mod && mod.data) {
                 return mod.data[get];
               }
             } else {
-              const mod = Onode.store[null];
+              const mod = Onode.component.store[null];
               if (mod && mod.data) {
                 return mod.data[id];
               }
@@ -127,16 +127,16 @@ ${err.stack}`);
         const AsyncAPI = `
           const Async = {
             resolve: (...args) => {
-              if (Onode.resolve) {
-                const promise = Onode.resolve(...args);
-                if (Onode.dispatchAwait) {
-                  Onode.dispatchAwait();
-                  Onode.dispatchAwait = false;
-                  Onode.promiseResolved = true;
+              if (Onode.component.resolve) {
+                const promise = Onode.component.resolve(...args);
+                if (Onode.component.dispatchAwait) {
+                  Onode.component.dispatchAwait();
+                  Onode.component.dispatchAwait = false;
+                  Onode.component.promiseResolved = true;
                 }
-                Onode.resolve = null;
+                Onode.component.resolve = null;
                 return promise;
-              } else if (Onode.resolve === null) {
+              } else if (Onode.component.resolve === null) {
                 const DoubleUseOfResolveException = new Error('Double use of resolution in async component');
                 displayError(DoubleUseOfResolveException.message, 'Double Resolution of Promise', {
                  message: \`component: {% component.file %}\`
@@ -157,17 +157,17 @@ ${err.stack}`);
               return value;
             };
             const ____r = (name, use, once) => {
-              Onode.runtime(name, use[0], use[1], once);
+              Onode.component.runtime(name, use[0], use[1], once);
             };
             const Refs = {
               {% refs %}
             };
-            Onode.refs = Refs;
             {% AsyncAPI %}
             {% modules %}
             {% protocol %}
             return {
               data,
+              Refs,
               runtime: ({% runtime %}).bind(data),
             }
           };
