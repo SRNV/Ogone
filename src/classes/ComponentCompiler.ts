@@ -148,7 +148,7 @@ ${err.stack}`);
           // freeze Async Object;
           Object.freeze(Async);
           `;
-        let result: string = `function OgoneComponentRuntime (Onode) {
+        let result: string = `function (Onode) {
             const data = {% data %};
             {% ControllersAPI %}
             {% StoreAPI %}

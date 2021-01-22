@@ -1,4 +1,5 @@
 import { Bundle } from "../ogone.main.d.ts";
+import TSTranspiler from './TSTranspiler.ts';
 
 interface ComponentOutput {
   /**
@@ -12,7 +13,7 @@ interface ComponentOutput {
    * the part that saves a function that will construct the runtime of the component
    * this part is saved into Ogone.components
    * ```typescript
-   *   Ogone.components['{% component.uuid %}'] = function OgoneComponentRuntime () {...}
+   *   Ogone.components['{% component.uuid %}'] = function () {...}
    * ```
    */
   data: string[];
@@ -46,5 +47,6 @@ export default abstract class MapOutput {
       ${this.outputs.render.join('\n')}
       ${this.outputs.customElement.join('\n')}
     `;
+    bundle.output = await TSTranspiler.transpile(bundle.output);
   }
 }

@@ -180,10 +180,12 @@ ${err.stack}`);
           // @ts-ignore
           legacy.destructured = destructured;
           if (contextLegacy) {
-            const parentItem = array.replace(/^((this\.){0,1}.+?)(\b)(.*?)$/i, '$1')
-            const declarationScript = [`const ${arrayAlias} =
-              !!${parentItem}
-              && ${array} || [];`, `
+            const reg = /^((this\.){0,1}[\w\d]+?)(\b)(.*?)$/i;
+            const arrayMatch = reg.test(array);
+            const parentItem = array.replace(reg, '$1')
+            const preventError = `!!${parentItem}
+            && ${array} || []`;
+            const declarationScript = [`const ${arrayAlias} = ${arrayMatch ? preventError : `${array}`};`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`,
             aliasItem ? `const ${aliasItem} = (${arrayAlias})[${index}];` : '',

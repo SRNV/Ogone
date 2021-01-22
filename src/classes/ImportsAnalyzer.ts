@@ -81,6 +81,15 @@ export default class ImportsAnalyzer extends Utils {
             if (importBody.body && importBody.body.imports) {
               // @ts-ignore
               Object.values(importBody.body.imports).forEach((item: any) => {
+                if (!item.isComponent && item.path.endsWith('.o3')) {
+                  this.error(`${component.file}
+                    Wrong Syntax for Component importation
+                    please follow this pattern
+
+                    pattern: import component ComponentName from '${item.path}';
+                    component: ${component.file}
+                  `)
+                }
                 if (!item.isComponent || !item.path.endsWith('.o3')) return;
                 const pathComponent =
                   bundle.repository[component.uuid][item.path];

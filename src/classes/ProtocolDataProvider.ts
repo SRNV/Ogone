@@ -103,7 +103,7 @@ ${err.stack}`);
       }
       for await (const [, component] of entries) {
         this.ProtocolClassConstructor.getAllUsedComponents(bundle, component);
-        this.ProtocolClassConstructor.buildProtocol(component);
+        await this.ProtocolClassConstructor.buildProtocol(component);
         await this.ProtocolClassConstructor.setComponentRuntime(component);
       }
     } catch (err) {
@@ -152,6 +152,7 @@ ${err.stack}`);
         typedExpressions,
       });
       ctx.value = getDeepTranslation(result, expressions);
+      console.warn(1, ctx.value);
     } catch (err) {
       this.error(`ProtocolDataProvider: ${err.message}
 ${err.stack}`);

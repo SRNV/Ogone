@@ -135,7 +135,7 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  public buildProtocol(component: Component) {
+  public async buildProtocol(component: Component) {
     try {
       const item = this.mapProtocols.get(component.uuid);
       if (item) {

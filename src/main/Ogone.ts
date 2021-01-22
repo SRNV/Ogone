@@ -248,7 +248,6 @@ function construct(Onode: HTMLOgoneElement) {
   if (!o.type) return;
   Onode.dependencies = o.dependencies;
   if (Onode.isComponent) {
-    Onode.positionInParentComponent = [];
     const { data, runtime, Refs } = Ogone.components[o.uuid as string](Onode);
     Onode.data = data;
     Onode.component = Onode;
@@ -2076,15 +2075,15 @@ function OnodeListRendering(
         component: Onode.parentComponent,
         nodeProps: Onode.nodeProps,
       } : {
-          props: Onode.props,
-          dependencies: Onode.dependencies,
-          requirements: Onode.requirements,
-          params: Onode.params,
+          props: Onode.component.props,
+          dependencies: Onode.component.dependencies,
+          requirements: Onode.component.requirements,
+          params: Onode.component.params,
           parentComponent: Onode.parentComponent,
           parentCTXId: Onode.parentCTXId,
           positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
             .slice() : [],
-          levelInParentComponent: Onode.levelInParentComponent,
+          levelInParentComponent: Onode.component.levelInParentComponent,
         }),
     };
     setOgone(node, ogoneOpts as unknown as OgoneParameters);

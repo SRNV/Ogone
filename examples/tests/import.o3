@@ -1,5 +1,7 @@
-use ./nested.o3 as 'nested-el';
+
+import component Nested from './nested.o3';
 
 <template>
-  <nested-el name={'test'}/>
+  <Nested name={'test'}/>
 </template>
+<proto type="app" />
