@@ -40,6 +40,7 @@ ${err.stack}`);
               elseIf: {},
               elseFlag: {},
             };
+            console.warn(nId, node)
             while (
               nxt && nxt.attributes &&
               (nxt.attributes["--else-if"] || nxt.attributes["--else"])
@@ -127,7 +128,7 @@ ${err.stack}`);
               const GET_TEXT = opts.getText;
               const GET_LENGTH = opts.getLength;
               const POSITION = opts.position;
-              console.warn(1, '{% context.id %}');
+              console.warn(1, '{% context.id %}', POSITION);
               {% data %}
               {% modules %}
               {% value %}
