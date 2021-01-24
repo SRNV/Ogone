@@ -1703,7 +1703,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
           const { isConnected } = chs[0];
           if (isConnected) {
             chs.slice(1).forEach((ch) => {
-              if ((ch as HTMLOgoneElement).extends) {
+              if ((ch as HTMLOgoneElement).extending) {
                 removeNodes(ch as HTMLOgoneElement)
                 ch.remove();
                 return;
@@ -1828,7 +1828,7 @@ function triggerLoad(Onode: HTMLOgoneElement) {
 */
 function setDeps(Onode: HTMLOgoneElement) {
   const o = Onode;
-  if (o.originalNode && o.getContext) {
+  if (o.originalNode && o.getContext && o.original) {
     (o.isComponent && o.component.parentComponent ? o.component.parentComponent : o.component).react.push(() =>
       renderContext(o)
     );
@@ -2047,7 +2047,7 @@ function OnodeListRendering(
     console.warn('add', i, a);
 
     let node: HTMLOgoneElement;
-    node = document.createElement(context.name, { is: Onode.extends }) as HTMLOgoneElement;
+    node = document.createElement(context.name, { is: Onode.extending }) as HTMLOgoneElement;
     let ogoneOpts: Partial<OgoneParameters> | null = {
       index: i,
       originalNode: false,
