@@ -34,16 +34,16 @@ export function translateReflection(
     });
     return (isBlock ? `
         if ([${cases}].includes(_state as any) || _state === 0) {
-          this${identifier} = (() => ${body})();____("${n}", this);
+          ___("${n}", this, this${identifier} = (() => ${body})());
         }` :
       `if ([${cases}].includes(_state as any) || _state === 0) {
-          this${identifier} = ${body};____("${n}", this);
+        ___("${n}", this, this${identifier} = ${body});
         }`
       ).trim();
   } else {
     return `
       if (_state === 0) {
-        this${identifier} = (() => ${body})();____("${n}", this);
+        ___("${n}", this, this${identifier} = (() => ${body})());
       }`;
   }
 }

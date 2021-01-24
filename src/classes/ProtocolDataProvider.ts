@@ -152,7 +152,6 @@ ${err.stack}`);
         typedExpressions,
       });
       ctx.value = getDeepTranslation(result, expressions);
-      console.warn(1, ctx.value);
     } catch (err) {
       this.error(`ProtocolDataProvider: ${err.message}
 ${err.stack}`);

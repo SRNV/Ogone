@@ -152,7 +152,7 @@ export default class XMLJSXOutputBuilder extends Utils {
             : "",
           // force the component to wait for resolution
           setNodeAwait: isOgone && node.attributes && node.attributes.nodeAwait && !isRoot
-            ? `ctx.component.promises.push(new Promise((rs) => {
+            ? `ctx.promises.push(new Promise((rs) => {
             ${/*force render of the customElement*/ ''}
             {%nId%}.connectedCallback();
             for(let n of {%nId%}.nodes) {
@@ -175,6 +175,7 @@ export default class XMLJSXOutputBuilder extends Utils {
             o = {
               isRoot: false,
               originalNode: true,
+              original: {%nId%},
               {%setOgone.tagname%}
               {%setOgone.tree%}
               {%setOgone.positionLevelIndex%}
@@ -203,7 +204,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               ? "position: p, level: l, index: i,"
               : "",
             positionInParentComponent: isImported && subcomp
-              ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx.component, parentCTXId: '${idComponent}-${node.id}', props: (${JSON.stringify(props)}),
+              ? `positionInParentComponent: p, levelInParentComponent: l, parentComponent: ctx, parentCTXId: '${idComponent}-${node.id}', props: (${JSON.stringify(props)}),
             uuid: '${subcomp.uuid}',
             routes: ${JSON.stringify(subcomp.routes)},
             namespace: '${subcomp.namespace ? subcomp.namespace : ""}',
@@ -256,7 +257,7 @@ ${err.stack}`);
             .map(([key, value]) =>
               key !== "ref"
                 ? `at(${nId},'${key}', '${value}');`
-                : `ctx.component.refs['${value}'] = ${nId};`
+                : `ctx.refs['${value}'] = ${nId};`
             )
             .join("");
           pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
@@ -397,12 +398,12 @@ ${err.stack}`);
             const isEvaluated = node.rawText.indexOf("${") > -1;
             const saveText = isEvaluated
               ? `
-                  const {%getContextConstant%} = Ogone.contexts['{%contextId%}'] ? Ogone.contexts['{%contextId%}'].bind(ctx.component.data) : null; /* getContext function */
+                  const {%getContextConstant%} = Ogone.contexts['{%contextId%}'] ? Ogone.contexts['{%contextId%}'].bind(ctx.data) : null; /* getContext function */
                   const {%textConstant%} = '{%evaluatedString%}';
                   const p{%textConstant%} = p.slice();
                   /*removes txt position and root position*/
                   p{%textConstant%}[l-2]=i;
-                  ctx.component.texts.push((k) => {
+                  ctx.texts.push((k) => {
                     if ({% dependencies %} typeof k === 'string' && {%textConstant%}.indexOf(k) < 0) return true;
                     if (!{%getContextConstant%}) return false;
                     const v = {%getContextConstant%}({

@@ -1,10 +1,10 @@
 import component Test from '@/examples/tests/click.o3';
 
 <template>
+test
   <p>${this.count}</p>
-  <div --for={t of [1,2,4]} --if={this.count < 3 && t !== 1}>div 1 ${t}</div>
   <Test
-    --else-if={this.count >= 3}
+    --if={this.count >= 3}
     --for={t of [1, 3]}>3eme doit remplacer la Test 1</Test>
 </template>
 

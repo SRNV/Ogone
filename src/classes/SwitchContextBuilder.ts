@@ -128,7 +128,6 @@ ${err.stack}`);
               const GET_TEXT = opts.getText;
               const GET_LENGTH = opts.getLength;
               const POSITION = opts.position;
-              console.warn(1, '{% context.id %}', POSITION);
               {% data %}
               {% modules %}
               {% value %}

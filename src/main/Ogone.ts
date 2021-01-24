@@ -60,7 +60,7 @@ Ogone.classes.extends = (
     if (!oc.contexts.for[o.key!]) {
       oc.contexts.for[o.key!] = {
         list: [this],
-        placeholder: document.createElement("template"),
+        placeholder: document.createElement("fouin"),
         parentNode: (this as unknown as HTMLOgoneElement).parentNode,
         name: this.name,
       };
@@ -148,7 +148,6 @@ Ogone.classes.component = (
         this.remove();
         return;
       }
-      const o = this;
       // set position of the template/component
       setPosition(this);
 
@@ -157,25 +156,25 @@ Ogone.classes.component = (
       // setHMRContext();
 
       // parse the route that match with location.pathname
-      if (o.type === "router") {
+      if (this.type === "router") {
         setActualRouterTemplate(this);
       }
 
       // set the props required by the node
-      if (o.isTemplate) {
+      if (this.isTemplate) {
         setProps(this);
         OnodeUpdateProps(this);
       }
       renderingProcess(this);
 
       switch (true) {
-        case o.type === "router":
+        case this.type === "router":
           renderRouter(this);
           break;
-        case o.type === "store":
+        case this.type === "store":
           renderStore(this);
           break;
-        case o.type === "async":
+        case this.type === "async":
           renderAsync(this);
           break;
         default:
@@ -270,6 +269,7 @@ function construct(Onode: HTMLOgoneElement) {
  */
 function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
   const params = {
+    original: Onode,
     isRemote: false,
     isRoot: false,
     isImported: false,
@@ -287,10 +287,10 @@ function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
     levelInParentComponent: 0,
 
     // define component
-    component: null,
+    component: Onode,
 
     // define parentComponent
-    parentComponent: null,
+    parentComponent: def.parentComponent,
 
     // jsx function
     render: null,
@@ -367,7 +367,7 @@ function setNodeProps(Onode: HTMLOgoneElement) {
   }
   for (let n of o.nodes) {
     for (let p of o.nodeProps) {
-      oc.react.push(() => r(n as HTMLElement, p));
+      oc.component.react.push(() => r(n as HTMLElement, p));
       r(n as HTMLElement, p);
     }
   }
@@ -420,7 +420,7 @@ function useSpread(Onode: HTMLOgoneElement) {
       Object.entries(v).forEach(([k, value]) => {
         OnodeUpdateService(oc, k, value);
       });
-      return oc.component.activated;
+      return true;
     };
     parent = oc.parent;
   } else if (!o.isTemplate && o.flags && o.flags.spread) {
@@ -436,9 +436,9 @@ function useSpread(Onode: HTMLOgoneElement) {
           }
         }
       });
-      return oc.component.activated;
+      return true;
     };
-    parent = oc.react
+    parent = oc.component
   }
   reaction && reaction();
   parent
@@ -450,14 +450,14 @@ function useSpread(Onode: HTMLOgoneElement) {
  * which returns all the template of the component or the dynamic node
  */
 function setNodes(Onode: HTMLOgoneElement) {
-  const o = Onode, oc = Onode;
-  if (!oc || !o.renderNodes) return;
+  const o = Onode;
+  if (!o.renderNodes) return;
   if (o.isTemplate) {
     o.nodes = Array.from(
-      o.renderNodes(Onode).childNodes,
+      o.renderNodes(Onode.component).childNodes,
     ) as (HTMLOgoneElement & HTMLElement)[];
   } else {
-    o.nodes = [o.renderNodes(Onode, o.position, o.index, o.level) as HTMLOgoneElement];
+    o.nodes = [o.renderNodes(Onode.component, o.position, o.index, o.level) as HTMLOgoneElement];
   }
   if (o.methodsCandidate && o.methodsCandidate.length) {
     o.methodsCandidate.forEach((f, i, arr) => {
@@ -497,9 +497,6 @@ function removeNodes(Onode: HTMLOgoneElement) {
   o.nodes.forEach((n) => {
     rm(n);
   });
-  if (Onode.component) {
-    Onode.component.activated = false;
-  }
   return Onode;
 }
 /**
@@ -516,7 +513,7 @@ function destroy(Onode: HTMLOgoneElement) {
   if (o.isTemplate) {
     OnodeDestroyPluggedWebcomponent(oc);
     oc.component.runtime("destroy");
-    oc.component.activated = false;
+    o.activated = false;
   }
   // ogone: {% destroy.devTool %}
   Onode.context.placeholder.remove();
@@ -752,6 +749,9 @@ function insertElement(
       target = Onode.lastNode;
       break;
   }
+  if (!(target as HTMLOgoneElement).extending && !target.insertAdjacentElement && target.nodeType === 3) {
+    return target.parentNode?.insertBefore(el, target);
+  }
   return (!!(target as HTMLOgoneElement).extending
     ? insertElement((target as HTMLOgoneElement).context.list[
       (target as HTMLOgoneElement).context.list.length - 1
@@ -843,7 +843,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
       params: rendered.params || null,
       props: o.props,
       parentComponent: o.parentComponent,
-      parentCTXId: o.parentCTXId,
+      parentCTXId: o.component.parentCTXId,
       positionInParentComponent: o.positionInParentComponent!
         .slice(),
       levelInParentComponent: o.levelInParentComponent,
@@ -1028,7 +1028,7 @@ function bindValue(Onode: HTMLOgoneElement) {
         OnodeUpdate(oc, k)
       }
     });
-    oc.react.push((dependency: string | boolean) =>
+    oc.component.react.push((dependency: string | boolean) =>
       r((n as unknown as HTMLInputElement), dependency)
     );
     r((n as unknown as HTMLInputElement), true);
@@ -1057,7 +1057,7 @@ function bindClass(Onode: HTMLOgoneElement) {
     return n.isConnected;
   }
   for (let node of o.nodes) {
-    oc.react.push(() => r(node as HTMLElement));
+    oc.component.react.push(() => r(node as HTMLElement));
     r(node as HTMLElement);
   }
 }
@@ -1079,7 +1079,7 @@ function bindHTML(Onode: HTMLOgoneElement) {
     return n.isConnected;
   }
   for (let node of o.nodes) {
-    oc.react.push(() => r(node as HTMLElement));
+    oc.component.react.push(() => r(node as HTMLElement));
     r(node as HTMLElement);
   }
 }
@@ -1108,7 +1108,7 @@ function bindStyle(Onode: HTMLOgoneElement) {
     return n.isConnected;
   }
   for (let n of o.nodes) {
-    oc.react.push(() => r(n as HTMLElement));
+    oc.component.react.push(() => r(n as HTMLElement));
     r(n as HTMLElement);
   }
 }
@@ -1120,8 +1120,8 @@ function setContext(Onode: HTMLOgoneElement) {
       o.parent = o.parentComponent;
       o.parent.childs.push(o);
     }
-    if (Ogone.contexts[o.parentCTXId] && o.parentComponent) {
-      const gct = Ogone.contexts[o.parentCTXId].bind(
+    if (Ogone.contexts[o.component.parentCTXId] && o.parentComponent) {
+      const gct = Ogone.contexts[o.component.parentCTXId].bind(
         o.parentComponent.data,
       );
       o.parentContext = gct;
@@ -1470,7 +1470,7 @@ function renderNode(Onode: HTMLOgoneElement) {
       Onode.context.placeholder.replaceWith(...(o.nodes as Node[]));
     } else {
       // HERE maximum callstack: recursive component
-      // this occurs if the data is retrieved
+      // this occurs if the data is not retrieved
       Onode.replaceWith(...(o.nodes as Node[]));
     }
     // template/node is already connected
@@ -1799,7 +1799,6 @@ function renderContext(Onode: HTMLOgoneElement) {
   const length = o.getContext(
     { getLength: true, position: o.position },
   ) as number;
-  // HERE maximum callstack
   OnodeListRendering((o.isTemplate && Onode.parentComponent ? Onode.parentComponent : Onode), {
     callingNewComponent: o.isTemplate,
     length,
@@ -1829,8 +1828,8 @@ function triggerLoad(Onode: HTMLOgoneElement) {
 */
 function setDeps(Onode: HTMLOgoneElement) {
   const o = Onode;
-  if (o.originalNode && o.getContext && o.original) {
-    (o.isComponent && o.parentComponent ? o.parentComponent : o).react.push(() =>
+  if (o.originalNode && o.getContext) {
+    (o.isComponent && o.component.parentComponent ? o.component.parentComponent : o.component).react.push(() =>
       renderContext(o)
     );
     renderContext(o);
@@ -1876,7 +1875,7 @@ function routerGo(url: string, state: any) {
   history.pushState(state || {}, "", url || "/");
 }
 function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event?: Event | OgoneParameters['historyState']) {
-  if (!Onode.component.activated) return;
+  // if (!Onode.component.activated) return;
   if (Onode.type === "store") {
     initStore(Onode);
   }
@@ -1898,7 +1897,6 @@ function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   );
 };
 function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
-  if (!Onode.component.component.activated) return;
   Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
     // if there is no update of the texts
     // this can be the reason why
@@ -1906,7 +1904,7 @@ function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
   });
 };
 function OnodeReactions(Onode: HTMLOgoneElement, dependency: string) {
-  Onode.react.forEach((t: Function, i: number, arr: Function[]) => {
+  Onode.component.react.forEach((t: Function, i: number, arr: Function[]) => {
     if (t && !t(dependency)) delete arr[i];
   });
 };
@@ -1937,7 +1935,7 @@ function initStore(Onode: HTMLOgoneElement) {
         OnodeUpdate(parent, key);
       }
     }
-    return Onode.component.activated;
+    return true;
   }]);
 };
 function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
@@ -1997,10 +1995,10 @@ function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown
   }
 };
 function OnodeUpdateProps(Onode: HTMLOgoneElement, dependency?: string) {
-  if (!Onode.component.activated) return;
+  // if (!Onode.component.activated) return;
   if (Onode.type === "store") return;
-  if (!Onode.requirements || !Onode.requirements.length || !Onode.props) return;
-  Onode.requirements.forEach(([key]: [string, string]) => {
+  if (!Onode?.component?.requirements || !Onode.props) return;
+  Onode.component.requirements.forEach(([key]: [string, string]) => {
     const prop = Onode.props.find((prop: [string, ...any[]]) =>
       prop[0] === key
     );
@@ -2046,6 +2044,8 @@ function OnodeListRendering(
   if (context.list.length === dataLength) return;
   // first we add missing nodes
   for (let i = context.list.length, a = dataLength; i < a; i++) {
+    console.warn('add', i, a);
+
     let node: HTMLOgoneElement;
     node = document.createElement(context.name, { is: Onode.extends }) as HTMLOgoneElement;
     let ogoneOpts: Partial<OgoneParameters> | null = {
@@ -2072,37 +2072,29 @@ function OnodeListRendering(
 
       parentNodeKey: Onode.parentNodeKey,
       ...(!callingNewComponent ? {
-        component: Onode.parentComponent,
+        component: Onode.component,
         nodeProps: Onode.nodeProps,
       } : {
-          props: Onode.component.props,
-          dependencies: Onode.component.dependencies,
-          requirements: Onode.component.requirements,
-          params: Onode.component.params,
+          props: Onode.props,
+          dependencies: Onode.dependencies,
+          requirements: Onode.requirements,
+          params: Onode.params,
           parentComponent: Onode.parentComponent,
           parentCTXId: Onode.parentCTXId,
           positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
             .slice() : [],
-          levelInParentComponent: Onode.component.levelInParentComponent,
+          levelInParentComponent: Onode.levelInParentComponent,
         }),
     };
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
-    let previous = node;
     if (i === 0) {
       context.placeholder.replaceWith(node);
     } else {
       let lastEl = context.list[i - 1];
-      if (lastEl && lastEl.isConnected) {
+      if (lastEl) {
         // HERE maximum callstack
         insertElement(lastEl as HTMLOgoneElement, "afterend", node);
-      } else if (Onode && Onode.parentNode && !Onode.renderedList) {
-        Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
-        Onode.renderedList = true;
-        previous = node;
-      } else if (Onode && Onode.parentNode && Onode.renderedList) {
-        Onode.parentNode.insertBefore(node, previous.nextElementSibling);
-        previous = node;
       }
     }
     context.list.push(node);
@@ -2111,15 +2103,14 @@ function OnodeListRendering(
   if (context.list.length === dataLength) return;
   // now we remove the extra elements
   for (let i = context.list.length, a = dataLength; i > a; i--) {
+    console.warn('remove', i, a);
     if (context.list.length === 1) {
       // get the first element of the webcomponent
       let firstEl = context.list[0] as HTMLOgoneElement;
-      if (firstEl && firstEl.firstNode && firstEl.isConnected) {
+      if (firstEl && firstEl.firstNode) {
         insertElement(firstEl, "beforebegin", context.placeholder);
-      } else if (Onode.parentNode) {
-        const { parentNode } = context;
-        parentNode.insertBefore(context.placeholder, Onode);
       }
+      console.warn('test', firstEl, firstEl.firstNode, context.placeholder.isConnected);
     }
     const rm = context.list.pop() as HTMLOgoneElement;
     // don't use destroy here
@@ -2127,4 +2118,5 @@ function OnodeListRendering(
     removeNodes(rm);
     rm.remove();
   }
+  return true;
 }

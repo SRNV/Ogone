@@ -1,11 +1,10 @@
 <template>
-  ${this.position.name} ${this.position.origin}
   <p --for={item of this.position.test}>
-    ${this.item}
+    ${item}
   </p>
 </template>
 
-<proto>
+<proto type="app">
   declare:
     x: number =  0;
     y: number = 0;
@@ -14,9 +13,6 @@
       origin: 0,
       test: [],
     };
-  case 'fdsqf':
-    break;
-  case 'gfdsgdsg': break;
   compute:
     //  this is a reflection
     this.position.origin => this.x;
