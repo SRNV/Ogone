@@ -174,7 +174,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               ? `
             o = {
               isRoot: false,
-              originalNode: true,
+              isOriginalNode: true,
               original: {%nId%},
               {%setOgone.tagname%}
               {%setOgone.tree%}

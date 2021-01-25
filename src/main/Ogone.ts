@@ -60,7 +60,7 @@ Ogone.classes.extends = (
     if (!oc.contexts.for[o.key!]) {
       oc.contexts.for[o.key!] = {
         list: [this],
-        placeholder: document.createElement("fouin"),
+        placeholder: document.createElement("template"),
         parentNode: (this as unknown as HTMLOgoneElement).parentNode,
         name: this.name,
       };
@@ -134,7 +134,7 @@ Ogone.classes.component = (
           level: 0,
           position: [0],
           flags: null,
-          originalNode: true,
+          isOriginalNode: true,
           uuid,
           extends: '-nt',
         };
@@ -335,8 +335,8 @@ function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
   Object.entries(params)
     .forEach(([key, value]: string[]) => {
       try {
-        (Onode as {[k: string]: any})[key] = value;
-      } catch {}
+        (Onode as { [k: string]: any })[key] = value;
+      } catch { }
     })
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
@@ -738,6 +738,9 @@ function insertElement(
   switch (p) {
     case "beforebegin":
       target = Onode.firstNode;
+      if (!(target as HTMLOgoneElement).extending && !target.insertAdjacentElement && target.nodeType === 3) {
+        return target.parentNode?.insertBefore(el, target);
+      }
       break;
     case "afterbegin":
       target = Onode.firstNode;
@@ -747,10 +750,13 @@ function insertElement(
       break;
     case "afterend":
       target = Onode.lastNode;
+      console.warn('TARGET', target, target.isConnected, el);
+      if (!(target as HTMLOgoneElement).extending && !target.insertAdjacentElement && target.nodeType === 3) {
+        target.parentNode?.append(el);
+        return;
+      }
+      (target as HTMLElement).insertAdjacentElement(p, el)
       break;
-  }
-  if (!(target as HTMLOgoneElement).extending && !target.insertAdjacentElement && target.nodeType === 3) {
-    return target.parentNode?.insertBefore(el, target);
   }
   return (!!(target as HTMLOgoneElement).extending
     ? insertElement((target as HTMLOgoneElement).context.list[
@@ -835,7 +841,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
       isAsyncNode: false,
       requirements: o.requirements,
       routes: o.routes,
-      originalNode: false,
+      isOriginalNode: false,
       dependencies: [],
       extends: "-nt",
       uuid: rendered.uuid,
@@ -1758,7 +1764,7 @@ function renderingProcess(Onode: HTMLOgoneElement) {
   }
   // use the previous jsx and push the result into ogone.nodes
   // set the dependencies of the node into the component
-  if (o.originalNode) setDeps(Onode);
+  if (o.isOriginalNode) setDeps(Onode);
 
   // set dynamic attributes through o.props
   if (!o.isTemplate && o.nodeProps) {
@@ -1795,11 +1801,11 @@ function renderingProcess(Onode: HTMLOgoneElement) {
  */
 function renderContext(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
-  if (!oc || !o.getContext || !o.originalNode) return false;
+  if (!oc || !o.getContext || !o.isOriginalNode) return false;
   const length = o.getContext(
     { getLength: true, position: o.position },
   ) as number;
-  OnodeListRendering((o.isTemplate && Onode.parentComponent ? Onode.parentComponent : Onode), {
+  OnodeListRendering(Onode, {
     callingNewComponent: o.isTemplate,
     length,
   });
@@ -1828,8 +1834,8 @@ function triggerLoad(Onode: HTMLOgoneElement) {
 */
 function setDeps(Onode: HTMLOgoneElement) {
   const o = Onode;
-  if (o.originalNode && o.getContext && o.original) {
-    (o.isComponent && o.component.parentComponent ? o.component.parentComponent : o.component).react.push(() =>
+  if (o.isOriginalNode && o.getContext && o.original) {
+    (o.isComponent && o.parentComponent ? o.parentComponent : o.component).react.push(() =>
       renderContext(o)
     );
     renderContext(o);
@@ -2043,6 +2049,8 @@ function OnodeListRendering(
   // no need to render if it's the same
   if (context.list.length === dataLength) return;
   // first we add missing nodes
+  console.warn('LENGTH', dataLength);
+  let parentNode;
   for (let i = context.list.length, a = dataLength; i < a; i++) {
     console.warn('add', i, a);
 
@@ -2050,7 +2058,7 @@ function OnodeListRendering(
     node = document.createElement(context.name, { is: Onode.extending }) as HTMLOgoneElement;
     let ogoneOpts: Partial<OgoneParameters> | null = {
       index: i,
-      originalNode: false,
+      isOriginalNode: false,
       level: Onode.level,
       position: Onode.position!.slice(),
       flags: Onode.flags,
@@ -2092,9 +2100,14 @@ function OnodeListRendering(
       context.placeholder.replaceWith(node);
     } else {
       let lastEl = context.list[i - 1];
-      if (lastEl) {
+      console.warn(lastEl.parentNode, lastEl.parentElement);
+      if (lastEl && lastEl.parentNode) {
         // HERE maximum callstack
-        insertElement(lastEl as HTMLOgoneElement, "afterend", node);
+        // insertElement(lastEl as HTMLOgoneElement, "afterend", node);
+        lastEl.parentNode.append(node);
+        parentNode = lastEl.parentNode;
+      } else if (parentNode) {
+        parentNode.append(node);
       }
     }
     context.list.push(node);

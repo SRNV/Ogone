@@ -53,7 +53,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   tree?: string;
 
   index?: number;
-  originalNode: boolean;
+  isOriginalNode: boolean;
   level?: number;
   position?: number[];
   flags: any;
@@ -149,7 +149,7 @@ export interface OgoneParameters {
   tree?: string;
 
   index?: number;
-  originalNode: boolean;
+  isOriginalNode: boolean;
   level?: number;
   position?: number[];
   flags: any;

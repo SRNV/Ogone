@@ -5,7 +5,7 @@ test
   <p>${this.count}</p>
   <Test
     --if={this.count >= 3}
-    --for={t of [1, 3]}>3eme doit remplacer la Test 1</Test>
+    --for={t of [1, 3]}>3eme doit remplacer la Test 1 ${t}</Test>
 </template>
 
 <proto type="app">
