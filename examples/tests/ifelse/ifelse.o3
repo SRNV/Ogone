@@ -4,11 +4,13 @@ import component Test from '@/examples/tests/click.o3';
 test
   <p>${this.count}</p>
   <Test
-    --if={this.count >= 3}
-    --for={t of [1, 3]}>3eme doit remplacer la Test 1 ${t}</Test>
+    --else
+    --for={t of this.art}>3eme doit remplacer la Test 1 ${t}</Test>
 </template>
 
-<proto type="app">
+
+
+<proto type="app" engine="proxy-reaction">
   def:
     count: 5
     art:
@@ -21,5 +23,6 @@ test
         if (this.count> 6) {
           this.count = 0;
         }
+          this.art.push(this.count);
     }, 500);
 </proto>

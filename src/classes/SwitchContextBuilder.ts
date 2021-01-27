@@ -40,7 +40,6 @@ ${err.stack}`);
               elseIf: {},
               elseFlag: {},
             };
-            console.warn(nId, node)
             while (
               nxt && nxt.attributes &&
               (nxt.attributes["--else-if"] || nxt.attributes["--else"])
@@ -111,8 +110,10 @@ ${err.stack}`);
                 return `(${main})`;
               } else if (!!isElseIf) {
                 return `!(${main}) && (${isElseIf})`;
-              } else if (!!isElse) {
+              } else if (!!isElse && allElseIf.length) {
                 return `!(${main}) && !(${allElseIf.join(" && ")})`;
+              } else if (!!isElse) {
+                return `!(${main})`;
               }
             }
             return "";

@@ -420,13 +420,13 @@ function useSpread(Onode: HTMLOgoneElement) {
       Object.entries(v).forEach(([k, value]) => {
         OnodeUpdateService(oc, k, value);
       });
-      return true;
+      return Onode.component.activated;
     };
     parent = oc.parent;
   } else if (!o.isTemplate && o.flags && o.flags.spread) {
     reaction = () => {
       const v = o.getContext({
-        position: o.positionInParentComponent,
+        position: o.position,
         getText: `{${o.flags.spread}}`,
       });
       Object.entries(v).forEach(([k, value]) => {
@@ -436,7 +436,7 @@ function useSpread(Onode: HTMLOgoneElement) {
           }
         }
       });
-      return true;
+      return Onode.component.activated;
     };
     parent = oc.component
   }
@@ -513,7 +513,7 @@ function destroy(Onode: HTMLOgoneElement) {
   if (o.isTemplate) {
     OnodeDestroyPluggedWebcomponent(oc);
     oc.component.runtime("destroy");
-    o.activated = false;
+    o.component.activated = false;
   }
   // ogone: {% destroy.devTool %}
   Onode.context.placeholder.remove();
@@ -1881,7 +1881,7 @@ function routerGo(url: string, state: any) {
   history.pushState(state || {}, "", url || "/");
 }
 function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event?: Event | OgoneParameters['historyState']) {
-  // if (!Onode.component.activated) return;
+  if (!Onode.component.activated) return;
   if (Onode.type === "store") {
     initStore(Onode);
   }
@@ -1903,6 +1903,7 @@ function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   );
 };
 function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
+  if (!Onode.component.activated) return;
   Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
     // if there is no update of the texts
     // this can be the reason why
@@ -1941,7 +1942,7 @@ function initStore(Onode: HTMLOgoneElement) {
         OnodeUpdate(parent, key);
       }
     }
-    return true;
+    return Onode.component.activated;
   }]);
 };
 function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
@@ -2001,7 +2002,7 @@ function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown
   }
 };
 function OnodeUpdateProps(Onode: HTMLOgoneElement, dependency?: string) {
-  // if (!Onode.component.activated) return;
+  if (!Onode.component.activated) return;
   if (Onode.type === "store") return;
   if (!Onode?.component?.requirements || !Onode.props) return;
   Onode.component.requirements.forEach(([key]: [string, string]) => {
@@ -2053,7 +2054,7 @@ function OnodeListRendering(
   let parentNode;
   for (let i = context.list.length, a = dataLength; i < a; i++) {
     console.warn('add', i, a);
-
+    let previous
     let node: HTMLOgoneElement;
     node = document.createElement(context.name, { is: Onode.extending }) as HTMLOgoneElement;
     let ogoneOpts: Partial<OgoneParameters> | null = {
@@ -2102,14 +2103,23 @@ function OnodeListRendering(
       let lastEl = context.list[i - 1];
       console.warn(lastEl.parentNode, lastEl.parentElement);
       if (lastEl && lastEl.parentNode) {
-        // HERE maximum callstack
-        // insertElement(lastEl as HTMLOgoneElement, "afterend", node);
         lastEl.parentNode.append(node);
         parentNode = lastEl.parentNode;
-      } else if (parentNode) {
+      } else if (parentNode && previous) {
+        parentNode.insertBefore(node, previous.nextElementSibling);
+      }else if(parentNode) {
         parentNode.append(node);
+      } else if (lastEl && lastEl.isConnected) {
+        // HERE maximum callstack
+        // insertElement(lastEl as HTMLOgoneElement, "afterend", node);
+      } else if (Onode && Onode.parentNode && !Onode.renderedList) {
+        // Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
+        Onode.renderedList = true;
+      } else if (Onode && Onode.parentNode && Onode.renderedList && previous) {
+        // Onode.parentNode.insertBefore(node, previous.nextElementSibling);
       }
     }
+    previous = node;
     context.list.push(node);
   }
   // no need to remove if it's the same
@@ -2122,6 +2132,9 @@ function OnodeListRendering(
       let firstEl = context.list[0] as HTMLOgoneElement;
       if (firstEl && firstEl.firstNode) {
         insertElement(firstEl, "beforebegin", context.placeholder);
+      } else if (Onode.parentNode) {
+        const { parentNode } = context;
+        parentNode.insertBefore(context.placeholder, Onode);
       }
       console.warn('test', firstEl, firstEl.firstNode, context.placeholder.isConnected);
     }
