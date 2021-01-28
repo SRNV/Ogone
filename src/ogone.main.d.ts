@@ -1,9 +1,10 @@
 import type OgoneStyle from "./classes/css/Style.ts";
-import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment } from './ogone.dom.d.ts';
+import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment, Text } from './ogone.dom.d.ts';
 
 // @ts-ignore
 export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, OgoneParameters {
   data: any;
+  placeholder: Text;
   isComponent: boolean;
   isConnected: boolean;
   isRecursiveConnected: boolean;

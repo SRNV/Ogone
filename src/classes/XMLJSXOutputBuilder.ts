@@ -176,6 +176,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               isRoot: false,
               isOriginalNode: true,
               original: {%nId%},
+              placeholder: new Text(' '),
               {%setOgone.tagname%}
               {%setOgone.tree%}
               {%setOgone.positionLevelIndex%}
@@ -232,7 +233,7 @@ ${err.stack}`);
           continue;
         }
         const params =
-          "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
+          "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {n.placeholder ? p.append(n, n.placeholder) : p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
         if (node.nodeType === 1 && node.tagName !== "style") {
           const nodeIsDynamic = !!Object.keys(node.attributes).find((
             attr: string,

@@ -76,7 +76,7 @@ ${err.stack}`);
       })
       const invalidatationRegExp = /(?<!\/\*ogone-skip\*\/)(\bthis\.)(.+?\b)(.*?)(\s*=\s*)(?!\>|\<)(.+?)(\n|;|\)$|$)/gi;
       const invalidatationShortOperationRegExp = /(?<!\/\*ogone-skip\*\/)(\bthis\.)(.+?\b)(.*?)([\+\-\*]+)(\n|;|\)$|$)/gi;
-      const arrayModifier = /(?<!\/\*ogone-skip\*\/)(\bthis\.)(.+?\b)((.*?)\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:\d+_parenthese))+/gi;
+      const arrayModifier = /(?<!\/\*ogone-skip\*\/)(\bthis\.)(.+?\b)(([^;\{\}]*?)\.\s*(?:push|splice|pop|reverse|fill|copyWithin|shift|unshift|sort|set)(?:\d+_parenthese))+/gi;
       result = result.replace(invalidatationShortOperationRegExp, `${this.reactWith || '___'}("$2", this,\n/*ogone-skip*/$1$2$3$4\n)$5`);
       result = result.replace(invalidatationRegExp, `${this.reactWith || '___'}("$2", this,\n/*ogone-skip*/$1$2$3$4$5\n)$6`);
       result = result.replace(arrayModifier, `${this.reactWith || '___'}("$2", this, /*ogone-skip*/$&)`);

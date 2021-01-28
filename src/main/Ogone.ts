@@ -60,7 +60,6 @@ Ogone.classes.extends = (
     if (!oc.contexts.for[o.key!]) {
       oc.contexts.for[o.key!] = {
         list: [this],
-        placeholder: document.createElement("template"),
         parentNode: (this as unknown as HTMLOgoneElement).parentNode,
         name: this.name,
       };
@@ -484,7 +483,7 @@ function removeNodes(Onode: HTMLOgoneElement) {
   function rm(n: any) {
     if (n.extending) {
       destroy(n);
-      n.context.placeholder.remove();
+      // n.context.placeholder.remove();
     } else {
       (n as HTMLElement).remove();
     }
@@ -516,7 +515,7 @@ function destroy(Onode: HTMLOgoneElement) {
     o.component.activated = false;
   }
   // ogone: {% destroy.devTool %}
-  Onode.context.placeholder.remove();
+  // Onode.placeholder.remove();
   Onode.remove();
 }
 /**
@@ -721,48 +720,6 @@ function setEvents(Onode: HTMLOgoneElement) {
       }
     }
   }
-}
-/**
- * recursive insertion, this function is involved into the loops rendering
- */
-function insertElement(
-  Onode: HTMLOgoneElement,
-  p: "beforebegin" | "afterbegin" | "beforeend" | "afterend",
-  el: HTMLElement,
-): undefined | Element | null {
-  if (!Onode.firstNode) {
-    Onode.insertAdjacentElement(p, el);
-    return;
-  }
-  let target;
-  switch (p) {
-    case "beforebegin":
-      target = Onode.firstNode;
-      if (!(target as HTMLOgoneElement).extending && !target.insertAdjacentElement && target.nodeType === 3) {
-        return target.parentNode?.insertBefore(el, target);
-      }
-      break;
-    case "afterbegin":
-      target = Onode.firstNode;
-      break;
-    case "beforeend":
-      target = Onode.lastNode;
-      break;
-    case "afterend":
-      target = Onode.lastNode;
-      console.warn('TARGET', target, target.isConnected, el);
-      if (!(target as HTMLOgoneElement).extending && !target.insertAdjacentElement && target.nodeType === 3) {
-        target.parentNode?.append(el);
-        return;
-      }
-      (target as HTMLElement).insertAdjacentElement(p, el)
-      break;
-  }
-  return (!!(target as HTMLOgoneElement).extending
-    ? insertElement((target as HTMLOgoneElement).context.list[
-      (target as HTMLOgoneElement).context.list.length - 1
-    ] as HTMLOgoneElement, p, el)
-    : (target as HTMLElement).insertAdjacentElement(p, el));
 }
 /**
  * this function is used inside an array.find this is why it returns a boolean.
@@ -1473,7 +1430,7 @@ function renderNode(Onode: HTMLOgoneElement) {
     }
     // replace the element
     if (o.type === "async") {
-      Onode.context.placeholder.replaceWith(...(o.nodes as Node[]));
+      Onode.placeholder.replaceWith(...(o.nodes as Node[]));
     } else {
       // HERE maximum callstack: recursive component
       // this occurs if the data is not retrieved
@@ -1675,7 +1632,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
   renderAsyncComponent(Onode);
 
   const chs = Array.from(Onode.childNodes) as (HTMLElement | HTMLOgoneElement)[];
-  const placeholder = Onode.context.placeholder;
+  const placeholder = Onode.placeholder;
   const txt = chs.find((n) => n.nodeType === 3) as unknown as Text;
   if (txt) {
     const UnwrappedTextnodeOnAsyncComponentException = new Error(
@@ -2050,11 +2007,7 @@ function OnodeListRendering(
   // no need to render if it's the same
   if (context.list.length === dataLength) return;
   // first we add missing nodes
-  console.warn('LENGTH', dataLength);
-  let parentNode;
   for (let i = context.list.length, a = dataLength; i < a; i++) {
-    console.warn('add', i, a);
-    let previous
     let node: HTMLOgoneElement;
     node = document.createElement(context.name, { is: Onode.extending }) as HTMLOgoneElement;
     let ogoneOpts: Partial<OgoneParameters> | null = {
@@ -2097,47 +2050,13 @@ function OnodeListRendering(
     };
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
-    if (i === 0) {
-      context.placeholder.replaceWith(node);
-    } else {
-      let lastEl = context.list[i - 1];
-      console.warn(lastEl.parentNode, lastEl.parentElement);
-      if (lastEl && lastEl.parentNode) {
-        lastEl.parentNode.append(node);
-        parentNode = lastEl.parentNode;
-      } else if (parentNode && previous) {
-        parentNode.insertBefore(node, previous.nextElementSibling);
-      }else if(parentNode) {
-        parentNode.append(node);
-      } else if (lastEl && lastEl.isConnected) {
-        // HERE maximum callstack
-        // insertElement(lastEl as HTMLOgoneElement, "afterend", node);
-      } else if (Onode && Onode.parentNode && !Onode.renderedList) {
-        // Onode.parentNode.insertBefore(node, Onode.nextElementSibling);
-        Onode.renderedList = true;
-      } else if (Onode && Onode.parentNode && Onode.renderedList && previous) {
-        // Onode.parentNode.insertBefore(node, previous.nextElementSibling);
-      }
-    }
-    previous = node;
+    Onode.placeholder.replaceWith(node, Onode.placeholder);
     context.list.push(node);
   }
   // no need to remove if it's the same
   if (context.list.length === dataLength) return;
   // now we remove the extra elements
   for (let i = context.list.length, a = dataLength; i > a; i--) {
-    console.warn('remove', i, a);
-    if (context.list.length === 1) {
-      // get the first element of the webcomponent
-      let firstEl = context.list[0] as HTMLOgoneElement;
-      if (firstEl && firstEl.firstNode) {
-        insertElement(firstEl, "beforebegin", context.placeholder);
-      } else if (Onode.parentNode) {
-        const { parentNode } = context;
-        parentNode.insertBefore(context.placeholder, Onode);
-      }
-      console.warn('test', firstEl, firstEl.firstNode, context.placeholder.isConnected);
-    }
     const rm = context.list.pop() as HTMLOgoneElement;
     // don't use destroy here
     // if rm.destroy is used, it will not allow empty list to rerender
