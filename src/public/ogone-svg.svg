@@ -1,30 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 720" width="720" height="720">
 	<defs>
-		<radialGradient id="grd1" gradientUnits="userSpaceOnUse"  cx="0" cy="0" r="0">
+		<linearGradient id="grd1" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#3b2e64"  />
+			<stop offset="1" stop-color="#9492f7"  />
+		</linearGradient>
+		<radialGradient id="grd2" gradientUnits="userSpaceOnUse"  cx="0" cy="0" r="0">
 			<stop offset="0" stop-color="#171623"  />
 			<stop offset="0.94" stop-color="#9492f7"  />
 		</radialGradient>
-		<linearGradient id="grd2" gradientUnits="userSpaceOnUse"  x1="-106.257" y1="451.833" x2="470.786" y2="1275.937">
-			<stop offset="0" stop-color="#171623"  />
-			<stop offset="1" stop-color="#9492f7"  />
+		<linearGradient id="grd3" gradientUnits="userSpaceOnUse"  x1="-106.331" y1="451.833" x2="470.713" y2="1275.937">
+			<stop offset="0" stop-color="#352e5c"  />
+			<stop offset="0.997" stop-color="#9492f7"  />
 		</linearGradient>
-		<radialGradient id="grd3" gradientUnits="userSpaceOnUse"  cx="564.459" cy="334.919" r="497.879">
+		<radialGradient id="grd4" gradientUnits="userSpaceOnUse"  cx="568.579" cy="334.919" r="478.809">
 			<stop offset="0" stop-color="#171623"  />
 			<stop offset="0.94" stop-color="#9492f7"  />
 		</radialGradient>
-		<linearGradient id="grd4" gradientUnits="userSpaceOnUse"  x1="258.028" y1="-117.81" x2="630.573" y2="414.24">
+		<linearGradient id="grd5" gradientUnits="userSpaceOnUse"  x1="258.284" y1="-118.052" x2="631.241" y2="414.586">
 			<stop offset="0" stop-color="#171623"  />
 			<stop offset="0.94" stop-color="#9492f7"  />
-		</linearGradient>
-		<linearGradient id="grd5" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
-			<stop offset="0" stop-color="#171623"  />
-			<stop offset="1" stop-color="#9492f7"  />
 		</linearGradient>
 		<linearGradient id="grd6" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
 			<stop offset="0" stop-color="#171623"  />
+			<stop offset="0.94" stop-color="#9492f7"  />
+		</linearGradient>
+		<linearGradient id="grd7" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#171623"  />
 			<stop offset="1" stop-color="#9492f7"  />
 		</linearGradient>
-		<radialGradient id="grd7" gradientUnits="userSpaceOnUse"  cx="359.515" cy="409.202" r="150.277">
+		<linearGradient id="grd8" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
+			<stop offset="0" stop-color="#171623"  />
+			<stop offset="1" stop-color="#9492f7"  />
+		</linearGradient>
+		<radialGradient id="grd9" gradientUnits="userSpaceOnUse"  cx="359.515" cy="409.202" r="150.277">
 			<stop offset="0" stop-color="#9492f7"  />
 			<stop offset="1" stop-color="#171623"  />
 		</radialGradient>
@@ -38,12 +46,16 @@
 		.shp4 { fill: url(#grd5) } 
 		.shp5 { fill: url(#grd6) } 
 		.shp6 { fill: url(#grd7) } 
+		.shp7 { fill: url(#grd8) } 
+		.shp8 { fill: url(#grd9) } 
 	</style>
-	<path id="Shape 1" class="shp0" d="" />
-	<path id="Shape 2 copy" class="shp1" d="M282.29 451.4C278.16 317.1 393.4 301.34 442.8 322.05C475.02 335.56 529.04 373.07 518.87 447.44C509.51 515.84 435.93 582.27 380.59 595.36C299.96 614.43 208.07 575.83 150.94 499.32C41.21 352.41 130.4 144.05 245.7 78.44C275.67 61.38 264.13 64.19 264.13 64.19C264.13 64.19 90.3 116.77 55.83 304.48C20.87 494.85 148.58 655.36 326.86 669.04C505.13 682.71 590.97 545.75 599.92 458.15C608.93 370.05 551.62 284.33 444.88 268.24C342.84 252.86 287.92 335.94 278.98 408.5C277.87 417.43 282.56 460.46 282.29 451.4Z" />
-	<path id="Background copy" fill-rule="evenodd" class="shp2" d="M667.1 414.59C639.05 571.07 498.86 678.78 344.09 669.84C509.33 672.54 591.15 544.48 597 462.54C603.82 367.07 549.98 296.57 443.26 280.48C341.2 265.1 287.92 335.94 278.98 408.5C277.87 417.43 277.39 417.35 280.07 408.69C302.7 335.54 354.58 313.15 397.98 313.26C342.03 314.2 292.84 354.47 282.58 411.68C270.92 476.72 314.07 538.73 379.12 550.4C430.88 559.68 480.72 534.24 504.8 490.68C478.78 541.89 424.06 585.08 380.59 595.36C299.96 614.43 206.56 576.93 150.94 499.32C62.36 375.75 73.54 160.54 260.45 66.28C266.36 63.29 267.39 63.3 266.9 63.89C313.61 48.95 364.57 44.9 416.28 54.17C585.29 84.47 697.41 245.57 667.1 414.59ZM266.9 63.89C266.03 64.16 265.17 64.45 264.31 64.73C263.94 65.93 266.36 64.54 266.9 63.89ZM518.87 447.44C518.66 449.02 518.41 450.59 518.12 452.17C523.64 418.68 514.69 386.13 495.77 360.95C512.54 381.36 524.05 409.57 518.87 447.44ZM74.44 241.17C91.6 199.44 117.35 162.81 149.16 133.04C120.74 160.48 93.12 196.33 74.44 241.17Z" />
-	<path id="Shape 2 copy 2" class="shp3" d="M482.31 345.97C559.56 455.91 475.71 527.45 423.06 537.29C388.73 543.71 326.1 547.52 293.74 479.79C263.97 417.51 300.89 311.73 340.42 270.85C410.43 198.44 468.55 182.73 557.67 217C699.59 271.56 664.77 416.27 664.77 416.27C664.77 416.27 690.2 353.78 651.67 251.37C610.63 142.32 448.83 30.44 316.23 156.52C214.38 253.38 202.18 381.85 225.89 461.53C282.03 650.15 555.98 590.65 516.14 389.62C509.2 360 477.1 338.55 482.31 345.97Z" />
-	<path id="Shape 3" class="shp4" d="" />
-	<path id="Shape 2" class="shp5" d="" />
-	<path id="Layer 1" fill-rule="evenodd" class="shp6" d="M486.61 452.33C477.78 501.59 430.82 534.27 381.56 525.44C332.29 516.6 299.62 469.65 308.45 420.38C317.28 371.12 364.24 338.44 413.5 347.28C462.77 356.11 495.44 403.06 486.61 452.33Z" />
+	<path id="Shape 3" class="shp0" d="" />
+	<path id="Shape 1" class="shp1" d="" />
+	<path id="Shape 2 copy" class="shp2" d="M282.29 451.4C278.16 317.1 393.4 301.34 442.8 322.05C475.02 335.56 529.04 373.07 518.87 447.44C509.51 515.84 435.93 581.27 380.59 594.36C299.96 613.43 208.07 575.83 150.94 499.32C41.21 352.41 130.4 144.05 245.7 78.44C275.67 61.38 264.13 64.19 264.13 64.19C264.13 64.19 91.36 113.28 55.83 304.48C20.47 494.78 148.58 655.36 326.86 669.04C505.13 682.71 590.97 545.75 599.92 458.15C608.93 370.05 551.97 281.82 444.88 268.24C324.12 252.93 287.92 335.94 278.98 408.5C277.87 417.43 282.56 460.46 282.29 451.4Z" />
+	<path id="Background copy" fill-rule="evenodd" class="shp3" d="M667.1 414.59C639.05 571.07 498.86 678.78 344.09 669.84C509.33 672.54 591.15 544.48 597 462.54C603.82 367.07 549.98 296.57 443.26 280.48C341.2 265.1 288.08 331.07 279.13 403.63C278.03 412.56 267.92 531.42 379.12 550.4C430.96 559.24 480.72 534.24 504.8 490.68C478.78 541.89 424.06 585.08 380.59 595.36C299.96 614.43 206.56 576.93 150.94 499.32C62.36 375.75 73.54 160.54 260.45 66.28C272.95 59.98 263.61 67 264.31 64.73C311.72 49.1 363.61 44.72 416.28 54.17C585.29 84.47 697.41 245.57 667.1 414.59Z" />
+	<path id="Shape 2 copy 2" class="shp4" d="M482.31 345.97C559.56 455.91 475.71 527.45 423.06 537.29C388.73 543.71 326.1 547.52 293.74 479.79C263.97 417.51 300.89 311.73 340.42 270.85C410.43 198.44 468.55 182.73 557.67 217C699.59 271.56 667.01 418.76 667.01 418.76C667.01 418.76 690.2 353.78 651.67 251.37C610.63 142.32 448.83 30.44 316.23 156.52C214.38 253.38 202.18 381.85 225.89 461.53C282.03 650.15 562.13 589.17 518.47 403.63C511.74 375.04 477.1 338.55 482.31 345.97Z" />
+	<path id="Shape 3" class="shp5" d="" />
+	<path id="Shape 3" class="shp6" d="" />
+	<path id="Shape 2" class="shp7" d="" />
+	<path id="Layer 1" fill-rule="evenodd" class="shp8" d="M486.61 452.33C477.78 501.59 430.82 534.27 381.56 525.44C332.29 516.6 299.62 469.65 308.45 420.38C317.28 371.12 364.24 338.44 413.5 347.28C462.77 356.11 495.44 403.06 486.61 452.33Z" />
 </svg>

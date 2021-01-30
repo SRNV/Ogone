@@ -39,6 +39,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   methodsCandidate?: Function[];
   isTemplate: boolean;
   isAsync: boolean;
+  isController: boolean;
   isAsyncNode: boolean;
   isStore: boolean;
   isRouter: boolean;
@@ -82,6 +83,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
 
 export interface OgoneInterface {
   // usable on browser side
+  types: { [k: string]: OgoneParameters["type"] };
   root: boolean;
   stores: OgoneStores;
   clients: OgoneStoreClient[];
@@ -137,6 +139,7 @@ export interface OgoneParameters {
   methodsCandidate?: Function[];
   isTemplate: boolean;
   isAsync: boolean;
+  isController: boolean;
   isAsyncNode: boolean;
   isStore: boolean;
   isRouter: boolean;

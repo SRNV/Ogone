@@ -34,31 +34,15 @@ export default class WebComponentDefinition extends Utils {
         elementId: isTemplate
           ? `${component.uuid}-nt`
           : `${component.uuid}-${node.id}`,
-        extension: isTemplate ? "HTMLTemplateElement" : `HTMLElement`,
       };
       let componentExtension = ``;
-      let definition =
-        `customElements.define('{% elementId %}', Ogone.classes.component({% extension %}, '{% component.type %}', '{% component.uuid %}'), { extends: 'template' });`;
-
-      if (!isTemplate) {
-        definition =
-          `customElements.define('{% elementId %}', Ogone.classes.component({% extension %}, '{% component.type %}', '{% component.uuid %}'));`;
-      }
-      if (!isProduction) {
-        // for HMR
-        // asking if the customElement is already defined
-        definition = `
-        if (!customElements.get("{% elementId %}")) {
-          ${definition}
-        }
-      `;
-      }
       const render = `Ogone.render['{% elementId %}'] = ${componentPragma
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
         }`;
+      const types = 'Ogone.types["{% elementId %}"] = "{% component.type %}";'
       MapOutput.outputs.render.push(this.template(render, templateSlots));
-      MapOutput.outputs.customElement.push(this.template(definition, templateSlots));
+      MapOutput.outputs.types.push(this.template(types, templateSlots));
       if (["controller"].includes(component.type)) {
         return `class extends HTMLTemplateElement {
         constructor(){super();}

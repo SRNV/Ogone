@@ -88,9 +88,9 @@ import component OBtn from '../atoms/button.o3';
 
 
 <!-- style is by default scoped, use the attribute global if you want to make the style general -->
-<style --keyframes="[
+<style --keyframes={[
   get('fade-in-down', { time: 2, style: 'ease-in' }),
-  ]">
+  ]}>
   .container {
     transition: 0.5s ease;
     filter: drop-shadow(-10px 10px 10px #00000055);

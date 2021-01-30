@@ -138,6 +138,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           isAsync: !!isImported && !!subcomp && subcomp.type === "async",
           isRouter: !!isImported && !!subcomp && subcomp.type === "router",
           isStore: !!isImported && !!subcomp && subcomp.type === "store",
+          isController: !!isImported && !!subcomp && subcomp.type === "controller",
           recycleWebcomponent: isRoot && reuseStatement ? `
           OnodeRecycleWebComponent({% nId %}, {
             id: '${idComponent}',
@@ -186,6 +187,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               isAsync: {% isAsync %},
               isRouter: {% isRouter %},
               isStore: {% isStore %},
+              isController: {% isController %},
               isAsyncNode: {% isAsyncNode %},
               isImported: {% isImported %},
               isRemote: {% isRemote %},
@@ -308,9 +310,9 @@ ${err.stack}`);
             identifier[1] = `_h('${node.tagName}')`;
             if (nodeIsDynamic && !isImported && !isRoot) {
               // create a custom element if the element as a flag or prop or event;
-              identifier[1] = `_h("${idComponent}-${node.id}")`;
+              identifier[1] = `_h("ogone-node")`;
             } else if (isImported) {
-              identifier[1] = `_h('template', { is: '${extensionId}-nt'})`;
+              identifier[1] = `_h("ogone-node")`;
             }
             nodeCreation = `const ${nId} = ${identifier[1]};`;
             const flags = this.parseFlags(

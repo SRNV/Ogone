@@ -16,59 +16,13 @@ import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, 
 declare const document: Document;
 declare const location: Location;
 declare class Comment extends Com { };
-
-/**
- * returns the base extension classe of all HTMLOgoneElement (webcomponents)
- */
-Ogone.classes.extends = (
-  klass: FunctionConstructor,
-) => (class extends (klass) {
+declare const ROOT_UUID: string;
+export class OgoneBaseClass extends HTMLElement {
   declare nodes: OgoneParameters['nodes'];
   declare uuid: OgoneParameters['uuid'];
   declare isTemplate: OgoneParameters['isTemplate'];
   declare component: OgoneParameters['component'];
   declare extends: OgoneParameters['extends'];
-  get firstNode() {
-    return this.nodes![0];
-  }
-  get lastNode() {
-    return this.nodes![this.nodes!.length - 1];
-  }
-  get extending(): string {
-    return `${this.uuid}${this.extends}`;
-  }
-  get name() {
-    return this.isComponent
-      ? "template"
-      : (this as unknown as HTMLOgoneElement).tagName.toLowerCase();
-  }
-  get isComponent() {
-    return this.isTemplate;
-  }
-  get isRecursiveConnected() {
-    return !!(this.nodes?.length && this.firstNode.isConnected && this.lastNode.isConnected);
-  }
-  get isConnected() {
-    if (!this.firstNode) {
-      return false;
-    }
-    return !!this.nodes?.find((n) => n.isConnected);
-  }
-  get context() {
-    const o = this, oc = this.component;
-    if (!oc) return;
-    if (!oc.contexts.for[o.key!]) {
-      oc.contexts.for[o.key!] = {
-        list: [this],
-        parentNode: (this as unknown as HTMLOgoneElement).parentNode,
-        name: this.name,
-      };
-    }
-    return oc.contexts.for[o.key!];
-  }
-  constructor() {
-    super();
-  }
   public key = null;
   public data = null;
   public pluggedWebComponentIsSync = false;
@@ -100,71 +54,98 @@ Ogone.classes.extends = (
   public react = [];
   public texts = [];
   public childs = [];
-}) as unknown as HTMLOgoneElement;
-/**
- *
- */
-Ogone.classes.component = (
-  klass: FunctionConstructor,
-  componentType: string = "component",
-  uuid: string = '',
-) =>
-  (class extends (Ogone.classes.extends!(klass) as unknown as FunctionConstructor) {
-    declare public type: string;
-    constructor() {
-      super();
-      this.type = componentType;
-      if (!Ogone.root) {
-        let opts: OgoneParameters | null = {
-          props: null,
-          parentCTXId: '',
-          dependencies: null,
-          requirements: null,
-          routes: null,
-          isRoot: true,
-          isTemplate: true,
-          isAsync: false,
-          isAsyncNode: false,
-          isRouter: false,
-          isStore: false,
-          isImported: false,
-          isRemote: false,
-          index: 0,
-          level: 0,
-          position: [0],
-          flags: null,
-          isOriginalNode: true,
-          uuid,
-          extends: '-nt',
-        };
-        setOgone(this as unknown as HTMLOgoneElement, opts);
-        opts = null;
-        Ogone.root = true;
-      }
+  public refs = {};
+  public type = "component";
+  constructor() {
+    super();
+    if (!Ogone.root) {
+      let opts: OgoneParameters | null = {
+        props: null,
+        parentCTXId: '',
+        dependencies: null,
+        requirements: null,
+        routes: null,
+        isRoot: true,
+        isTemplate: true,
+        isAsync: false,
+        isController: false,
+        isAsyncNode: false,
+        isRouter: false,
+        isStore: false,
+        isImported: false,
+        isRemote: false,
+        index: 0,
+        level: 0,
+        position: [0],
+        flags: null,
+        isOriginalNode: true,
+        uuid: ROOT_UUID,
+        extends: '-nt',
+      };
+      setOgone(this as unknown as HTMLOgoneElement, opts);
+      opts = null;
+      Ogone.root = true;
     }
-    connectedCallback(this: HTMLOgoneElement) {
-      if (this.type === "controller") {
-        this.remove();
-        return;
-      }
-      // set position of the template/component
-      setPosition(this);
+  }
+  get firstNode() {
+    return this.nodes![0];
+  }
+  get lastNode() {
+    return this.nodes![this.nodes!.length - 1];
+  }
+  get extending(): string {
+    return `${this.uuid}${this.extends}`;
+  }
+  get name() {
+    return 'ogone-node';
+  }
+  get isComponent() {
+    return this.isTemplate;
+  }
+  get isRecursiveConnected() {
+    return !!(this.nodes?.length && this.firstNode.isConnected && this.lastNode.isConnected);
+  }
+  get isConnected() {
+    if (!this.firstNode) {
+      return false;
+    }
+    return !!this.nodes?.find((n) => n.isConnected);
+  }
+  get context() {
+    const o = this, oc = this.component;
+    if (!oc) return;
+    if (!oc.contexts.for[o.key!]) {
+      oc.contexts.for[o.key!] = {
+        list: [this],
+        parentNode: (this as unknown as HTMLOgoneElement).parentNode,
+        name: this.name,
+      };
+    }
+    return oc.contexts.for[o.key!];
+  }
+  connectedCallback(this: HTMLOgoneElement) {
+    if (this.isController) {
+      this.remove();
+      return;
+    }
+    // set position of the template/component
+    setPosition(this);
 
-      // set the context of the node
-      setContext(this);
-      // setHMRContext();
+    // set the context of the node
+    setContext(this);
+    // setHMRContext();
 
       // parse the route that match with location.pathname
       if (this.type === "router") {
         setActualRouterTemplate(this);
       }
 
-      // set the props required by the node
-      if (this.isTemplate) {
-        setProps(this);
-        OnodeUpdateProps(this);
-      }
-      renderingProcess(this);
+    // set the props required by the node
+    if (this.isTemplate) {
+      setProps(this);
+      OnodeUpdateProps(this);
+    }
+    renderingProcess(this);
 
       switch (true) {
         case this.type === "router":
@@ -181,7 +162,7 @@ Ogone.classes.component = (
           break;
       }
     }
-  }) as unknown as HTMLOgoneElement;
+}
 // Router implementation
 window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
@@ -237,14 +218,14 @@ export async function imp(id: string, url?: string) {
     `));
   }
 };
-export function _ap(p,n) {
+export function _ap(p, n) {
   n.placeholder ? p.append(n, n.placeholder) : p.append(n);
 }
 export function _h(...a: any[]) {
   return document.createElement(...a);
 }
-export function _at(n: Element,a: string,b: string){
-  return n.setAttribute(a,b)
+export function _at(n: Element, a: string, b: string) {
+  return n.setAttribute(a, b)
 };
 /**
  * function called right after Ogone.setOgone
@@ -263,7 +244,7 @@ function construct(Onode: HTMLOgoneElement) {
     Onode.component.refs = Refs;
     Onode.requirements = o.requirements;
     Onode.props = o.props;
-    Onode.type = o.type;
+    Onode.type = Ogone.types[Onode.extending!]!;
     // define runtime for hmr
     // Ogone.instances[o.uuid] = Ogone.instances[o.uuid] || [];
   }
@@ -791,9 +772,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
   } else if (
     rendered && !(rendered.once || o.actualRoute === rendered.component)
   ) {
-    const { component: uuidC } = rendered;
-    console.warn(uuidC);
-    const co = document.createElement("template", { is: uuidC }) as HTMLOgoneElement;
+    const co = document.createElement("ogone-node") as HTMLOgoneElement;
     o.actualTemplate = co;
     o.actualRoute = rendered.component;
     o.routeChanged = true;
@@ -806,6 +785,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
       isStore: false,
       isAsync: false,
       isAsyncNode: false,
+      isController: false,
       placeholder: new Text(' '),
       requirements: o.requirements,
       routes: o.routes,
@@ -831,6 +811,9 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     };
     setOgone(co, ogoneOpts);
     ogoneOpts = null;
+    co.isAsync = co.type === 'async';
+    co.isRouter = co.type === 'router';
+    co.isStore = co.type === 'store';
     // if the route provide any title
     // we change the title of the document
 
@@ -863,7 +846,7 @@ function setNodeAsyncContext(Onode: HTMLOgoneElement) {
             resolve(false);
           });
         }
-      } catch(err) {
+      } catch (err) {
         reject(err);
       }
     });
@@ -1523,10 +1506,10 @@ function renderRouter(Onode: HTMLOgoneElement) {
 function renderAsyncRouter(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
-  const filter = (t: any) => t.component && t.component.type === "router";
+  const filter = (t: any) => t.isComponent && t.component && t.component.type === "router";
   const s = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
-    const arrayOfTemplates = Array.from(n.querySelectorAll("template"))
+    const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
       .filter(filter) as typeof s;
     for (let template of arrayOfTemplates) {
       s.push(template);
@@ -1542,10 +1525,10 @@ function renderAsyncRouter(Onode: HTMLOgoneElement) {
 function renderAsyncStores(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
-  const filter = (t: any) => t.component && t.component.type === "store";
+  const filter = (t: any) => t.isComponent && t.component && t.component.type === "store";
   const asyncStores = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
-    const arrayOfTemplates = Array.from(n.querySelectorAll("template"))
+    const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
       .filter(filter) as typeof asyncStores;
     for (let template of arrayOfTemplates) {
       asyncStores.push(template);
@@ -1563,11 +1546,11 @@ function renderAsyncStores(Onode: HTMLOgoneElement) {
 function renderAsyncComponent(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc || !o || !o.nodes) return;
-  const filter = (t: any) => t.component && t.component.type === "async";
+  const filter = (t: any) => t.isComponent && t.component && t.component.type === "async";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
-    const awaitingNodes = Array.from(node.querySelectorAll("template"))
+    const awaitingNodes = Array.from(node.querySelectorAll("ogone-node"))
       .filter(filter) as HTMLOgoneElement[];
-      console.warn("awaiting", node, awaitingNodes);
+    console.warn("awaiting", node, awaitingNodes);
     if (
       node.isComponent && node && node.component && node.component.type === "async"
     ) {
@@ -1612,7 +1595,7 @@ function renderComponent(Onode: HTMLOgoneElement) {
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "component";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
-    const components = Array.from(node.querySelectorAll("template"))
+    const components = Array.from(node.querySelectorAll("ogone-node"))
       .filter(filter) as HTMLOgoneElement[];
     let n = (node as HTMLOgoneElement);
     if (
@@ -1645,7 +1628,6 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
 
   // then render child async components
   renderAsyncComponent(Onode);
-  console.warn("parent",Onode, Onode.childNodes, Onode.nodes);
   const chs = Array.from(Onode.childNodes) as (HTMLElement | HTMLOgoneElement)[];
   const placeholder = Onode.placeholder;
   // async placeholder feature
@@ -2012,6 +1994,7 @@ function OnodeListRendering(
     let node: HTMLOgoneElement;
     node = document.createElement(context.name, { is: Onode.extending }) as HTMLOgoneElement;
     let ogoneOpts: Partial<OgoneParameters> | null = {
+      type: Onode.type,
       index: i,
       isOriginalNode: false,
       level: Onode.level,
@@ -2050,7 +2033,6 @@ function OnodeListRendering(
           levelInParentComponent: Onode.levelInParentComponent,
         }),
     };
-    console.warn('created', node);
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
     Onode.placeholder.replaceWith(node, Onode.placeholder);

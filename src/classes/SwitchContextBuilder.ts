@@ -125,10 +125,10 @@ ${err.stack}`);
             node.hasFlag || !node.tagName && node.nodeType === 1 || isNodeDynamic
               ? `
           Ogone.contexts['{% context.id %}'] = function(opts) {
+            const GET_TEXT = opts.getText;
+            const GET_LENGTH = opts.getLength;
+            const POSITION = opts.position;
             try {
-              const GET_TEXT = opts.getText;
-              const GET_LENGTH = opts.getLength;
-              const POSITION = opts.position;
               {% data %}
               {% modules %}
               {% value %}

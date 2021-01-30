@@ -205,7 +205,7 @@ ${err.stack}`);
         const scriptDev = this.template(
           `
         const ___perfData = window.performance.timing;
-
+        const ROOT_UUID = "${rootComponent.uuid}";
         ${MapOutput.runtime}
           {% promise %}
         `,
@@ -220,9 +220,7 @@ ${err.stack}`);
           `
               : "{%start%}",
             start: `document.body.append(
-            document.createElement("template", {
-              is: "${rootComponent.uuid}-nt",
-            })
+            document.createElement('ogone-node')
           );`,
             render: {},
             root: bundle.components.get(entrypoint),
@@ -340,79 +338,5 @@ ${err.stack}`);
   public async getBuild() {
     // TODO use worker instead
     this.error(`\nbuild is not yet ready.\nwaiting for a fix on the ts compiler\nplease check this issue: https://github.com/denoland/deno/issues/7054`);
-    /*
-    try {
-      let Style = '';
-      if (!this.bundle) return;
-      if (Configuration && Configuration.compileCSS) {
-        this.recursiveRead({
-          entrypoint: Configuration.entrypoint,
-          onContent: (file: string, content: string) => {
-            if (file.endsWith('.css')) {
-              this.warn(`loading css: ${file}`);
-              Style += content;
-            }
-          }
-        });
-      }
-      const stylesProd = Array.from(this.bundle.components.entries()).map((
-        entry: any,
-      ) => entry[1].style.join("\n")).join("\n");
-      const compiledStyle = Configuration.minifyCSS ? Style + stylesProd.replace(/(\n|\s+|\t)/gi, ' ') : Style + stylesProd;
-      const style = `<style>${(compiledStyle)}</style>`;
-      const esmProd = Array.from(this.bundle.components.entries()).map((
-        entry: any,
-      ) => entry[1].dynamicImportsExpressionsProd).join("\n");
-      const rootComponent = this.bundle.components.get(Configuration.entrypoint);
-      if (rootComponent) {
-        if (
-          rootComponent &&
-          ["router", "store", "async"].includes(rootComponent.type)
-        ) {
-          this.error(
-            `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports normal component`,
-          );
-        }
-        // @ts-ignore
-        const [, scriptProd] = await Deno.compile("index.ts", {
-          "index.ts": `
-        import test from "./test.js"
-        `,
-          "test.js": "export default 10;",
-        }, {
-          module: "esnext",
-          target: "esnext",
-          experimentalDecorators: true,
-          allowUnreachableCode: false,
-          jsx: "preserve",
-          jsxFactory: "Ogone.r(",
-          inlineSourceMap: false,
-          inlineSources: false,
-          alwaysStrict: false,
-          sourceMap: false,
-          strictFunctionTypes: true,
-          lib: ["esnext"],
-        });
-        // in production DOM has to be
-        // <template is="${rootComponent.uuid}-nt"></template>
-        const DOMProd = `<template is="${rootComponent.uuid}-nt"></template>`;
-        let head = `
-          ${style}
-          ${Configuration.head || ""}
-          <script>
-            ${scriptProd["index.js"].trim()}
-          </script>`;
-        let body = template
-          .replace(/%%head%%/, head)
-          .replace(/%%dom%%/, DOMProd);
-        return body;
-      } else {
-        this.error("no root-component found");
-      }
-    } catch (err) {
-      this.error(`Env: ${err.message}
-${err.stack}`);
-    }
-    */
   }
 }

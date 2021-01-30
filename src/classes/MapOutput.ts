@@ -27,13 +27,18 @@ interface ComponentOutput {
    * depends on the environment.
    */
   customElement: string[];
+  /**
+   * referenced types for all ogone-nodes
+   */
+  types: string[];
 }
 export default abstract class MapOutput {
   static outputs: ComponentOutput = {
     render: [],
     data: [],
     context: [],
-    customElement: []
+    customElement: [],
+    types: [],
 };
   /**
    * fullfiled by TSTranspiler
@@ -42,10 +47,11 @@ export default abstract class MapOutput {
   static runtime: string = '';
   static async getOutputs(bundle: Bundle) {
     bundle.output += `
+      ${this.outputs.types.join('\n')}
       ${this.outputs.data.join('\n')}
       ${this.outputs.context.slice().reverse().join('\n')}
       ${this.outputs.render.join('\n')}
-      ${this.outputs.customElement.join('\n')}
+      customElements.define('ogone-node', OgoneBaseClass);
     `;
     bundle.output = await TSTranspiler.transpile(bundle.output);
   }

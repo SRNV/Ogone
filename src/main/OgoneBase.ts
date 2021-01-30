@@ -1,6 +1,7 @@
 import type { OgoneInterface } from './../ogone.main.d.ts';
 export const Ogone: OgoneInterface = {
   // usable on browser side
+  types: {},
   root: false,
   stores: {},
   clients: [],
