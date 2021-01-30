@@ -117,7 +117,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               {% setAwait %}
               {% setOgone.isOgone %}
               {% setNodeAwait %}
-              at({% nId %},'${idComponent}', '');
+              _at({% nId %},'${idComponent}', '');
               {% setAttributes %}
               {% nodesPragma %}
               {% storeRender %}
@@ -148,7 +148,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           });
           ` : '',
           setAwait: node.attributes && node.attributes.await
-            ? `at({%nId%},'await', '');`
+            ? `_at({%nId%},'await', '');`
             : "",
           // force the component to wait for resolution
           setNodeAwait: isOgone && node.attributes && node.attributes.nodeAwait && !isRoot
@@ -194,6 +194,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               {%setOgone.positionInParentComponent%}
               {% setOgone.nodeProps %}
             };
+              {%nId%}.placeholder = o.placeholder;
               setOgone({%nId%}, o); o = null;`
               : "",
             inheritedCTX: isImported && subcomp ? "" : "component: ctx,",
@@ -233,7 +234,7 @@ ${err.stack}`);
           continue;
         }
         const params =
-          "ctx, pos = [], i = 0, l = 0, ap = (p,n) => {n.placeholder ? p.append(n, n.placeholder) : p.append(n);}, h = (...a) => document.createElement(...a), at = (n,a,b) => n.setAttribute(a,b)";
+          "ctx, pos = [], i = 0, l = 0";
         if (node.nodeType === 1 && node.tagName !== "style") {
           const nodeIsDynamic = !!Object.keys(node.attributes).find((
             attr: string,
@@ -257,7 +258,7 @@ ${err.stack}`);
             )
             .map(([key, value]) =>
               key !== "ref"
-                ? `at(${nId},'${key}', '${value}');`
+                ? `_at(${nId},'${key}', '${value}');`
                 : `ctx.refs['${value}'] = ${nId};`
             )
             .join("");
@@ -287,7 +288,7 @@ ${err.stack}`);
               child.pragma && child.pragma(bundle, component, false).id
             ).map((child) =>
               child.pragma
-                ? `ap(${nId},${child.pragma(bundle, component, false).id});`
+                ? `_ap(${nId},${child.pragma(bundle, component, false).id});`
                 : ""
             ).join("\n");
             let extensionId: string | null = "";
@@ -302,14 +303,14 @@ ${err.stack}`);
             ).map(([key, value]) => {
               return [key.replace(/^\:/, ""), value];
             });
-            let nodeCreation = `const ${nId} = h('${node.tagName}');`;
+            let nodeCreation = `const ${nId} = _h('${node.tagName}');`;
             identifier[0] = `${nId}`;
-            identifier[1] = `h('${node.tagName}')`;
+            identifier[1] = `_h('${node.tagName}')`;
             if (nodeIsDynamic && !isImported && !isRoot) {
               // create a custom element if the element as a flag or prop or event;
-              identifier[1] = `h("${idComponent}-${node.id}")`;
+              identifier[1] = `_h("${idComponent}-${node.id}")`;
             } else if (isImported) {
-              identifier[1] = `h('template', { is: '${extensionId}-nt'})`;
+              identifier[1] = `_h('template', { is: '${extensionId}-nt'})`;
             }
             nodeCreation = `const ${nId} = ${identifier[1]};`;
             const flags = this.parseFlags(

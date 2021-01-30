@@ -26,7 +26,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   routeChanged?: boolean | null;
   locationPath?: string | null;
   historyState?: { query: Map<unknown, unknown> } | null;
-  actualTemplate?: (HTMLElement | HTMLOgoneElement)[] | Comment | HTMLOgoneElement | null;
+  actualTemplate?: HTMLOgoneElement | null;
   replacer?: HTMLElement | HTMLOgoneElement | null;
   getContext?:
     null
@@ -111,6 +111,7 @@ export interface OgoneInterface {
 }
 export interface OgoneParameters {
   uuid?: string;
+  placeholder?: Text;
   promise?: null | Promise<void>;
   actualRouteName?: null | string;
   actualRoute?: null | any;

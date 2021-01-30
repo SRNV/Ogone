@@ -6,10 +6,10 @@ import component OBtn from '../atoms/button.o3';
     ref="container"
     --if={this.display}
     --event:animationend:fade-out-bottom
-    --class="{
+    --class={{
       container: true,
       ['fade-in-bottom']: this.visible,
-      ['fade-out-bottom']: !this.visible, }">
+      ['fade-out-bottom']: !this.visible, }}>
     <div class="brand">
       <img
         --await
@@ -76,7 +76,7 @@ import component OBtn from '../atoms/button.o3';
   break;
   case 'event:animationend:fade-out':
     this.display = false;
-    Ogone.routerGo('/ogone');
+    // Ogone.routerGo('/ogone');
   break;
   case 'click:fade-out:exit':
     this.visible = false;

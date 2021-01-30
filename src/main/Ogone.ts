@@ -237,6 +237,15 @@ export async function imp(id: string, url?: string) {
     `));
   }
 };
+export function _ap(p,n) {
+  n.placeholder ? p.append(n, n.placeholder) : p.append(n);
+}
+export function _h(...a: any[]) {
+  return document.createElement(...a);
+}
+export function _at(n: Element,a: string,b: string){
+  return n.setAttribute(a,b)
+};
 /**
  * function called right after Ogone.setOgone
  * Ogone.setOgone is called when the customElement is created by document.createElement
@@ -783,6 +792,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     rendered && !(rendered.once || o.actualRoute === rendered.component)
   ) {
     const { component: uuidC } = rendered;
+    console.warn(uuidC);
     const co = document.createElement("template", { is: uuidC }) as HTMLOgoneElement;
     o.actualTemplate = co;
     o.actualRoute = rendered.component;
@@ -796,6 +806,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
       isStore: false,
       isAsync: false,
       isAsyncNode: false,
+      placeholder: new Text(' '),
       requirements: o.requirements,
       routes: o.routes,
       isOriginalNode: false,
@@ -835,25 +846,28 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
  * to any element that has the flag --await
  */
 function setNodeAsyncContext(Onode: HTMLOgoneElement) {
-  const o = Onode, oc = Onode;
-  if (!oc) return;
+  const o = Onode;
   if (o.flags && o.flags.await) {
     const promise = new Promise((resolve, reject) => {
-      if (typeof o.flags.await === "boolean") {
-        Onode.firstNode.addEventListener("load", () => {
-          resolve(false);
-        });
-      } else {
-        const type = o.getContext({
-          getText: o.flags.await,
-          position: o.position,
-        });
-        Onode.firstNode.addEventListener(type, () => {
-          resolve(false);
-        });
+      try {
+        if (typeof o.flags.await === "boolean") {
+          Onode.firstNode.addEventListener("load", () => {
+            resolve(false);
+          });
+        } else {
+          const type = o.getContext({
+            getText: o.flags.await,
+            position: o.position,
+          });
+          Onode.firstNode.addEventListener(type, () => {
+            resolve(false);
+          });
+        }
+      } catch(err) {
+        reject(err);
       }
     });
-    oc.component.promises.push(promise);
+    o.component.promises.push(promise);
   }
 }
 /**
@@ -1430,7 +1444,7 @@ function renderNode(Onode: HTMLOgoneElement) {
     }
     // replace the element
     if (o.type === "async") {
-      Onode.placeholder.replaceWith(...(o.nodes as Node[]));
+      Onode.placeholder.replaceWith(...(o.nodes as Node[]), Onode.placeholder);
     } else {
       // HERE maximum callstack: recursive component
       // this occurs if the data is not retrieved
@@ -1498,7 +1512,7 @@ function renderRouter(Onode: HTMLOgoneElement) {
   }
   if (o.routeChanged) {
     o.replacer.innerHTML = "";
-    o.replacer.append(o.actualTemplate as unknown as Node);
+    o.replacer.append(o.actualTemplate as unknown as Node, o.actualTemplate!.placeholder);
   }
   // run case router:xxx on the router component
   oc.component.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
@@ -1553,6 +1567,7 @@ function renderAsyncComponent(Onode: HTMLOgoneElement) {
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
     const awaitingNodes = Array.from(node.querySelectorAll("template"))
       .filter(filter) as HTMLOgoneElement[];
+      console.warn("awaiting", node, awaitingNodes);
     if (
       node.isComponent && node && node.component && node.component.type === "async"
     ) {
@@ -1618,7 +1633,7 @@ function renderComponent(Onode: HTMLOgoneElement) {
  */
 function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: boolean) {
   const o = Onode, oc = Onode;
-  if (!oc || !Onode.context) return;
+  if (!oc) return;
   // first render child stores component
   renderAsyncStores(Onode);
 
@@ -1630,26 +1645,12 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
 
   // then render child async components
   renderAsyncComponent(Onode);
-
+  console.warn("parent",Onode, Onode.childNodes, Onode.nodes);
   const chs = Array.from(Onode.childNodes) as (HTMLElement | HTMLOgoneElement)[];
   const placeholder = Onode.placeholder;
-  const txt = chs.find((n) => n.nodeType === 3) as unknown as Text;
-  if (txt) {
-    const UnwrappedTextnodeOnAsyncComponentException = new Error(
-      `[Ogone] Top level textnode are not supported for Async component placeholder.
-            Please wrap this text into an element.
-            textnode data: "${txt.data}"`,
-    );
-    displayError(
-      UnwrappedTextnodeOnAsyncComponentException.message,
-      "Async Component placeholder TypeError",
-      UnwrappedTextnodeOnAsyncComponentException,
-    );
-    throw UnwrappedTextnodeOnAsyncComponentException;
-  }
   // async placeholder feature
   if (chs.length) {
-    Onode.replaceWith(...chs);
+    // Onode.replaceWith(...chs);
   } else {
     Onode.replaceWith(placeholder);
   }
@@ -1660,12 +1661,12 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
       setTimeout(() => {
         // set Async context for Async Components
         setAsyncContext(Onode);
-
-        // replace childnodes by template
+        /*
+        // replace childnodes by the placeholder that will be replaced by the template
         if (chs.length) {
           const { isConnected } = chs[0];
           if (isConnected) {
-            chs.slice(1).forEach((ch) => {
+            chs.forEach((ch) => {
               if ((ch as HTMLOgoneElement).extending) {
                 removeNodes(ch as HTMLOgoneElement)
                 ch.remove();
@@ -1673,9 +1674,9 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
               }
               ch.remove();
             });
-            chs[0].replaceWith(placeholder);
           }
         }
+        */
         resolve(true);
       }, 0);
     }).then(() => {
@@ -1714,12 +1715,12 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
 function renderingProcess(Onode: HTMLOgoneElement) {
   const o = Onode;
   // use the jsx renderer only for templates
+  // use the previous jsx and push the result into ogone.nodes
   setNodes(Onode);
   // set Async context for Async nodes
   if (o.isAsyncNode) {
     setNodeAsyncContext(Onode);
   }
-  // use the previous jsx and push the result into ogone.nodes
   // set the dependencies of the node into the component
   if (o.isOriginalNode) setDeps(Onode);
 
@@ -2006,7 +2007,7 @@ function OnodeListRendering(
   if (!context) return;
   // no need to render if it's the same
   if (context.list.length === dataLength) return;
-  // first we add missing nodes
+  // first we to add missing nodes
   for (let i = context.list.length, a = dataLength; i < a; i++) {
     let node: HTMLOgoneElement;
     node = document.createElement(context.name, { is: Onode.extending }) as HTMLOgoneElement;
@@ -2014,6 +2015,7 @@ function OnodeListRendering(
       index: i,
       isOriginalNode: false,
       level: Onode.level,
+      placeholder: new Text(' '),
       position: Onode.position!.slice(),
       flags: Onode.flags,
       original: Onode,
@@ -2048,6 +2050,7 @@ function OnodeListRendering(
           levelInParentComponent: Onode.levelInParentComponent,
         }),
     };
+    console.warn('created', node);
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
     Onode.placeholder.replaceWith(node, Onode.placeholder);
