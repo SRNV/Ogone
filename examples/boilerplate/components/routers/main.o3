@@ -1,7 +1,6 @@
 import component MainPage from '../pages/main.o3';
 import component BrandComponent from '../pages/brand-component.o3';
 import component StoreDocComponent from '../stores/doc.store.o3';
-import component Test from '../pages/Test.o3';
 
 <template>
   <StoreDocComponent namespace="pages"/>
@@ -24,12 +23,12 @@ import component Test from '../pages/Test.o3';
         title: Page not found
   case 'router:main':
     Store.dispatch('pages/getPage', {
-      route: 'main',
+      route: 'examples/boilerplate/public/main',
     })
   break;
   case 'router:examples':
     Store.dispatch('pages/getPage', {
-      route: 'examples',
+      route: 'examples/boilerplate/public/examples',
     })
   break;
 </proto>
