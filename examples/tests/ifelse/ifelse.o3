@@ -20,6 +20,8 @@ test
         if (this.count> 6) {
           this.count = 0;
           this.art.splice(0)
+        }
+        if (this.count === 2) {
           this.art.push(this.count);
         }
     }, 500);

@@ -1,4 +1,5 @@
 import type { OgoneInterface } from './../ogone.main.d.ts';
+declare function routerGo(...args: any[]): void;
 export const Ogone: OgoneInterface = {
   // usable on browser side
   types: {},
@@ -41,6 +42,13 @@ export const Ogone: OgoneInterface = {
     "async",
     "component",
   ],
+  router: {
+    react: [],
+    actualRoute: null,
+    go: (...args) => {
+      routerGo(...args);
+    },
+  },
   get isDeno() {
     return typeof Deno !== "undefined"
       && !!Deno.chmod

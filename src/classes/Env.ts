@@ -14,6 +14,8 @@ import MapFile from "./MapFile.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
 import MapOutput from "./MapOutput.ts";
+import TSTranspiler from './TSTranspiler.ts';
+
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
@@ -173,7 +175,7 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  public renderBundle(entrypoint: string, bundle: Bundle): string {
+  public async renderBundle(entrypoint: string, bundle: Bundle): Promise<string> {
     try {
       const stylesDev = Array.from(bundle.components.entries())
         .map((
@@ -233,7 +235,7 @@ ${err.stack}`);
         const DOMDev = ` `;
         let script = `
       <script type="module">
-        ${scriptDev.trim()}
+        ${await TSTranspiler.transpile(scriptDev.trim())}
       </script>`;
         let head = `
           ${style}
@@ -257,14 +259,14 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  public get application(): string {
+  public async getApplication(): Promise<string> {
     try {
       if (!this.bundle) {
         throw this.error(
           "undefined bundle, please use setBundle method before accessing to the application",
         );
       }
-      return this.renderBundle(Configuration.entrypoint, this.bundle);
+      return await this.renderBundle(Configuration.entrypoint, this.bundle);
     } catch (err) {
       this.error(`Env: ${err.message}
 ${err.stack}`);

@@ -14,7 +14,7 @@ import component OBtn from '../atoms/button.o3';
       <img
         --await
         class="logo"
-        src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-1.png"/>
+        src="https://raw.githubusercontent.com/SRNV/Ogone/feat/use-deno-bundle/fix-types/one-ogone-browser-and-deno/src/public/ogone.svg"/>
     </div>
     <div class="brand__message fade-in-down">
       ${this.message}
@@ -76,7 +76,7 @@ import component OBtn from '../atoms/button.o3';
   break;
   case 'event:animationend:fade-out':
     this.display = false;
-    // Ogone.routerGo('/ogone');
+    Ogone.router.go('/ogone');
   break;
   case 'click:fade-out:exit':
     this.visible = false;
@@ -114,10 +114,12 @@ import component OBtn from '../atoms/button.o3';
     margin: 37px;
   }
   .logo {
-    width: 970px;
+    width: 400px;
     height: auto;
+    margin: 0px 333px;
     @media screen and (max-width: 1170px) {
-      width: 81vw;
+      width: 30vw;
+      margin: 0px 15vw;
     }
   }
   .links {

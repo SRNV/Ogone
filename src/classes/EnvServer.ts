@@ -73,7 +73,7 @@ ${err.stack}`);
     try {
       OgoneWorkers.serviceDev.postMessage({
         type: Workers.INIT_MESSAGE_SERVICE_DEV,
-        application: this.application,
+        application: await this.getApplication(),
         controllers: Ogone.controllers,
         Configuration: {
           ...Configuration

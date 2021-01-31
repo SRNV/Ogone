@@ -5,7 +5,7 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
     <div
       class="header"
       --router-go={'/'}>
-      <img --await class="logo" src="https://x.nest.land/Ogone@0.18.0-rc.5/public/neum-ogone-2.png"/>
+      <img --await class="logo" src="https://raw.githubusercontent.com/SRNV/Ogone/feat/use-deno-bundle/fix-types/one-ogone-browser-and-deno/src/public/ogone.svg"/>
     </div>
     <hr />
     <ul>
@@ -36,7 +36,8 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
     border-width: thick;
   }
   .logo {
-    width: 100%;
+    width: 40%;
+    filter: grayscale(1) brightness(1.5);
   }
   .container {
     filter: drop-shadow(-6px 4px 6px black);

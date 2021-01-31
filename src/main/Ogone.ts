@@ -1506,7 +1506,7 @@ function renderRouter(Onode: HTMLOgoneElement) {
 function renderAsyncRouter(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
-  const filter = (t: any) => t.isComponent && t.component && t.component.isRouter;
+  const filter = (t: any) => t.isComponent && t.isRouter;
   const s = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
     const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
@@ -1525,7 +1525,7 @@ function renderAsyncRouter(Onode: HTMLOgoneElement) {
 function renderAsyncStores(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
-  const filter = (t: any) => t.isComponent && t.component && t.component.type === "store";
+  const filter = (t: any) => t.isComponent && t.component && t.isStore;
   const asyncStores = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
     const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
@@ -1546,7 +1546,7 @@ function renderAsyncStores(Onode: HTMLOgoneElement) {
 function renderAsyncComponent(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc || !o || !o.nodes) return;
-  const filter = (t: any) => t.isComponent && t.component && t.component.type === "async";
+  const filter = (t: any) => t.isComponent && t.isAsync && t.flags && t.flags.await;
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
     const awaitingNodes = Array.from(node.querySelectorAll("ogone-node"))
       .filter(filter) as HTMLOgoneElement[];
@@ -1811,7 +1811,7 @@ function setHMRContext(Onode: HTMLOgoneElement) {
     }
   });
 }
-function routerGo(url: string, state: any) {
+export function routerGo(url: string, state: any) {
   if (Ogone.actualRoute === url) return;
   // protect from infinite loop
   Ogone.actualRoute = url;
@@ -2042,11 +2042,9 @@ function OnodeListRendering(
   if (context.list.length === dataLength) return;
   // now we remove the extra elements
   for (let i = context.list.length, a = dataLength; i > a; i--) {
-    const rm = context.list.pop() as HTMLOgoneElement;
-    // don't use destroy here
-    // if rm.destroy is used, it will not allow empty list to rerender
-    removeNodes(rm);
-    rm.remove();
+    destroy(
+      context.list.pop() as HTMLOgoneElement
+    );
   }
   return true;
 }

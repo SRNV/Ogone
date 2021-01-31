@@ -110,6 +110,7 @@ export interface OgoneInterface {
   main: string;
   readonly allowedTypes: string[];
   isDeno: boolean;
+  router: RouterBrowser;
 }
 export interface OgoneParameters {
   uuid?: string;

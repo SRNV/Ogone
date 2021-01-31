@@ -13,11 +13,11 @@ interface Analysis {
 export const members: Analysis[] = [
   {
     reg: /\bOgone\b/,
-    start: "\ndeclare namespace Ogone {",
+    start: "\ndeclare interface OgoneInterface {",
     children: [
       {
         reg: /\bOgone.error\b/,
-        value: `    export function error(
+        value: `readonly error(
           title: string,
           description: string,
           error: Error | TypeError | SyntaxError | { message: string },
@@ -25,73 +25,75 @@ export const members: Analysis[] = [
       },
       {
         reg: /\bOgone.stores\b/,
-        value: "export const stores: { [k: string]: { [k: string]: any } };",
+        value: "readonly stores: { [k: string]: { [k: string]: any } };",
       },
       {
         reg: /\bOgone.clients\b/,
-        value: `export const clients: [
+        value: `readonly clients: [
           string,
           (namespace: string, dependency: string, overwrite?: boolean) => any,
         ][];`,
       },
       {
         reg: /\bOgone.render\b/,
-        value: `export const render: { [k: string]: Function };`,
+        value: `readonly render: { [k: string]: Function };`,
       },
       {
         reg: /\bOgone.contexts\b/,
-        value: `export const contexts: { [k: string]: Function };`,
+        value: `readonly contexts: { [k: string]: Function };`,
       },
       {
         reg: /\bOgone.components\b/,
-        value: `export const components: { [k: string]: Function };`,
+        value: `readonly components: { [k: string]: Function };`,
       },
       {
         reg: /\bOgone.classes\b/,
-        value: `export const classes: { [k: string]: any };`,
+        value: `readonly classes: { [k: string]: any };`,
       },
       {
         reg: /\bOgone.errorPanel\b/,
-        value: `export const errorPanel: any;`,
+        value: `readonly errorPanel: any;`,
       },
       {
         reg: /\bOgone.warnPanel\b/,
-        value: `export const warnPanel: any;`,
+        value: `readonly warnPanel: any;`,
       },
       {
         reg: /\bOgone.successPanel\b/,
-        value: `export const successPanel: any;`,
+        value: `readonly successPanel: any;`,
       },
       {
         reg: /\bOgone.infosPanel\b/,
-        value: `export const infosPanel: any;`,
+        value: `readonly infosPanel: any;`,
       },
       {
         reg: /\bOgone.historyError\b/,
-        value: `export const historyError: any;`,
+        value: `readonly historyError: any;`,
       },
       {
         reg: /\bOgone.errors\b/,
-        value: `export const errors: number;`,
+        value: `readonly errors: number;`,
       },
       {
         reg: /\bOgone.firstErrorPerf\b/,
-        value: `export const firstErrorPerf: any;`,
+        value: `readonly firstErrorPerf: any;`,
       },
       {
-        reg: /\bOgone.router\b/,
-        value: `export const router: RouterBrowser;`,
+        reg: /\bOgone.router\./,
+        value: `readonly router: RouterBrowser;`,
       },
       {
         reg: /\bOgone.DevTool\b/,
-        value: `export const DevTool: any | undefined;`,
+        value: `readonly DevTool: any | undefined;`,
       },
       {
         reg: /\bOgone.ComponentCollectionManager\b/,
-        value: `export const ComponentCollectionManager: any | undefined;`,
+        value: `readonly ComponentCollectionManager: any | undefined;`,
       },
     ],
-    end: "}",
+    end: `};
+    declare var Ogone: OgoneInterface;
+    `,
   },
   {
     reg: /\bOComponent\b/,
