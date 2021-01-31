@@ -330,7 +330,7 @@ function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
   Onode.renderNodes = Ogone.render[Onode.extending!];
-  if (Onode.type === "router") {
+  if (Onode.isRouter) {
     Onode.locationPath = location.pathname;
     Onode.routeChanged = true;
     const url = new URL(location.href);
@@ -1506,7 +1506,7 @@ function renderRouter(Onode: HTMLOgoneElement) {
 function renderAsyncRouter(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
-  const filter = (t: any) => t.isComponent && t.component && t.component.type === "router";
+  const filter = (t: any) => t.isComponent && t.component && t.component.isRouter;
   const s = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
     const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
