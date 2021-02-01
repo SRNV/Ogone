@@ -9,16 +9,17 @@
 			<stop offset="0.94" stop-color="#9492f7"  />
 		</radialGradient>
 		<linearGradient id="grd3" gradientUnits="userSpaceOnUse"  x1="-106.331" y1="451.833" x2="470.713" y2="1275.937">
-			<stop offset="0" stop-color="#352e5c"  />
-			<stop offset="0.997" stop-color="#9492f7"  />
+			<stop offset="0" stop-color="#1a1d30"  />
+			<stop offset="1" stop-color="#4a9cb4"  />
 		</linearGradient>
-		<radialGradient id="grd4" gradientUnits="userSpaceOnUse"  cx="568.579" cy="334.919" r="478.809">
-			<stop offset="0" stop-color="#171623"  />
-			<stop offset="0.94" stop-color="#9492f7"  />
+		<radialGradient id="grd4" gradientUnits="userSpaceOnUse"  cx="568.578" cy="378.395" r="478.809">
+			<stop offset="0.23" stop-color="#152937"  />
+			<stop offset="1" stop-color="#92a2f7"  />
 		</radialGradient>
 		<linearGradient id="grd5" gradientUnits="userSpaceOnUse"  x1="258.284" y1="-118.052" x2="631.241" y2="414.586">
-			<stop offset="0" stop-color="#171623"  />
-			<stop offset="0.94" stop-color="#9492f7"  />
+			<stop offset="0.176" stop-color="#191c2c"  />
+			<stop offset="0.587" stop-color="#7989cc"  />
+			<stop offset="1" stop-color="#9cd0ef"  />
 		</linearGradient>
 		<linearGradient id="grd6" gradientUnits="userSpaceOnUse"  x1="0" y1="0" x2="0" y2="0">
 			<stop offset="0" stop-color="#171623"  />
@@ -33,8 +34,8 @@
 			<stop offset="1" stop-color="#9492f7"  />
 		</linearGradient>
 		<radialGradient id="grd9" gradientUnits="userSpaceOnUse"  cx="359.515" cy="409.202" r="150.277">
-			<stop offset="0" stop-color="#9492f7"  />
-			<stop offset="1" stop-color="#171623"  />
+			<stop offset="0" stop-color="#92aef7"  />
+			<stop offset="1" stop-color="#161823"  />
 		</radialGradient>
 	</defs>
 	<style>
