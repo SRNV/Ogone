@@ -35,8 +35,12 @@
 
 # Description
 
-use Ogone to compile web-components for your applications. it's based on Deno.
-Actually Ogone is under an experimental phase. avoid using it for production.
+Ogone for Front-end fields using Deno.
+Designed differently, start creating differently.
+Everything is a component because everything is a part of the composition.
+
+Actually Ogone is too young to be used for production, expect breaking chnages until the 1.0.0.
+
 Ogone has it own extension `*.o3` which allow some new features.
 
 
