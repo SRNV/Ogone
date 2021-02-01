@@ -44,18 +44,8 @@ If you're interested by this project: [please join the Discord here](https://dis
 
 # Installation
 
-```typescript
-// from deno.land/x
-import o3 from 'https://deno.land/x/ogone@<version>/mod.ts';
-
-// from x.nest.land
-import o3 from 'https://x.nest.land/Ogone@<version>/mod.ts';
-
-o3.run({
-  entrypoint: 'path/to/root-component.o3',
-  modules: '/modules',
-  port: 8080,
-});
+```shell
+deno install -Afq --unstable https://deno.land/x/ogone/cli/ogone.ts
 ```
 
 - [Introduction](https://github.com/SRNV/Ogone/tree/master/docs/introduction.md)
