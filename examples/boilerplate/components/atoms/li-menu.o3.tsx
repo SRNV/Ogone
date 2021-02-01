@@ -7,11 +7,7 @@ declare type ctx = {[k: string]: any};
 declare type event = Event;
 declare type _once = number;
     class Protocol {
-      public readonly links: ({label: string; route: string; children: any[] })[] = [
-      { label: 'Ogone', route: '/ogone', children: [
-        { label: 'Examples', route: '/ogone/examples'},
-      ]},
-    ];
+      item?: { label: string; route: string; children: any[]; };
     }
 
     type OgoneCOMPONENTComponent<T> = { children?: any; } & T;
@@ -28,7 +24,7 @@ declare type _once = number;
       }
     }
     
-    declare function AsyncLiMenu (props: OgoneASYNCComponent<{
+    declare function AsyncRecursiveComponent (props: OgoneASYNCComponent<{
       
 item:  { label: string; route: string; children: any[]; };
     }>): h.JSX.IntrinsicElements;
@@ -37,37 +33,28 @@ item:  { label: string; route: string; children: any[]; };
         return (
 <template >
 
-<div 
-class="container fade-in-slide-in-left" >
+<li   
+class="fade-in-bottom" >
 
-<div 
-class="header"  >
 
-<img  
-class="logo" 
-src="https://raw.githubusercontent.com/SRNV/Ogone/feat/use-deno-bundle/fix-types/one-ogone-browser-and-deno/src/public/ogone.svg"  
-nodeAwait >
+    ${this.item?.label}
+  
 
-</img>
-</div>
-<hr >
-
-</hr>
+</li>
 <ul >
 {
-              this.links
+              this.item?.children
             .map((
               item,
               i: number
             ) =>
               
-<AsyncLiMenu   
+<AsyncRecursiveComponent   
 item={item}  >
 
-</AsyncLiMenu>
+</AsyncRecursiveComponent>
             )}
 </ul>
-</div>
 </template>);
       }
       async runtime (_state: string | number, ctx: any, event: any, _once: number = 0) {
@@ -88,7 +75,7 @@ default:
  }
     } catch(err) {
       // @ts-ignore
-      displayError('Error in the component: \n\t examples/boilerplate/components/organism/left-menu.o3' ,err.message, err);
+      displayError('Error in the component: \n\t examples/boilerplate/components/atoms/li-menu.o3' ,err.message, err);
       throw err;
     }
   }

@@ -100,11 +100,11 @@ export const members: Analysis[] = [
     value: "\ndeclare function OComponent(): any;",
   },
   {
-    reg: /\bRouterBrowser|Ogone.router\b/,
+    reg: /\b(RouterBrowser|Ogone.router)\b/,
     start: "\ndeclare interface RouterBrowser {",
     children: [
       {
-        reg: /\b(Ogone.routerReactions)\b/,
+        reg: /\b(Ogone.router.react)\b/,
         value: "react: Function[];",
       },
       {
@@ -112,7 +112,7 @@ export const members: Analysis[] = [
         value: "actualRoute: null | string;",
       },
       {
-        reg: /\b(Ogone.routerGo)\b/,
+        reg: /\b(Ogone.router.go)\b/,
         value: "go: (url: string, state?: any) => void;",
       },
       {
