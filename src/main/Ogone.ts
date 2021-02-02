@@ -17,7 +17,8 @@ declare const document: Document;
 declare const location: Location;
 declare class Comment extends Com { };
 declare const ROOT_UUID: string;
-export class OgoneBaseClass extends HTMLElement {
+declare const ROOT_IS_PRIVATE: boolean;
+class OgoneBaseClass extends HTMLElement {
   declare nodes: OgoneParameters['nodes'];
   declare uuid: OgoneParameters['uuid'];
   declare isTemplate: OgoneParameters['isTemplate'];
@@ -44,6 +45,7 @@ export class OgoneBaseClass extends HTMLElement {
   };
   public dispatchAwait = null;
   public promiseResolved = false;
+  public alreadyconnected = false;
   // events describers
   // this.events = {};
   // all nodes that's are dynamics will save a function into this property
@@ -67,6 +69,7 @@ export class OgoneBaseClass extends HTMLElement {
         routes: null,
         isRoot: true,
         isTemplate: true,
+        isTemplatePrivate: ROOT_IS_PRIVATE,
         isAsync: false,
         isController: false,
         isAsyncNode: false,
@@ -124,6 +127,8 @@ export class OgoneBaseClass extends HTMLElement {
     return oc.contexts.for[o.key!];
   }
   connectedCallback(this: HTMLOgoneElement) {
+    if (this.alreadyconnected && this.isTemplatePrivate) return;
+    this.alreadyconnected = true;
     if (this.isController) {
       this.remove();
       return;
@@ -163,6 +168,7 @@ export class OgoneBaseClass extends HTMLElement {
       }
     }
 }
+window.customElements.define('ogone-node', OgoneBaseClass);
 // Router implementation
 window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
@@ -781,6 +787,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     // like undefined data
     let ogoneOpts: OgoneParameters | null = {
       isTemplate: true,
+      isTemplatePrivate: false,
       isRouter: false,
       isStore: false,
       isAsync: false,
@@ -1422,16 +1429,21 @@ function renderNode(Onode: HTMLOgoneElement) {
   if (o.isTemplate) {
     // update Props before replace the element
     OnodeUpdateProps(Onode);
-    if (Onode.childNodes.length) {
-      renderSlots(Onode);
-    }
-    // replace the element
-    if (o.type === "async") {
-      Onode.placeholder.replaceWith(...(o.nodes as Node[]), Onode.placeholder);
+    if (o.isTemplatePrivate) {
+      const shadow = Onode.attachShadow({ mode: 'closed' });
+      shadow.append(...(o.nodes as Node[]));
     } else {
-      // HERE maximum callstack: recursive component
-      // this occurs if the data is not retrieved
-      Onode.replaceWith(...(o.nodes as Node[]));
+      if (Onode.childNodes.length) {
+        renderSlots(Onode);
+      }
+      // replace the element
+      if (o.type === "async") {
+        Onode.placeholder.replaceWith(...(o.nodes as Node[]), Onode.placeholder);
+      } else {
+        // HERE maximum callstack: recursive component
+        // this occurs if the data is not retrieved
+        Onode.replaceWith(...(o.nodes as Node[]));
+      }
     }
     // template/node is already connected
     // ask the component to evaluate the value of the textnodes
@@ -2007,6 +2019,7 @@ function OnodeListRendering(
       tree: Onode.tree,
       namespace: Onode.namespace,
       isTemplate: Onode.isTemplate,
+      isTemplatePrivate: Onode.isTemplatePrivate,
       isImported: Onode.isImported,
       isAsync: Onode.isAsync,
       isAsyncNode: Onode.isAsyncNode,

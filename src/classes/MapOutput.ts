@@ -51,7 +51,6 @@ export default abstract class MapOutput {
       ${this.outputs.data.join('\n')}
       ${this.outputs.context.slice().reverse().join('\n')}
       ${this.outputs.render.join('\n')}
-      customElements.define('ogone-node', OgoneBaseClass);
     `;
     bundle.output = await TSTranspiler.transpile(bundle.output);
   }

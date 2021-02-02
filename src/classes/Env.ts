@@ -208,6 +208,7 @@ ${err.stack}`);
           `
         const ___perfData = window.performance.timing;
         const ROOT_UUID = "${rootComponent.uuid}";
+        const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
         ${MapOutput.runtime}
           {% promise %}
         `,

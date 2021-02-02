@@ -93,6 +93,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       node.getOuterTSX = (component: Component) => {
         if (node.nodeType === 1) {
           let templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{%outers%}\n</{%tagname%}>`;
+          if (node.tagName === 'style') {
+            templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{\`{%outers%}\`}\n</{%tagname%}>`
+          }
           if (node.attributes['--for']) {
             const value = node.attributes['--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
@@ -844,7 +847,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       // delete last useless props and set rawtext to textnodes
       this.cleanNodes(expressions);
       // set to all nodes the jsx pragma
-      this.setNodesPragma(expressions);
+      this.setNodesPragma(expressions, result);
       // set next/previous element sibling
       this.setElementSiblings(result);
       // get DNA of node

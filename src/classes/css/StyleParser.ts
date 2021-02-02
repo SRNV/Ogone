@@ -143,7 +143,7 @@ export default class StyleParser extends Utils {
               prop = this.getDeepTranslation(prop.trim(), expressions);
               result.props[prop] = realValue;
               const regReference = /@([\w\_\-]*)+/;
-              const regVars = /(?<!\-{2})\$(\w*)+/;
+              const regVars = /(?<!\-{2})\$(\w+)+/;
               const vars = Object.fromEntries(
                 styleBundle.mapVars.entries()
               );

@@ -89,6 +89,10 @@ export default class Constructor extends Utils {
       this.ComponentTypeGetter.setTypeOfComponents(bundle);
       this.trace('Components Protocol\'s Type Setting');
 
+      // get the type for all the components
+      this.ComponentTypeGetter.forbiddenUseOfPrivateOnTemplate(bundle);
+      this.trace('Components Protocol\'s checking private components');
+
       // @code OSB7
       await this.StylesheetBuilder.transformAllStyleElements(bundle);
       this.trace('Style Sheet transformation of all style elements done');

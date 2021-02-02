@@ -76,7 +76,7 @@ export default class XMLJSXOutputBuilder extends Utils {
     isRemote,
   }: any) {
     try {
-      const subcomp = isImported
+      const subcomp: Component | null = isImported
         ? bundle.components.get(component.imports[node.tagName])
         : null;
       const start = isRoot
@@ -135,6 +135,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           component,
           subcomp,
           isTemplate: isTemplate || !!isImported && !!subcomp,
+          isTemplatePrivate: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.private,
           isAsync: !!isImported && !!subcomp && subcomp.type === "async",
           isRouter: !!isImported && !!subcomp && subcomp.type === "router",
           isStore: !!isImported && !!subcomp && subcomp.type === "store",
@@ -184,6 +185,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               {%setOgone.inheritedCTX%}
               {%setOgone.flags%},
               isTemplate: {% isTemplate %},
+              isTemplatePrivate: {% isTemplatePrivate %},
               isAsync: {% isAsync %},
               isRouter: {% isRouter %},
               isStore: {% isStore %},
@@ -227,17 +229,17 @@ export default class XMLJSXOutputBuilder extends Utils {
 ${err.stack}`);
     }
   }
-  protected setNodesPragma(expressions: DOMParserExpressions) {
+  protected setNodesPragma(expressions: DOMParserExpressions, rootNode: XMLNodeDescription) {
     try {
       const nodes = Object.values(expressions).reverse();
       let pragma: null | DOMParserPragmaDescription = null;
       for (let node of nodes) {
-        if (node.tagName === 'head') {
+        if (node.tagName === 'head' || rootNode.childNodes.find((child) => child.id === node.id && node.tagName === "style")) {
           continue;
         }
         const params =
           "ctx, pos = [], i = 0, l = 0";
-        if (node.nodeType === 1 && node.tagName !== "style") {
+        if (node.nodeType === 1) {
           const nodeIsDynamic = !!Object.keys(node.attributes).find((
             attr: string,
           ) =>

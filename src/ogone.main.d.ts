@@ -5,6 +5,7 @@ import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment, Text } from 
 export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, OgoneParameters {
   data: any;
   placeholder: Text;
+  alreadyconnected: boolean;
   isComponent: boolean;
   isConnected: boolean;
   isRecursiveConnected: boolean;
@@ -38,6 +39,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
     | any;
   methodsCandidate?: Function[];
   isTemplate: boolean;
+  isTemplatePrivate: boolean;
   isAsync: boolean;
   isController: boolean;
   isAsyncNode: boolean;
@@ -139,6 +141,7 @@ export interface OgoneParameters {
   | "controller";
   methodsCandidate?: Function[];
   isTemplate: boolean;
+  isTemplatePrivate: boolean;
   isAsync: boolean;
   isController: boolean;
   isAsyncNode: boolean;

@@ -125,7 +125,7 @@ ${err.stack}`);
         const { nodeList } = rootNode;
         const { styles } = component.elements;
         const allStyles = nodeList
-          .filter((el) => !styles.includes(el) && el.tagName === 'style')
+          .filter((el) => !styles.includes(el) && el.tagName === 'style');
         for await (let element of allStyles) {
           let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
           if (styleContent) {

@@ -13,7 +13,7 @@ import component RouterMain from './routers/RouterMain.o3';
     // initialization
     break;
 </proto>
-<template>
+<template private>
   <head>
     <title>Ogone - Next generation composition</title>
     <style>
