@@ -787,10 +787,10 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     // like undefined data
     let ogoneOpts: OgoneParameters | null = {
       isTemplate: true,
-      isTemplatePrivate: false,
-      isRouter: false,
+      isTemplatePrivate: rendered.isTemplatePrivate,
+      isRouter: rendered.isRouter,
       isStore: false,
-      isAsync: false,
+      isAsync: rendered.isAsync,
       isAsyncNode: false,
       isController: false,
       placeholder: new Text(' '),

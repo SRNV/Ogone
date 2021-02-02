@@ -52,8 +52,13 @@ export default class RouterAnalyzer extends Utils {
           }
           const newcomp = bundle.components.get(c);
           if (newcomp) {
+            // here to add informations
+            // related to the component rendered by the router
             route.component = `${newcomp.uuid}-nt`;
             route.uuid = newcomp.uuid;
+            route.isAsync = newcomp.type === "async";
+            route.isRouter = newcomp.type === "router";
+            route.isTemplatePrivate = !!newcomp.elements.template?.attributes.private;
           }
         } else {
           this.error(

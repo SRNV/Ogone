@@ -601,6 +601,9 @@ export interface Route {
   redirect: string | RouteRedirection;
   component: string;
   name: string;
+  isAsync: boolean;
+  isTemplatePrivate: boolean;
+  isRouter: boolean;
   children: Route[];
   title: string;
   once: boolean;

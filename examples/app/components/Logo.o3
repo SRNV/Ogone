@@ -1,15 +1,15 @@
-<template>
+<template private>
+  <style>
+    .container {
+      width: 60px;
+      height: auto;
+      .img {
+        width: 60px;
+        height: auto;
+      }
+    }
+  </style>
   <div class="container">
     <img class="img" src="/src/public/ogone.svg"/>
   </div>
 </template>
-<style>
-  .container {
-    width: 60px;
-    height: auto;
-    .img {
-      width: 60px;
-      height: auto;
-    }
-  }
-</style>
