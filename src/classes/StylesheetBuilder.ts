@@ -9,7 +9,7 @@ import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "./Utils.ts";
 import keyframes from "../../utils/keyframes.ts";
 import Style from './css/Style.ts';
-
+// TODO fix code duplication
 /**
  * @name StylesheetBuilder
  * @code OSB7
@@ -128,6 +128,7 @@ ${err.stack}`);
           .filter((el) => !styles.includes(el) && el.tagName === 'style');
         for await (let element of allStyles) {
           let styleContent = element.getInnerHTML ? element.getInnerHTML() : null;
+          const isGlobal = element.attributes.global;
           if (styleContent) {
             let compiledCss: string = "";
             const src = element.attributes.src
@@ -189,6 +190,7 @@ ${err.stack}`);
 
             this.trace('start component style transformations');
             compiledCss = await this.Style.read(compiledCss, bundle, component);
+            compiledCss = isGlobal || element.parentNode === component.elements.head ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
             element.childNodes[0].rawText = compiledCss;
           }
         }
