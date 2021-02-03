@@ -2,9 +2,9 @@
 import component RouterMain from './routers/RouterMain.o3';
 // inject * from './components/';
 /**
+ * @author Rudy Alula
  * @description
  * Application for Ogone website
- * author: SRNV
  */
 <proto type="app">
   declare:

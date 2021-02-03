@@ -60,7 +60,7 @@ export default {
 
                 ${green(`ogone run <path_to_component>`)}
 
-              more as to be done...
+              more has to be done...
 
             - ${green('feat')}: using curly braces on components allows us to spread any object.
                 this is the same as adding the spread flag (${green('--spread')})
@@ -105,5 +105,20 @@ export default {
             - ${green('feat')}: Great news for Visual Studio Code users, Ogone will now let build your components with a new dev tool
               passing the flag ${green('--open-designer')} will open a webview in your IDE
               you will be able to see your component while your building it.
+
+            - ${green('feat')}: You can now encapsulate the component's template by setting the attribute ${green('private')}
+              this will secure your component from any external DOM manipulation. it's useful to prevent all malicious iframe for example.
+              example:${exampleFormat(`
+                <template ${green('private')}>
+                  <span id="unreachable"> unreachable span </span>
+                  <span ref="reachable"> reachable via the reference </span>
+                  <iframe src="..." />
+                </template>
+                <proto type="app">
+                  default:
+                    document.getElementById('unreachable'); // null
+                    const [span] = Refs.reachable;
+                    break;
+                </proto>`)}
   `,
 }

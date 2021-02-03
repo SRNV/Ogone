@@ -1645,7 +1645,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
   // async placeholder feature
   if (chs.length) {
     // Onode.replaceWith(...chs);
-  } else {
+  } else if (!Onode.isTemplatePrivate) {
     Onode.replaceWith(placeholder);
   }
   oc.component.resolve = (...args: unknown[]) => {

@@ -6,7 +6,13 @@
  *  @example
       Async.resolve(undefined)
  */
-<template>
+<template private>
+  <style>
+    .img, .container {
+      width: 60px;
+      height: auto;
+    }
+  </style>
   <div class="container">
     <img --await class="img" src="src/public/ogone.svg"/>
   </div>
@@ -16,9 +22,3 @@
     Async.resolve();
     break;
 </proto>
-<style>
-  .img, .container {
-    width: 60px;
-    height: auto;
-  }
-</style>

@@ -16,7 +16,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.2/styles/night-owl.min.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
   </head>
-  <div ref="header" class="header">
+  <div ref="head" class="header">
     <div class="logo">
       <AsyncLogoEl --router-go={'/'}></AsyncLogoEl>
     </div>
@@ -34,7 +34,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
       this.scrollY = n;
     }
   default:
-    const { header } = Refs;
+    const [header] = Refs.head;
     window.addEventListener('scroll', (ev) => {
       if (header) {
         if (window.scrollY > this.scrollY) {

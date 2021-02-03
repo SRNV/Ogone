@@ -1,8 +1,4 @@
-<template>
-  <div class="container">
-    <img class="logo" src="/src/public/ogone.svg" />
-  </div>
-</template>
+<template private>
   <style>
     .container {
       margin-top: 25%;
@@ -12,3 +8,7 @@
       }
     }
   </style>
+  <div class="container">
+    <img class="logo" src="/src/public/ogone.svg" />
+  </div>
+</template>

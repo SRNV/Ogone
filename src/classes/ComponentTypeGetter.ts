@@ -63,20 +63,21 @@ ${err.stack}`);
     try {
       bundle.components.forEach((component: Component) => {
         const template = component.elements.template;
-        if (['async', 'store', 'router', 'controller'].includes(component.type) && template) {
+        if (['store', 'router', 'controller'].includes(component.type) && template) {
           const position = MapPosition.mapNodes.get(template)!;
           if (template.attributes.private) {
             this.error(`${component.file}:${position.line}:${position.column}\n\t
             Using a private template is not allowed for ${component.type} components
             `);
-          } else if (component.elements.styles.length && template.attributes.private) {
-            this.error(`${component.file}:${position.line}:${position.column}\n\t
-            useless Style Tags for private template
-            Turning to private the template of the component will encapsulate all the elements inside the template.
-            the style won't be effective.
-            please wrap this style element into the template element.
-            `);
           }
+        } else if (component.elements.styles.length && template && template.attributes.private) {
+          const position = MapPosition.mapNodes.get(template)!;
+          this.error(`${component.file}:${position.line}:${position.column}\n\t
+          useless Style Tags for private template
+          Turning to private the template of the component will encapsulate all the elements inside the template.
+          the style won't be effective.
+          please wrap this style element into the template element.
+          `);
         }
       });
     } catch (err) {

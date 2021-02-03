@@ -169,7 +169,7 @@ export const members: Analysis[] = [
     reg: /\bRefs\b/,
     value: `
     declare const Refs: {
-      [k: string]: HTMLElement;
+      [k: string]: HTMLElement[];
     };`,
   },
   {

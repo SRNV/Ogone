@@ -263,7 +263,9 @@ ${err.stack}`);
             .map(([key, value]) =>
               key !== "ref"
                 ? `_at(${nId},'${key}', '${value}');`
-                : `ctx.refs['${value}'] = ${nId};`
+                : `
+                ctx.refs['${value}'] = ctx.refs['${value}'] || [];
+                ctx.refs['${value}'][i] = ${nId};`
             )
             .join("");
           pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
