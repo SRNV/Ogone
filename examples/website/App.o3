@@ -6,13 +6,6 @@ import component RouterMain from './routers/RouterMain.o3';
  * @description
  * Application for Ogone website
  */
-<proto type="app">
-  declare:
-    readonly title: string = 'Ogone';
-  default:
-    // initialization
-    break;
-</proto>
 <template private>
   <head>
     <title>Ogone - Next generation composition</title>
@@ -32,3 +25,10 @@ import component RouterMain from './routers/RouterMain.o3';
   </head>
   <RouterMain namespace="main" />
 </template>
+<proto type="app">
+  declare:
+    readonly title: string = 'Ogone';
+  default:
+    // initialization
+    break;
+</proto>

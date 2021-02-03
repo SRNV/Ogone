@@ -6,6 +6,7 @@ import getDeepTranslation from "../../../utils/template-recursive.ts";
 import read from "../../../utils/agnostic-transformer.ts";
 import { Utils } from "../Utils.ts";
 import type {
+  ProtocolScriptRegExpItem,
   ProtocolScriptRegExpList,
   TypedExpressions,
 } from "../../ogone.main.d.ts";
@@ -13,21 +14,19 @@ import type {
 interface StyleOptions {
   vars: { [k: string]: string | StyleOptions["vars"] }
 }
+class TokenREGEX implements ProtocolScriptRegExpItem {
+  public name?: string;
+  public close?: ProtocolScriptRegExpItem['close'] = false;
+  public open?: ProtocolScriptRegExpItem['open'] = false;
+  constructor(public reg: ProtocolScriptRegExpItem['reg'], public id: ProtocolScriptRegExpItem['id']) {}
+}
 export default class Style extends Utils {
   private static readonly tokens: ProtocolScriptRegExpList = [
-    {
-      name: 'rule_value',
-      open: false,
-      close: false,
-      reg: /(?<=\:)(?<value>.+?)(?:(\;|\}))/,
-    },
-    {
-      name: 'selector',
-      open: false,
-      close: false,
-      // |;|} selector { rules }
-      reg: /(?<=\d+_block|^|\;)(?<selector>[^;]+?)(?<rules>\d+_block)/,
-    },
+    new TokenREGEX(/(?<=\:)(?<value>.+?)(?:(\;|\}))/, () => ''),
+    new TokenREGEX(/(?<=\d+_block|^|\;)(?<selector>[^;]+?)(?<rules>\d+_block)/, () => ''),
+    new TokenREGEX(/(\b@export)(\s+const\b)/, () => ''),
+    new TokenREGEX(/(\b@const\b)/, () => ''),
+    new TokenREGEX(/(\.{3})([^\s;\},]+?)(?:\s|;|\}|,)/, () => ''),
   ];
   /**
    * use this method to transform the style of the components

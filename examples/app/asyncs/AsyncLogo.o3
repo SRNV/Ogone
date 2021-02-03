@@ -2,7 +2,7 @@
 /**
  *  @name AsyncLogo
  *  @description
- *    this component will render after the image is loaded
+ *    this component will render right after the image is loaded
  *  @example
       Async.resolve(undefined)
  */
