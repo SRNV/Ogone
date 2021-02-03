@@ -75,7 +75,7 @@ ${err.stack}`);
           this.error(`${component.file}:${position.line}:${position.column}\n\t
           useless Style Tags for private template
           Turning to private the template of the component will encapsulate all the elements inside the template.
-          the style won't be effective.
+          the style won't have any effect, because it's inserted into the head of the document.
           please wrap this style element into the template element.
           `);
         }

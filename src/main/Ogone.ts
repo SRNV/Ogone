@@ -1655,22 +1655,6 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
       setTimeout(() => {
         // set Async context for Async Components
         setAsyncContext(Onode);
-        /*
-        // replace childnodes by the placeholder that will be replaced by the template
-        if (chs.length) {
-          const { isConnected } = chs[0];
-          if (isConnected) {
-            chs.forEach((ch) => {
-              if ((ch as HTMLOgoneElement).extending) {
-                removeNodes(ch as HTMLOgoneElement)
-                ch.remove();
-                return;
-              }
-              ch.remove();
-            });
-          }
-        }
-        */
         resolve(true);
       }, 0);
     }).then(() => {
