@@ -1,4 +1,4 @@
-<template private>
+<template protected>
   <style>
     .container {
       margin-top: 25%;

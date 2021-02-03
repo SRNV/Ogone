@@ -32,19 +32,6 @@ declare type _once = number;
 <template 
 private >
 
-<head >
-
-<title >
-
-Ogone - Next generation composition
-
-</title>
-<style >
-{`
-    * { --background: #242c31;--primary: #8494e1;--secondary: #9cd0ef;--dark: #152937;; } body { margin: 0px;padding: 0px;background: var(--background);; } 
-`}
-</style>
-</head>
 <RouterMain 
 namespace="main" >
 

@@ -59,6 +59,7 @@ export default class RouterAnalyzer extends Utils {
             route.isAsync = newcomp.type === "async";
             route.isRouter = newcomp.type === "router";
             route.isTemplatePrivate = !!newcomp.elements.template?.attributes.private;
+            route.isTemplateProtected = !!newcomp.elements.template?.attributes.protected;
           }
         } else {
           this.error(

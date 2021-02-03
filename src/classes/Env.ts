@@ -209,6 +209,7 @@ ${err.stack}`);
         const ___perfData = window.performance.timing;
         const ROOT_UUID = "${rootComponent.uuid}";
         const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
+        const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
         ${MapOutput.runtime}
           {% promise %}
         `,

@@ -18,6 +18,7 @@ declare const location: Location;
 declare class Comment extends Com { };
 declare const ROOT_UUID: string;
 declare const ROOT_IS_PRIVATE: boolean;
+declare const ROOT_IS_PROTECTED: boolean;
 class OgoneBaseClass extends HTMLElement {
   declare nodes: OgoneParameters['nodes'];
   declare uuid: OgoneParameters['uuid'];
@@ -45,7 +46,6 @@ class OgoneBaseClass extends HTMLElement {
   };
   public dispatchAwait = null;
   public promiseResolved = false;
-  public alreadyconnected = false;
   // events describers
   // this.events = {};
   // all nodes that's are dynamics will save a function into this property
@@ -70,6 +70,7 @@ class OgoneBaseClass extends HTMLElement {
         isRoot: true,
         isTemplate: true,
         isTemplatePrivate: ROOT_IS_PRIVATE,
+        isTemplateProtected: ROOT_IS_PROTECTED,
         isAsync: false,
         isController: false,
         isAsyncNode: false,
@@ -127,8 +128,6 @@ class OgoneBaseClass extends HTMLElement {
     return oc.contexts.for[o.key!];
   }
   connectedCallback(this: HTMLOgoneElement) {
-    if (this.alreadyconnected && this.isTemplatePrivate) return;
-    this.alreadyconnected = true;
     if (this.isController) {
       this.remove();
       return;
@@ -788,6 +787,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     let ogoneOpts: OgoneParameters | null = {
       isTemplate: true,
       isTemplatePrivate: rendered.isTemplatePrivate,
+      isTemplateProtected: rendered.isTemplateProtected,
       isRouter: rendered.isRouter,
       isStore: false,
       isAsync: rendered.isAsync,
@@ -1429,8 +1429,8 @@ function renderNode(Onode: HTMLOgoneElement) {
   if (o.isTemplate) {
     // update Props before replace the element
     OnodeUpdateProps(Onode);
-    if (o.isTemplatePrivate) {
-      const shadow = Onode.attachShadow({ mode: 'closed' });
+    if (o.isTemplatePrivate || o.isTemplateProtected) {
+      const shadow = Onode.attachShadow({ mode: o.isTemplatePrivate ? 'closed' : 'open' });
       shadow.append(...(o.nodes as Node[]));
     } else {
       if (Onode.childNodes.length) {
@@ -1562,7 +1562,6 @@ function renderAsyncComponent(Onode: HTMLOgoneElement) {
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
     const awaitingNodes = Array.from(node.querySelectorAll("ogone-node"))
       .filter(filter) as HTMLOgoneElement[];
-    console.warn("awaiting", node, awaitingNodes);
     if (
       node.isComponent && node && node.component && node.component.type === "async"
     ) {
@@ -1645,7 +1644,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
   // async placeholder feature
   if (chs.length) {
     // Onode.replaceWith(...chs);
-  } else if (!Onode.isTemplatePrivate) {
+  } else if (!Onode.isTemplatePrivate && !Onode.isTemplateProtected) {
     Onode.replaceWith(placeholder);
   }
   oc.component.resolve = (...args: unknown[]) => {
@@ -2004,6 +2003,7 @@ function OnodeListRendering(
       namespace: Onode.namespace,
       isTemplate: Onode.isTemplate,
       isTemplatePrivate: Onode.isTemplatePrivate,
+      isTemplateProtected: Onode.isTemplateProtected,
       isImported: Onode.isImported,
       isAsync: Onode.isAsync,
       isAsyncNode: Onode.isAsyncNode,

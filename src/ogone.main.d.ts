@@ -40,6 +40,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   methodsCandidate?: Function[];
   isTemplate: boolean;
   isTemplatePrivate: boolean;
+  isTemplateProtected: boolean;
   isAsync: boolean;
   isController: boolean;
   isAsyncNode: boolean;
@@ -142,6 +143,7 @@ export interface OgoneParameters {
   methodsCandidate?: Function[];
   isTemplate: boolean;
   isTemplatePrivate: boolean;
+  isTemplateProtected: boolean;
   isAsync: boolean;
   isController: boolean;
   isAsyncNode: boolean;
@@ -603,6 +605,7 @@ export interface Route {
   name: string;
   isAsync: boolean;
   isTemplatePrivate: boolean;
+  isTemplateProtected: boolean;
   isRouter: boolean;
   children: Route[];
   title: string;
