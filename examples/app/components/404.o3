@@ -1,3 +1,12 @@
+/**
+ * @author SRNV
+ * @description
+ * this component is private
+ * in the past the logo was rotating back and forth
+ * because the animation isn't defined in the component
+ * this will no more rotate
+ * remove this comment if no more needed
+ */
 <template private>
   <style>
     .container {
