@@ -30,6 +30,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
 <proto type="app">
   declare:
     public scrollY: number = 0;
+    public env = `@{ const a = Deno.env.toObject() }`
     public setScrollY(n: number) {
       this.scrollY = n;
     }
