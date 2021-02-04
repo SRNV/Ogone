@@ -103,6 +103,7 @@ export interface OgoneInterface {
   mod: OgoneModules;
   ComponentCollectionManager: any;
   instances: { [componentUuid: string]: any[] };
+  protocols: { [componentUuid: string]: FunctionConstructor };
   routerReactions: Function[];
   actualRoute: string | null;
   websocketPort: number;

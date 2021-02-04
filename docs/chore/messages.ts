@@ -106,7 +106,7 @@ export default {
               passing the flag ${green('--open-designer')} will open a webview in your IDE
               you will be able to see your component while your building it.
 
-            - ${green('feat')}: You can now encapsulate the component's template by setting the attribute ${green('private')}
+            - ${green('feat')}: ${yellow('[private|protected]')} You can now encapsulate the component's template by setting the attribute (${green('private')} or ${green('protected')})
               this will secure your component from any external DOM manipulation. it's useful to prevent all malicious iframe for example.
               example:${exampleFormat(`
                 <template ${green('private')}>
@@ -119,6 +119,28 @@ export default {
                     document.getElementById('unreachable'); // null
                     const [span] = Refs.reachable;
                     break;
-                </proto>`)}
+                </proto>
+                `)}
+
+                using the attribute (${green('protected')}) will expose the template to any DOM Manipulation
+                all external css rules will have no more effect, on the component.
+                Style your private component by adding the style element into the template. it has to be the very first one element.
+
+                example:${exampleFormat(`
+                <template protected>
+                  ${green(`<style>
+                    .container {
+                      margin-top: 25%;
+                      margin-bottom: 25%;
+                      .logo {
+                          height: 56%;
+                      }
+                    }
+                  </style>`)}
+                  <div class="container">
+                    <img class="logo" src="/src/public/ogone.svg" />
+                  </div>
+                </template>
+                `)}
   `,
 }

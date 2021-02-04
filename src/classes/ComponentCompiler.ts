@@ -178,7 +178,7 @@ ${err.stack}`);
           AsyncAPI: component.type === "async" ? AsyncAPI : "let Async;",
           protocol: component.protocol ? component.protocol : "",
           dataSource: component.isTyped
-            ? `new (${component.context.protocolClass})`
+            ? `new Ogone.protocols['{% component.uuid %}']`
             : JSON.stringify(component.data),
           data: component.isTyped
             || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
@@ -195,14 +195,19 @@ ${err.stack}`);
             )
             : "",
           StoreAPI: !!component.hasStore ? store : "let Store;",
+          protocolDeclarationForTypedComponent: component.isTyped ? `
+          Ogone.protocols['{% component.uuid %}'] = ${component.context.protocolClass}
+          ` : '',
         };
         result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
         if (mapRender.has(result)) {
           const item = mapRender.get(result);
           result = this.template(
-            `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];`,
+            `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];
+             {% protocolDeclarationForTypedComponent %}
+            `,
             {
-              component,
+              ...d,
               item,
             },
           );
@@ -212,7 +217,9 @@ ${err.stack}`);
             id: component.uuid,
           });
           MapOutput.outputs.data.push(this.template(
-            `Ogone.components['{% component.uuid %}'] = ${result.trim()}`,
+            `Ogone.components['{% component.uuid %}'] = ${result.trim()};
+            {% protocolDeclarationForTypedComponent %}
+            `,
             d,
           ));
         }

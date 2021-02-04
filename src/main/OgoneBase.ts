@@ -7,6 +7,7 @@ export const Ogone: OgoneInterface = {
   stores: {},
   clients: [],
   render: {},
+  protocols: {},
   contexts: {},
   components: {},
   classes: {},
