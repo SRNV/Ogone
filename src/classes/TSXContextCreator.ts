@@ -1,5 +1,6 @@
 import { Bundle, Component } from '../ogone.main.d.ts';
 import { colors, join } from '../../deps/deps.ts';
+import { walkSync } from '../../deps/walk.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";
 /**
@@ -12,6 +13,15 @@ export default class TSXContextCreator extends Utils {
   static globalAppContextURL = new URL('./tsx_context.ts', TSXContextCreator.subdistFolderURL);
   static globalAppContextFile: string = '';
   static mapCreatedFiles: URL[] = [];
+  public static cleanDistFolder() {
+    const files = walkSync(TSXContextCreator.subdistFolderURL.pathname, {
+      includeFiles: true,
+      includeDirs: true,
+    });
+    for (let file of files) {
+      Deno.removeSync(file.path);
+    }
+  }
   async read(bundle: Bundle, opts: { checkOnly?: string } = {}) {
     const startPerf = performance.now();
     try {

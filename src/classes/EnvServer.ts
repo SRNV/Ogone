@@ -9,6 +9,7 @@ import type {
 } from "../ogone.main.d.ts";
 import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
+import TSXContextCreator from './TSXContextCreator';
 export default class EnvServer extends Env {
   public readonly contributorMessage: { [k: string]: string } = messages;
   run(opts: OgoneConfiguration) {
@@ -71,6 +72,7 @@ ${err.stack}`);
   }
   public async startDevelopment(): Promise<void> {
     try {
+      TSXContextCreator.cleanDistFolder();
       OgoneWorkers.serviceDev.postMessage({
         type: Workers.INIT_MESSAGE_SERVICE_DEV,
         application: await this.getApplication(),
