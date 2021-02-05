@@ -44,7 +44,7 @@ export default class TSXContextCreator extends Utils {
         hasError = diagnosticError;
       }
       if (!hasError) {
-        this.infos(`Type Checking took ~${Math.floor(performance.now() - startPerf)} ms`);
+        this.infos(`Type checking took ~${Math.floor(performance.now() - startPerf)} ms`);
         this.success('no type error found.');
       }
     } catch (err) {

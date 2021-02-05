@@ -48,6 +48,9 @@ export default {
 
             - ${blue('chore')}: Ogone will start using workers, the first one is set for the local server.
             - ${blue('chore')}: specifying the port on configurtion is no more required.
+            - ${blue('chore')}: support for Deno 1.7.0+
+              a new strategy has been implemented. this one improves the performances of the type checking step
+              like 10 seconds of type checking against 1 seconds
 
             - ${green('feat')}: Ogone CLI is landed
               start using it by the following command:

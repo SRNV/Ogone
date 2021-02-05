@@ -22,7 +22,6 @@ import component RouterMain from './routers/RouterMain.o3';
         background: var(--background);
       }
     </style>
-    def:
   </head>
   <RouterMain namespace="main" />
 </template>
