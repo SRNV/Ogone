@@ -16,7 +16,7 @@ export default class TSXContextCreator extends Utils {
   public static cleanDistFolder() {
     const files = walkSync(TSXContextCreator.subdistFolderURL.pathname, {
       includeFiles: true,
-      includeDirs: true,
+      includeDirs: false,
     });
     for (let file of files) {
       Deno.removeSync(file.path);

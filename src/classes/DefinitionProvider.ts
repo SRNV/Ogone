@@ -43,7 +43,6 @@ ${err.stack}`);
           );
         }
         if (isAbsoluteRemote) {
-          this.warn(`Def: ${defPath}`);
           const def = await fetchRemoteRessource(defPath);
           if (!def) {
             this.error(
@@ -53,7 +52,6 @@ ${err.stack}`);
             defData = YAML.parse(def, {});
           }
         } else if (!!component.remote) {
-          this.warn(`Def: ${remoteRelativePath}`);
           const def = await fetchRemoteRessource(remoteRelativePath);
           if (!def) {
             this.error(
@@ -63,7 +61,6 @@ ${err.stack}`);
             defData = YAML.parse(def, {});
           }
         } else if (existsSync(defPath)) {
-          this.warn(`Def: ${defPath}`);
           if (Deno.build.os !== "windows") {
             Deno.chmodSync(defPath, 0o777);
           }

@@ -72,15 +72,16 @@ import component OBtn from '../atoms/button.o3';
       },
     ];
   case 'event:animationend:fade-out-bottom':
-    Refs.marquee.classList.add('fade-out');
-  break;
+    const [marquee] = Refs.marquee
+    marquee.classList.add('fade-out');
+    break;
   case 'event:animationend:fade-out':
     this.display = false;
     Ogone.router.go('/ogone');
-  break;
+    break;
   case 'click:fade-out:exit':
     this.visible = false;
-  break;
+    break;
   default:
     this.display = true;
     Async.resolve();
