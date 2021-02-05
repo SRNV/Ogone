@@ -19,7 +19,7 @@ declare class Comment extends Com { };
 declare const ROOT_UUID: string;
 declare const ROOT_IS_PRIVATE: boolean;
 declare const ROOT_IS_PROTECTED: boolean;
-class OgoneBaseClass extends HTMLElement {
+export class OgoneBaseClass extends HTMLElement {
   declare nodes: OgoneParameters['nodes'];
   declare uuid: OgoneParameters['uuid'];
   declare isTemplate: OgoneParameters['isTemplate'];
@@ -139,10 +139,10 @@ class OgoneBaseClass extends HTMLElement {
     setContext(this);
     // setHMRContext();
 
-      // parse the route that match with location.pathname
-      if (this.type === "router") {
-        setActualRouterTemplate(this);
-      }
+    // parse the route that match with location.pathname
+    if (this.type === "router") {
+      setActualRouterTemplate(this);
+    }
 
     // set the props required by the node
     if (this.isTemplate) {
@@ -151,21 +151,21 @@ class OgoneBaseClass extends HTMLElement {
     }
     renderingProcess(this);
 
-      switch (true) {
-        case this.type === "router":
-          renderRouter(this);
-          break;
-        case this.type === "store":
-          renderStore(this);
-          break;
-        case this.type === "async":
-          renderAsync(this);
-          break;
-        default:
-          renderNode(this);
-          break;
-      }
+    switch (true) {
+      case this.type === "router":
+        renderRouter(this);
+        break;
+      case this.type === "store":
+        renderStore(this);
+        break;
+      case this.type === "async":
+        renderAsync(this);
+        break;
+      default:
+        renderNode(this);
+        break;
     }
+  }
 }
 window.customElements.define('ogone-node', OgoneBaseClass);
 // Router implementation
@@ -236,7 +236,7 @@ export function _at(n: Element, a: string, b: string) {
  * function called right after Ogone.setOgone
  * Ogone.setOgone is called when the customElement is created by document.createElement
  */
-function construct(Onode: HTMLOgoneElement) {
+export function construct(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.type) return;
   Onode.dependencies = o.dependencies;
@@ -261,7 +261,7 @@ function construct(Onode: HTMLOgoneElement) {
  * those parameters are passed right after the creation of the customElement
  * in Ogone.render
  */
-function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
+export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
   const params = {
     original: Onode,
     isRemote: false,
@@ -348,7 +348,7 @@ function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
 /**
  * for dynamic attributes of any elements
  */
-function setNodeProps(Onode: HTMLOgoneElement) {
+export function setNodeProps(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o || !oc || !o.nodes || !o.nodeProps) return;
   function r(n: HTMLElement, p: [string, string]) {
@@ -372,7 +372,7 @@ function setNodeProps(Onode: HTMLOgoneElement) {
  * and an index which will increase if needed into a loop
  * each element in the rendered loop has it's own index
  */
-function setPosition(Onode: HTMLOgoneElement) {
+export function setPosition(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (o.position && typeof o.level === 'number' && typeof o.index === 'number') {
     o.position[o.level as number] = o.index;
@@ -382,7 +382,7 @@ function setPosition(Onode: HTMLOgoneElement) {
  * set the props into the component from the OgoneParameters.props
  * OgoneParameters.props is passed during the creation of the node
  */
-function setProps(Onode: HTMLOgoneElement) {
+export function setProps(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o || !oc) return;
   if (!o.index) {
@@ -400,7 +400,7 @@ function setProps(Onode: HTMLOgoneElement) {
 /**
  * for the flag --spread
  */
-function useSpread(Onode: HTMLOgoneElement) {
+export function useSpread(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   const op = oc.parent;
@@ -443,7 +443,7 @@ function useSpread(Onode: HTMLOgoneElement) {
  * use the dedicated render function inside Ogone.render
  * which returns all the template of the component or the dynamic node
  */
-function setNodes(Onode: HTMLOgoneElement) {
+export function setNodes(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.renderNodes) return;
   if (o.isTemplate) {
@@ -471,7 +471,7 @@ function setNodes(Onode: HTMLOgoneElement) {
 /**
  * will remove all nodes of the component
  */
-function removeNodes(Onode: HTMLOgoneElement) {
+export function removeNodes(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return Onode;
   /* use it before removing template node */
@@ -496,7 +496,7 @@ function removeNodes(Onode: HTMLOgoneElement) {
 /**
  * will destroy the component and use the case 'destroy'
  */
-function destroy(Onode: HTMLOgoneElement) {
+export function destroy(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   Onode.context.list.forEach((n) => {
@@ -516,7 +516,7 @@ function destroy(Onode: HTMLOgoneElement) {
 /**
  * adds Listeners on nodes
  */
-function setEvents(Onode: HTMLOgoneElement) {
+export function setEvents(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o.flags || !o.getContext || !oc || !o.nodes) return;
   const position = Onode.isComponent
@@ -720,7 +720,7 @@ function setEvents(Onode: HTMLOgoneElement) {
  * this function is used inside an array.find this is why it returns a boolean.
  * true if the route matches
  */
-function routerSearch(Onode: HTMLOgoneElement, route: Route, locationPath: string) {
+export function routerSearch(Onode: HTMLOgoneElement, route: Route, locationPath: string) {
   if (typeof locationPath !== "string") return false;
   const { path } = route;
   const splitted = path.toString().split("/");
@@ -751,7 +751,7 @@ function routerSearch(Onode: HTMLOgoneElement, route: Route, locationPath: strin
 /**
  * used inside a reaction, this will create a new component each time the route is updated, via routerGo(...)
  */
-function setActualRouterTemplate(Onode: HTMLOgoneElement) {
+export function setActualRouterTemplate(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   oc.routes = o.routes;
   oc.locationPath = o.locationPath;
@@ -835,7 +835,7 @@ function setActualRouterTemplate(Onode: HTMLOgoneElement) {
 /**
  * to any element that has the flag --await
  */
-function setNodeAsyncContext(Onode: HTMLOgoneElement) {
+export function setNodeAsyncContext(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (o.flags && o.flags.await) {
     const promise = new Promise((resolve, reject) => {
@@ -864,7 +864,7 @@ function setNodeAsyncContext(Onode: HTMLOgoneElement) {
  * set the context when the user uses the flags: then, catch, finally
  * the context is saved into OComponent.async
  */
-function setAsyncContext(Onode: HTMLOgoneElement) {
+export function setAsyncContext(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   if (o.flags && o.flags.then) {
@@ -913,7 +913,7 @@ export function OnodeRecycleWebComponent(Onode: HTMLOgoneElement, opts: OgoneRec
  * ```
  * the saved function will trigger when everything is ready in the HTMLOgoneElement
  */
-function saveUntilRender(Onode: HTMLOgoneElement, f: Function): void {
+export function saveUntilRender(Onode: HTMLOgoneElement, f: Function): void {
   if (Onode.methodsCandidate) {
     Onode.methodsCandidate.push(f);
   }
@@ -921,7 +921,7 @@ function saveUntilRender(Onode: HTMLOgoneElement, f: Function): void {
 /**
  * for the flag --bind
  */
-function bindValue(Onode: HTMLOgoneElement) {
+export function bindValue(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.bind || !oc || !o.nodes) return;
   function r(n: HTMLInputElement, dependency: boolean | string) {
@@ -1004,7 +1004,7 @@ function bindValue(Onode: HTMLOgoneElement) {
 /**
  * for the flag --class
  */
-function bindClass(Onode: HTMLOgoneElement) {
+export function bindClass(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.class || !oc || !o.nodes) return;
   function r(n: HTMLElement) {
@@ -1031,7 +1031,7 @@ function bindClass(Onode: HTMLOgoneElement) {
 /**
  * for the flag --html
  */
-function bindHTML(Onode: HTMLOgoneElement) {
+export function bindHTML(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.html || !oc || !o.nodes || o.isTemplate) return;
   function r(n: HTMLElement) {
@@ -1053,7 +1053,7 @@ function bindHTML(Onode: HTMLOgoneElement) {
 /**
  * for the flag --style
  */
-function bindStyle(Onode: HTMLOgoneElement) {
+export function bindStyle(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!o.flags || !o.flags.style || !oc || !o.nodes) return;
   function r(n: HTMLElement) {
@@ -1079,7 +1079,7 @@ function bindStyle(Onode: HTMLOgoneElement) {
     r(n as HTMLElement);
   }
 }
-function setContext(Onode: HTMLOgoneElement) {
+export function setContext(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.key) return;
   if (o.isTemplate) {
@@ -1102,7 +1102,7 @@ function setContext(Onode: HTMLOgoneElement) {
     o.parent.store[o.namespace as string] = o;
   }
 }
-function setDevToolContext(Onode: HTMLOgoneElement) {
+export function setDevToolContext(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   const ocp = oc.parent as HTMLOgoneElement;
@@ -1125,7 +1125,7 @@ function setDevToolContext(Onode: HTMLOgoneElement) {
     type: o.isTemplate ? o.isRoot ? "root" : oc.type : "element",
   });
 }
-function displayError(message: string, errorType: string, errorObject: Error) {
+export function displayError(message: string, errorType: string, errorObject: Error) {
   // here we render the errors in development
   if (!Ogone.errorPanel) {
     const p = document.createElement("div");
@@ -1235,7 +1235,7 @@ function displayError(message: string, errorType: string, errorObject: Error) {
   }
 };
 
-function showPanel(panelName: 'infos' | 'error' | 'success' | 'warn', time: number | undefined) {
+export function showPanel(panelName: 'infos' | 'error' | 'success' | 'warn', time: number | undefined) {
   const panel = panelName === 'infos' ?
     Ogone.infosPanel :
     panelName === 'success' ?
@@ -1253,7 +1253,7 @@ function showPanel(panelName: 'infos' | 'error' | 'success' | 'warn', time: numb
     }
   }
 }
-function infosMessage(opts: { message: string; }) {
+export function infosMessage(opts: { message: string; }) {
   if (!Ogone.infosPanel) {
     const container = document.createElement("div");
     container.style.position = "fixed";
@@ -1327,14 +1327,14 @@ export async function hmrRuntime(uuid: string | number, runtime: { bind: (arg0: 
     throw err;
   }
 }
-function startConnection() {
+export function startConnection() {
   if (Ogone.isDeno) {
     // createServer();
   } else {
     createClient();
   }
 }
-function createClient() {
+export function createClient() {
   const ws = new WebSocket(`ws://localhost:${Ogone.websocketPort}/`);
   ws.onmessage = (msg) => {
     const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(
@@ -1394,7 +1394,7 @@ function createClient() {
  * fake slot replacement inside the component
  * // TODO use native slot implementation
  */
-function renderSlots(Onode: HTMLOgoneElement) {
+export function renderSlots(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
   const slots = Array.from(Onode.querySelectorAll("[slot]"));
@@ -1423,7 +1423,7 @@ function renderSlots(Onode: HTMLOgoneElement) {
  * global instructions for the rendering of the HTMLOgoneElement
  * will render all the dynamic textnodes and replace all the slots elements
  */
-function renderNode(Onode: HTMLOgoneElement) {
+export function renderNode(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   if (o.isTemplate) {
@@ -1473,7 +1473,7 @@ function renderNode(Onode: HTMLOgoneElement) {
  * ends by removing the HTMLOgoneElement
  * throws if the namespace doesn't match with the namespace inside the store component
  */
-function renderStore(Onode: HTMLOgoneElement) {
+export function renderStore(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   if (oc.namespace !== o.namespace) {
@@ -1494,7 +1494,7 @@ function renderStore(Onode: HTMLOgoneElement) {
  * all the instructions involved in the implementation of the router.
  * this will use a HTMLSectionElement and alays replace it's innerHTML
  */
-function renderRouter(Onode: HTMLOgoneElement) {
+export function renderRouter(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   // update Props before replacement of the element
@@ -1515,7 +1515,7 @@ function renderRouter(Onode: HTMLOgoneElement) {
 /**
  * rendering instructions for the router components inside an async component context
  */
-function renderAsyncRouter(Onode: HTMLOgoneElement) {
+export function renderAsyncRouter(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
   const filter = (t: any) => t.isComponent && t.isRouter;
@@ -1534,7 +1534,7 @@ function renderAsyncRouter(Onode: HTMLOgoneElement) {
 /**
  * rendering instructions for the store components inside an async component context
  */
-function renderAsyncStores(Onode: HTMLOgoneElement) {
+export function renderAsyncStores(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
   const filter = (t: any) => t.isComponent && t.component && t.isStore;
@@ -1555,7 +1555,7 @@ function renderAsyncStores(Onode: HTMLOgoneElement) {
 /**
  * rendering instructions for async components inside an async component context
  */
-function renderAsyncComponent(Onode: HTMLOgoneElement) {
+export function renderAsyncComponent(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc || !o || !o.nodes) return;
   const filter = (t: any) => t.isComponent && t.isAsync && t.flags && t.flags.await;
@@ -1601,7 +1601,7 @@ function renderAsyncComponent(Onode: HTMLOgoneElement) {
 /**
  * rendering instructions for the basic components inside an async component context
  */
-function renderComponent(Onode: HTMLOgoneElement) {
+export function renderComponent(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "component";
@@ -1625,7 +1625,7 @@ function renderComponent(Onode: HTMLOgoneElement) {
 /**
  * instructions for the async components
  */
-function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: boolean) {
+export function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: boolean) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   // first render child stores component
@@ -1689,7 +1689,7 @@ function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentComponent?: bo
 /**
  * all the instructions involved in the rendering of the components or dynamic nodes
  */
-function renderingProcess(Onode: HTMLOgoneElement) {
+export function renderingProcess(Onode: HTMLOgoneElement) {
   const o = Onode;
   // use the jsx renderer only for templates
   // use the previous jsx and push the result into ogone.nodes
@@ -1734,7 +1734,7 @@ function renderingProcess(Onode: HTMLOgoneElement) {
  * or of the parent component if it's already a component
  * the component render function will duplicate the element using the user's --for flag
  */
-function renderContext(Onode: HTMLOgoneElement) {
+export function renderContext(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc || !o.getContext || !o.isOriginalNode) return false;
   const length = o.getContext(
@@ -1750,7 +1750,7 @@ function renderContext(Onode: HTMLOgoneElement) {
  * for all RouterComponents, this function will force the use of the default modifier.
  * and save a reaction in the component. this reaction will use the functions Ogone.setActualRouterTemplate && Ogone.renderRouter
  */
-function triggerLoad(Onode: HTMLOgoneElement) {
+export function triggerLoad(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   const rr = Ogone.routerReactions;
@@ -1767,7 +1767,7 @@ function triggerLoad(Onode: HTMLOgoneElement) {
 * to keep up to data the nodes
 * renderContext is used for the updates
 */
-function setDeps(Onode: HTMLOgoneElement) {
+export function setDeps(Onode: HTMLOgoneElement) {
   const o = Onode;
   if (o.isOriginalNode && o.getContext && o.original) {
     (o.isComponent && o.parentComponent ? o.parentComponent : o.component).react.push(() =>
@@ -1776,7 +1776,7 @@ function setDeps(Onode: HTMLOgoneElement) {
     renderContext(o);
   }
 }
-function setHMRContext(Onode: HTMLOgoneElement) {
+export function setHMRContext(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   // register to hmr
   if (o.isTemplate && oc && o.uuid) {
@@ -1815,7 +1815,7 @@ export function routerGo(url: string, state: any) {
   });
   history.pushState(state || {}, "", url || "/");
 }
-function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event?: Event | OgoneParameters['historyState']) {
+export function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event?: Event | OgoneParameters['historyState']) {
   if (!Onode.component.activated) return;
   if (Onode.type === "store") {
     initStore(Onode);
@@ -1823,7 +1823,7 @@ function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event?: Even
   OnodeUpdateProps(Onode);
   Onode.component.runtime(0, params, event);
 };
-function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
+export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   if (Onode.type === "store") {
     OnodeUpdateStore(Onode, dependency!);
     return;
@@ -1837,7 +1837,7 @@ function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
     },
   );
 };
-function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
+export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
   if (!Onode.component.activated) return;
   Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
     // if there is no update of the texts
@@ -1845,12 +1845,12 @@ function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
     if (t && !t(dependency)) delete arr[i];
   });
 };
-function OnodeReactions(Onode: HTMLOgoneElement, dependency: string) {
+export function OnodeReactions(Onode: HTMLOgoneElement, dependency: string) {
   Onode.component.react.forEach((t: Function, i: number, arr: Function[]) => {
     if (t && !t(dependency)) delete arr[i];
   });
 };
-function initStore(Onode: HTMLOgoneElement) {
+export function initStore(Onode: HTMLOgoneElement) {
   if (!Ogone.stores[Onode.namespace as string]) {
     Ogone.stores[Onode.namespace as string] = {
       ...Onode.component.data,
@@ -1880,7 +1880,7 @@ function initStore(Onode: HTMLOgoneElement) {
     return Onode.component.activated;
   }]);
 };
-function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
+export function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
   // find the reaction of this store module with the key
   // @ts-ignore VSCode error on iterators
   const [key, client] = Ogone.clients.find(([key]) => key === Onode.key);
@@ -1897,7 +1897,7 @@ function OnodeUpdateStore(Onode: HTMLOgoneElement, dependency: string) {
     );
   }
 };
-function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown, force?: boolean) {
+export function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown, force?: boolean) {
   const { data } = Onode.component;
   if (data && value !== data[key] || force && data) {
     const previous = data[key];
@@ -1936,7 +1936,7 @@ function OnodeUpdateService(Onode: HTMLOgoneElement, key: string, value: unknown
     }
   }
 };
-function OnodeUpdateProps(Onode: HTMLOgoneElement, dependency?: string) {
+export function OnodeUpdateProps(Onode: HTMLOgoneElement, dependency?: string) {
   if (!Onode.component.activated) return;
   if (Onode.type === "store") return;
   if (!Onode?.component?.requirements || !Onode.props) return;
@@ -1956,11 +1956,11 @@ function OnodeUpdateProps(Onode: HTMLOgoneElement, dependency?: string) {
 * this is used to update the attributes of the webcomponent
 * when a prop is updated
 */
-function OnodePlugWebComponent(Onode: HTMLOgoneElement, wc: any, isSync: boolean) {
+export function OnodePlugWebComponent(Onode: HTMLOgoneElement, wc: any, isSync: boolean) {
   Onode.pluggedWebComponent = wc;
   Onode.pluggedWebComponentIsSync = isSync;
 };
-function OnodeDestroyPluggedWebcomponent(Onode: HTMLOgoneElement) {
+export function OnodeDestroyPluggedWebcomponent(Onode: HTMLOgoneElement) {
   if (Onode.pluggedWebComponent && typeof Onode.pluggedWebComponent.beforeDestroy === 'function') {
     Onode.pluggedWebComponent.beforeDestroy();
   }
@@ -1969,7 +1969,7 @@ function OnodeDestroyPluggedWebcomponent(Onode: HTMLOgoneElement) {
     Onode.pluggedWebComponentIsSync = false;
   }
 };
-function OnodeListRendering(
+export function OnodeListRendering(
   Onode: HTMLOgoneElement, /** original node */
   opts: OnodeComponentRenderOptions,
 ) {

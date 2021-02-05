@@ -1,0 +1,20 @@
+<template>
+  <div>
+    <GoalsList {...this}/>
+    <AddGoal --on:add-goal:add />
+  </div>
+</template>
+
+<proto type="app">
+  declare:
+    private _goals: Goal[] = [];
+    public get goals() {
+      return this._goals.filter((goal) => !goal.includes('Angular') && !goal.includes('React'))
+    }
+    public addGoal(): void | null | Promise<string>/** */ {
+      this._goals.push('');
+    }
+  case 'on:add-goal:add':
+    this.addGoal();
+    break;
+</proto>

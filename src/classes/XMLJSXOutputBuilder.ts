@@ -421,7 +421,7 @@ ${err.stack}`);
                       position: p{%textConstant%},
                     });
                     if ({%nId%}.data !== v && v) {%nId%}.data = v.length ? v : ' ';
-                    return true
+                    return ctx.component.activated;
                   });
                 `
               : "";

@@ -22,7 +22,7 @@ export default class WebComponentDefinition extends Utils {
       const isTemplate = node.tagName === null;
       const isImported = node.tagName ? component.imports[node.tagName] : false;
       const isProduction = Env._env === "production";
-      const componentPragma = node.pragma
+      let componentPragma = node.pragma
         ? node.pragma(bundle, component, true)
         : "";
       // no definition for imported component

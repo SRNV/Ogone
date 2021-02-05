@@ -128,18 +128,18 @@ ${err.stack}`);
             const GET_TEXT = opts.getText;
             const GET_LENGTH = opts.getLength;
             const POSITION = opts.position;
+            {% data %}
+            {% modules %}
+            {% value %}
+            {% context.if %}
+            {% context.getNodeDynamicLength || context.getLength %}
             try {
-              {% data %}
-              {% modules %}
-              {% value %}
-              {% context.if %}
-              {% context.getNodeDynamicLength || context.getLength %}
               if (GET_TEXT) {
                   return eval('('+GET_TEXT+')');
                 }
                 return { {% context.result %} };
             } catch(err) {
-              if (!({% itemName %})) { return undefined }
+              if (typeof {% itemName %} === 'undefined' || !({% itemName %})) { return undefined }
               displayError('Error in component:\\n\\t {%component.file%} '+\`$\{GET_TEXT}\`, err.message ,err);
               throw err;
             }

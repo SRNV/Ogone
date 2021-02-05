@@ -8,7 +8,7 @@ enum Protocol {
     {% modules %}
     {% namespaces %}
     {% protocol %}
-
+    declare const Deno: any;
     type OgoneCOMPONENTComponent<T> = { children?: any; } & T;
     type OgoneASYNCComponent<T> = OgoneCOMPONENTComponent<T>;
     type OgoneSTOREComponent<T> = { namespace: string; } & OgoneCOMPONENTComponent<T>;

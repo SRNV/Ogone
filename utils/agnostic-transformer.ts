@@ -30,9 +30,9 @@ export default function (
   array.forEach((item) => {
     if (name && !item.name) return;
     if (name && item.name && name !== item.name) return;
-    // console.warn(item)
+    if (Deno.args.includes('--ogone-trace-transformations')) console.warn(item)
     if (item.open && item.close && item.id && item.pair) {
-      // console.warn(1);
+      if (Deno.args.includes('--ogone-trace-transformations')) console.warn(1);
       while (
         // we need to parse if the character is alone or not
         // no need to change it if it's not
@@ -59,7 +59,7 @@ export default function (
       return;
     }
     if (item.open && item.close && item.id && !item.pair) {
-      // console.warn(2);
+      if (Deno.args.includes('--ogone-trace-transformations')) console.warn(2);
       while (
         result &&
         result.indexOf(item.open as string) > -1 &&
@@ -84,11 +84,13 @@ export default function (
       return;
     }
     if (item.open === false && item.close === false && item.id) {
-      // console.warn(3);
+      if (Deno.args.includes('--ogone-trace-transformations')) console.warn(3);
       while (result && result.match(item.reg as RegExp)) {
+        if (Deno.args.includes('--ogone-trace-transformations')) console.warn(result.length, result.match(item.reg as RegExp)!.index, item);
         const matches = result.match(item.reg as RegExp);
         const value = matches ? matches[0] : null;
         if (matches && value) {
+        if (Deno.args.includes('--ogone-trace-transformations')) console.warn(value);
           const newId = item.id(value, matches, typedExpressions, expressions);
           result = result.replace(
             item.reg as RegExp,

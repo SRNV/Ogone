@@ -5,6 +5,7 @@ import ProtocolEnum from '../enums/templateProtocol.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
 import TSTranspiler from './TSTranspiler.ts';
+import DenoEnv from "./DenoEnv.ts";
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
   value: string;

@@ -1,5 +1,5 @@
 <template>
-  <img --await src={public/ogone.svg} width="200" />
+  <img --await src="public/ogone.svg" width="200" />
 </template>
 
 <proto type="async">

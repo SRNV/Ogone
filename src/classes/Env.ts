@@ -15,6 +15,7 @@ import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
+import DenoEnv from './DenoEnv.ts';
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
@@ -268,7 +269,8 @@ ${err.stack}`);
           "undefined bundle, please use setBundle method before accessing to the application",
         );
       }
-      return await this.renderBundle(Configuration.entrypoint, this.bundle);
+      let result = await this.renderBundle(Configuration.entrypoint, this.bundle);
+      return result;
     } catch (err) {
       this.error(`Env: ${err.message}
 ${err.stack}`);

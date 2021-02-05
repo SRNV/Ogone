@@ -1,6 +1,6 @@
 <template private>
   <style>
-    @const value = ${this.scrollY}px;
+    @const value = ${this.scrollY + 0}px;
     .container {
       position: fixed;
       top: 35%;
@@ -12,9 +12,13 @@
       filter: drop-shadow(0px $value 4px #00000086) blur(${this.scrollY / 100}px);
     }
   </style>
-  <div class="container">${this.scrollY}</div>
+  <div class="container @{Deno.env.get('class')}">${this.scrollY}</div>
 </template>
 <proto>
   def:
     inherit scrollY: 0
+    end: '@{Deno.text()}'
+    end: "@{Deno.text()}"
+  declare:
+    inherit t = '@{0 + Deno.text()}'
 </proto>
