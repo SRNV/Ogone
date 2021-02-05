@@ -5,6 +5,7 @@ enum Protocol {
     }
   `,
   BUILD = `
+    export default {};
     {% modules %}
     {% namespaces %}
     {% protocol %}

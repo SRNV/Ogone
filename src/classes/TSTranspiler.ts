@@ -104,6 +104,5 @@ export default class TSTranspiler extends Utils {
     `;
     Deno.writeTextFileSync(this.outputURL, file);
     MapOutput.runtime = (await this.bundle(this.outputURL)).replace(/\n/gi, ' ');
-
   }
 }

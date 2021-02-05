@@ -11,7 +11,9 @@ export default class TSXContextCreator extends Utils {
   static subdistFolderURL = new URL('../main/dist/', import.meta.url);
   static globalAppContextURL = new URL('./tsx_context.ts', TSXContextCreator.subdistFolderURL);
   static globalAppContextFile: string = '';
+  static mapCreatedFiles: URL[] = [];
   async read(bundle: Bundle, opts: { checkOnly?: string } = {}) {
+    const startPerf = performance.now();
     try {
       const { checkOnly } = opts;
       let hasError = false;
@@ -27,10 +29,12 @@ export default class TSXContextCreator extends Utils {
         }
       }
       const diagnosticError = await this.readContext();
+      TSXContextCreator.cleanFiles();
       if (diagnosticError) {
         hasError = diagnosticError;
       }
       if (!hasError) {
+        this.infos(`Type Checking took ~${Math.floor(performance.now() - startPerf)} ms`);
         this.success('no type error found.');
       }
     } catch (err) {
@@ -38,14 +42,19 @@ export default class TSXContextCreator extends Utils {
 ${err.stack}`);
     }
   }
+  private static async cleanFiles() {
+    TSXContextCreator.mapCreatedFiles.forEach((file) => {
+      Deno.removeSync(file);
+    })
+  }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
     const { green, gray } = colors;
     const baseUrl = new URL(import.meta.url);
     baseUrl.pathname = component.file;
-    const newpath = new URL(`./${component.uuid}.tsx`, TSXContextCreator.subdistFolderURL);
+    const newpath = new URL(`./${component.file.replace(/[^\w]/g, '-')}.tsx`, TSXContextCreator.subdistFolderURL);
     const { protocol } = component.context;
-    console.warn(newpath, TSXContextCreator.subdistFolderURL.pathname)
     Deno.writeTextFileSync(newpath, protocol);
+    TSXContextCreator.mapCreatedFiles.push(newpath);
     TSXContextCreator.globalAppContextFile += `
     /**
      * Context of ${component.file}
@@ -55,10 +64,10 @@ ${err.stack}`);
   private async readContext(): Promise<boolean> {
     try {
       const { green, gray } = colors;
-      const startPerf = performance.now();
-      console.warn(TSXContextCreator.globalAppContextFile)
       Deno.writeTextFileSync(TSXContextCreator.globalAppContextURL,
         TSXContextCreator.globalAppContextFile);
+      TSXContextCreator.mapCreatedFiles.push(TSXContextCreator.globalAppContextURL);
+
       const resultEmit = await Deno.emit(TSXContextCreator.globalAppContextURL, {
         compilerOptions: {
           module: "esnext",
@@ -68,13 +77,13 @@ ${err.stack}`);
           allowJs: false,
           removeComments: false,
           experimentalDecorators: true,
-          noImplicitAny: true,
+          noImplicitAny: false,
           allowUnreachableCode: false,
           jsx: "react",
           jsxFactory: "h",
           // @ts-ignore
           jsxFragmentFactory: "hf",
-          lib: ["dom", "esnext"],
+          lib: ["dom", "esnext", "es2019"],
           inlineSourceMap: false,
           inlineSources: false,
           alwaysStrict: false,
