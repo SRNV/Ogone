@@ -1,9 +1,10 @@
 import { colors } from "../../deps/deps.ts";
 import { Utils } from "./Utils.ts";
-import { Component } from '../ogone.main.d.ts';
+import { Bundle } from '../ogone.main.d.ts';
 import { Configuration } from "./Configuration.ts";
 import OgoneWorkers from "./OgoneWorkers.ts";
 import Workers from "../enums/workers.ts";
+import { MapPosition } from './MapPosition.ts';
 /**
  * a class to display the errors inside the module
  */
@@ -29,7 +30,7 @@ interface ModuleErrorsDiagnostic {
   code: number;
 }
 export abstract class ModuleErrors extends Utils {
-  static checkDiagnostics(diagnostics: unknown[], onError?: Function) {
+  static checkDiagnostics(bundle: Bundle, diagnostics: unknown[], onError?: Function) {
     try {
       const { blue, red, gray, } = colors;
       function renderChainedDiags(chainedDiags: typeof diagnostics): string {
@@ -49,8 +50,12 @@ export abstract class ModuleErrors extends Utils {
         if (onError) {
           onError();
         }
+        let errorUuid: string | undefined;
         for (const d of diagnostics.filter(d => (d as ModuleErrorsDiagnostic).start)) {
           const diag = d as (ModuleErrorsDiagnostic);
+          if (diag) {
+            errorUuid = diag.fileName && diag.fileName.match(/(?<=\/)(?<uuid>[\w\d\-]+?)\.tsx$/)?.groups?.uuid || undefined;
+          }
           const start = diag.start && diag.start.character || 0;
           const end = diag.end && diag.end.character || 0;
           const underline = red(`${' '.repeat(start)}^${'~'.repeat(end - start - 1)}`)
@@ -61,9 +66,40 @@ export abstract class ModuleErrors extends Utils {
         ${red(`TS${diag && diag.code} [ERROR]`)} ${blue(diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || '')}
         ${blue(renderChainedDiags(diag && diag.messageChain && diag.messageChain.next || []))}
           ${sourceline}
-          ${underline}
-        at ${blue(diag && diag.fileName || '')}:${diag.start && diag.start.line + 1 || ''}:${diag.start && diag.start.character || ''}`;
+          ${underline}`;
           // TODO add errors, send them to the webview
+          // retrieve the position of the error
+          // by using the nodes
+          if (errorUuid) {
+            const component = Array.from(bundle.components.values()).find((component) => component.uuid === errorUuid);
+            if (component) {
+              let node = component.rootNode.nodeList.slice().reverse().find((node) => {
+                const tsx = node!.getOuterTSX!(component).trim();
+                const truth = tsx.startsWith(diag.sourceLine!.trim()) || tsx.includes(diag.sourceLine!.trim());
+                return truth;
+              });
+              if (!node) {
+                const proto = component.elements.proto[0];
+                if (proto) {
+                  const innerHTML = proto.getInnerHTML!();
+                  const truth = innerHTML.startsWith(diag.sourceLine!.trim()) || innerHTML.includes(diag.sourceLine!.trim());
+                  if (truth) {
+                    node = proto;
+                  }
+                }
+              }
+              const position = MapPosition.mapNodes.get(node);
+              if (position) {
+                errors += `
+                at ${blue(component && component.file || '')}:${position.line}:${diag.start && diag.start.character || position.column}
+                `;
+              } else {
+                errors += `
+                at ${blue(component && component.file || '')}:${diag.start && diag.start.line + 1 || ''}:${diag.start && diag.start.character || ''}
+                `;
+              }
+            }
+          }
         }
         this.ShowErrors(
           `\n${errors}`,

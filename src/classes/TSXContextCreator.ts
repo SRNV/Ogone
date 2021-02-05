@@ -28,7 +28,7 @@ export default class TSXContextCreator extends Utils {
           await this.createContext(bundle, component);
         }
       }
-      const diagnosticError = await this.readContext();
+      const diagnosticError = await this.readContext(bundle);
       TSXContextCreator.cleanFiles();
       if (diagnosticError) {
         hasError = diagnosticError;
@@ -51,7 +51,7 @@ ${err.stack}`);
     const { green, gray } = colors;
     const baseUrl = new URL(import.meta.url);
     baseUrl.pathname = component.file;
-    const newpath = new URL(`./${component.file.replace(/[^\w]/g, '-')}.tsx`, TSXContextCreator.subdistFolderURL);
+    const newpath = new URL(`./${component.uuid}.tsx`, TSXContextCreator.subdistFolderURL);
     const { protocol } = component.context;
     Deno.writeTextFileSync(newpath, protocol);
     TSXContextCreator.mapCreatedFiles.push(newpath);
@@ -61,7 +61,7 @@ ${err.stack}`);
      * */
       import comp${i++} from '${newpath}';`;
   }
-  private async readContext(): Promise<boolean> {
+  private async readContext(bundle: Bundle): Promise<boolean> {
     try {
       const { green, gray } = colors;
       Deno.writeTextFileSync(TSXContextCreator.globalAppContextURL,
@@ -92,7 +92,7 @@ ${err.stack}`);
         }
       });
       const { diagnostics: diags } = resultEmit;
-      ModuleErrors.checkDiagnostics(diags as unknown[]);
+      ModuleErrors.checkDiagnostics(bundle, diags as unknown[]);
       if (diags && diags.length) {
         return true;
       }

@@ -19,7 +19,7 @@ import { MapPosition } from './MapPosition.ts';
 // like new Attributes()
 const openComment = "<!--";
 const closeComment = "-->";
-function savePosition (node: any, opts: {
+function savePosition(node: any, opts: {
   start: number;
   end: number;
   column: number;
@@ -96,6 +96,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           if (node.tagName === 'style') {
             templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{\`{%outers%}\`}\n</{%tagname%}>`
           }
+          if (node.autoclosing) {
+            templateOuterTSX = `\n<{%tagname%} {%attrs%} />\n`
+          }
           if (node.attributes['--for']) {
             const value = node.attributes['--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
@@ -123,7 +126,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               attrs: Object.entries(node.attributes)
                 .map(([key, value]) => {
                   if (key === component.uuid) return '';
-                  if(key === '--spread') {
+                  if (key === '--spread') {
                     return `\n{${value}}`;
                   }
                   if (key.match(/^(\-){2}/)) {
@@ -142,7 +145,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           return getDeepTranslation(result, expressions as { [k: string]: any });
         }
         const value = node.rawText?.replace(/\</gi, "&lt;").replace(/\>/gi, "&rt;");
-        return getDeepTranslation(`\n${value}\n`|| "", expressions as { [k: string]: any });
+        return getDeepTranslation(`\n${value}\n` || "", expressions as { [k: string]: any });
       }
       node.getOuterHTML = () => {
         if (node.nodeType === 1) {
@@ -166,7 +169,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
         }
         return getDeepTranslation(node.rawText || "",
           expressions as { [k: string]: any },
-          (key) => expressions[key].expression as string,);
+          (key) => expressions[key].expression as string);
       };
       node.getInnerHTML = () => {
         if (node.nodeType === 1) {
@@ -181,7 +184,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           });
           return getDeepTranslation(result,
             expressions as { [k: string]: any },
-            (key) => expressions[key].expression as string,);
+            (key) => expressions[key].expression as string);
         }
         return getDeepTranslation(node.rawText || "", expressions as { [k: string]: any });
       };
