@@ -29,7 +29,7 @@ interface ModuleErrorsDiagnostic {
   code: number;
 }
 export abstract class ModuleErrors extends Utils {
-  static checkDiagnostics(component: Component, diagnostics: unknown[], onError?: Function) {
+  static checkDiagnostics(diagnostics: unknown[], onError?: Function) {
     try {
       const { blue, red, gray, } = colors;
       function renderChainedDiags(chainedDiags: typeof diagnostics): string {
@@ -66,7 +66,7 @@ export abstract class ModuleErrors extends Utils {
           // TODO add errors, send them to the webview
         }
         this.ShowErrors(
-          `${component.file}\n${errors}`,
+          `\n${errors}`,
         );
         if (!Configuration.OgoneDesignerOpened) {
           // if the webview isn't opened

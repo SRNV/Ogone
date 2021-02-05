@@ -173,22 +173,6 @@ export const members: Analysis[] = [
     };`,
   },
   {
-    reg: /\b_state\b/,
-    value: `\ndeclare type _state = string | number;`,
-  },
-  {
-    reg: /\bctx\b/,
-    value: `\ndeclare type ctx = {[k: string]: any};`,
-  },
-  {
-    reg: /\bevent\b/,
-    value: `\ndeclare type event = Event;`,
-  },
-  {
-    reg: /\b_once\b/,
-    value: `\ndeclare type _once = number;`,
-  },
-  {
     reg: /\b___\b/,
     value:
       "\ndeclare function ___(key: string, ctx: { [k: string]: any }, value?: any): void;",
