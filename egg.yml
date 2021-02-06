@@ -1,26 +1,21 @@
 name: Ogone
-repository: https://github.com/SRNV/Ogone
-version: 0.28.0
-description: >-
-  Advanced Web Composition for Future
-stable: true
+repository: 'https://github.com/SRNV/Ogone'
+version: 0.28.1
+description: Advanced Web Composition for Future
+stable: false
 files:
+  - ./cli/**/*
   - ./docs/**/*
   - ./deps/**/*
-  - ./classes/**/*
-  - ./enums/**/*
-  - ./workers/**/*
   - ./examples/**/*
-  - ./lib/**/*
-  - ./public/**/*
   - ./src/**/*
   - ./tests/**/*
-  - ./types/**/*
   - ./utils/**/*
-  - ./externals/**/*
-  - .d.ts
-  - deps.ts
   - mod.ts
   - README.md
-  - tsconfig.json
-  - yaml-config.ts
+  - LICENSE
+check: false
+entry: ./mod.ts
+homepage: 'https://github.com/SRNV/Ogone'
+ignore: []
+unlisted: false

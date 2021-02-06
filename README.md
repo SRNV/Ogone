@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://github.com/SRNV/Ogone/tree/master/src/public/ogone-svg.svg" width="350">
+  <img src="https://raw.githubusercontent.com/SRNV/Ogone/0.28.0/src/public/ogone-svg.svg" width="350">
 </p>
 <h1 align="center">Ogone</h1>
 <p align="center">
