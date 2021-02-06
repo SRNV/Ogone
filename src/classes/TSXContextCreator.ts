@@ -1,5 +1,5 @@
 import { Bundle, Component } from '../ogone.main.d.ts';
-import { colors, join } from '../../deps/deps.ts';
+import { colors, existsSync, } from '../../deps/deps.ts';
 import { walkSync } from '../../deps/walk.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";
@@ -50,6 +50,11 @@ export default class TSXContextCreator extends Utils {
     } catch (err) {
       this.error(`TSXContextCreator: ${err.message}
 ${err.stack}`);
+    }
+  }
+  public static createDistFolder() {
+    if(!existsSync(this.subdistFolderURL.pathname)) {
+      Deno.mkdir(this.subdistFolderURL);
     }
   }
   private static async cleanFiles() {

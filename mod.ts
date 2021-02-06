@@ -18,6 +18,7 @@ import DefinitionProvider from './src/classes/DefinitionProvider.ts';
 import { MapPosition } from './src/classes/MapPosition.ts';
 import StylesheetBuilder from './src/classes/StylesheetBuilder.ts';
 import { Utils } from './src/classes/Utils.ts';
+import TSXContextCreator from './src/classes/TSXContextCreator.ts';
 
 export {
   Ogone,
@@ -40,6 +41,7 @@ export {
 };
 export default {
   async run(opts: OgoneConfiguration): Promise<void> {
+    TSXContextCreator.createDistFolder();
     Configuration.setConfig(opts);
     const env = new EnvServer();
     await env.run(opts);
