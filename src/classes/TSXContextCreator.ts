@@ -9,8 +9,8 @@ import { Utils } from "./Utils.ts";
  */
 let i = 0;
 export default class TSXContextCreator extends Utils {
-  static subdistFolderURL = new URL('./.ogone', Deno.cwd());
-  static createsubdistFolderURL = new URL('./.ogone', Deno.cwd());
+  static subdistFolderURL = new URL('./.ogone', `file:/${Deno.cwd()}`);
+  static createsubdistFolderURL = new URL('./.ogone', `file:/${Deno.cwd()}`);
   static globalAppContextURL = new URL('./tsx_context.ts', TSXContextCreator.subdistFolderURL);
   static globalAppContextFile: string = '';
   static mapCreatedFiles: URL[] = [];
