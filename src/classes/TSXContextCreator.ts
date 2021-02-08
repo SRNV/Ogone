@@ -55,7 +55,7 @@ ${err.stack}`);
   }
   public static createDistFolder() {
     if(!existsSync(this.subdistFolderURL.pathname)) {
-      Deno.mkdirSync(this.createsubdistFolderURL.pathname);
+      Deno.mkdirSync(this.createsubdistFolderURL.pathname, { recursive: true });
     }
   }
   private static async cleanFiles() {
