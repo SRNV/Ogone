@@ -9,13 +9,13 @@ import { Utils } from "./Utils.ts";
  */
 let i = 0;
 export default class TSXContextCreator extends Utils {
-  static subdistFolderURL = new URL('./.ogone', `file:/${Deno.cwd()}`);
-  static createsubdistFolderURL = new URL('./.ogone', `file:/${Deno.cwd()}`);
-  static globalAppContextURL = new URL('./tsx_context.ts', TSXContextCreator.subdistFolderURL);
+  static subdistFolderURL = './.ogone';
+  static createsubdistFolderURL = './.ogone';
+  static globalAppContextURL = './.ogone/ts_context.ts';
   static globalAppContextFile: string = '';
-  static mapCreatedFiles: URL[] = [];
+  static mapCreatedFiles: string[] = [];
   public static cleanDistFolder() {
-    const files = walkSync(TSXContextCreator.subdistFolderURL.pathname, {
+    const files = walkSync(TSXContextCreator.subdistFolderURL, {
       includeFiles: true,
       includeDirs: false,
     });
@@ -54,8 +54,8 @@ ${err.stack}`);
     }
   }
   public static createDistFolder() {
-    if(!existsSync(this.subdistFolderURL.pathname)) {
-      Deno.mkdirSync(this.createsubdistFolderURL.pathname, { recursive: true, mode: 0o777});
+    if(!existsSync('.ogone')) {
+      Deno.mkdirSync('.ogone', { recursive: true });
     }
   }
   private static async cleanFiles() {
@@ -67,7 +67,7 @@ ${err.stack}`);
     const { green, gray } = colors;
     const baseUrl = new URL(import.meta.url);
     baseUrl.pathname = component.file;
-    const newpath = new URL(`./${component.uuid}.tsx`, TSXContextCreator.subdistFolderURL);
+    const newpath = `.ogone/${component.uuid}.tsx`;
     const { protocol } = component.context;
     Deno.writeTextFileSync(newpath, protocol);
     TSXContextCreator.mapCreatedFiles.push(newpath);

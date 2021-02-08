@@ -8,7 +8,7 @@ export default class TSTranspiler extends Utils {
   static runtimeURL = new URL('../main/Ogone.ts', import.meta.url);
   static runtimeBaseURL = new URL('../main/OgoneBase.ts', import.meta.url);
   static subdistFolderUrl = TSXContextCreator.subdistFolderURL;
-  static outputURL = new URL(`./out.ts`, TSTranspiler.subdistFolderUrl);
+  static outputURL = './.ogone/out.ts';
   static transpileCompilerOptions = { sourceMap: false, };
   static async transpile(text: string): Promise<string> {
     try {
