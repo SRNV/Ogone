@@ -10,6 +10,7 @@ import { Utils } from "./Utils.ts";
 let i = 0;
 export default class TSXContextCreator extends Utils {
   static subdistFolderURL = new URL('../main/dist/', import.meta.url);
+  static createsubdistFolderURL = new URL('../main/dist', import.meta.url);
   static globalAppContextURL = new URL('./tsx_context.ts', TSXContextCreator.subdistFolderURL);
   static globalAppContextFile: string = '';
   static mapCreatedFiles: URL[] = [];
@@ -54,7 +55,7 @@ ${err.stack}`);
   }
   public static createDistFolder() {
     if(!existsSync(this.subdistFolderURL.pathname)) {
-      Deno.mkdirSync(this.subdistFolderURL.pathname);
+      Deno.mkdirSync(this.createsubdistFolderURL.pathname);
     }
   }
   private static async cleanFiles() {
