@@ -55,7 +55,7 @@ ${err.stack}`);
   }
   public static createDistFolder() {
     if(!existsSync('.ogone')) {
-      Deno.mkdirSync('.ogone', { recursive: true });
+      Deno.mkdirSync('.ogone');
     }
   }
   private static async cleanFiles() {
@@ -64,9 +64,6 @@ ${err.stack}`);
     })
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
-    const { green, gray } = colors;
-    const baseUrl = new URL(import.meta.url);
-    baseUrl.pathname = component.file;
     const newpath = `.ogone/${component.uuid}.tsx`;
     const { protocol } = component.context;
     Deno.writeTextFileSync(newpath, protocol);

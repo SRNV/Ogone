@@ -1,13 +1,12 @@
 import { Utils } from "./Utils.ts";
 import MapOutput from './MapOutput.ts';
 import { Bundle } from "../ogone.main.d.ts";
-import TSXContextCreator from "./TSXContextCreator.ts";
 
 export default class TSTranspiler extends Utils {
   static browserBundlePatternURL = new URL('../bundle/browser_pattern.ts', import.meta.url);
   static runtimeURL = new URL('../main/Ogone.ts', import.meta.url);
   static runtimeBaseURL = new URL('../main/OgoneBase.ts', import.meta.url);
-  static subdistFolderUrl = TSXContextCreator.subdistFolderURL;
+  static subdistFolderUrl = './.ogone';
   static outputURL = './.ogone/out.ts';
   static transpileCompilerOptions = { sourceMap: false, };
   static async transpile(text: string): Promise<string> {
