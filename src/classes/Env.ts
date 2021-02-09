@@ -15,7 +15,8 @@ import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
-import DenoEnv from './DenoEnv.ts';
+import { WebSocketServer, WS } from "../../deps/ws.ts";
+import HMR from "./HMR.ts";
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
@@ -344,5 +345,65 @@ ${err.stack}`);
   public async getBuild() {
     // TODO use worker instead
     this.error(`\nbuild is not yet ready.\nwaiting for a fix on the ts compiler\nplease check this issue: https://github.com/denoland/deno/issues/7054`);
+  }
+  public listenHMRWebsocket(): void {
+    this.trace('setting HMR server');
+    let timeoutBeforeSendingRequests: number;
+    HMR.server = new WebSocketServer(HMR.port);
+    HMR.server.on('connection', (ws: WebSocket) => {
+      HMR.client = ws;
+    });
+    // start watching files and open websocket server
+    OgoneWorkers.hmrContext.postMessage({
+      type: Workers.WS_INIT,
+    });
+    try {
+      OgoneWorkers.hmrContext.addEventListener('message', (event) => {
+        if (timeoutBeforeSendingRequests !== undefined) {
+          clearTimeout(timeoutBeforeSendingRequests);
+        }
+        // this timeout fixes all the broken pipe issue
+        timeoutBeforeSendingRequests = setTimeout(() => {
+          const { data } = event;
+          console.warn(event);
+          switch (data.type) {
+            case Workers.WS_FILE_UPDATED:
+              const filePath = data.path;
+              const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
+                filePath: filePath.replace(Deno.cwd(), '@'),
+              });
+              if (data.isOgone) {
+              console.warn(filePath);
+              // save the content of the file to overwrite
+              // this allows the live edition
+                const content = Deno.readTextFileSync(data.path);
+                MapFile.files.set(filePath, {
+                  content,
+                  original: content,
+                  path: data.path,
+                });
+                const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_hmr', suffix: '.o3' });
+                Deno.writeTextFileSync(tmpFile, file);
+                this.compile(tmpFile)
+                  .then(async (bundle) => {
+                    if (HMR.client) {
+                      HMR.client.send(bundle.output);
+                    }
+                  })
+                  .then(() => {
+                    Deno.remove(tmpFile);
+                  })
+                  .catch(() => {
+                    Deno.remove(tmpFile);
+                  })
+              }
+              break;
+          }
+        }, 50);
+      });
+    } catch (err) {
+      this.error(`Env: ${err.message}
+${err.stack}`);
+    }
   }
 }

@@ -6,13 +6,6 @@ export {
   relative,
 } from "https://deno.land/std@0.61.0/path/mod.ts";
 export { Server } from "https://deno.land/std@0.61.0/http/server.ts";
-/*
-// TODO fix HMR
-export {
-  WebSocket,
-  WebSocketServer,
-} from "https://deno.land/x/websocket@v0.0.3/mod.ts";
-*/
 export {
   assertEquals,
   assertThrows,

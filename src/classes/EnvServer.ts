@@ -10,6 +10,7 @@ import type {
 import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
 import TSXContextCreator from './TSXContextCreator.ts';
+
 export default class EnvServer extends Env {
   public readonly contributorMessage: { [k: string]: string } = messages;
   run(opts: OgoneConfiguration) {
@@ -55,6 +56,7 @@ export default class EnvServer extends Env {
       } else {
         //start compilation of o3 files
         this.setDevTool(Configuration.devtool as boolean);
+        this.listenHMRWebsocket();
         this.listenLSPWebsocket();
         this.compile(Configuration.entrypoint, true)
           .then(() => {

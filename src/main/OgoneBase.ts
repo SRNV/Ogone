@@ -1,4 +1,6 @@
+import HMR from "../classes/HMR.ts";
 import type { OgoneInterface } from './../ogone.main.d.ts';
+
 declare function routerGo(...args: any[]): void;
 export const Ogone: OgoneInterface = {
   // usable on browser side
@@ -56,3 +58,4 @@ export const Ogone: OgoneInterface = {
   }
 }
 export default Ogone;
+HMR.useOgone(Ogone);

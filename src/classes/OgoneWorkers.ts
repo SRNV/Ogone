@@ -8,4 +8,8 @@ export default abstract class OgoneWorkers {
     type: "module",
     deno: true,
   });
+  public static hmrContext = new Worker(new URL("../workers/hmr-context.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
 }

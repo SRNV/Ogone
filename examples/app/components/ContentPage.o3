@@ -10,7 +10,7 @@
       </p>
       <pre>
         <code class="javascript">
-          ${this.code}
+          ${this.code}aaaaaaaa
         </code>
       </pre>
     </div>
