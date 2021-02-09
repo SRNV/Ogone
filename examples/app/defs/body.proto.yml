@@ -1,56 +1,30 @@
 articles:
   - title: Experimental tool for a fullstack use.
-    text: "Ogone is an experimental tool for Fullstack dev. \nFully based on Deno."
-    code: ""
+    text: >
+      Ogone for Front-end fields using Deno. Designed differently, start creating differently.
 
-  - title: Get Started with the classic greeting app
-    text: TODO
-    code: "<p>Hello ${name}</p>\n
-      <proto>\n
-      \tdef:\n
-      \t\tname: Rudy\n
-      </proto>"
+      Everything is a component because everything is a part of the composition.
+
+      Actually Ogone is too young to be used for production, expect breaking chnages until the 1.0.0.
+
+      Ogone has it own extension *.o3 which allow some new features.
+    code: null
 
   - title: Install Ogone
-    text: TODO
-    code: "
-      deno install -Afq --unstable <deno or nest registry>/ogone@0.28.0/cli/ogone.ts\n
-      ogone run <path_to_component>"
+    text: >
+      install ogone by using the command: deno install
 
-  - title: Using case, default, def, before-each keywords to rule the component
-    text: TODO
-    code: "
-      <proto>\n
-      \tdef:\n
-      \t\tyaml: true\n
-      \tcase 'update:yaml':\n
-      \tdefault:\n
-      \t\tthis.yaml = true;\n
-      \tbreak;\n
-      </proto>"
+      Deno will print the next instruction that you will need to follow to use Ogone
+    code: >
+      deno install -Afq --unstable https://deno.land/x/ogone@0.28.0/cli/ogone.ts
 
-  - title: read def in yml files
-    text: TODO
-    code: '<proto def="path/to/source.yml"/>'
+  - title: Start the development of your application
+    text: >
+      keeping ogone minimalist is one of it's main goal.
 
-  - title: Default/Cases execution
-    text: TODO
-    code: "
-      <p>${count}</p>\n
-      <button --click:increase>\n
-      \tincrease\n
-      </button>\n
-      <proto>\n
-      \tdef:\n
-      \t\tcount:0\n
-      \tcase 'click:increase':\n
-      \t\tthis.count++;\n
-      \t\tif (this.count > 5) execute default;\n
-      \tbreak;\n
-      \tdefault:\n
-      \t\tthis.count = 0;\n
-      \tbreak;\n
-      </proto>"
-  - title: This doc is no more up to date
-    text: "no more."
-    code: ""
+      to run the server of development use the command:
+
+        ogone run ...
+    code: >
+      ogone run path/to/Application.o3
+    page: terminal
