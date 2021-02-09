@@ -52,6 +52,11 @@ If you're interested by this project: [please join the Discord here](https://dis
 deno install -Afq --unstable https://deno.land/x/ogone/cli/ogone.ts
 ```
 
+and run your application like following
+```
+ogone run path/to/Application.o3
+```
+
 - [Introduction](https://github.com/SRNV/Ogone/tree/master/docs/introduction.md)
 - [Examples](https://github.com/SRNV/Ogone/tree/master/docs/examples.md)
 - [Contributions](https://github.com/SRNV/Ogone/tree/master/docs/contributions.md)
