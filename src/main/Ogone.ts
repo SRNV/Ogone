@@ -13,6 +13,7 @@ import {
   Text
 } from "../ogone.dom.d.ts";
 import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions } from "../ogone.main.d.ts";
+import HMR from "../classes/HMR.ts";
 declare const document: Document;
 declare const location: Location;
 declare class Comment extends Com { };
@@ -344,6 +345,9 @@ export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
     Onode.historyState = { query };
   }
   construct(Onode);
+  HMR.components[Onode.uuid!] = HMR.components[Onode.uuid!] || [];
+  HMR.components[Onode.uuid!]
+    .push(Onode);
 }
 /**
  * for dynamic attributes of any elements

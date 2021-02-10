@@ -19,6 +19,7 @@ import { Utils } from "./Utils.ts";
  * ```
  */
 export default class ComponentBuilder extends Utils {
+  private static mapUuid: Map<string, string> = new Map();
   /**
    * instance to parse xml
    * no xml error is thrown
@@ -37,8 +38,9 @@ export default class ComponentBuilder extends Utils {
       const head = template && template.childNodes
         .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
       const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
+      const uuid = ComponentBuilder.mapUuid.get(opts.file) || `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`;
       return {
-        uuid: `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
+        uuid,
         isTyped: false,
         dynamicImportsExpressions: "",
         esmExpressions: "",
@@ -113,6 +115,9 @@ ${err.stack}`);
             file: index,
             remote: null,
           });
+          if (!ComponentBuilder.mapUuid.get(index)) {
+            ComponentBuilder.mapUuid.set(index, component.uuid);
+          }
           bundle.components.set(
             index,
             component,

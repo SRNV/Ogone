@@ -53,5 +53,12 @@ export default abstract class MapOutput {
       ${this.outputs.render.join('\n')}
     `;
     bundle.output = await TSTranspiler.transpile(bundle.output);
+    this.cleanOutputs();
+  }
+  static cleanOutputs(): void {
+    this.outputs.context.splice(0);
+    this.outputs.data.splice(0);
+    this.outputs.types.splice(0);
+    this.outputs.render.splice(0);
   }
 }

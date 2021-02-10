@@ -2,10 +2,12 @@
 import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement } from '../ogone.dom.d.ts';
 import { WebSocketServer, WS } from '../../deps/ws.ts';
+import { HTMLOgoneElement } from '../ogone.main.d.ts';
 
 declare const document: Document;
 export default class HMR {
   static port = 3434;
+  static components: { [k: string]: HTMLOgoneElement[] } = {};
   static server?: WebSocketServer;
   static client?: WebSocket;
   static ogone?: typeof Ogone;
@@ -28,23 +30,13 @@ export default class HMR {
   static setDocumentIframe(iframe: HTMLIFrameElement): void {
     this.client = new WebSocket(this.connect);
     this.client.onmessage = (evt: any) => {
-      this.updateIframe(iframe, evt.data);
+      console.warn(this.components);
+      const fn = eval(`((Ogone) => {
+        ${evt.data}
+      })`);
+      console.warn(fn);
+      fn(Ogone);
+      console.warn(Object.keys(Ogone.render).length);
     };
-    this.updateIframe(iframe);
-  }
-  static updateIframe(iframe: HTMLIFrameElement, script: string = 'true') {
-    iframe.srcdoc = `
-    <script defer async type="module">
-      window.setOgone = (Ogone, script) => {
-        eval(script);
-        console.warn('[Ogone] HMR update');
-      };
-    </ script>
-    `.replace(/(?<=\<\/)\s+(?=script)/i, '');
-    // @ts-ignore created inside the iframe
-    if (iframe.contentWindow?.setOgone) {
-      // @ts-ignore
-      iframe.contentWindow.setOgone(this.ogone, script);
-    }
   }
 }
