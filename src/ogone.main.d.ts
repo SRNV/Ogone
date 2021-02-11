@@ -20,6 +20,11 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   };
   type: "store" | "async" | "component" | "router" | "controller";
   connectedCallback(): void;
+  /**
+   * forces rerendering by destroying the current one
+   * and creating a new one
+   */
+  rerender(): void;
   uuid?: string;
   promise?: null | Promise<void>;
   actualRouteName?: null | string;

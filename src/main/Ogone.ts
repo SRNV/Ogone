@@ -167,6 +167,14 @@ export class OgoneBaseClass extends HTMLElement {
         break;
     }
   }
+  rerender(this: HTMLOgoneElement) {
+    for (let i = this.context.list.length, a = 0; i > a; i--) {
+      destroy(
+        this.context.list.pop() as HTMLOgoneElement
+      );
+    }
+    renderContext(this);
+  }
 }
 window.customElements.define('ogone-node', OgoneBaseClass);
 // Router implementation
@@ -345,9 +353,11 @@ export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
     Onode.historyState = { query };
   }
   construct(Onode);
-  HMR.components[Onode.uuid!] = HMR.components[Onode.uuid!] || [];
-  HMR.components[Onode.uuid!]
-    .push(Onode);
+  if (Onode.isComponent) {
+    HMR.components[Onode.uuid!] = HMR.components[Onode.uuid!] || [];
+    HMR.components[Onode.uuid!]
+      .push(Onode);
+  }
 }
 /**
  * for dynamic attributes of any elements
@@ -487,7 +497,7 @@ export function removeNodes(Onode: HTMLOgoneElement) {
       (n as HTMLElement).remove();
     }
   }
-  if (o.actualTemplate) {
+  if (o.actualTemplate && o.actualTemplate.forEach) {
     o.actualTemplate.forEach((n) => {
       rm(n);
     });
@@ -1842,7 +1852,7 @@ export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   );
 };
 export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
-  if (!Onode.component.activated) return;
+  if (!Onode || !Onode.component || !Onode.component.activated) return;
   Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
     // if there is no update of the texts
     // this can be the reason why

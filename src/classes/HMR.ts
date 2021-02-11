@@ -1,4 +1,3 @@
-// this file is used inside a worker
 import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement } from '../ogone.dom.d.ts';
 import { WebSocketServer, WS } from '../../deps/ws.ts';
@@ -6,6 +5,7 @@ import { HTMLOgoneElement } from '../ogone.main.d.ts';
 
 declare const document: Document;
 export default class HMR {
+  static FIFOMessages: string[] = [];
   static port = 3434;
   static components: { [k: string]: HTMLOgoneElement[] } = {};
   static server?: WebSocketServer;
@@ -16,27 +16,55 @@ export default class HMR {
   }
   static useOgone(ogone: typeof Ogone) {
     if (typeof document !== "undefined") {
-      // create the iframe connected to the websocket
-      const iframe = document.createElement('iframe');
-      document.body.append(iframe);
-      // start iframe dynamisation
-      iframe.name = "HMR_IFRAME";
-      iframe.hidden = true;
-      iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin')
-      this.setDocumentIframe(iframe);
       this.ogone = ogone;
+      this.clientSettings();
     }
   }
-  static setDocumentIframe(iframe: HTMLIFrameElement): void {
+  static clientSettings(): void {
     this.client = new WebSocket(this.connect);
     this.client.onmessage = (evt: any) => {
-      console.warn(this.components);
-      const fn = eval(`((Ogone) => {
-        ${evt.data}
-      })`);
-      console.warn(fn);
-      fn(Ogone);
-      console.warn(Object.keys(Ogone.render).length);
+      console.warn('[Ogone] server asking for updates.');
+      const payload = JSON.parse(evt.data);
+      const { uuid, output } = payload;
+      console.warn(uuid);
+      const savedComponents = this.components[uuid]
+      if(savedComponents) {
+        const components = savedComponents.filter((component) => component.isOriginalNode && component.isTemplate);
+        const replacement = eval(`((Ogone) => {
+          ${output}
+          console.warn('[Ogone] references are updated.');
+        })`);
+        replacement(Ogone);
+        console.warn('[Ogone] rendering new components.', uuid);
+        components.forEach((component) => {
+          component.rerender();
+          console.warn(component);
+        });
+        console.warn(Object.keys(this.components).length)
+      }
     };
+  }
+  static setServer(server: WebSocketServer) {
+    this.server = server;
+    this.server.on('connection', (ws: WebSocket) => {
+      HMR.client = ws;
+      HMR.sendFIFOMessages();
+    });
+  }
+  static postMessage(obj: Object) {
+    const message = JSON.stringify(obj);
+    if(this.client?.readyState !== 1) {
+      this.FIFOMessages.push(message);
+    } else {
+      this.sendFIFOMessages();
+    }
+    if (this.client) this.client.send(message);
+  }
+  static async sendFIFOMessages() {
+    // if (this.client?.readyState !== 1) return;
+    this.FIFOMessages.forEach((m: string) => {
+      if (this.client) this.client.send(m);
+    });
+    this.FIFOMessages.splice(0);
   }
 }

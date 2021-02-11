@@ -75,14 +75,7 @@ ${err.stack}`);
   public async startDevelopment(): Promise<void> {
     try {
       TSXContextCreator.cleanDistFolder();
-      OgoneWorkers.serviceDev.postMessage({
-        type: Workers.INIT_MESSAGE_SERVICE_DEV,
-        application: await this.getApplication(),
-        controllers: Ogone.controllers,
-        Configuration: {
-          ...Configuration
-        },
-      });
+      await this.initServer();
       OgoneWorkers.serviceDev.addEventListener('message', async (event) => {
         switch (event.data.type) {
           case Workers.SERVICE_DEV_READY:

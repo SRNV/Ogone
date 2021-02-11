@@ -2,7 +2,7 @@ import XMLParser from "./XMLParser.ts";
 import type { Bundle, XMLNodeDescription, Component } from "../ogone.main.d.ts";
 import MapFile, { FileDescription } from "./MapFile.ts";
 import { Utils } from "./Utils.ts";
-
+import { join, normalize } from "../../deps/deps.ts";
 /**
  * @name ComponentBuilder
  * @code OCB2
@@ -19,7 +19,7 @@ import { Utils } from "./Utils.ts";
  * ```
  */
 export default class ComponentBuilder extends Utils {
-  private static mapUuid: Map<string, string> = new Map();
+  public static mapUuid: Map<string, string> = new Map();
   /**
    * instance to parse xml
    * no xml error is thrown
@@ -117,6 +117,9 @@ ${err.stack}`);
           });
           if (!ComponentBuilder.mapUuid.get(index)) {
             ComponentBuilder.mapUuid.set(index, component.uuid);
+            ComponentBuilder.mapUuid.set(
+              normalize(join(Deno.cwd(), index)),
+              component.uuid);
           }
           bundle.components.set(
             index,

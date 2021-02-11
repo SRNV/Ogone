@@ -103,6 +103,11 @@ self.onmessage = async (e: any): Promise<void> => {
     registry.application = application;
     await initControllers(e.data);
   }
+  if (type === Workers.UPDATE_APPLICATION) {
+    registry.application = application;
+    await initControllers(e.data);
+    return;
+  }
   if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
     registry.webview_application = `
     <style>

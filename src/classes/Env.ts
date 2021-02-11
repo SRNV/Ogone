@@ -17,6 +17,8 @@ import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
 import { WebSocketServer, WS } from "../../deps/ws.ts";
 import HMR from "./HMR.ts";
+import Ogone from "../main/OgoneBase.ts";
+import ComponentBuilder from './ComponentBuilder.ts';
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
@@ -147,7 +149,7 @@ ${err.stack}`);
               Deno.writeTextFileSync(tmpFile, file);
               this.compile(tmpFile)
                 .then(async (bundle) => {
-                  const application = this.renderBundle(tmpFile,
+                  const application = await this.renderBundle(tmpFile,
                     bundle
                   );
                   OgoneWorkers.serviceDev.postMessage({
@@ -349,10 +351,9 @@ ${err.stack}`);
   public listenHMRWebsocket(): void {
     this.trace('setting HMR server');
     let timeoutBeforeSendingRequests: number;
-    HMR.server = new WebSocketServer(HMR.port);
-    HMR.server.on('connection', (ws: WebSocket) => {
-      HMR.client = ws;
-    });
+    HMR.setServer(
+      new WebSocketServer(HMR.port)
+    );
     // start watching files and open websocket server
     OgoneWorkers.hmrContext.postMessage({
       type: Workers.WS_INIT,
@@ -365,7 +366,6 @@ ${err.stack}`);
         // this timeout fixes all the broken pipe issue
         timeoutBeforeSendingRequests = setTimeout(() => {
           const { data } = event;
-          console.warn(event);
           switch (data.type) {
             case Workers.WS_FILE_UPDATED:
               const filePath = data.path;
@@ -373,7 +373,6 @@ ${err.stack}`);
                 filePath: filePath.replace(Deno.cwd(), '@'),
               });
               if (data.isOgone) {
-              console.warn(filePath);
               // save the content of the file to overwrite
               // this allows the live edition
                 const content = Deno.readTextFileSync(data.path);
@@ -387,22 +386,63 @@ ${err.stack}`);
                 this.compile(tmpFile)
                   .then(async (bundle) => {
                     if (HMR.client) {
-                      HMR.client.send(bundle.output);
+                      this.infos(`HMR - sending output.`);
+                      HMR.postMessage({
+                        output: bundle.output,
+                        uuid: ComponentBuilder.mapUuid.get(data.path)
+                      });
+                    } else {
+                      this.warn(`HMR - no connection...`);
                     }
+                    this.compile(Configuration.entrypoint, true)
+                      .then(async () => {
+                        await this.sendNewApplicationToServer()
+                        this.infos('HMR - application updated.');
+                      });
                   })
                   .then(() => {
                     Deno.remove(tmpFile);
                   })
                   .catch(() => {
                     Deno.remove(tmpFile);
-                  })
+                  });
               }
               break;
           }
-        }, 50);
+        }, 25);
       });
     } catch (err) {
       this.error(`Env: ${err.message}
+${err.stack}`);
+    }
+  }
+  async initServer(): Promise<void> {
+    try {
+      OgoneWorkers.serviceDev.postMessage({
+        type: Workers.INIT_MESSAGE_SERVICE_DEV,
+        application: await this.getApplication(),
+        controllers: Ogone.controllers,
+        Configuration: {
+          ...Configuration
+        },
+      });
+    } catch (err) {
+      this.error(`EnvServer: ${err.message}
+${err.stack}`);
+    }
+  }
+  async sendNewApplicationToServer(): Promise<void> {
+    try {
+      OgoneWorkers.serviceDev.postMessage({
+        type: Workers.UPDATE_APPLICATION,
+        application: await this.getApplication(),
+        controllers: Ogone.controllers,
+        Configuration: {
+          ...Configuration
+        },
+      });
+    } catch (err) {
+      this.error(`EnvServer: ${err.message}
 ${err.stack}`);
     }
   }
