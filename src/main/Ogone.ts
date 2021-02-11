@@ -168,6 +168,14 @@ export class OgoneBaseClass extends HTMLElement {
     }
   }
   rerender(this: HTMLOgoneElement) {
+    if (this.isRoot) {
+      Ogone.root = false;
+      document.body.innerHTML = '';
+      document.body.append(
+        document.createElement('ogone-node')
+      );
+      return;
+    }
     for (let i = this.context.list.length, a = 0; i > a; i--) {
       destroy(
         this.context.list.pop() as HTMLOgoneElement

@@ -28,7 +28,7 @@ export default class HMR {
       const { uuid, output } = payload;
       console.warn(uuid);
       const savedComponents = this.components[uuid]
-      if(savedComponents) {
+      if (savedComponents) {
         const components = savedComponents.filter((component) => component.isOriginalNode && component.isTemplate);
         const replacement = eval(`((Ogone) => {
           ${output}
@@ -38,7 +38,6 @@ export default class HMR {
         console.warn('[Ogone] rendering new components.', uuid);
         components.forEach((component) => {
           component.rerender();
-          console.warn(component);
         });
         console.warn(Object.keys(this.components).length)
       }
