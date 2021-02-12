@@ -60,19 +60,23 @@ ${err.stack}`);
   }
   private static async cleanFiles() {
     TSXContextCreator.mapCreatedFiles.forEach((file) => {
-      Deno.removeSync(file);
+      if (existsSync(file)) Deno.removeSync(file);
     })
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
-    const newpath = `.ogone/${component.uuid}.tsx`;
+    const newpath = `./.ogone/${component.uuid}.tsx`;
     const { protocol } = component.context;
     Deno.writeTextFileSync(newpath, protocol);
     TSXContextCreator.mapCreatedFiles.push(newpath);
+    const componentName = `comp${i++}`
     TSXContextCreator.globalAppContextFile += `
     /**
      * Context of ${component.file}
      * */
-      import comp${i++} from '${newpath}';`;
+      import ${componentName} from './${component.uuid}.tsx';
+      ${componentName}['set'] = 0;
+      console.warn(${componentName});
+      `;
   }
   private async readContext(bundle: Bundle): Promise<boolean> {
     try {
@@ -82,6 +86,7 @@ ${err.stack}`);
       TSXContextCreator.mapCreatedFiles.push(TSXContextCreator.globalAppContextURL);
 
       const resultEmit = await Deno.emit(TSXContextCreator.globalAppContextURL, {
+        bundle: 'esm',
         compilerOptions: {
           module: "esnext",
           target: "esnext",
