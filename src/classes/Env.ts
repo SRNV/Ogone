@@ -373,8 +373,8 @@ ${err.stack}`);
                 filePath: filePath.replace(Deno.cwd(), '@'),
               });
               if (data.isOgone) {
-              // save the content of the file to overwrite
-              // this allows the live edition
+                // save the content of the file to overwrite
+                // this allows the live edition
                 const content = Deno.readTextFileSync(data.path);
                 MapFile.files.set(filePath, {
                   content,
@@ -383,21 +383,28 @@ ${err.stack}`);
                 });
                 const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_hmr', suffix: '.o3' });
                 Deno.writeTextFileSync(tmpFile, file);
+                let startPerf = performance.now();
                 this.compile(tmpFile)
                   .then(async (bundle) => {
+                    console.clear();
                     if (HMR.client) {
                       this.infos(`HMR - sending output.`);
                       HMR.postMessage({
                         output: bundle.output,
                         uuid: ComponentBuilder.mapUuid.get(data.path)
                       });
+                      this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
                     } else {
                       this.warn(`HMR - no connection...`);
                     }
-                    this.compile(Configuration.entrypoint, true)
-                      .then(async () => {
+                    await this.compile(Configuration.entrypoint, true)
+                      .then(async (bundle) => {
                         await this.sendNewApplicationToServer()
-                        this.infos('HMR - application updated.');
+                        // start typechecking
+                        await this.TSXContextCreator.read(bundle, {
+                          checkOnly: filePath,
+                        });
+                        this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
                       });
                   })
                   .then(() => {

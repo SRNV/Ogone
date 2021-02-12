@@ -31,11 +31,14 @@ export default class TSXContextCreator extends Utils {
       this.warn(`Type checking.`);
       const entries = Array.from(bundle.components.entries());
       for await (const [key, component] of entries) {
+        console.warn(component.file);
         if (checkOnly && component.isTyped && (component.file === checkOnly
           || component.file.endsWith(checkOnly)
           || checkOnly && checkOnly.endsWith(component.file))) {
+            console.warn('found');
           await this.createContext(bundle, component);
         } else if (!checkOnly && component.isTyped) {
+          console.warn(component.isTyped);
           await this.createContext(bundle, component);
         }
       }
@@ -48,6 +51,7 @@ export default class TSXContextCreator extends Utils {
         this.infos(`Type checking took ~${Math.floor(performance.now() - startPerf)} ms`);
         this.success('no type error found.');
       }
+      console.warn(hasError);
     } catch (err) {
       this.error(`TSXContextCreator: ${err.message}
 ${err.stack}`);
@@ -60,7 +64,7 @@ ${err.stack}`);
   }
   private static async cleanFiles() {
     TSXContextCreator.mapCreatedFiles.forEach((file) => {
-      Deno.removeSync(file);
+      if (existsSync(file)) Deno.removeSync(file);
     })
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
@@ -80,7 +84,7 @@ ${err.stack}`);
       Deno.writeTextFileSync(TSXContextCreator.globalAppContextURL,
         TSXContextCreator.globalAppContextFile);
       TSXContextCreator.mapCreatedFiles.push(TSXContextCreator.globalAppContextURL);
-
+      console.warn(TSXContextCreator.globalAppContextFile)
       const resultEmit = await Deno.emit(TSXContextCreator.globalAppContextURL, {
         compilerOptions: {
           module: "esnext",
@@ -105,6 +109,7 @@ ${err.stack}`);
         }
       });
       const { diagnostics: diags } = resultEmit;
+      console.warn(diags);
       ModuleErrors.checkDiagnostics(bundle, diags as unknown[]);
       if (diags && diags.length) {
         return true;
