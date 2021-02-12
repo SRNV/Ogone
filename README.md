@@ -39,9 +39,9 @@ Ogone for Front-end fields using Deno.
 Designed differently, start creating differently.
 Everything is a component because everything is a part of the composition.
 
-Actually Ogone is too young to be used for production, expect breaking chnages until the 1.0.0.
+Actually Ogone is too young to be used for production, expect breaking changes until the 1.0.0.
 
-Ogone has it own extension `*.o3` which allow some new features.
+Ogone has it's own extension `*.o3` which allows some new features.
 
 
 If you're interested by this project: [please join the Discord here](https://discord.gg/gCnGzh2wMc)
