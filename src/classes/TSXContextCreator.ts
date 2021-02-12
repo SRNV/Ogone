@@ -31,19 +31,16 @@ export default class TSXContextCreator extends Utils {
       this.warn(`Type checking.`);
       const entries = Array.from(bundle.components.entries());
       for await (const [key, component] of entries) {
-        console.warn(component.file);
         if (checkOnly && component.isTyped && (component.file === checkOnly
           || component.file.endsWith(checkOnly)
           || checkOnly && checkOnly.endsWith(component.file))) {
-            console.warn('found');
           await this.createContext(bundle, component);
         } else if (!checkOnly && component.isTyped) {
-          console.warn(component.isTyped);
           await this.createContext(bundle, component);
         }
       }
       const diagnosticError = await this.readContext(bundle);
-      TSXContextCreator.cleanFiles();
+      // TSXContextCreator.cleanFiles();
       if (diagnosticError) {
         hasError = diagnosticError;
       }
@@ -51,7 +48,6 @@ export default class TSXContextCreator extends Utils {
         this.infos(`Type checking took ~${Math.floor(performance.now() - startPerf)} ms`);
         this.success('no type error found.');
       }
-      console.warn(hasError);
     } catch (err) {
       this.error(`TSXContextCreator: ${err.message}
 ${err.stack}`);
@@ -68,15 +64,19 @@ ${err.stack}`);
     })
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
-    const newpath = `.ogone/${component.uuid}.tsx`;
+    const newpath = `./.ogone/${component.uuid}.tsx`;
     const { protocol } = component.context;
     Deno.writeTextFileSync(newpath, protocol);
     TSXContextCreator.mapCreatedFiles.push(newpath);
+    const componentName = `comp${i++}`
     TSXContextCreator.globalAppContextFile += `
     /**
      * Context of ${component.file}
      * */
-      import comp${i++} from '${newpath}';`;
+      import ${componentName} from './${component.uuid}.tsx';
+      ${componentName}['set'] = 0;
+      console.warn(${componentName});
+      `;
   }
   private async readContext(bundle: Bundle): Promise<boolean> {
     try {
@@ -84,8 +84,9 @@ ${err.stack}`);
       Deno.writeTextFileSync(TSXContextCreator.globalAppContextURL,
         TSXContextCreator.globalAppContextFile);
       TSXContextCreator.mapCreatedFiles.push(TSXContextCreator.globalAppContextURL);
-      console.warn(TSXContextCreator.globalAppContextFile)
+
       const resultEmit = await Deno.emit(TSXContextCreator.globalAppContextURL, {
+        bundle: 'esm',
         compilerOptions: {
           module: "esnext",
           target: "esnext",
@@ -109,7 +110,6 @@ ${err.stack}`);
         }
       });
       const { diagnostics: diags } = resultEmit;
-      console.warn(diags);
       ModuleErrors.checkDiagnostics(bundle, diags as unknown[]);
       if (diags && diags.length) {
         return true;
