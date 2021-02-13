@@ -43,9 +43,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
           header.style.top = '0px';
         }
       }
-      this.setScrollY(window.scrollY, {
-        test: 0
-      });
+      this.setScrollY(window.scrollY);
     });
     break;
 </proto>

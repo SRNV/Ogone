@@ -262,13 +262,15 @@ ${err.stack}`);
                 key.startsWith("o-") ||
                 key.startsWith("_"))
             )
-            .map(([key, value]) =>
-              key !== "ref"
+            .map(([key, val]) => {
+              if(val === true) return `_at(${nId},'${key}', '');`;
+              let value = (val as string).replace(/\'/gi, "\\'");
+              return key !== "ref"
                 ? `_at(${nId},'${key}', '${value}');`
                 : `
                 ctx.refs['${value}'] = ctx.refs['${value}'] || [];
                 ctx.refs['${value}'][i] = ${nId};`
-            )
+            })
             .join("");
           pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
             let identifier: string[] = [];
