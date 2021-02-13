@@ -47,6 +47,12 @@ export default abstract class MapOutput {
   static runtime: string = '';
   static async getOutputs(bundle: Bundle) {
     bundle.output += `
+      const ogone_types_component = "component";
+      const ogone_types_store = "store";
+      const ogone_types_async = "async";
+      const ogone_types_controller = "controller";
+      const ogone_types_app = "app";
+      const ogone_types_gl = "gl";
       ${this.outputs.types.join('\n')}
       ${this.outputs.data.join('\n')}
       ${this.outputs.context.slice().reverse().join('\n')}

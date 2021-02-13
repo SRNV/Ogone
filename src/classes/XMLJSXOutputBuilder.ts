@@ -117,7 +117,7 @@ export default class XMLJSXOutputBuilder extends Utils {
               {% setAwait %}
               {% setOgone.isOgone %}
               {% setNodeAwait %}
-              _at({% nId %},'${idComponent}', '');
+              {% publicComponentSetAttribute %}
               {% setAttributes %}
               {% nodesPragma %}
               {% storeRender %}
@@ -134,6 +134,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           isRemote,
           component,
           subcomp,
+          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `_at({% nId %},'${idComponent}', '');` : '',
           isTemplate: isTemplate || !!isImported && !!subcomp,
           isTemplatePrivate: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.private,
           isTemplateProtected: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.protected,

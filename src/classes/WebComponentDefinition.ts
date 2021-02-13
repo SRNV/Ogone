@@ -40,7 +40,7 @@ export default class WebComponentDefinition extends Utils {
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
         }`;
-      const types = 'Ogone.types["{% elementId %}"] = "{% component.type %}";'
+      const types = 'Ogone.types["{% elementId %}"] = ogone_types_{% component.type %};'
       MapOutput.outputs.render.push(this.template(render, templateSlots));
       MapOutput.outputs.types.push(this.template(types, templateSlots));
       if (["controller"].includes(component.type)) {
