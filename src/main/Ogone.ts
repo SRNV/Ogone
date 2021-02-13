@@ -102,6 +102,9 @@ export class OgoneBaseClass extends HTMLElement {
   get name() {
     return 'ogone-node';
   }
+  set name(v) {
+
+  }
   get isComponent() {
     return this.isTemplate;
   }
@@ -340,15 +343,8 @@ export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
 
     // usefull to delay actions on nodes
     methodsCandidate: [],
-    // overwrite properties
-    ...def,
   };
-  Object.entries(params)
-    .forEach(([key, value]: string[]) => {
-      try {
-        (Onode as { [k: string]: any })[key] = value;
-      } catch { }
-    })
+  Object.assign(Onode, params, def);
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
   Onode.renderNodes = Ogone.render[Onode.extending!];
@@ -1294,122 +1290,6 @@ export function infosMessage(opts: { message: string; }) {
   Ogone.infosPanel!.innerHTML = opts.message;
   showPanel("infos", 2000);
 }
-export async function hmr(url: string) {
-  try {
-    const mod = await import(`${url}?p=\${performance.now()}`);
-    const keys = Object.keys(Ogone.mod);
-    keys.filter((key) => key === url).forEach((key) => {
-      Ogone.mod[key] = mod;
-    });
-    Ogone.mod["*"]
-      .forEach(([key, f]: [string, any], i, arr) => {
-        key === url && f && !f(mod) ? delete arr[i] : 0;
-      });
-    return mod;
-  } catch (err) {
-    displayError(err.message, "HMR-Error", new Error(`
-    module's url: ${url}
-    `));
-    throw err;
-  }
-}
-export async function hmrTemplate(uuid: string | number, pragma: any) {
-  try {
-    const templates = Ogone.mod[uuid];
-    if (templates) {
-      templates.forEach((f: (arg0: any) => any, i: string | number, arr: { [x: string]: any; }) => {
-        f && !f(pragma) ? delete arr[i] : 0;
-      });
-    }
-    return templates;
-  } catch (err) {
-    displayError(err.message, "HMR-Error", err);
-    throw err;
-  }
-}
-export async function hmrRuntime(uuid: string | number, runtime: { bind: (arg0: any) => any; }) {
-  try {
-    const components = Ogone.instances[uuid];
-    if (components) {
-      components.forEach((c, i, arr) => {
-        if (c.component.activated) {
-          c.component.runtime = runtime.bind(c.component.data);
-          c.component.runtime(0);
-          OnodeRenderTexts(c, true);
-        } else {
-          delete arr[i];
-        }
-      });
-    }
-    return components;
-  } catch (err) {
-    displayError(err.message, "HMR-Error", err);
-    throw err;
-  }
-}
-export function startConnection() {
-  if (Ogone.isDeno) {
-    // createServer();
-  } else {
-    createClient();
-  }
-}
-export function createClient() {
-  const ws = new WebSocket(`ws://localhost:${Ogone.websocketPort}/`);
-  ws.onmessage = (msg) => {
-    const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(
-      msg.data,
-    );
-    if (type === "javascript") {
-      hmr(url).then(() => {
-        console.warn("[Ogone] hmr:", url);
-        infosMessage({
-          message: `[HMR] module updated: ${url}`,
-        });
-      });
-    }
-    if (type === "template" && pragma && uuid) {
-      eval(ctx);
-      hmrTemplate(uuid, pragma).then(() => {
-        infosMessage({
-          message: `[HMR] template updated: ${uuid}`,
-        });
-      });
-    }
-    if (type === "reload") {
-      console.warn("[Ogone] hmr: reloading the application");
-      infosMessage({
-        message: `[HMR] socket lost. Reloading your application`,
-      });
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
-    }
-    if (type === "style") {
-      const styleElement = document.querySelector(`style[id="${uuid}"]`);
-      if (styleElement) styleElement.innerHTML = style;
-      infosMessage({
-        message: `[HMR] style updated: ${uuid}`,
-      });
-    }
-    if (type === "runtime") {
-      const r = eval(runtime);
-      hmrRuntime(uuid, (r || function () { })).then(() => {
-        infosMessage({
-          message: `[HMR] component updated: ${uuid}`,
-        });
-      });
-    }
-  };
-
-  ws.onclose = () => {
-    setTimeout(() => {
-      console.warn("[Ogone] ws closed: reloading");
-      location.reload();
-    }, 1000);
-  };
-  return ws;
-}
 /**
  * fake slot replacement inside the component
  * // TODO use native slot implementation
@@ -2035,21 +1915,21 @@ export function OnodeListRendering(
       routes: Onode.routes,
 
       parentNodeKey: Onode.parentNodeKey,
-      ...(!callingNewComponent ? {
-        component: Onode.component,
-        nodeProps: Onode.nodeProps,
-      } : {
-          props: Onode.props,
-          dependencies: Onode.dependencies,
-          requirements: Onode.requirements,
-          params: Onode.params,
-          parentComponent: Onode.parentComponent,
-          parentCTXId: Onode.parentCTXId,
-          positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
-            .slice() : [],
-          levelInParentComponent: Onode.levelInParentComponent,
-        }),
     };
+    Object.assign(ogoneOpts, (!callingNewComponent ? {
+      component: Onode.component,
+      nodeProps: Onode.nodeProps,
+    } : {
+        props: Onode.props,
+        dependencies: Onode.dependencies,
+        requirements: Onode.requirements,
+        params: Onode.params,
+        parentComponent: Onode.parentComponent,
+        parentCTXId: Onode.parentCTXId,
+        positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
+          .slice() : [],
+        levelInParentComponent: Onode.levelInParentComponent,
+      }));
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
     Onode.placeholder.replaceWith(node, Onode.placeholder);

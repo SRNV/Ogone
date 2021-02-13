@@ -85,6 +85,9 @@ export default class Constructor extends Utils {
       await this.ComponentBuilder.read(bundle);
       this.trace('Components created');
 
+      MapOutput.saveDeclarations(bundle);
+      this.trace('saved declarations');
+
       // get the type for all the components
       this.ComponentTypeGetter.setTypeOfComponents(bundle);
       this.trace('Components Protocol\'s Type Setting');

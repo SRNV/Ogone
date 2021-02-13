@@ -124,7 +124,7 @@ ${err.stack}`);
           const contextScript =
             node.hasFlag || !node.tagName && node.nodeType === 1 || isNodeDynamic
               ? `
-          Ogone.contexts['{% context.id %}'] = function(opts) {
+          Ogone.contexts[{% context.id %}] = function(opts) {
             const GET_TEXT = opts.getText;
             const GET_LENGTH = opts.getLength;
             const POSITION = opts.position;
@@ -145,17 +145,17 @@ ${err.stack}`);
             }
           };
         `
-              : `Ogone.contexts['{% context.id %}'] = Ogone.contexts['{% context.parentId %}'];`;
+              : `Ogone.contexts[{% context.id %}] = Ogone.contexts[{% context.parentId %}];`;
           const result = this.template(contextScript, {
             component,
             data: component.context.data,
             value: script.value || "",
             itemName: aliasItem || itemName,
             context: {
-              id: `${component.uuid}-${nId}`,
+              id: (`${component.uuid}_${nId}`).replace(/\-/gi, '_'),
               if: contextIf ? contextIf : "",
               parentId: node.parentNode
-                ? `${component.uuid}-${node.parentNode.id}`
+                ? (`${component.uuid}_${node.parentNode.id}`).replace(/\-/gi, '_')
                 : "",
               result: component.data ? [
                 // the key can start with a bracket or a brace

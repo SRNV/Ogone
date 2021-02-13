@@ -172,13 +172,15 @@ ${err.stack}`);
             }
           };
           `;
+        const componentVar = `${component.uuid.replace(/\-/gi, '_')}`;
         const d = {
           component,
+          componentVar,
           modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
           AsyncAPI: component.type === "async" ? AsyncAPI : "let Async;",
           protocol: component.protocol ? component.protocol : "",
           dataSource: component.isTyped
-            ? `new Ogone.protocols['{% component.uuid %}']`
+            ? `new Ogone.protocols[{% componentVar %}]`
             : JSON.stringify(component.data),
           data: component.isTyped
             || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
@@ -196,14 +198,15 @@ ${err.stack}`);
             : "",
           StoreAPI: !!component.hasStore ? store : "let Store;",
           protocolDeclarationForTypedComponent: component.isTyped ? `
-          Ogone.protocols['{% component.uuid %}'] = ${component.context.protocolClass}
+          Ogone.protocols[{% componentVar %}] = ${component.context.protocolClass}
           ` : '',
         };
         result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
+
         if (mapRender.has(result)) {
           const item = mapRender.get(result);
           result = this.template(
-            `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];
+            `Ogone.components[{% componentVar %}] = Ogone.components['{% item.id %}'];
              {% protocolDeclarationForTypedComponent %}
             `,
             {
@@ -217,7 +220,7 @@ ${err.stack}`);
             id: component.uuid,
           });
           MapOutput.outputs.data.push(this.template(
-            `Ogone.components['{% component.uuid %}'] = ${result.trim()};
+            `Ogone.components[{% componentVar %}] = ${result.trim()};
             {% protocolDeclarationForTypedComponent %}
             `,
             d,

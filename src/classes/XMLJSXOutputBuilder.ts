@@ -134,7 +134,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           isRemote,
           component,
           subcomp,
-          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `_at({% nId %},'${idComponent}', '');` : '',
+          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `_at({% nId %},${idComponent.replace(/\-/, '_')}, '');` : '',
           isTemplate: isTemplate || !!isImported && !!subcomp,
           isTemplatePrivate: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.private,
           isTemplateProtected: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.protected,
@@ -237,7 +237,7 @@ ${err.stack}`);
       const nodes = Object.values(expressions).reverse();
       let pragma: null | DOMParserPragmaDescription = null;
       for (let node of nodes) {
-        if (node.tagName === 'head' || rootNode.childNodes.find((child) => child.id === node.id && node.tagName === "style")) {
+        if (node.tagName === 'head' || node.tagName === 'proto' || rootNode.childNodes.find((child) => child.id === node.id && node.tagName === "style")) {
           continue;
         }
         const params =

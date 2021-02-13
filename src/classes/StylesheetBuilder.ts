@@ -190,7 +190,11 @@ ${err.stack}`);
 
             this.trace('start component style transformations');
             compiledCss = await this.Style.read(compiledCss, bundle, component);
-            compiledCss = isGlobal || element.parentNode === component.elements.head ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
+            compiledCss = component.elements.template?.attributes.protected
+              || component.elements.template?.attributes.private
+              || isGlobal || element.parentNode === component.elements.head
+                ? compiledCss
+                : this.CSSScoper.transform(compiledCss, component.uuid);
             element.childNodes[0].rawText = compiledCss;
           }
         }

@@ -35,12 +35,13 @@ export default class WebComponentDefinition extends Utils {
           ? `${component.uuid}-nt`
           : `${component.uuid}-${node.id}`,
       };
+      const variable = templateSlots.elementId.replace(/\-/gi, '_');
       let componentExtension = ``;
-      const render = `Ogone.render['{% elementId %}'] = ${componentPragma
+      const render = `Ogone.render[${variable}] = ${componentPragma
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
         }`;
-      const types = 'Ogone.types["{% elementId %}"] = ogone_types_{% component.type %};'
+      const types = `Ogone.types[${variable}] = ogone_types_{% component.type %};`
       MapOutput.outputs.render.push(this.template(render, templateSlots));
       MapOutput.outputs.types.push(this.template(types, templateSlots));
       if (["controller"].includes(component.type)) {

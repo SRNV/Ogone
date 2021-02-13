@@ -3,6 +3,11 @@ import TSTranspiler from './TSTranspiler.ts';
 
 interface ComponentOutput {
   /**
+   * string vars that will be defined at the very begining of the code
+   * and reused in the whole application
+   */
+  vars: string[];
+  /**
    * the part that saves the node factory into Ogone.render
    * ```typescript
    *    Ogone.render['{% elementId %}'] = function(): Node[] {...};
@@ -34,6 +39,7 @@ interface ComponentOutput {
 }
 export default abstract class MapOutput {
   static outputs: ComponentOutput = {
+    vars: [],
     render: [],
     data: [],
     context: [],
@@ -50,14 +56,19 @@ export default abstract class MapOutput {
       const ogone_types_component = "component";
       const ogone_types_store = "store";
       const ogone_types_async = "async";
+      const ogone_types_router = "router";
       const ogone_types_controller = "controller";
       const ogone_types_app = "app";
       const ogone_types_gl = "gl";
+      ${this.outputs.vars.join('\n')}
       ${this.outputs.types.join('\n')}
       ${this.outputs.data.join('\n')}
       ${this.outputs.context.slice().reverse().join('\n')}
       ${this.outputs.render.join('\n')}
     `;
+    // remove useless level increment
+    bundle.output = bundle.output.replace(/l\+{2};\s*\/\*+\/\s*l\-{2};/gi, '');
+    // transpile the output
     bundle.output = await TSTranspiler.transpile(bundle.output);
     this.cleanOutputs();
   }
@@ -66,5 +77,23 @@ export default abstract class MapOutput {
     this.outputs.data.splice(0);
     this.outputs.types.splice(0);
     this.outputs.render.splice(0);
+  }
+  static saveDeclarations(bundle: Bundle) {
+    const entries = Array.from(bundle.components.entries()).map(([k,c]) => c);
+    entries.forEach((component) => {
+      const { nodeList } = component.rootNode;
+      const declarationVars = `const ${component.uuid.replace(/\-/gi, '_')} = '${component.uuid}'`;
+      const declarationVarsTemplate = `const ${component.uuid.replace(/\-/gi, '_')}_nt = '${component.uuid}-nt'`;
+      if (!MapOutput.outputs.vars.includes(declarationVars)) {
+        MapOutput.outputs.vars.push(declarationVars, declarationVarsTemplate)
+      }
+      nodeList.forEach((node) => {
+        const nId = node.tagName === null ? 'nt' : node.id;
+        const declarationVarsNode = `const ${(component.uuid + `_${nId}`).replace(/\-/gi, '_')} = '${component.uuid}-${nId}'`;
+        if (!MapOutput.outputs.vars.includes(declarationVarsNode)) {
+          MapOutput.outputs.vars.push(declarationVarsNode)
+        }
+      })
+    });
   }
 }

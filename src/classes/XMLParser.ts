@@ -14,6 +14,7 @@ import notParsed from '../../utils/not-parsed.ts';
 import read from '../../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../../utils/typedExpressions.ts';
 import { MapPosition } from './MapPosition.ts';
+import MapOutput from "./MapOutput.ts";
 // TODO use instances
 // like new Element()
 // like new Attributes()
@@ -404,10 +405,10 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     iterator: DOMParserIterator,
   ): string {
     let result = html;
-    const regexp = /<(\/){0,1}([a-zA-Z][^>\s]*)([^\>]*)+(\/){0,1}>/gi;
+    const regexp = /\<(\/){0,1}([a-zA-Z][^\>\s]*)([^\>]*)+(\/){0,1}\>/gi;
     const matches = result.match(regexp);
     matches?.forEach((node) => {
-      const regexpID = /<(\/){0,1}([a-zA-Z][^>\s\/]*)([^\>\/]*)+(\/){0,1}>/;
+      const regexpID = /\<(\/){0,1}([a-zA-Z][^\>\s\/]*)([^\>\/]*)+(\/){0,1}\>/;
       const id = node.match(regexpID);
       if (id) {
         let [input, slash, tagName, attrs, closingSlash] = id;
@@ -429,6 +430,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               !n.closing &&
               !n.autoclosing
             );
+          console.warn(tag);
           if (tag && expression[tag.key || ""]) {
             // set the key of the closing tag
             // @ts-ignore
