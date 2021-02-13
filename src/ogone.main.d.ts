@@ -32,7 +32,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   routeChanged?: boolean | null;
   locationPath?: string | null;
   historyState?: { query: Map<unknown, unknown> } | null;
-  actualTemplate?: HTMLOgoneElement | null;
+  actualTemplate?: HTMLOgoneElement | Text | null;
   replacer?: HTMLElement | HTMLOgoneElement | null;
   getContext?:
     null
@@ -69,6 +69,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   flags: any;
   original?: HTMLOgoneElement;
   component: HTMLOgoneElement;
+  refs: {[k: string]: HTMLElement[]},
   props: any;
   nodeProps?: [string, string][];
   params?: any;
@@ -110,6 +111,7 @@ export interface OgoneInterface {
   instances: { [componentUuid: string]: any[] };
   protocols: { [componentUuid: string]: FunctionConstructor };
   routerReactions: Function[];
+  displayError(message: string, errorType: string, errorObject: Error): void;
   actualRoute: string | null;
   websocketPort: number;
   // usable on Deno side
@@ -236,7 +238,7 @@ type OgoneComponentsRegistry = { [componentId: string]: (Onode: HTMLOgoneElement
   data: OnodeComponent['data'];
   runtime: OnodeComponent['runtime'];
   Refs: {
-    [k: string]: HTMLElement;
+    [k: string]: HTMLElement[];
   }
 }) };
 /**

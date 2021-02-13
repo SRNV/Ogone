@@ -8,7 +8,6 @@ import {
   MouseEvent,
   history,
   Element,
-  Comment as Com,
   Node,
   Text
 } from "../ogone.dom.d.ts";
@@ -16,7 +15,6 @@ import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, 
 import HMR from "../classes/HMR.ts";
 declare const document: Document;
 declare const location: Location;
-declare class Comment extends Com { };
 declare const ROOT_UUID: string;
 declare const ROOT_IS_PRIVATE: boolean;
 declare const ROOT_IS_PROTECTED: boolean;
@@ -184,6 +182,7 @@ export class OgoneBaseClass extends HTMLElement {
     renderContext(this);
   }
 }
+// @ts-ignore it actually exists
 window.customElements.define('ogone-node', OgoneBaseClass);
 // Router implementation
 window.addEventListener('popstate', (event: Event) => {
@@ -240,10 +239,11 @@ export async function imp(id: string, url?: string) {
     `));
   }
 };
-export function _ap(p, n) {
+export function _ap(p: HTMLElement, n: HTMLElement & HTMLOgoneElement) {
   n.placeholder ? p.append(n, n.placeholder) : p.append(n);
 }
 export function _h(...a: any[]) {
+  // @ts-ignore should fit
   return document.createElement(...a);
 }
 export function _at(n: Element, a: string, b: string) {
@@ -505,10 +505,8 @@ export function removeNodes(Onode: HTMLOgoneElement) {
       (n as HTMLElement).remove();
     }
   }
-  if (o.actualTemplate && o.actualTemplate.forEach) {
-    o.actualTemplate.forEach((n) => {
-      rm(n);
-    });
+  if (o.actualTemplate) {
+    rm(o.actualTemplate);
   }
   o.nodes.forEach((n) => {
     rm(n);
@@ -793,7 +791,7 @@ export function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     o.actualRouteName = rendered.name || null;
   }
   if (!rendered) {
-    o.actualTemplate = new Comment();
+    o.actualTemplate = new Text(' ');
     o.actualRoute = null;
     o.routeChanged = true;
   } else if (
@@ -1529,7 +1527,7 @@ export function renderRouter(Onode: HTMLOgoneElement) {
   }
   if (o.routeChanged) {
     o.replacer.innerHTML = "";
-    o.replacer.append(o.actualTemplate as unknown as Node, o.actualTemplate!.placeholder);
+    o.replacer.append(o.actualTemplate as unknown as Node, (o.actualTemplate! as HTMLOgoneElement).placeholder);
   }
   // run case router:xxx on the router component
   oc.component.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);

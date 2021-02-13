@@ -1,5 +1,3 @@
-import { existsSync } from "../../deps/deps.ts";
-import { walkSync } from "../../deps/walk.ts";
 import { Utils } from "../classes/Utils.ts";
 import Workers from "../enums/workers.ts";
 
@@ -8,7 +6,7 @@ self.onmessage = async (ev: any): Promise<void> => {
   const { type, files } = ev.data;
   switch (type) {
     case Workers.WS_INIT:
-      Utils.infos('HMR initialization');
+      Utils.infos('HMR - initialization');
       const watcher = Deno.watchFs(Deno.cwd(), { recursive: true });
       for await (let event of watcher) {
         if (event.kind === 'modify') {

@@ -365,62 +365,100 @@ ${err.stack}`);
         }
         // this timeout fixes all the broken pipe issue
         timeoutBeforeSendingRequests = setTimeout(() => {
-          const { data } = event;
-          switch (data.type) {
-            case Workers.WS_FILE_UPDATED:
-              const filePath = data.path;
-              const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
-                filePath: filePath.replace(Deno.cwd(), '@'),
-              });
-              if (data.isOgone) {
-                // save the content of the file to overwrite
-                // this allows the live edition
-                const content = Deno.readTextFileSync(data.path);
-                MapFile.files.set(filePath, {
-                  content,
-                  original: content,
-                  path: data.path,
-                });
-                const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_hmr', suffix: '.o3' });
-                Deno.writeTextFileSync(tmpFile, file);
-                let startPerf = performance.now();
-                this.compile(tmpFile)
-                  .then(async (bundle) => {
-                    console.clear();
-                    if (HMR.client) {
-                      this.infos(`HMR - sending output.`);
-                      HMR.postMessage({
-                        output: bundle.output,
-                        uuid: ComponentBuilder.mapUuid.get(data.path)
-                      });
-                      this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
-                    } else {
-                      this.warn(`HMR - no connection...`);
-                    }
-                    await this.compile(Configuration.entrypoint, true)
-                      .then(async (bundle) => {
-                        await this.sendNewApplicationToServer()
-                        // start typechecking
-                        await this.TSXContextCreator.read(bundle, {
-                          checkOnly: filePath,
-                        });
-                        this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
-                      });
-                  })
-                  .then(() => {
-                    Deno.remove(tmpFile);
-                  })
-                  .catch(() => {
-                    Deno.remove(tmpFile);
-                  });
-              }
-              break;
+          if (event.data.isOgone) {
+            if(event.data.path === Configuration.entrypoint
+              || ComponentBuilder.mapUuid.get(event.data.path) === ComponentBuilder.mapUuid.get(Configuration.entrypoint)) {
+              this.updateRootComponent(event);
+            } else {
+              this.updateWithTMPFile(event);
+            }
           }
-        }, 25);
+        }, 100);
       });
     } catch (err) {
       this.error(`Env: ${err.message}
 ${err.stack}`);
+    }
+  }
+  private updateWithTMPFile(event: MessageEvent) {
+    const { data } = event;
+    switch (data.type) {
+      case Workers.WS_FILE_UPDATED:
+        const filePath = data.path;
+        const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
+          filePath: filePath.replace(Deno.cwd(), '@'),
+        });
+        if (data.isOgone) {
+          // save the content of the file to overwrite
+          // this allows the live edition
+          const content = Deno.readTextFileSync(data.path);
+          MapFile.files.set(filePath, {
+            content,
+            original: content,
+            path: data.path,
+          });
+          const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_hmr', suffix: '.o3' });
+          Deno.writeTextFileSync(tmpFile, file);
+          let startPerf = performance.now();
+          this.compile(tmpFile)
+            .then(async (bundle) => {
+              console.clear();
+              if (HMR.client) {
+                console.warn(bundle.output.length);
+                this.infos(`HMR - sending output.`);
+                HMR.postMessage({
+                  output: bundle.output,
+                  uuid: ComponentBuilder.mapUuid.get(data.path)
+                });
+                this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
+              } else {
+                this.warn(`HMR - no connection...`);
+              }
+              await this.compile(Configuration.entrypoint, true)
+                .then(async (completeBundle) => {
+                  await this.sendNewApplicationToServer();
+                  console.warn(completeBundle.output.length);
+                  // start typechecking
+                  await this.TSXContextCreator.read(completeBundle);
+                  this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
+                  this.exposeSession();
+                });
+            })
+            .then(() => {
+              Deno.remove(tmpFile);
+            })
+            .catch(() => {
+              Deno.remove(tmpFile);
+            });
+        }
+        break;
+    }
+  }
+  private updateRootComponent(event: MessageEvent) {
+    const { data } = event;
+    switch (data.type) {
+      case Workers.WS_FILE_UPDATED:
+        let startPerf = performance.now();
+        this.compile(Configuration.entrypoint, true)
+          .then(async (completeBundle) => {
+            console.clear();
+            if (HMR.client) {
+              this.infos(`HMR - sending output.`);
+              HMR.postMessage({
+                output: completeBundle.output,
+                uuid: ComponentBuilder.mapUuid.get(data.path)
+              });
+              this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
+            } else {
+              this.warn(`HMR - no connection...`);
+            }
+            await this.sendNewApplicationToServer();
+            // start typechecking
+            await this.TSXContextCreator.read(completeBundle);
+            this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
+            this.exposeSession();
+          });
+        break;
     }
   }
   async initServer(): Promise<void> {

@@ -14,6 +14,14 @@ export default class HMR {
   static get connect (): string {
     return `ws://0.0.0.0:${this.port}/`
   }
+  static startHandshake() {
+
+  }
+  static async sendError(error: string) {
+    this.postMessage({
+      error,
+    });
+  }
   static useOgone(ogone: typeof Ogone) {
     if (typeof document !== "undefined") {
       this.ogone = ogone;
@@ -25,9 +33,13 @@ export default class HMR {
     this.client.onmessage = (evt: any) => {
       console.warn('[Ogone] server asking for updates.');
       const payload = JSON.parse(evt.data);
-      const { uuid, output } = payload;
-      console.warn(uuid);
-      const savedComponents = this.components[uuid]
+      const { uuid, output, error, errorFile } = payload;
+      const savedComponents = this.components[uuid];
+      if (error) {
+        console.error(error);
+        Ogone.displayError(errorFile || 'Error found in application.', 'TypeError', new Error(error));
+        return;
+      }
       if (savedComponents) {
         const components = savedComponents.filter((component) => component.isOriginalNode && component.isTemplate);
         const replacement = eval(`((Ogone) => {

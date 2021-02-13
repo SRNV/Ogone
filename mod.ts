@@ -41,6 +41,8 @@ export {
 };
 export default {
   async run(opts: OgoneConfiguration): Promise<void> {
+    console.clear();
+    Utils.infos('compiling...')
     TSXContextCreator.createDistFolder();
     Configuration.setConfig(opts);
     const env = new EnvServer();

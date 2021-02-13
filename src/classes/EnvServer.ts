@@ -49,10 +49,7 @@ export default class EnvServer extends Env {
             /*
             TODO use workers for build
             */
-          }).then(() => {
-            // message for any interested developer.
-            this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
-          });
+          })
       } else {
         //start compilation of o3 files
         this.setDevTool(Configuration.devtool as boolean);
@@ -62,10 +59,7 @@ export default class EnvServer extends Env {
           .then(() => {
             // Ogone is now ready to serve
             this.startDevelopment();
-          }).then(() => {
-            // message for any interested developer.
-            this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
-          });
+          })
       }
     } catch (err) {
       this.error(`Ogone: ${err.message}

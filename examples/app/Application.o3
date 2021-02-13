@@ -29,7 +29,7 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
 </template>
 <proto type="app">
   declare:
-    public scrollY: number = 10;
+    public scrollY: number = 0;
     public setScrollY(n: number) {
       this.scrollY = n;
     }
@@ -43,7 +43,9 @@ import component RouterComponent from '@/examples/app/routers/Router.o3';
           header.style.top = '0px';
         }
       }
-      this.setScrollY(window.scrollY);
+      this.setScrollY(window.scrollY, {
+        test: 0
+      });
     });
     break;
 </proto>

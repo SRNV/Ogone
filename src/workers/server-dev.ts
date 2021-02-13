@@ -105,7 +105,6 @@ self.onmessage = async (e: any): Promise<void> => {
   }
   if (type === Workers.UPDATE_APPLICATION) {
     registry.application = application;
-    await initControllers(e.data);
     return;
   }
   if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
@@ -137,7 +136,7 @@ self.onmessage = async (e: any): Promise<void> => {
     );
   }
   Utils.trace(`Worker: Dev Server available on http://localhost:${port}/`);
-  Utils.success(`Your application is running here: http://localhost:${port}/`);
+  Utils.exposeSession(port, Configuration.entrypoint)
   self.postMessage({
     type: Workers.SERVICE_DEV_READY
   });

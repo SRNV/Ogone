@@ -40,7 +40,7 @@ export default class TSXContextCreator extends Utils {
         }
       }
       const diagnosticError = await this.readContext(bundle);
-      // TSXContextCreator.cleanFiles();
+      TSXContextCreator.cleanFiles();
       if (diagnosticError) {
         hasError = diagnosticError;
       }
@@ -61,7 +61,8 @@ ${err.stack}`);
   private static async cleanFiles() {
     TSXContextCreator.mapCreatedFiles.forEach((file) => {
       if (existsSync(file)) Deno.removeSync(file);
-    })
+    });
+    TSXContextCreator.mapCreatedFiles.splice(0);
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
     const newpath = `./.ogone/${component.uuid}.tsx`;
@@ -75,7 +76,6 @@ ${err.stack}`);
      * */
       import ${componentName} from './${component.uuid}.tsx';
       ${componentName}['set'] = 0;
-      console.warn(${componentName});
       `;
   }
   private async readContext(bundle: Bundle): Promise<boolean> {
