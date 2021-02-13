@@ -619,6 +619,14 @@ ${err.stack}`);
         // flags that starts with --
         node.hasFlag = true;
         node.flags = result;
+        Object.keys(result)
+          .forEach((key) => {
+            // @ts-ignore
+            if (typeof result[key] === 'string' && !result[key].length) {
+              // @ts-ignore
+              delete result[key];
+            }
+          })
         return JSON.stringify(result);
       }
       return null;
