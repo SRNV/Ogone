@@ -10,6 +10,7 @@ export const Ogone: OgoneInterface = {
   root: false,
   stores: {},
   clients: [],
+  arrays: {},
   render: {},
   protocols: {},
   contexts: {},

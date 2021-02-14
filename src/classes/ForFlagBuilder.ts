@@ -183,11 +183,13 @@ ${err.stack}`);
             const reg = /^((this\.){0,1}[\w\d]+?)(\b)(.*?)$/i;
             const arrayMatch = reg.test(array);
             const parentItem = array.replace(reg, '$1')
+            const ogoneRefsForArrays = `Ogone.arrays['${component!.uuid.replace(/\-/, '_')}_${node.id}']`;
             const preventError = `!!${parentItem}
             && ${array} || []`;
-            const declarationScript = [`const ${arrayAlias} = ${arrayMatch ? preventError : `${array}`};`, `
+            const declarationScript = [`const ${arrayAlias} = ${ogoneRefsForArrays} || ${arrayMatch ? preventError : `${array}`};`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`,
+                          `${ogoneRefsForArrays} = ${arrayAlias};`,
             aliasItem ? `const ${aliasItem} = (${arrayAlias})[${index}];` : '',
             ];
             if (contextLegacy && contextLegacy.declarationScript) {

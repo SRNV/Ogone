@@ -93,6 +93,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
 export interface OgoneInterface {
   // usable on browser side
   types: { [k: string]: OgoneParameters["type"] };
+  arrays: { [k: string]: any[] };
   root: boolean;
   stores: OgoneStores;
   clients: OgoneStoreClient[];
