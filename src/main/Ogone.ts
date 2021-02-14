@@ -11,7 +11,7 @@ import {
   Node,
   Text
 } from "../ogone.dom.d.ts";
-import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions } from "../ogone.main.d.ts";
+import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions, HTMLOgoneText } from "../ogone.main.d.ts";
 import HMR from "../classes/HMR.ts";
 declare const document: Document;
 declare const location: Location;
@@ -528,6 +528,8 @@ export function destroy(Onode: HTMLOgoneElement) {
   // ogone: {% destroy.devTool %}
   // Onode.placeholder.remove();
   Onode.remove();
+  Onode.component.texts.splice(0);
+  Onode.component.react.splice(0);
 }
 /**
  * adds Listeners on nodes
@@ -1738,11 +1740,27 @@ export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   );
 };
 export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
-  if (!Onode || !Onode.component || !Onode.component.activated) return;
-  Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
+  if (!Onode || !Onode.component || !Onode.component.activated) {
+    Onode.component.texts.splice(0);
+    return;
+  }
+  Onode.component.texts.forEach((t: HTMLOgoneText, i: number, arr: HTMLOgoneText[]) => {
     // if there is no update of the texts
     // this can be the reason why
-    if (t && !t(dependency)) delete arr[i];
+    // if (t && !t(dependency)) delete arr[i];
+    const { code, position, dependencies, getContext } = t;
+    if (Onode.component.activated) {
+      if (!getContext) return delete arr[i];
+      if (dependencies && !dependencies.includes(dependency as string)) return;
+      if (typeof dependency === 'string' && code.indexOf(dependency) < 0) return;
+      const v = getContext({
+        getText: code,
+        position,
+      });
+      if (t.data !== v && v) t.data = v.length ? v : ' ';
+    } else {
+      delete arr[i];
+    }
   });
 };
 export function OnodeReactions(Onode: HTMLOgoneElement, dependency: string) {

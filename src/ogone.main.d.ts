@@ -275,6 +275,25 @@ export interface RouterBrowser {
   go: (url: string, state: any) => void;
   openDevTool?: (opts: any) => void;
 }
+export interface HTMLOgoneText extends Text {
+  /**
+   * the code to evaluate and set the text content
+   */
+  code: string;
+  /**
+   * get the context for the textnode
+   */
+  getContext: HTMLOgoneElement['getContext'];
+  /**
+   * the position of the textnode into the DOM
+   */
+  position: HTMLOgoneElement['position'];
+  /**
+   * dependencies of the textnode
+   * prevent for useless evaluations/reactions
+   */
+  dependencies?: string[];
+}
 export interface OnodeComponent {
   key: OgoneParameters['key'];
   data: { [s: string]: any } | null;
@@ -292,7 +311,7 @@ export interface OnodeComponent {
     finally: null | any;
   };
   promiseResolved: boolean;
-  texts: (() => any)[];
+  texts: (HTMLOgoneText)[];
   childs: HTMLOgoneElement[];
   parent: HTMLOgoneElement | null;
   requirements: any;

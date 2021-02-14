@@ -411,21 +411,14 @@ ${err.stack}`);
             const isEvaluated = node.rawText.indexOf("${") > -1;
             const saveText = isEvaluated
               ? `
-                  const {%getContextConstant%} = Ogone.contexts['{%contextId%}'] ? Ogone.contexts['{%contextId%}'].bind(ctx.data) : null; /* getContext function */
-                  const {%textConstant%} = '{%evaluatedString%}';
+                  {%nId%}.getContext = Ogone.contexts[{%contextId%}] ? Ogone.contexts[{%contextId%}].bind(ctx.data) : null; /* getContext function */
+                  {%nId%}.code = '{%evaluatedString%}';
+                  {% dependencies %}
                   const p{%textConstant%} = p.slice();
                   /*removes txt position and root position*/
                   p{%textConstant%}[l-2]=i;
-                  ctx.texts.push((k) => {
-                    if ({% dependencies %} typeof k === 'string' && {%textConstant%}.indexOf(k) < 0) return true;
-                    if (!{%getContextConstant%}) return false;
-                    const v = {%getContextConstant%}({
-                      getText: {%textConstant%},
-                      position: p{%textConstant%},
-                    });
-                    if ({%nId%}.data !== v && v) {%nId%}.data = v.length ? v : ' ';
-                    return ctx.component.activated;
-                  });
+                  {%nId%}.position = p{%textConstant%};
+                  ctx.texts.push({%nId%});
                 `
               : "";
             if (!isEvaluated) {
@@ -451,13 +444,12 @@ ${err.stack}`);
                 {
                   nId,
                   saveText,
-                  contextId: `${idComponent}-${node.id}`,
+                  contextId: `${idComponent}-${node.id}`.replace(/\-/gi, '_'),
                   getContextConstant: `g${nId}`,
                   textConstant: `t${nId}`,
                   dependencies:
                     node.parentNode && node.parentNode.dependencies.length
-                      ? `!${JSON.stringify(node.parentNode?.dependencies)
-                      }.includes(k) && `
+                      ? `{%nId%}.dependencies = (k) => !${JSON.stringify(node.parentNode?.dependencies)}.includes(k);`
                       : "",
                   evaluatedString: `\`${node.rawText.replace(/\n/gi, " ")
                     // preserve regular expressions

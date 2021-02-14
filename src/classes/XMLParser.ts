@@ -430,7 +430,6 @@ export default class XMLParser extends XMLJSXOutputBuilder {
               !n.closing &&
               !n.autoclosing
             );
-          console.warn(tag);
           if (tag && expression[tag.key || ""]) {
             // set the key of the closing tag
             // @ts-ignore
