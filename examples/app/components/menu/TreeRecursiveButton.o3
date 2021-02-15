@@ -31,6 +31,7 @@ import component ScrollComponent from '@/examples/app/components/Scroll.o3';
 <proto>
   declare:
     public openTree: boolean = false;
+    public inp: string = this.openTree ? 'open' : 'closed';
     public inherit item: {
       route: string;
       status?: string;
@@ -44,7 +45,7 @@ import component ScrollComponent from '@/examples/app/components/Scroll.o3';
     } = { name: 'no name', route: '', status: 'todo', children: []};
   case 'click:toggle':
     this.openTree = !this.openTree;
-    console.warn(this.openTree);
+    this.inp = this.openTree ? 'open' : 'closed';
     break;
 </proto>
 

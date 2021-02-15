@@ -524,12 +524,11 @@ export function destroy(Onode: HTMLOgoneElement) {
     OnodeDestroyPluggedWebcomponent(oc);
     oc.component.runtime("destroy");
     o.component.activated = false;
+    Onode.component.texts.splice(0);
+    Onode.component.react.splice(0);
   }
   // ogone: {% destroy.devTool %}
-  // Onode.placeholder.remove();
   Onode.remove();
-  Onode.component.texts.splice(0);
-  Onode.component.react.splice(0);
 }
 /**
  * adds Listeners on nodes
@@ -953,7 +952,7 @@ export function bindValue(Onode: HTMLOgoneElement) {
       n.value = evl;
     }
     if (
-      typeof k === "string" &&
+      typeof dependency === "string" &&
       k.indexOf(dependency as string) > -1 &&
       evl !== undefined && n.value !== evl
     ) {
@@ -962,6 +961,9 @@ export function bindValue(Onode: HTMLOgoneElement) {
     return n.isConnected;
   }
   for (let n of o.nodes) {
+    function bound() {
+
+    }
     (n as unknown as HTMLInputElement).addEventListener("keydown", (ev: Event) => {
       const k = o.flags.bind;
       const evl = o.getContext({
@@ -1327,7 +1329,7 @@ export function renderSlots(Onode: HTMLOgoneElement) {
  */
 export function renderNode(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
-  if (!oc) return;
+  if (!Onode) return;
   if (o.isTemplate) {
     // update Props before replace the element
     OnodeUpdateProps(Onode);
@@ -1362,11 +1364,10 @@ export function renderNode(Onode: HTMLOgoneElement) {
         },
       });
     }
-  } else if (oc) {
+  } else {
     if (Onode.childNodes.length) {
       renderSlots(Onode);
     }
-    OnodeRenderTexts(Onode, true);
     Onode.replaceWith(...(o.nodes as Node[]));
   }
 }
@@ -1739,9 +1740,9 @@ export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
     },
   );
 };
-export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
+export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true, opts: { parent?: HTMLOgoneElement } = {}) {
   if (!Onode || !Onode.component || !Onode.component.activated) {
-    Onode.component.texts.splice(0);
+    // Onode.component.texts.splice(0);
     return;
   }
   Onode.component.texts.forEach((t: HTMLOgoneText, i: number, arr: HTMLOgoneText[]) => {
@@ -1749,15 +1750,15 @@ export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | t
     // this can be the reason why
     // if (t && !t(dependency)) delete arr[i];
     const { code, position, dependencies, getContext } = t;
+    if (dependencies && !dependencies.includes(dependency as string)) return;
     if (Onode.component.activated) {
       if (!getContext) return delete arr[i];
-      if (dependencies && !dependencies.includes(dependency as string)) return;
       if (typeof dependency === 'string' && code.indexOf(dependency) < 0) return;
       const v = getContext({
         getText: code,
         position,
       });
-      if (t.data !== v && v) t.data = v.length ? v : ' ';
+      if (t.data !== v) t.data = (v.length ? v : ' ');
     } else {
       delete arr[i];
     }

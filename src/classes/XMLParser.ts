@@ -104,14 +104,25 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             const value = node.attributes['--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
             const { array, item, index } = flagDescript;
+            const filter = node.attributes['--if'] ? `(${node.attributes['--if']})
+            && ` : '';
             templateOuterTSX = `{
               ${array}
             .map((
               ${item},
               ${index}: number
             ) =>
+              ${filter}
               ${templateOuterTSX}
-            )}`;
+            )
+          }`;
+          } else if (node.attributes['--if']) {
+            templateOuterTSX = `{
+              ${node.attributes['--if']} ?
+              (<>
+                ${templateOuterTSX}
+              </>) : null
+            }`
           }
           let result = this.template(
             templateOuterTSX,

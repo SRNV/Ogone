@@ -189,7 +189,7 @@ ${err.stack}`);
             const declarationScript = [`const ${arrayAlias} = ${!component?.isRecursive ? ogoneRefsForArrays + ' ||': ''} ${arrayMatch ? preventError : `${array}`};`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`,
-                          !component?.isRecursive ? `${ogoneRefsForArrays} = ${arrayAlias};` : '',
+                          !component?.isRecursive ? `if (${ogoneRefsForArrays} !== ${arrayAlias}) ${ogoneRefsForArrays} = ${arrayAlias};` : '',
             aliasItem ? `const ${aliasItem} = (${arrayAlias})[${index}];` : '',
             ];
             if (contextLegacy && contextLegacy.declarationScript) {
