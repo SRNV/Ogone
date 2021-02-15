@@ -3,10 +3,10 @@ enum HTMLDocument {
     <html>
         <head>
             {% head %}
-            {% script %}
         </head>
         <body>
             {% dom %}
+            {% script %}
         </body>
     </html>
     `

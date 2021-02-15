@@ -61,14 +61,12 @@ import component ScrollComponent from '@/examples/app/components/Scroll.o3';
     height: 0;
     overflow: hidden;
     transition: flex 0.5s ease;
-    background: #00000034;
   }
   .child-open {
     flex: 1;
   }
   .title {
     padding-bottom: 10px;
-    border-bottom: 1px solid #555;
     padding: 5px;
     cursor: pointer;
     flex: 1;
