@@ -69,6 +69,11 @@ export default class ComponentsSubscriber extends Utils {
           const path = inputPath.replace(/^@\//, '');
           if (path === p) {
             if (opts.recursive) {
+              this.error(`${path}
+                Cannot import the same component inside the component.
+                please use the tag 'Self' like following:
+                  <Self />
+              `);
               continue;
             }
             await this.startRecursiveInspectionOfComponent(

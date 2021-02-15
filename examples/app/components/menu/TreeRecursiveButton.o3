@@ -1,5 +1,4 @@
 import component ScrollComponent from '@/examples/app/components/Scroll.o3';
-import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
 
 <template>
   <div class="container">
@@ -21,9 +20,9 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
       --if={this.item.children}
       --class={{ 'child-open': this.openTree }}>
       <ScrollComponent>
-        <TreeRecursive
+        <Self
           --for={child of this.item.children}
-          item={child}></TreeRecursive>
+          item={child} />
       </ScrollComponent>
     </div>
   </div>
@@ -44,7 +43,8 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
       })[];
     } = { name: 'no name', route: '', status: 'todo', children: []};
   case 'click:toggle':
-    this.openTree = !this.openTree
+    this.openTree = !this.openTree;
+    console.warn(this.openTree);
     break;
 </proto>
 

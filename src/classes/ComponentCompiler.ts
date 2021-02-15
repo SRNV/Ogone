@@ -28,9 +28,9 @@ ${err.stack}`);
   ): [string, any][] {
     try {
       const controllers = Object.entries(component.imports)
-        .filter(([, path]) => {
+        .filter(([key, path]) => {
           const comp = bundle.components.get(path);
-          return comp && comp.type === "controller";
+          return key !== 'Self' && comp && comp.type === "controller";
         });
       if (controllers.length && component.type !== "store") {
         this.error(

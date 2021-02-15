@@ -109,6 +109,7 @@ export default class StyleMemory extends StyleOutput {
   protected async getImports(styleBundle: StyleBundle, bundle: Bundle, component: Component) {
     const entries = Object.entries(component.imports);
     for await (const [tag, filePath] of entries) {
+      if (tag === 'Self') continue;
       // for recursive component
       if (filePath !== component.file) {
         const subcomp = bundle.components.get(filePath);

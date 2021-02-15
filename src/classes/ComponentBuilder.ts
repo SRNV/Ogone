@@ -42,6 +42,10 @@ export default class ComponentBuilder extends Utils {
       return {
         uuid,
         isTyped: false,
+        get isRecursive() {
+          return !!this.rootNode?.nodeList.find((node) => node.nodeType === 1
+            && node.tagName === "Self");
+        },
         dynamicImportsExpressions: "",
         esmExpressions: "",
         exportsExpressions: "",
@@ -50,7 +54,9 @@ export default class ComponentBuilder extends Utils {
         scripts: {
           runtime: "function run(){};",
         },
-        imports: {},
+        imports: {
+          Self: opts.file,
+        },
         deps: [],
         flags: [],
         for: {},
