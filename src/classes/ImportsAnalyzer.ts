@@ -109,6 +109,13 @@ export default class ImportsAnalyzer extends Utils {
                       component: ${component.file}
                     `,
                     );
+                  case tagName === "Self":
+                    this.error(
+                      `Self is a reserved tagname, don\'t use it as selector of your component.
+                      input: import component ${item.defaultName} from ${item.path}
+                      component: ${component.file}
+                    `,
+                    );
                   case !tagName.match(/^([A-Z])((\w+))+$/):
                     this.error(
                       `'${tagName}' is not a valid component name. Must be PascalCase. please use the following syntax:
