@@ -201,7 +201,6 @@ ${err.stack}`);
       }
       if (node.childNodes?.length) {
         for (let el of node.childNodes) {
-          const i = node.childNodes.indexOf(el);
           if (component && component.data && el.nodeType === 3) {
             const data = el.rawText;
             Object.keys(component.data).forEach((key) => {
