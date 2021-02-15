@@ -71,6 +71,12 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     const { expressions, node, value, margin } = opts;
     const { key } = node;
     const exp = expressions;
+    if (
+      node
+      && node.nodeType === 1
+      && !MapOutput.outputs.vars.includes(node.declarationVarName!)) {
+      MapOutput.outputs.vars.push(node.declarationVarName!);
+    }
     if (!translateAll(value, exp).trim().length || text.indexOf(key!) < 0) return;
     const file = translateAll(text, exp);
     const part1 = translateAll(text.slice(0, text.indexOf(key!, margin)), exp);
@@ -423,6 +429,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       const id = node.match(regexpID);
       if (id) {
         let [input, slash, tagName, attrs, closingSlash] = id;
+        const varName = 'var_n_' +tagName.replace(/(\w+)(\b)/, '$1_');
+        const declarationVarName = `const ${varName} = '${tagName}';`;
         attrs = this.parseTSXSpreadAndAddSpreadFlag(attrs, expression, iterator);
         const key = `<${this.getNodeUniquekey("node", iterator)}>`;
         if (!!slash) {
@@ -449,6 +457,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             expression[key] = {
               key,
               tagName,
+              varName,
+              declarationVarName,
               id: iterator.node,
               rawAttrs: attrs,
               attributes: {},
@@ -471,6 +481,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           expression[key] = {
             key,
             tagName,
+            varName,
+            declarationVarName,
             id: iterator.node,
             rawAttrs: attrs,
             attributes: {},

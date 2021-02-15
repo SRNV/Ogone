@@ -728,6 +728,8 @@ interface DOMParserIterator {
 }
 interface DOMParserExp {
   id: number | null | string;
+  varName?: string;
+  declarationVarName?: string;
   type?: string;
   key?: string;
   nodeType: number;

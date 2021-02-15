@@ -38,7 +38,7 @@ export default class ComponentBuilder extends Utils {
       const head = template && template.childNodes
         .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
       const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
-      const uuid = ComponentBuilder.mapUuid.get(opts.file) || `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`;
+      const uuid = ComponentBuilder.mapUuid.get(opts.file) || `o${crypto.getRandomValues(new Uint32Array(1)).join('')}`;
       return {
         uuid,
         isTyped: false,

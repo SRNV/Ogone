@@ -314,9 +314,9 @@ ${err.stack}`);
             ).map(([key, value]) => {
               return [key.replace(/^\:/, ""), value];
             });
-            let nodeCreation = `const ${nId} = _h('${node.tagName}');`;
+            let nodeCreation = `const ${nId} = _h(${node.varName!});`;
             identifier[0] = `${nId}`;
-            identifier[1] = `_h('${node.tagName}')`;
+            identifier[1] = `_h(${node.varName!})`;
             if (nodeIsDynamic && !isImported && !isRoot) {
               // create a custom element if the element as a flag or prop or event;
               identifier[1] = `_h("ogone-node")`;

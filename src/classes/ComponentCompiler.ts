@@ -149,7 +149,6 @@ ${err.stack}`);
           Object.freeze(Async);
           `;
         let result: string = `function (Onode) {
-            const data = {% data %};
             {% ControllersAPI %}
             {% StoreAPI %}
             const ___ = (prop, inst, value) => {
@@ -165,6 +164,8 @@ ${err.stack}`);
             {% AsyncAPI %}
             {% modules %}
             {% protocol %}
+            {% protocolDeclarationForTypedComponent %}
+            const data = {% data %};
             return {
               data,
               Refs,
@@ -198,16 +199,14 @@ ${err.stack}`);
             : "",
           StoreAPI: !!component.hasStore ? store : "let Store;",
           protocolDeclarationForTypedComponent: component.isTyped ? `
-          Ogone.protocols[{% componentVar %}] = ${component.context.protocolClass}
+          Ogone.protocols[{% componentVar %}] = Ogone.protocols[{% componentVar %}] || ${component.context.protocolClass}
           ` : '',
         };
         result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
-
         if (mapRender.has(result)) {
           const item = mapRender.get(result);
           result = this.template(
             `Ogone.components[{% componentVar %}] = Ogone.components['{% item.id %}'];
-             {% protocolDeclarationForTypedComponent %}
             `,
             {
               ...d,
@@ -221,7 +220,6 @@ ${err.stack}`);
           });
           MapOutput.outputs.data.push(this.template(
             `Ogone.components[{% componentVar %}] = ${result.trim()};
-            {% protocolDeclarationForTypedComponent %}
             `,
             d,
           ));
