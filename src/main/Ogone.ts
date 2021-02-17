@@ -18,6 +18,7 @@ declare const location: Location;
 declare const ROOT_UUID: string;
 declare const ROOT_IS_PRIVATE: boolean;
 declare const ROOT_IS_PROTECTED: boolean;
+declare const _ogone_node_: string;
 export class OgoneBaseClass extends HTMLElement {
   declare nodes: OgoneParameters['nodes'];
   declare uuid: OgoneParameters['uuid'];
@@ -100,7 +101,7 @@ export class OgoneBaseClass extends HTMLElement {
     return `${this.uuid}${this.extends}`;
   }
   get name() {
-    return 'ogone-node';
+    return _ogone_node_;
   }
   set name(v) {
 
@@ -173,7 +174,7 @@ export class OgoneBaseClass extends HTMLElement {
       Ogone.root = false;
       document.body.innerHTML = '';
       document.body.append(
-        document.createElement('ogone-node')
+        document.createElement(_ogone_node_)
       );
       return;
     }
@@ -186,7 +187,7 @@ export class OgoneBaseClass extends HTMLElement {
   }
 }
 // @ts-ignore it actually exists
-window.customElements.define('ogone-node', OgoneBaseClass);
+window.customElements.define(_ogone_node_, OgoneBaseClass);
 // Router implementation
 window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
@@ -794,7 +795,7 @@ export function setActualRouterTemplate(Onode: HTMLOgoneElement) {
   } else if (
     rendered && !(rendered.once || o.actualRoute === rendered.component)
   ) {
-    const co = document.createElement("ogone-node") as HTMLOgoneElement;
+    const co = document.createElement(_ogone_node_) as HTMLOgoneElement;
     o.actualTemplate = co;
     o.actualRoute = rendered.component;
     o.routeChanged = true;
@@ -1424,7 +1425,7 @@ export function renderAsyncRouter(Onode: HTMLOgoneElement) {
   const filter = (t: any) => t.isComponent && t.isRouter;
   const s = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
-    const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
+    const arrayOfTemplates = Array.from(n.querySelectorAll(_ogone_node_))
       .filter(filter) as typeof s;
     for (let template of arrayOfTemplates) {
       s.push(template);
@@ -1443,7 +1444,7 @@ export function renderAsyncStores(Onode: HTMLOgoneElement) {
   const filter = (t: any) => t.isComponent && t.component && t.isStore;
   const asyncStores = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
-    const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
+    const arrayOfTemplates = Array.from(n.querySelectorAll(_ogone_node_))
       .filter(filter) as typeof asyncStores;
     for (let template of arrayOfTemplates) {
       asyncStores.push(template);
@@ -1463,7 +1464,7 @@ export function renderAsyncComponent(Onode: HTMLOgoneElement) {
   if (!oc || !o || !o.nodes) return;
   const filter = (t: any) => t.isComponent && t.isAsync && t.flags && t.flags.await;
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
-    const awaitingNodes = Array.from(node.querySelectorAll("ogone-node"))
+    const awaitingNodes = Array.from(node.querySelectorAll(_ogone_node_))
       .filter(filter) as HTMLOgoneElement[];
     if (
       node.isComponent && node && node.component && node.component.type === "async"
@@ -1509,7 +1510,7 @@ export function renderComponent(Onode: HTMLOgoneElement) {
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "component";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
-    const components = Array.from(node.querySelectorAll("ogone-node"))
+    const components = Array.from(node.querySelectorAll(_ogone_node_))
       .filter(filter) as HTMLOgoneElement[];
     let n = (node as HTMLOgoneElement);
     if (

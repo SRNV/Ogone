@@ -1,4 +1,5 @@
 import type OgoneStyle from "./classes/css/Style.ts";
+import Dependency from "./classes/Dependency.ts";
 import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment, Text } from './ogone.dom.d.ts';
 
 // @ts-ignore
@@ -95,6 +96,7 @@ export interface OgoneInterface {
   types: { [k: string]: OgoneParameters["type"] };
   arrays: { [k: string]: any[] };
   root: boolean;
+  require: { [k: string]: any };
   stores: OgoneStores;
   clients: OgoneStoreClient[];
   render: OgoneRenderRegistry;
@@ -486,7 +488,7 @@ export interface Component {
   data: { [key: string]: any };
   rootNode: XMLNodeDescription;
   imports: MapIndexable;
-  deps: ImportDescription[];
+  deps: Dependency[];
   /**
    * first is the property
    * second is the types, unknown if undefined

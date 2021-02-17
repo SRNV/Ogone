@@ -175,7 +175,7 @@ ${err.stack}`);
                 })
                 : "",
             },
-            modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
+            modules: component.deps.map((dep) => dep.destructuredOgoneRequire).join('\n'),
           });
           // save context into bundle
           // will use it for type checking into props in compiler-time

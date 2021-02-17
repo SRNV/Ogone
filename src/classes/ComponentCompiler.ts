@@ -149,6 +149,7 @@ ${err.stack}`);
           Object.freeze(Async);
           `;
         let result: string = `function (Onode) {
+            {% modules %}
             {% ControllersAPI %}
             {% StoreAPI %}
             const ___ = (prop, inst, value) => {
@@ -162,7 +163,6 @@ ${err.stack}`);
               {% refs %}
             };
             {% AsyncAPI %}
-            {% modules %}
             {% protocol %}
             {% protocolDeclarationForTypedComponent %}
             const data = {% data %};
@@ -177,7 +177,9 @@ ${err.stack}`);
         const d = {
           component,
           componentVar,
-          modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
+          modules: component.deps
+            .map((dep) => dep.destructuredOgoneRequire)
+            .join('\n'),
           AsyncAPI: component.type === "async" ? AsyncAPI : "let Async;",
           protocol: component.protocol ? component.protocol : "",
           dataSource: component.isTyped

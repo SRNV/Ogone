@@ -429,7 +429,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
       const id = node.match(regexpID);
       if (id) {
         let [input, slash, tagName, attrs, closingSlash] = id;
-        const varName = 'var_n_' +tagName.replace(/(\w+)(\b)/, '$1_');
+        const varName = '___' +tagName.replace(/(\w+)(\b)/, '$1_');
         const declarationVarName = `const ${varName} = '${tagName}';`;
         attrs = this.parseTSXSpreadAndAddSpreadFlag(attrs, expression, iterator);
         const key = `<${this.getNodeUniquekey("node", iterator)}>`;

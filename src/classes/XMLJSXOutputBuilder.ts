@@ -319,9 +319,9 @@ ${err.stack}`);
             identifier[1] = `_h(${node.varName!})`;
             if (nodeIsDynamic && !isImported && !isRoot) {
               // create a custom element if the element as a flag or prop or event;
-              identifier[1] = `_h("ogone-node")`;
+              identifier[1] = `_h(_ogone_node_)`;
             } else if (isImported) {
-              identifier[1] = `_h("ogone-node")`;
+              identifier[1] = `_h(_ogone_node_)`;
             }
             nodeCreation = `const ${nId} = ${identifier[1]};`;
             const flags = this.parseFlags(

@@ -51,7 +51,6 @@ export default class HMR {
         components.forEach((component) => {
           component.rerender();
         });
-        console.warn(Object.keys(this.components).length)
       }
     };
   }

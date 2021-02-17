@@ -19,6 +19,7 @@ import { WebSocketServer, WS } from "../../deps/ws.ts";
 import HMR from "./HMR.ts";
 import Ogone from "../main/OgoneBase.ts";
 import ComponentBuilder from './ComponentBuilder.ts';
+import Dependency from "./Dependency.ts";
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
@@ -181,7 +182,8 @@ ${err.stack}`);
   }
   public async renderBundle(entrypoint: string, bundle: Bundle): Promise<string> {
     try {
-      const stylesDev = Array.from(bundle.components.entries())
+      const entries = Array.from(bundle.components.entries());
+      const stylesDev = entries
         .map((
           entry: any,
         ) => {
@@ -191,11 +193,15 @@ ${err.stack}`);
           }
           return result;
         }).join("\n");
-      const esm = Array.from(bundle.components.entries()).map((
+      const esm = entries.map((
         entry: any,
       ) => entry[1].dynamicImportsExpressions).join("\n");
       const style = stylesDev;
       const rootComponent = bundle.components.get(entrypoint);
+      const dependencies = entries.map(([, component]) => component)
+        .map((component) => {
+          return component.deps.map((dep: Dependency) => dep.structuredOgoneRequire).join('\n');
+        }).join('\n');
       // TODO fix runtime
       // TODO use Deno.emit to bundle Ogone's runtime
       //    and components
@@ -214,7 +220,10 @@ ${err.stack}`);
         const ROOT_UUID = "${rootComponent.uuid}";
         const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
         const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
+        const _ogone_node_ = "o-node";
+
         ${MapOutput.runtime}
+        {% dependencies %}
           {% promise %}
         `,
           {
@@ -228,12 +237,13 @@ ${err.stack}`);
           `
               : "{%start%}",
             start: `document.body.append(
-            document.createElement('ogone-node')
+            document.createElement(_ogone_node_)
           );`,
             render: {},
             root: bundle.components.get(entrypoint),
             destroy: {},
             nodes: {},
+            dependencies,
           },
         );
         // in production DOM has to be

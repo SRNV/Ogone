@@ -1,6 +1,6 @@
 import { Utils } from "./Utils.ts";
 
-interface Position {
+export interface Position {
   start: number;
   end: number;
 }

@@ -147,7 +147,9 @@ ${err.stack}`);
             return this.template(ProtocolEnum.BUILD, {
               runtime,
               namespaces,
-              modules: component.esmExpressions,
+              modules: component.deps
+                .map((dep) => dep.importStatementAbsolutePath)
+                .join('\n'),
               protocol: item.value.length ? item.value : `class Protocol {
               ${component.data ? Object.entries(component.data).map(([key, value]) => `\n${key} = (${JSON.stringify(value)});\n`) : ''}
             }`,
@@ -186,6 +188,9 @@ ${err.stack}`);
       let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL,
         {
           body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
+          modules: component.deps
+            .map((dep) => dep.destructuredOgoneRequire)
+            .join('\n'),
           switchBody: `\n${casesValue}\ndefault:\n${component.modifiers.default}`,
           file: component.file,
           caseGate: component.modifiers.cases.length || component.modifiers.default.length
@@ -215,6 +220,9 @@ ${err.stack}`);
         .join('\n');
       let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_FUNCTION,
         {
+          modules: component.deps
+            .map((dep) => dep.destructuredOgoneRequire)
+            .join('\n'),
           body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
           switchBody: `\n${casesValue}\ndefault:\n${component.modifiers.default}`,
           file: component.file,

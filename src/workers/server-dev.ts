@@ -1,7 +1,7 @@
 import { getHeaderContentTypeOf } from "../../utils/extensions-resolution.ts";
 import { existsSync } from "../../utils/exists.ts";
 // import HMR from "../lib/hmr/index.ts";
-import { serve } from "../../deps/deps.ts";
+import { serve, join } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
@@ -57,11 +57,7 @@ async function resolveAndReadText(path: string) {
   const text = Deno.readTextFileSync(path);
   return isTsFile
     ? // @ts-ignore
-    (await Deno.transpileOnly({
-      [path]: text,
-    }, {
-      sourceMap: false,
-    }))[path].source
+    await TSTranspiler.transpile(text)
     : text;
 }
 
@@ -95,7 +91,23 @@ function isFreePort(port: number): boolean {
     throw err;
   }
 }
-
+async function cache(file: string): Promise<string> {
+  const cachePath = '.ogone/.cache/';
+  const fileContent = Deno.readTextFileSync(file);
+  const uuid = file.replace(/[\-\/\.]/gi, '_');
+  const fileCachePath = `${cachePath}${uuid}`;
+  if (!existsSync(cachePath)) {
+    Deno.mkdirSync(cachePath);
+  }
+  let currentText = existsSync(fileCachePath)
+      ? Deno.readTextFileSync(fileCachePath)
+      : '';
+  if (currentText !== fileContent) {
+    currentText = await TSTranspiler.transpile(fileContent);
+    Deno.writeTextFileSync(fileCachePath, currentText);
+  }
+  return currentText;
+}
 self.onmessage = async (e: any): Promise<void> => {
   Utils.trace(`Worker: Dev Server received a message`);
   const { application, Configuration, type } = e.data;
@@ -159,7 +171,20 @@ self.onmessage = async (e: any): Promise<void> => {
       continue;
     }
     let isUrlFile: boolean = existsSync(pathToPublic);
+    const realUrl = req.url.split('?')[0];
     switch (true) {
+      case existsSync(realUrl) && (realUrl.endsWith('.ts') || realUrl.endsWith('.js')):
+        const file = await cache(
+          realUrl
+        );
+        req.respond({
+          body: file,
+          headers: new Headers([
+            getHeaderContentTypeOf(realUrl!),
+            ["X-Content-Type-Options", "nosniff"],
+          ]),
+        });
+        break;
       case component && port === parseFloat(keyPort as string):
         req.respond({ body: registry.webview_application });
         break;

@@ -8,6 +8,7 @@ export const Ogone: OgoneInterface = {
   // usable on browser side
   types: {},
   root: false,
+  require: {},
   stores: {},
   clients: [],
   arrays: {},

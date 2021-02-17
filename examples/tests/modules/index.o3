@@ -1,15 +1,16 @@
-import component random from '/examples/modules/module.js';
-import * as test, defaulto from '/examples/modules/allAS.js';
-import { lol, instance } from '/examples/modules/allAS.js';
+import what, { Test, SecondTest, isFunction } from './test.js';
+import {
+  someThing
+} from './test.js';
 
 <template>
   <p>user ${this.name}</p>
 </template>
 
-<proto>
+<proto type="app">
   def:
     name: null
   default:
-    this.name = random;
-    console.warn(test, defaulto, instance, lol);
+    this.name = what;
+    console.warn(what, { Test, SecondTest, isFunction });
 </proto>

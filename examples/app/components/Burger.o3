@@ -1,4 +1,5 @@
 import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
+import print from '../lib/print.ts';
 
 <template>
   <StoreMenu namespace="menu" />
@@ -16,6 +17,7 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
     // TODO use StoreMenu.dispatch('toggle')
     // TODO use StoreMenu.dispatch('checkController')
     // TODO use StoreMenu.toggle() and basically having acces to the static methods
+    print(10, 'this is a test for modules');
     Store.dispatch('menu/toggle')
     Store.dispatch('menu/checkController')
       .then((res: any) => {
