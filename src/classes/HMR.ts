@@ -36,7 +36,6 @@ export default class HMR {
   static clientSettings(): void {
     this.client = new WebSocket(this.connect);
     this.client.onmessage = (evt: any) => {
-      console.warn('[Ogone] server asking for updates.');
       const payload = JSON.parse(evt.data);
       const { uuid, output, error, errorFile, type, pathToModule, uuidReq } = payload;
       if (type === 'style') {
