@@ -50,12 +50,15 @@ const esm: ProtocolScriptRegExpList = [
         const type = path.startsWith('.') ? 'relative' :
           path.startsWith('@') ? 'absolute':
           'remote';
+        const isRemote = path.startsWith('http://')
+          || path.startsWith('https://');
         typedExpressions.imports[id] = {
           key: id,
           uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
           value,
           path,
           type,
+          isRemote,
           ambient: true,
           allAs: false,
           object: false,
@@ -98,8 +101,10 @@ const esm: ProtocolScriptRegExpList = [
       if (typedExpressions) {
         const importDescription = getMembers(
           getDeepTranslation(tokens, expressions)
-        );
-        const path = getDeepTranslation(str, expressions).replace(/['"\s`]/gi, "");
+          );
+          const path = getDeepTranslation(str, expressions).replace(/['"\s`]/gi, "");
+        const isRemote = path.startsWith('http://')
+          || path.startsWith('https://');
         const type = path.startsWith('.') ? 'relative' :
           path.startsWith('@') ? 'absolute':
           'remote';
@@ -108,6 +113,7 @@ const esm: ProtocolScriptRegExpList = [
           type,
           isComponent,
           isType,
+          isRemote,
           uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
           ambient: false,
           allAs: importDescription.hasAllAs,

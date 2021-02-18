@@ -41,6 +41,9 @@ export default class Dependency extends Utils {
                 this.watch();
             });
         }
+    get isRemote(): boolean {
+        return !!this.data.isRemote;
+    }
     /**
      * absolute path to the component
      * or to the parent dependency
@@ -59,6 +62,9 @@ export default class Dependency extends Utils {
      * the URL to the dependency
      */
     get absolutePathURL(): URL {
+        if (this.isRemote) {
+            return new URL(this.data.path);
+        }
         const url = new URL(this.data.path, this.origin);
         if (!existsSync(url.pathname)) {
             const position = this.position;
@@ -92,17 +98,19 @@ export default class Dependency extends Utils {
      * exposes the import statement with the absolute path to the module
      */
     get importStatementAbsolutePath(): string {
+        if (this.isRemote) return this.data.value;
         return this.input.replace(this.data.path, `${this.absolutePathURL.pathname}?uuid=${this.component.uuid}`);
     }
     /**
      * exposes the import statement with the absolute path to the module
      */
     get structuredOgoneRequire(): string {
-        const { defaultName, allAsName, members, path, isType } = this.data;
+        const { defaultName, allAsName, members, path, isType, isRemote } = this.data;
         if (isType) return '';
         const graph = this.graphAbsolutePaths;
         function getStructure(pathToModule: string, memberName: string, opts: { isDefault: boolean, isAllAs: boolean, isMember: boolean }): string {
             const { isDefault, isMember, isAllAs } = opts;
+            if (isRemote) `Ogone.require[${pathToModule}].${memberName} = ${memberName}`;
             return `
             Ogone.require[${pathToModule}].${memberName} = ${memberName}
             HMR.subscribe(${pathToModule}, (mod) => {
@@ -119,8 +127,7 @@ ${this.importStatementAbsolutePath}
 /**
  * save imports for ${this.component.file}
 */
-Ogone.require['{% absolute %}'] = Ogone.require['{% absolute %}'] || {};
-        `;
+Ogone.require['{% absolute %}'] = Ogone.require['{% absolute %}'] || {};`;
         members.forEach(member => {
             importStatement += `
 /** member */
@@ -219,6 +226,7 @@ ${getStructure("'{% absolute %}'", allAsName, {
         }
     }
     async watch() {
+        if (this.isRemote) return;
         /**
          * start watching the dependency and trigger HMR.postMessage whenever there's a change
          */

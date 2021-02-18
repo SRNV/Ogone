@@ -9,6 +9,7 @@ import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "./Utils.ts";
 import keyframes from "../../utils/keyframes.ts";
 import Style from './css/Style.ts';
+import HMR from "./HMR.ts";
 // TODO fix code duplication
 /**
  * @name StylesheetBuilder
@@ -107,6 +108,11 @@ export default class StylesheetBuilder extends Utils {
             component.mapStyleBundle = this.Style.mapStyleBundle;
             const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
             component.style.push(css);
+            HMR.postMessage({
+              type: 'style',
+              uuid: component.uuid,
+              output: css,
+            });
           }
         }
       }

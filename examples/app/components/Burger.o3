@@ -6,7 +6,7 @@ import type { isOpenType } from '../lib/type.ts';
 <template>
   <StoreMenu namespace="menu" />
   <div class="container" --click:openMenu>
-    <div class="line" attr={attr('test') + '' + this.isOpen}></div>
+    <div class="line" attr={attr(20) + '' + this.isOpen}></div>
     <div class="line"></div>
     <div class="line"></div>
   </div>

@@ -39,6 +39,18 @@ export default class HMR {
       console.warn('[Ogone] server asking for updates.');
       const payload = JSON.parse(evt.data);
       const { uuid, output, error, errorFile, type, pathToModule, uuidReq } = payload;
+      if (type === 'style') {
+        let style = document.querySelector(`style#${uuid}`);
+        if (style) {
+          if (output !== style.innerHTML) style.innerHTML = output;
+        } else {
+          style = document.createElement('style');
+          style.id = uuid;
+          style.innerHTML = output;
+          document.head.append(style);
+        }
+        return;
+      }
       if (type === 'module') {
         this.getModule(pathToModule, uuidReq, uuid);
       }

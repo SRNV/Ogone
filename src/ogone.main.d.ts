@@ -434,6 +434,7 @@ export interface ImportDescription {
   default: boolean;
   isComponent?: boolean;
   isType?: boolean;
+  isRemote?: boolean;
   defaultName: string | null;
   ambient: boolean;
   allAs: boolean;
