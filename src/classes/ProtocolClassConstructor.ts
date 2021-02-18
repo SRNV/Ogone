@@ -188,9 +188,6 @@ ${err.stack}`);
       let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL,
         {
           body: Context.TEMPLATE_COMPONENT_RUNTIME_BODY,
-          modules: component.deps
-            .map((dep) => dep.destructuredOgoneRequire)
-            .join('\n'),
           switchBody: `\n${casesValue}\ndefault:\n${component.modifiers.default}`,
           file: component.file,
           caseGate: component.modifiers.cases.length || component.modifiers.default.length

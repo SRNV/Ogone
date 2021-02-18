@@ -20,6 +20,7 @@ export default class TSXContextCreator extends Utils {
       includeDirs: false,
     });
     for (let file of files) {
+      if (file.path.includes('.cache')) continue;
       Deno.removeSync(file.path);
     }
   }
