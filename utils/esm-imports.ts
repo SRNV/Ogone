@@ -85,14 +85,16 @@ const esm: ProtocolScriptRegExpList = [
   {
     name: "all imports",
     open: false,
-    reg: /(\bimport\b)(\s+component\s+){0,1}(.+?)(\bfrom\b)(.*?)(?=(§{2}endExpression\d+§{2}|;|\n+))/i,
+    reg: /(\bimport\b)(\s+(?:component|type)\s+){0,1}(.+?)(\bfrom\b)(.*?)(?=(§{2}endExpression\d+§{2}|;|\n+))/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
       const id = `§§import${gen.next().value}§§`;
-      const [input, imp, isComponent, tokens, f, str] = matches;
+      const [input, imp, importType, tokens, f, str] = matches;
       expressions[id] = value;
+      const isComponent = importType && importType.trim() === 'component' || false;
+      const isType = importType && importType.trim() === 'type' || false;
       if (typedExpressions) {
         const importDescription = getMembers(
           getDeepTranslation(tokens, expressions)
@@ -104,8 +106,9 @@ const esm: ProtocolScriptRegExpList = [
         typedExpressions.imports[id] = {
           key: id,
           type,
+          isComponent,
+          isType,
           uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
-          isComponent: !!isComponent,
           ambient: false,
           allAs: importDescription.hasAllAs,
           object: importDescription.hasMembers,

@@ -1,10 +1,12 @@
 import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
 import print from '../lib/print.ts';
+import attr from '../lib/attr.ts';
+import type { isOpenType } from '../lib/type.ts';
 
 <template>
   <StoreMenu namespace="menu" />
   <div class="container" --click:openMenu>
-    <div class="line"></div>
+    <div class="line" attr={attr('test') + '' + this.isOpen}></div>
     <div class="line"></div>
     <div class="line"></div>
   </div>
@@ -12,13 +14,12 @@ import print from '../lib/print.ts';
 
 <proto>
   declare:
-    public isOpen: boolean = false;
+    public isOpen: isOpenType = false;
   case 'click:openMenu':
     // TODO use StoreMenu.dispatch('toggle')
     // TODO use StoreMenu.dispatch('checkController')
     // TODO use StoreMenu.toggle() and basically having acces to the static methods
     print(10, 'this is a test for modules');
-    print + 10;
     Store.dispatch('menu/toggle')
     Store.dispatch('menu/checkController')
       .then((res: any) => {

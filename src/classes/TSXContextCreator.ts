@@ -76,6 +76,7 @@ ${err.stack}`);
      * Context of ${component.file}
      * */
       import ${componentName} from './${component.uuid}.tsx';
+      // @ts-ignore
       ${componentName}['set'] = 0;
       `;
   }
@@ -95,8 +96,8 @@ ${err.stack}`);
           noFallthroughCasesInSwitch: false,
           allowJs: false,
           removeComments: false,
-          experimentalDecorators: true,
-          noImplicitAny: false,
+          experimentalDecorators: false,
+          noImplicitAny: true,
           allowUnreachableCode: false,
           jsx: "react",
           jsxFactory: "h",
@@ -105,7 +106,7 @@ ${err.stack}`);
           lib: ["dom", "esnext", "es2019"],
           inlineSourceMap: false,
           inlineSources: false,
-          alwaysStrict: false,
+          alwaysStrict: true,
           sourceMap: false,
           strictFunctionTypes: true,
         }

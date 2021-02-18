@@ -30,6 +30,7 @@ export default class ComponentBuilder extends Utils {
    */
   protected XMLParser = new XMLParser();
   getComponent(
+    source: string,
     opts: Pick<Component, "rootNode" | "file" | "remote">,
   ): Component {
     try {
@@ -41,6 +42,7 @@ export default class ComponentBuilder extends Utils {
       const uuid = ComponentBuilder.mapUuid.get(opts.file) || `o${crypto.getRandomValues(new Uint32Array(1)).join('')}`;
       return {
         uuid,
+        source,
         isTyped: false,
         get isRecursive() {
           return !!this.rootNode?.nodeList.find((node) => node.nodeType === 1
@@ -116,7 +118,7 @@ ${err.stack}`);
         const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
         const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
         if (rootNode) {
-          const component = this.getComponent({
+          const component = this.getComponent(file, {
             rootNode,
             file: index,
             remote: null,
@@ -140,7 +142,7 @@ ${err.stack}`);
         const index = path;
         const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
         if (rootNode) {
-          const component = this.getComponent({
+          const component = this.getComponent(file, {
             remote,
             rootNode,
             file: index,

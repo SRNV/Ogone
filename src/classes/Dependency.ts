@@ -1,10 +1,12 @@
-import { existsSync } from "../../deps/deps.ts";
+import { colors, existsSync } from "../../deps/deps.ts";
 import type { Component, ImportDescription } from "../ogone.main.d.ts";
 import AssetsParser from "./AssetsParser.ts";
 import Env from "./Env.ts";
+import HMR from "./HMR.ts";
 import { MapPosition, Position } from "./MapPosition.ts";
 import TSTranspiler from "./TSTranspiler.ts";
 import { Utils } from "./Utils.ts";
+import transformPathFileToUUID from '../../utils/transformPathFileToUUID.ts';
 
 /**
  * a class to expose all the dependencies of a component
@@ -31,8 +33,13 @@ export default class Dependency extends Utils {
                 return;
             }
             Dependency.depsRegistry.push(this.absolutePathURL.pathname);
-            this.infos(`Dep: ${this.absolutePathURL.pathname}`);
+            this.trace(`Dep: ${this.absolutePathURL.pathname}`);
             this.getTranspiledFile();
+            (async () => {
+                this.getChildren();
+            })().then(() => {
+                this.watch();
+            });
         }
     /**
      * absolute path to the component
@@ -52,7 +59,21 @@ export default class Dependency extends Utils {
      * the URL to the dependency
      */
     get absolutePathURL(): URL {
-        return new URL(this.data.path, this.origin);
+        const url = new URL(this.data.path, this.origin);
+        if (!existsSync(url.pathname)) {
+            const position = this.position;
+            if (position) {
+                const { blue } = colors
+                const line = MapPosition.getLine(this.component.source, position);
+                const column = MapPosition.getColumn(this.component.source, position);
+                this.error(`${this.component.file}:${line}:${column}
+                Cannot resolve module: ${blue(url.pathname)}
+                    from ${blue(this.component.file)}
+                    input: ${blue(this.data.path)}
+                `)
+            }
+        }
+        return url;
     }
     /**
      * the type of the import
@@ -77,7 +98,19 @@ export default class Dependency extends Utils {
      * exposes the import statement with the absolute path to the module
      */
     get structuredOgoneRequire(): string {
-        const { defaultName, allAsName, members, path } = this.data;
+        const { defaultName, allAsName, members, path, isType } = this.data;
+        if (isType) return '';
+        const graph = this.graphAbsolutePaths;
+        function getStructure(pathToModule: string, memberName: string, opts: { isDefault: boolean, isAllAs: boolean, isMember: boolean }): string {
+            const { isDefault, isMember, isAllAs } = opts;
+            return `
+            Ogone.require[${pathToModule}].${memberName} = ${memberName}
+            HMR.subscribe(${pathToModule}, (mod) => {
+                Ogone.require[${pathToModule}].${memberName} = mod${isDefault ? '.default' : isAllAs ? '' : memberName}
+            });
+            HMR.setGraph(${pathToModule}, ${JSON.stringify(graph)});
+            `
+        }
         let importStatement = `
 /**
  * struct import for ${this.component.file}
@@ -89,17 +122,14 @@ ${this.importStatementAbsolutePath}
 Ogone.require['{% absolute %}'] = Ogone.require['{% absolute %}'] || {};
         `;
         members.forEach(member => {
-            if (member.alias) {
-                importStatement += `
-/** aliased member */
-Ogone.require['{% absolute %}'].${member.alias} = ${member.alias}
-                `;
-            } else {
-                importStatement += `
+            importStatement += `
 /** member */
-Ogone.require['{% absolute %}'].${member.name} = ${member.name}
-                `;
-            }
+${getStructure("'{% absolute %}'", member.alias || member.name, {
+    isDefault: false,
+    isAllAs: false,
+    isMember: true,
+})}
+            `;
         });
         /**
          * save if the user uses
@@ -108,7 +138,11 @@ Ogone.require['{% absolute %}'].${member.name} = ${member.name}
         if (defaultName) {
             importStatement += `
 /** default */
-Ogone.require['{% absolute %}'].${defaultName} = ${defaultName}
+${getStructure("'{% absolute %}'", defaultName, {
+    isDefault: true,
+    isAllAs: false,
+    isMember: false,
+})}
 `;
         }
         /**
@@ -118,7 +152,11 @@ Ogone.require['{% absolute %}'].${defaultName} = ${defaultName}
         if (allAsName) {
             importStatement += `
 /** default */
-Ogone.require['{% absolute %}'].${allAsName} = ${allAsName}
+${getStructure("'{% absolute %}'", allAsName, {
+    isDefault: false,
+    isAllAs: true,
+    isMember: false,
+})}
 `;
         }
         return this.template(importStatement, {
@@ -132,7 +170,8 @@ Ogone.require['{% absolute %}'].${allAsName} = ${allAsName}
      */
     get destructuredOgoneRequire(): string {
         if (Env._env === 'production') return '';
-        const { defaultName, allAsName, members, path } = this.data;
+        const { defaultName, allAsName, members, path, isType } = this.data;
+        if (isType) return '';
         let destructured = `
         ${defaultName ? defaultName + ',' : ''}
         ${allAsName ? allAsName + ',' : ''}
@@ -177,6 +216,49 @@ Ogone.require['{% absolute %}'].${allAsName} = ${allAsName}
     async getTranspiledFile() {
         if (this.data.path.endsWith('.ts')) {
             this.file = await TSTranspiler.transpile(this.file);
+        }
+    }
+    async watch() {
+        /**
+         * start watching the dependency and trigger HMR.postMessage whenever there's a change
+         */
+        const watcher = Deno.watchFs(this.absolutePathURL.pathname);
+        for await (const event of watcher) {
+          const { kind } = event;
+          this.invalidate();
+          if (kind === "access") {
+            HMR.postMessage({
+                uuid: this.component.uuid,
+                type: 'module',
+                pathToModule: this.absolutePathURL.pathname,
+                uuidReq: `i${crypto.getRandomValues(new Uint32Array(10)).join('')}`,
+            });
+          }
+        }
+    }
+    get graphAbsolutePaths(): string[] {
+        if (this.children.length) {
+            return [
+                ...this.children.map((dep) => dep.absolutePathURL.pathname),
+                ...this.children.map((dep) => dep.graphAbsolutePaths).flat(),
+            ]
+        } else {
+            return [];
+        }
+    }
+    get firstAncestor(): Dependency {
+        if (this.parent) return this.parent.firstAncestor;
+        else return this;
+    }
+    invalidate() {
+        const dependency_path = this.absolutePathURL.pathname;
+        const cachePaths = [
+            `.ogone/.cache/${transformPathFileToUUID(dependency_path)}`,
+        ];
+        for (let p of cachePaths) {
+            if (existsSync(p)) {
+                Deno.removeSync(p);
+            }
         }
     }
 }

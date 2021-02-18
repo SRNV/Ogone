@@ -433,6 +433,7 @@ export interface ImportDescription {
   uuid: string;
   default: boolean;
   isComponent?: boolean;
+  isType?: boolean;
   defaultName: string | null;
   ambient: boolean;
   allAs: boolean;
@@ -467,6 +468,7 @@ export interface Bundle {
 }
 
 export interface Component {
+  source: string;
   remote: Remote | null;
   isTyped: boolean;
   isRecursive: boolean;

@@ -1,4 +1,5 @@
 import component ScrollComponent from '@/examples/app/components/Scroll.o3';
+import type { TreeRecursive } from '../../lib/tree-recursive-types.ts';
 
 <template>
   <div class="container">
@@ -32,17 +33,7 @@ import component ScrollComponent from '@/examples/app/components/Scroll.o3';
   declare:
     public openTree: boolean = false;
     public inp: string = this.openTree ? 'open' : 'closed';
-    public inherit item: {
-      route: string;
-      status?: string;
-      name?: string;
-      children: ({
-        status?: string;
-        name: string;
-        route: string;
-        children: any[]
-      })[];
-    } = { name: 'no name', route: '', status: 'todo', children: []};
+    public inherit item: TreeRecursive = { name: 'no name', route: '', status: 'todo', children: []};
   case 'click:toggle':
     this.openTree = !this.openTree;
     this.inp = this.openTree ? 'open' : 'closed';

@@ -5,6 +5,7 @@ import { serve, join } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
+import transformPathFileToUUID from '../../utils/transformPathFileToUUID.ts';
 
 const registry = {
   application: '',
@@ -94,7 +95,7 @@ function isFreePort(port: number): boolean {
 async function cache(file: string): Promise<string> {
   const cachePath = '.ogone/.cache/';
   const fileContent = Deno.readTextFileSync(file);
-  const uuid = file.replace(/[\-\/\.]/gi, '_');
+  const uuid = transformPathFileToUUID(file);
   const fileCachePath = `${cachePath}${uuid}`;
   if (!existsSync(cachePath)) {
     Deno.mkdirSync(cachePath);
@@ -181,7 +182,6 @@ self.onmessage = async (e: any): Promise<void> => {
           body: file,
           headers: new Headers([
             getHeaderContentTypeOf(realUrl!),
-            ["X-Content-Type-Options", "nosniff"],
           ]),
         });
         break;

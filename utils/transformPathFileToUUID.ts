@@ -1,0 +1,1 @@
+export default (p: string) => p.replace(/[\-\/\.]/gi, '_');
