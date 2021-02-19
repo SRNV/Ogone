@@ -41,6 +41,8 @@ export default class TSTranspiler extends Utils {
         _h,
         _ap,
         _at,
+        _hns,
+        _atns,
         imp,
         construct,
         setOgone,

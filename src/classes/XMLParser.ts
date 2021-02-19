@@ -15,9 +15,8 @@ import read from '../../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../../utils/typedExpressions.ts';
 import { MapPosition } from './MapPosition.ts';
 import MapOutput from "./MapOutput.ts";
-// TODO use instances
-// like new Element()
-// like new Attributes()
+import generator from '../../utils/generator.ts';
+
 const openComment = "<!--";
 const closeComment = "-->";
 function savePosition(node: any, opts: {
@@ -53,17 +52,17 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   public originalHTML: string = '';
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   private getUniquekey(id = "", iterator: DOMParserIterator): string {
-    iterator.value++;
+    iterator.value = generator.next().value;
     // critical all regexp are based on this line
     return `§§${iterator.value}${id}§§`;
   }
   private getNodeUniquekey(id = "", iterator: DOMParserIterator): string {
-    iterator.node++;
+    iterator.node = generator.next().value;
     // critical all regexp are based on this line
     return `§§${iterator.node}${id}§§`;
   }
   private getTextUniquekey(id = "", iterator: DOMParserIterator): string {
-    iterator.text++;
+    iterator.text = generator.next().value;
     // critical all regexp are based on this line
     return `§§${iterator.text}${id}§§`;
   }
@@ -847,22 +846,41 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     this.textMarginEnd = end.length;
     // preserve comments
     str = this.preserveComments(str, expressions, iterator);
+    this.trace('preserve comments');
+
     // preserve blocks for TSX
     str = this.preserveBlocks(str, globalExpressions, typedExpressions);
+    this.trace('preserve blocks for TSX');
+
     // preserve strings of attrs and strings
     str = this.preserveBlocksAttrs(str, globalExpressions, expressions, iterator);
+    this.trace('preserve strings of attrs and strings');
+
     // remove all blocks transformation
     str = getDeepTranslation(str, globalExpressions);
+    this.trace('remove all blocks transformation deep Translation');
+
     str = this.preserveStringsAttrs(str, expressions, iterator);
+    this.trace('remove all blocks transformation preserve Strings Attrs');
+
     str = this.preserveStrings(str, expressions, iterator);
+    this.trace('remove all blocks transformation preserve Strings');
+
     // preserve templates ${}
     str = this.preserveTemplates(str, expressions, iterator);
+    this.trace('preserve templates ${}');
+
     // preserve nodes
     str = this.preserveNodes(str, expressions, iterator);
+    this.trace('preserve nodes');
+
     // parse text nodes
     str = this.parseTextNodes(str, expressions, iterator);
+    this.trace('parse text nodes');
+
     // parse nodes
     str = this.parseNodes(str, expressions, componentPath);
+    this.trace('parse nodes');
 
     const rootNode = this.getRootnode(str, expressions);
     if (rootNode) {

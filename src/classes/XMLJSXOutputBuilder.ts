@@ -648,13 +648,13 @@ ${err.stack}`);
     }
   }
   private isSVG(node: DOMParserExp): boolean {
-    this.trace('defining if the node is inside an svg');
     let parent = node.parentNode;
     let result = node.tagName === 'svg';
     while(parent && !result) {
       parent = parent.parentNode;
-      result = parent?.tagName === 'svg';
+      result = parent?.tagName === 'svg' || parent?.parentNode?.tagName === 'svg';
     }
+    this.trace(`node is inside a svg?: ${result} ${node.tagName}`);
     return result;
   }
 }

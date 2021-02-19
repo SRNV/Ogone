@@ -257,12 +257,13 @@ export function _at(n: Element, a: string, b: string) {
  * SVG with namespace
  */
 const _svg_ns = 'http://www.w3.org/2000/svg';
+const _svg_xlinkNS = 'http://www.w3.org/1999/xlink';
 export function _hns(...a: any[]) {
   // @ts-ignore should fit
   return document.createElementNS(_svg_ns, ...a);
 }
 export function _atns(n: Element, a: string, b: string) {
-  return n.setAttributeNS(_svg_ns, a, b);
+  return n.setAttributeNS(_svg_xlinkNS, a, b);
 };
 /**
  * function called right after Ogone.setOgone

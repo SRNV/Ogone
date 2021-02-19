@@ -3,6 +3,7 @@ import type { Bundle, XMLNodeDescription, Component } from "../ogone.main.d.ts";
 import MapFile, { FileDescription } from "./MapFile.ts";
 import { Utils } from "./Utils.ts";
 import { join, normalize } from "../../deps/deps.ts";
+import { copyN } from "https://deno.land/std@0.65.0/io/ioutil.ts";
 /**
  * @name ComponentBuilder
  * @code OCB2
@@ -116,7 +117,9 @@ ${err.stack}`);
         const { path, file } = local;
         const index = path;
         const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
+        console.warn('rootNode');
         const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
+        console.warn('rootNode 2');
         if (rootNode) {
           const component = this.getComponent(file, {
             rootNode,
