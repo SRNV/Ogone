@@ -4,7 +4,6 @@ import notParsedElements from "../../utils/not-parsed.ts";
 import getDeepTranslation from "../../utils/template-recursive.ts";
 import read from '../../utils/agnostic-transformer.ts';
 import { Utils } from "./Utils.ts";
-import ProtocolReactivity from './ProtocolReactivity.ts';
 import type {
   TypedExpressions,
   ModifierContext
@@ -40,7 +39,6 @@ export interface ModifierProviderOptions {
  * a better class to only provide the content of the modifiers like: def, default, declare, before-each, cases etc
  */
 export default class ProtocolModifierGetter extends Utils {
-  private ProtocolReactivity: ProtocolReactivity = new ProtocolReactivity();
   private expressions: { [k: string]: string } = {};
   private typedExpressions?: TypedExpressions;
   private modifiers?: ModifierProvider[];

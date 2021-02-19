@@ -1,4 +1,4 @@
-import { colors, existsSync } from "../../deps/deps.ts";
+import { colors, existsSync, absolute } from "../../deps/deps.ts";
 import type { Component, ImportDescription } from "../ogone.main.d.ts";
 import AssetsParser from "./AssetsParser.ts";
 import Env from "./Env.ts";
@@ -26,6 +26,7 @@ export default class Dependency extends Utils {
         public parent: Dependency | null = null,
         ) {
             super();
+            this.resolveRemoteComponentDependency();
             if (Dependency.depsRegistry.includes(this.absolutePathURL.pathname)) {
                 return;
             }
@@ -267,6 +268,14 @@ ${getStructure("'{% absolute %}'", allAsName, {
             if (existsSync(p)) {
                 Deno.removeSync(p);
             }
+        }
+    }
+    resolveRemoteComponentDependency() {
+        if (!this.data.isRemote && !!this.component.remote) {
+            const remotePath = this.component.remote.path;
+            const newPath = absolute(remotePath, this.data.path);
+            this.data.isRemote = true;
+            this.data.path = newPath;
         }
     }
 }
