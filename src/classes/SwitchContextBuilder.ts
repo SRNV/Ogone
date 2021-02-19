@@ -129,8 +129,8 @@ ${err.stack}`);
             const GET_LENGTH = opts.getLength;
             const POSITION = opts.position;
             {% data %}
-            {% modules %}
             {% value %}
+            {% modules %}
             {% context.if %}
             {% context.getNodeDynamicLength || context.getLength %}
             try {
