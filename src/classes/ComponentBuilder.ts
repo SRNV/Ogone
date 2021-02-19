@@ -117,9 +117,7 @@ ${err.stack}`);
         const { path, file } = local;
         const index = path;
         const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
-        console.warn('rootNode');
         const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
-        console.warn('rootNode 2');
         if (rootNode) {
           const component = this.getComponent(file, {
             rootNode,

@@ -1,6 +1,6 @@
 <template>
   <svg width="600px" height="600px" viewBox="-300 -300 600 600"
-  xmlns="http://www.w3.org/2000/svg" version="1.1"
+  version="1.1"
   xmlns:xlink="http://www.w3.org/1999/xlink">
 
     <title>SVG demonstration</title>
@@ -51,7 +51,7 @@
 </template>
 <proto type="app">
 </proto>
-<style>
+<style global>
 /*** Démonstration de SVG ***/
 
 /* page */

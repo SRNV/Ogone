@@ -9,7 +9,8 @@ import {
   history,
   Element,
   Node,
-  Text
+  Text,
+  SVGElement
 } from "../ogone.dom.d.ts";
 import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions, HTMLOgoneText } from "../ogone.main.d.ts";
 import HMR from "../classes/HMR.ts";
@@ -251,19 +252,28 @@ export function _h(...a: any[]) {
   return document.createElement(...a);
 }
 export function _at(n: Element, a: string, b: string) {
-  return n.setAttribute(a, b)
+  return n.setAttribute(a, b);
 };
 /**
  * SVG with namespace
  */
 const _svg_ns = 'http://www.w3.org/2000/svg';
 const _svg_xlinkNS = 'http://www.w3.org/1999/xlink';
-export function _hns(...a: any[]) {
-  // @ts-ignore should fit
-  return document.createElementNS(_svg_ns, ...a);
+export function _hns(parent: SVGElement | string, ...a: any[]) {
+  if (typeof parent === 'string') {
+    // @ts-ignore should fit
+    return document.createElementNS(_svg_ns, parent);
+  } else {
+    // @ts-ignore should fit
+    return document.createElementNS(parent.namespaceURI, ...a);
+  }
 }
-export function _atns(n: Element, a: string, b: string) {
-  return n.setAttributeNS(_svg_xlinkNS, a, b);
+export function _atns(parent: SVGElement | Element, n: Element | string, a: string, b: string) {
+  if (typeof n === 'string') {
+    return parent.setAttribute(n, a);
+  }else {
+    return (n as Element).setAttributeNS(parent.namespaceURI, a, b);
+  }
 };
 /**
  * function called right after Ogone.setOgone

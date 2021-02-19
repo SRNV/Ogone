@@ -76,6 +76,7 @@ export default class XMLJSXOutputBuilder extends Utils {
     isAsyncNode,
     isRemote,
     isSVG,
+    svgParentRef,
   }: any) {
     try {
       const at = isSVG ? '_atns': '_at';
@@ -137,7 +138,8 @@ export default class XMLJSXOutputBuilder extends Utils {
           isRemote,
           component,
           subcomp,
-          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `${at}({% nId %},${idComponent.replace(/\-/, '_')}, '');` : '',
+          svgParentRef,
+          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `${at}({% svgParentRef %} {% nId %},${idComponent.replace(/\-/, '_')}, '');` : '',
           isTemplate: isTemplate || !!isImported && !!subcomp,
           isTemplatePrivate: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.private,
           isTemplateProtected: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.protected,
@@ -155,7 +157,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           });
           ` : '',
           setAwait: node.attributes && node.attributes.await
-            ? `${at}({%nId%},'await', '');`
+            ? `${at}({% svgParentRef %} {%nId%},'await', '');`
             : "",
           // force the component to wait for resolution
           setNodeAwait: isOgone && node.attributes && node.attributes.nodeAwait && !isRoot
@@ -243,13 +245,13 @@ ${err.stack}`);
         if (node.tagName === 'head' || node.tagName === 'proto' || rootNode.childNodes.find((child) => child.id === node.id && node.tagName === "style")) {
           continue;
         }
-        const isSVG = this.isSVG(node);
-        const h = isSVG ? '_hns' : '_h';
-        const ap = '_ap';
-        const at = isSVG ? '_atns': '_at';
         const params =
-          "ctx, pos = [], i = 0, l = 0";
+        "ctx, pos = [], i = 0, l = 0";
         if (node.nodeType === 1) {
+          const { isSVG, svg } = this.isSVG(node);
+          const h = isSVG ? '_hns' : '_h';
+          const ap = '_ap';
+          const at = isSVG ? '_atns': '_at';
           const nodeIsDynamic = !!Object.keys(node.attributes).find((
             attr: string,
           ) =>
@@ -261,27 +263,9 @@ ${err.stack}`);
           );
           const nId = `n${nodeIsDynamic ? "d" : ""}${node.id}`;
           node.id = nId;
-          let setAttributes = Object.entries(node.attributes)
-            .filter(([key, value]) =>
-              !(key.startsWith(":") ||
-                key.startsWith("--") ||
-                key.startsWith("@") ||
-                key.startsWith("&") ||
-                key.startsWith("o-") ||
-                key.startsWith("_"))
-            )
-            .map(([key, val]) => {
-              if(val === true) return `${at}(${nId},'${key}', '');`;
-              let value = (val as string).replace(/\'/gi, "\\'");
-              return key !== "ref"
-                ? `${at}(${nId},'${key}', '${value}');`
-                : `
-                ctx.refs['${value}'] = ctx.refs['${value}'] || [];
-                ctx.refs['${value}'][i] = ${nId};`
-            })
-            .join("");
           pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
             let identifier: string[] = [];
+            const svgParentRef = svg && node !== svg && (svg.id + ',') || '';
             const idComponent: string = component.uuid;
             const imports = Object.keys(component.imports);
             const isImported = imports.includes(node.tagName || "");
@@ -290,6 +274,25 @@ ${err.stack}`);
             const isStore = isTemplate && component.type === "store";
             const isAsync = isTemplate && component.type === "async";
             const isRemote = !!component.remote;
+            let setAttributes = Object.entries(node.attributes)
+              .filter(([key, value]) =>
+                !(key.startsWith(":") ||
+                  key.startsWith("--") ||
+                  key.startsWith("@") ||
+                  key.startsWith("&") ||
+                  key.startsWith("o-") ||
+                  key.startsWith("_"))
+              )
+              .map(([key, val]) => {
+                if(val === true) return `${at}(${svgParentRef} ${nId},'${key}', '');`;
+                let value = (val as string).replace(/\'/gi, "\\'");
+                return key !== "ref"
+                  ? `${at}(${svgParentRef} ${nId},'${key}', '${value}');`
+                  : `
+                  ctx.refs['${value}'] = ctx.refs['${value}'] || [];
+                  ctx.refs['${value}'][i] = ${nId};`
+              })
+              .join("");
             let nodesPragma = node.childNodes.filter((child) => child.pragma).map(
               (
                 child,
@@ -323,12 +326,10 @@ ${err.stack}`);
             });
             let nodeCreation = `const ${nId} = ${h}(${node.varName!});`;
             identifier[0] = `${nId}`;
-            identifier[1] = `${h}(${node.varName!})`;
-            if (nodeIsDynamic && !isImported && !isRoot) {
+            identifier[1] = `${h}(${svgParentRef}${node.varName!})`;
+            if (nodeIsDynamic && !isImported && !isRoot || isImported) {
               // create a custom element if the element as a flag or prop or event;
-              identifier[1] = `${h}(_ogone_node_)`;
-            } else if (isImported) {
-              identifier[1] = `${h}(_ogone_node_)`;
+              identifier[1] = `${h}(${svgParentRef}_ogone_node_)`;
             }
             nodeCreation = `const ${nId} = ${identifier[1]};`;
             const flags = this.parseFlags(
@@ -348,6 +349,7 @@ ${err.stack}`);
             const opts = {
               bundle,
               component,
+              svg,
               query,
               props,
               flags,
@@ -357,6 +359,7 @@ ${err.stack}`);
               node,
               nId,
               isSVG,
+              svgParentRef,
               getNodeCreations(idList: string[][]) {
                 idList.push(identifier);
                 node.childNodes.filter((child) => child.pragma)
@@ -617,7 +620,7 @@ ${err.stack}`);
               node.hasFlag = true;
           }
         }
-        // flags that starts with --
+        // flags that start with --
         node.hasFlag = true;
         node.flags = result;
         Object.keys(result)
@@ -647,14 +650,20 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  private isSVG(node: DOMParserExp): boolean {
-    let parent = node.parentNode;
+  private isSVG(node: DOMParserExp): {
+    isSVG: boolean;
+    svg: DOMParserExp | null;
+  } {
+    let parent: DOMParserExp | null = node;
     let result = node.tagName === 'svg';
-    while(parent && !result) {
+    while(!result && parent) {
       parent = parent.parentNode;
-      result = parent?.tagName === 'svg' || parent?.parentNode?.tagName === 'svg';
+      result = parent?.tagName === 'svg';
     }
     this.trace(`node is inside a svg?: ${result} ${node.tagName}`);
-    return result;
+    return {
+      isSVG: result,
+      svg: parent,
+    };
   }
 }
