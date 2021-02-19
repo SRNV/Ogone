@@ -78,7 +78,6 @@ ${err.stack}`);
               this.error(
                 `'${node.tagName}' is not a valid selector of ${subcomp.type} component. please use the following syntax:
                 import ${subcomp.type[0].toUpperCase()}${subcomp.type.slice(1)}${node.tagName} from '${isImported}';
-import { ComponentEngine } from '../enums/componentEngine';
                 component: ${component.file}
               `,
               );
