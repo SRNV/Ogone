@@ -72,6 +72,7 @@ ${err.stack}`);
             subcomp &&
             ["async", "store", "router"].includes(subcomp.type) &&
             node.tagName &&
+            !["Self"].includes(node.tagName) &&
             !node.tagName.startsWith(`${subcomp.type[0].toUpperCase()}${subcomp.type.slice(1)}`):
             if (subcomp) {
               this.error(
