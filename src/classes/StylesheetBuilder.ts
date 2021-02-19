@@ -28,7 +28,7 @@ import HMR from "./HMR.ts";
  * @dependency Style
  */
 export default class StylesheetBuilder extends Utils {
-  private mapStyle: Map<string, string> = new Map();
+  private static mapStyle: Map<string, string> = new Map();
   private CSSScoper: CSSScoper = new CSSScoper();
   private Style: Style = new Style();
   async read(bundle: Bundle) {
@@ -110,7 +110,7 @@ export default class StylesheetBuilder extends Utils {
             const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
             component.style.push(css);
             // send only if there's a change
-            this.sendChanges(component, css);
+            StylesheetBuilder.sendChanges(component, css);
           }
         }
       }
@@ -235,7 +235,7 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  sendChanges(component: Component, css:  string) {
+  static sendChanges(component: Component, css:  string) {
     if (!this.mapStyle.has(component.uuid)) {
       this.mapStyle.set(component.uuid, css);
     } else {
@@ -246,6 +246,7 @@ ${err.stack}`);
           uuid: component.uuid,
           output: css,
         });
+        this.mapStyle.set(component.uuid, css);
       }
 
     }
