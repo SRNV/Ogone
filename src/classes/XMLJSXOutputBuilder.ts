@@ -8,6 +8,7 @@ import type {
   DOMParserExpressions,
   DOMParserPragmaDescription,
   ParseFlagsOutput,
+  DOMParserExp,
 } from "../ogone.main.d.ts";
 /**
  * @class
@@ -74,8 +75,10 @@ export default class XMLJSXOutputBuilder extends Utils {
     isTemplate,
     isAsyncNode,
     isRemote,
+    isSVG,
   }: any) {
     try {
+      const at = isSVG ? '_atns': '_at';
       const subcomp: Component | null = isImported
         ? bundle.components.get(component.imports[node.tagName])
         : null;
@@ -134,7 +137,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           isRemote,
           component,
           subcomp,
-          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `_at({% nId %},${idComponent.replace(/\-/, '_')}, '');` : '',
+          publicComponentSetAttribute: !(component.elements.template?.attributes.private || component.elements.template?.attributes.protected) ? `${at}({% nId %},${idComponent.replace(/\-/, '_')}, '');` : '',
           isTemplate: isTemplate || !!isImported && !!subcomp,
           isTemplatePrivate: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.private,
           isTemplateProtected: !!isImported && !!subcomp && !!subcomp.elements.template?.attributes.protected,
@@ -152,7 +155,7 @@ export default class XMLJSXOutputBuilder extends Utils {
           });
           ` : '',
           setAwait: node.attributes && node.attributes.await
-            ? `_at({%nId%},'await', '');`
+            ? `${at}({%nId%},'await', '');`
             : "",
           // force the component to wait for resolution
           setNodeAwait: isOgone && node.attributes && node.attributes.nodeAwait && !isRoot
@@ -240,6 +243,10 @@ ${err.stack}`);
         if (node.tagName === 'head' || node.tagName === 'proto' || rootNode.childNodes.find((child) => child.id === node.id && node.tagName === "style")) {
           continue;
         }
+        const isSVG = this.isSVG(node);
+        const h = isSVG ? '_hns' : '_h';
+        const ap = '_ap';
+        const at = isSVG ? '_atns': '_at';
         const params =
           "ctx, pos = [], i = 0, l = 0";
         if (node.nodeType === 1) {
@@ -264,10 +271,10 @@ ${err.stack}`);
                 key.startsWith("_"))
             )
             .map(([key, val]) => {
-              if(val === true) return `_at(${nId},'${key}', '');`;
+              if(val === true) return `${at}(${nId},'${key}', '');`;
               let value = (val as string).replace(/\'/gi, "\\'");
               return key !== "ref"
-                ? `_at(${nId},'${key}', '${value}');`
+                ? `${at}(${nId},'${key}', '${value}');`
                 : `
                 ctx.refs['${value}'] = ctx.refs['${value}'] || [];
                 ctx.refs['${value}'][i] = ${nId};`
@@ -299,7 +306,7 @@ ${err.stack}`);
               child.pragma && child.pragma(bundle, component, false).id
             ).map((child) =>
               child.pragma
-                ? `_ap(${nId},${child.pragma(bundle, component, false).id});`
+                ? `${ap}(${nId},${child.pragma(bundle, component, false).id});`
                 : ""
             ).join("\n");
             let extensionId: string | null = "";
@@ -314,14 +321,14 @@ ${err.stack}`);
             ).map(([key, value]) => {
               return [key.replace(/^\:/, ""), value];
             });
-            let nodeCreation = `const ${nId} = _h(${node.varName!});`;
+            let nodeCreation = `const ${nId} = ${h}(${node.varName!});`;
             identifier[0] = `${nId}`;
-            identifier[1] = `_h(${node.varName!})`;
+            identifier[1] = `${h}(${node.varName!})`;
             if (nodeIsDynamic && !isImported && !isRoot) {
               // create a custom element if the element as a flag or prop or event;
-              identifier[1] = `_h(_ogone_node_)`;
+              identifier[1] = `${h}(_ogone_node_)`;
             } else if (isImported) {
-              identifier[1] = `_h(_ogone_node_)`;
+              identifier[1] = `${h}(_ogone_node_)`;
             }
             nodeCreation = `const ${nId} = ${identifier[1]};`;
             const flags = this.parseFlags(
@@ -349,6 +356,7 @@ ${err.stack}`);
               isOgone,
               node,
               nId,
+              isSVG,
               getNodeCreations(idList: string[][]) {
                 idList.push(identifier);
                 node.childNodes.filter((child) => child.pragma)
@@ -638,5 +646,15 @@ ${err.stack}`);
       this.error(`XMLJSXOutputBuilder: ${err.message}
 ${err.stack}`);
     }
+  }
+  private isSVG(node: DOMParserExp): boolean {
+    this.trace('defining if the node is inside an svg');
+    let parent = node.parentNode;
+    let result = node.tagName === 'svg';
+    while(parent && !result) {
+      parent = parent.parentNode;
+      result = parent?.tagName === 'svg';
+    }
+    return result;
   }
 }

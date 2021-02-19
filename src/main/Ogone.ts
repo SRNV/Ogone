@@ -254,6 +254,17 @@ export function _at(n: Element, a: string, b: string) {
   return n.setAttribute(a, b)
 };
 /**
+ * SVG with namespace
+ */
+const _svg_ns = 'http://www.w3.org/2000/svg';
+export function _hns(...a: any[]) {
+  // @ts-ignore should fit
+  return document.createElementNS(_svg_ns, ...a);
+}
+export function _atns(n: Element, a: string, b: string) {
+  return n.setAttributeNS(_svg_ns, a, b);
+};
+/**
  * function called right after Ogone.setOgone
  * Ogone.setOgone is called when the customElement is created by document.createElement
  */
