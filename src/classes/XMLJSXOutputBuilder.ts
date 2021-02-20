@@ -277,6 +277,8 @@ ${err.stack}`);
             let setAttributes = Object.entries(node.attributes)
               .filter(([key, value]) =>
                 !(key.startsWith(":") ||
+                  /** SVG: remove namespaces */
+                  (isSVG && key === 'xmlns') ||
                   key.startsWith("--") ||
                   key.startsWith("@") ||
                   key.startsWith("&") ||
@@ -284,8 +286,12 @@ ${err.stack}`);
                   key.startsWith("_"))
               )
               .map(([key, val]) => {
+                if (key === component.uuid) return '';
                 if(val === true) return `${at}(${svgParentRef} ${nId},'${key}', '');`;
                 let value = (val as string).replace(/\'/gi, "\\'");
+                if (isSVG && /^(xmlns|xmlns\:|xlink\:)/.test(key)) {
+                  return `${at}(${svgParentRef} ${nId},'${key.replace(/^(xmlns\:|xlink\:)/, '')}', '${value}');`
+                }
                 return key !== "ref"
                   ? `${at}(${svgParentRef} ${nId},'${key}', '${value}');`
                   : `

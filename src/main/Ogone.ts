@@ -270,9 +270,9 @@ export function _hns(parent: SVGElement | string, ...a: any[]) {
 }
 export function _atns(parent: SVGElement | Element, n: Element | string, a: string, b: string) {
   if (typeof n === 'string') {
-    return parent.setAttribute(n, a);
+    return parent.setAttributeNS(null, n, a);
   }else {
-    return (n as Element).setAttributeNS(parent.namespaceURI, a, b);
+    return (n as Element).setAttributeNS(null, a, b);
   }
 };
 /**
@@ -293,11 +293,7 @@ export function construct(Onode: HTMLOgoneElement) {
     Onode.requirements = o.requirements;
     Onode.props = o.props;
     Onode.type = Ogone.types[Onode.extending!]!;
-    // define runtime for hmr
-    // Ogone.instances[o.uuid] = Ogone.instances[o.uuid] || [];
   }
-  // define templates of hmr
-  // Ogone.mod[node.extending] = Ogone.mod[node.extending] || [];
 }
 /**
  * function that will add the ogone parameters into the customElement
