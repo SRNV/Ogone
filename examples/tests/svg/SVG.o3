@@ -2,7 +2,7 @@
   <svg width="600px" height="600px" viewBox="-300 -300 600 600" version="1.1">
 
     <title>SVG demonstration</title>
-    <desc>Premiers pas en CSS avec Mozilla - Démonstration de SVG</desc>
+    <desc>${this.test} Premiers pas en CSS avec Mozilla - Démonstration de SVG</desc>
 
     <defs>
     <g id="segment" class="segment">
@@ -30,6 +30,7 @@
     </defs>
 
     <text id="heading" x="-280" y="-270">
+    ${this.test}
     SVG demonstration</text>
     <text  id="caption" x="-280" y="-250">
     Placez le pointeur de la souris au dessus de la fleur.</text>
@@ -47,7 +48,14 @@
   <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
 </svg>
 </template>
-<proto type="app" />
+<proto type="app" >
+  declare:
+    test: number = 0;
+  default:
+    setInterval(() => {
+      this.test++
+    }, 500);
+</proto>
 <style>
 /*** Démonstration de SVG ***/
 
