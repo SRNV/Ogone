@@ -249,6 +249,7 @@ ${err.stack}`);
         "ctx, pos = [], i = 0, l = 0";
         if (node.nodeType === 1) {
           const { isSVG, svg } = this.isSVG(node);
+          const { isCanvas, canvas } = this.isCanvas(node);
           const h = isSVG ? '_hns' : '_h';
           const ap = '_ap';
           const at = isSVG ? '_atns': '_at';
@@ -264,6 +265,7 @@ ${err.stack}`);
           const nId = `n${nodeIsDynamic ? "d" : ""}${node.id}`;
           node.id = nId;
           node.isSVG = isSVG;
+          node.isCanvas = isCanvas;
           pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
             let identifier: string[] = [];
             const svgParentRef = svg && node !== svg && (svg.id + ',') || '';
@@ -671,6 +673,22 @@ ${err.stack}`);
     return {
       isSVG: result,
       svg: parent,
+    };
+  }
+  private isCanvas(node: DOMParserExp): {
+    isCanvas: boolean;
+    canvas: DOMParserExp | null;
+  } {
+    let parent: DOMParserExp | null = node;
+    let result = node.tagName === 'canvas';
+    while(!result && parent) {
+      parent = parent.parentNode;
+      result = parent?.tagName === 'canvas';
+    }
+    this.trace(`node is inside a canvas?: ${result} ${node.tagName}`);
+    return {
+      isCanvas: result,
+      canvas: parent,
     };
   }
 }
