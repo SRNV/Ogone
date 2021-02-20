@@ -99,8 +99,18 @@ export default class Dependency extends Utils {
      * exposes the import statement with the absolute path to the module
      */
     get importStatementAbsolutePath(): string {
-        if (this.isRemote) return this.data.value;
+        if (this.isRemote) return this.input;
         return this.input.replace(this.data.path, `${this.absolutePathURL.pathname}?uuid=${this.component.uuid}`);
+    }
+    /**
+     * exposes the import statement with the dependency's url in parameter
+     */
+    get importRemoteDepencyForDev(): string | null {
+        if (!this.isRemote) return null;
+        if (Env._env !== 'production') {
+            return this.input.replace(this.data.path, `/?serve_module=${this.absolutePathURL.href}`);
+        }
+        return this.input;
     }
     /**
      * exposes the import statement with the absolute path to the module
@@ -124,7 +134,7 @@ export default class Dependency extends Utils {
 /**
  * struct import for ${this.component.file}
  * */
-${this.importStatementAbsolutePath}
+${this.importRemoteDepencyForDev || this.importStatementAbsolutePath}
 /**
  * save imports for ${this.component.file}
 */

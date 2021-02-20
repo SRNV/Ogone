@@ -9,15 +9,21 @@ export default class TSTranspiler extends Utils {
   static subdistFolderUrl = './.ogone';
   static outputURL = './.ogone/out.ts';
   static transpileCompilerOptions = { sourceMap: false, };
+  static cache: { [k: string]: string; } = {};
   static async transpile(text: string): Promise<string> {
     try {
-      return (await Deno.emit('/transpiled.ts', {
+      if (this.cache[text]) return this.cache[text];
+      const result = (await Deno.emit('/transpiled.ts', {
         check: false,
         sources: {
           "/transpiled.ts": text,
         },
         compilerOptions: this.transpileCompilerOptions,
-      })).files["file:///transpiled.ts.js"]
+      })).files["file:///transpiled.ts.js"];
+      if (!this.cache[text] || this.cache[text] !== result) {
+        this.cache[text] = result;
+      }
+      return result;
     } catch {
       return text;
     }

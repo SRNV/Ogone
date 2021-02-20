@@ -1,7 +1,7 @@
 import { getHeaderContentTypeOf } from "../../utils/extensions-resolution.ts";
 import { existsSync } from "../../utils/exists.ts";
 // import HMR from "../lib/hmr/index.ts";
-import { serve, join } from "../../deps/deps.ts";
+import { serve, join, fetchRemoteRessource } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
@@ -164,6 +164,7 @@ self.onmessage = async (e: any): Promise<void> => {
     const params = new URLSearchParams('?' + req.url.split("?")[1]);
     // for imported modules
     const importedFile = params.get('import');
+    const serveModule = params.get('serve_module');
     // for lsp
     const component = params.get('component');
     const keyPort = params.get('port');
@@ -174,6 +175,14 @@ self.onmessage = async (e: any): Promise<void> => {
     let isUrlFile: boolean = existsSync(pathToPublic);
     const realUrl = req.url.split('?')[0];
     switch (true) {
+      case !!serveModule:
+        req.respond({
+          body: await TSTranspiler.bundle(serveModule!),
+          headers: new Headers([
+            getHeaderContentTypeOf('file.js'),
+          ]),
+        });
+        break;
       case existsSync(realUrl) && (realUrl.endsWith('.ts') || realUrl.endsWith('.js')):
         const file = await cache(
           realUrl
