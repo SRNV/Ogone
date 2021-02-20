@@ -563,6 +563,8 @@ export interface XMLNodeDescription {
   pragma: null | DOMParserPragmaDescription;
   nextElementSibling: null | XMLNodeDescription;
   previousElementSibling: null | XMLNodeDescription;
+  isSVG?: boolean;
+  isCanvas?: boolean;
   ifelseBlock?: {
     ifFlag: MapIndexable;
     elseFlag: MapIndexable;
@@ -753,6 +755,8 @@ interface DOMParserExp {
   parentNode: null | DOMParserExp;
   pragma: DOMParserPragmaDescription | null;
   isTSX?: boolean;
+  isSVG?: XMLNodeDescription["isSVG"];
+  isCanvas?: XMLNodeDescription["isCanvas"];
   isAttrSpreadTSX?: boolean;
 }
 interface DOMParserExpressions {

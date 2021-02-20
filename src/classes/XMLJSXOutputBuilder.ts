@@ -263,6 +263,7 @@ ${err.stack}`);
           );
           const nId = `n${nodeIsDynamic ? "d" : ""}${node.id}`;
           node.id = nId;
+          node.isSVG = isSVG;
           pragma = (bundle: Bundle, component: Component, isRoot: boolean) => {
             let identifier: string[] = [];
             const svgParentRef = svg && node !== svg && (svg.id + ',') || '';

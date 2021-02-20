@@ -102,7 +102,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           if (node.tagName === 'style') {
             templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{\`{%outers%}\`}\n</{%tagname%}>`
           }
-          if (node.autoclosing) {
+          if (node.autoclosing && !node.isSVG) {
             templateOuterTSX = `\n<{%tagname%} {%attrs%} />\n`
           }
           if (node.attributes['--for']) {
@@ -154,6 +154,9 @@ export default class XMLParser extends XMLJSXOutputBuilder {
                   }
                   if (key.startsWith(`:`)) {
                     return `\n${key.slice(1)}={${value}} `
+                  }
+                  if (node.isSVG) {
+                    return `\n${key.replace(/[\:]/gi, '-')}="${value}"`
                   }
                   return `\n${key}="${value}"`;
                 }).join(' '),
