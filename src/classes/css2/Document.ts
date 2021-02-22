@@ -18,6 +18,7 @@ export interface DocumentOptions {
   typedExpressions: TypedExpressions
 }
 export default class Document extends Utils implements DocumentOptions {
+  static mapComponents: Map<string, Rules["mapExportableLiteralVariables"]> = new Map();
   mapRules: Map<string, Rules>  = new Map();
   constructor(
     public text: DocumentOptions['text'],

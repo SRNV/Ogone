@@ -67,13 +67,13 @@ export default class Style extends Utils {
    * @param css {string}
    * @param opts {StyleOptions}
    */
-  public static transform(css: string, opts: StyleOptions): string {
+  public static parse(css: string, opts: StyleOptions): string {
     // to create the top level of the document
     // we will add some curly and edit the inputs
     // of the end user
     const toplevel = `{${css}}`;
     // we will now parse the document by using the read function
-    // which transforms all regular expressions to a specific id
+    // which parses all regular expressions to a specific id
     const typedExpressions = getTypedExpression();
     const expressions = {};
     let result = read({
@@ -94,21 +94,19 @@ export default class Style extends Utils {
     this.currentDocument = new Document(document.text, document.expressions, document.typedExpressions);
   }
 }
-const test1 = Style.transform(`
-  color: red;
-  a::fdsqfdsqfdsqf_vsvsq  fdsqfdsqfd,fdsqfdsqfd
-  , h2sqfdsqf, test {}
-  @interface TypeName<U, T, V> {
-    div: [red, blue, green];
+const test1 = Style.parse(`
+.container {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row-reverse;
+  .view {
+    flex: 18;
+    overflow: auto;
+    .content {
+      flex: 18;
+    }
   }
-  @const var: TypeName = {}
-  @m :::dsqfdsqf ____sqfdsqf, test dqsfdsqf {
-
-  }
-  @keyframes {} b {}
-  @<TypeName<other>>div {
-
-  }
+}
 `, {
   vars: {},
 });

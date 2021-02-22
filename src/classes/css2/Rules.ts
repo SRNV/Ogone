@@ -14,6 +14,10 @@ export interface RulesOptions {
  */
 export default class Rules extends Utils {
     private _selector: string | null = null;
+    /**
+     * all the properties used inside the current rule
+     */
+    private _data: { [k: string]: string } = {};
     public children: Rules[] = [];
     /**
      * all the variables that are not handling a selector
@@ -34,7 +38,7 @@ export default class Rules extends Utils {
         if (parent) {
             parent.children.push(this);
         }
-        console.warn(this.selector);
+        this.readProperties();
     }
     /**
      * regular expression to identify the selector of the current rule
@@ -99,4 +103,19 @@ export default class Rules extends Utils {
      */
     get isInterface(): boolean { return !!this.selector && !!this.selector.match(/^\@interface\b/) }
     get isTyped(): boolean { return !!this.selector && !!this.selector.match(/^\@\<([\s\S]*?)\>\b/) }
+    /**
+     * start getting all the properties of the current rule
+     * those will be saved into the data object
+     */
+    readProperties(): void {
+        const reg = /(?:\;|\{|^|\d+_block|\n)\s*(?<property>[^\:\n]+?)\s*(:)\s*(?<value>[^\:\;]+?)(\;|\}|$)/i;
+        let source = this.source.trim();
+        let match;
+        while(match = source.match(reg)) {
+            if (match.groups) {
+                this._data[match.groups.property] = match.groups.value;
+            }
+            source = source.replace(reg, '');
+        }
+    }
 }
