@@ -3,7 +3,7 @@ import component AsyncLogoEl from '@/examples/app/asyncs/AsyncLogo.o3';
 import component MenuContent from '@/examples/app/components/menu/MenuContent.o3';
 import component MenuMain from '@/examples/app/components/menu/MenuMain.o3';
 import component RouterComponent from '@/examples/app/routers/Router.o3';
-import { hash, verify } from "https://deno.land/x/scrypt/mod.ts";
+import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
 
 /**
  *  @name Application
@@ -30,6 +30,7 @@ import { hash, verify } from "https://deno.land/x/scrypt/mod.ts";
 </template>
 <proto type="app">
   declare:
+    public readonly test: any = Obj;
     public scrollY: number = 0;
     public setScrollY(n: number) {
       this.scrollY = n;
@@ -46,6 +47,7 @@ import { hash, verify } from "https://deno.land/x/scrypt/mod.ts";
       }
       this.setScrollY(window.scrollY);
     });
+    console.warn(this.test);
     break;
 </proto>
 <style>

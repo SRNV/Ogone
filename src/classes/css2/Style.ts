@@ -11,24 +11,21 @@ import type {
   TypedExpressions,
 } from "../../ogone.main.d.ts";
 import RegExpTransformable from "../RegExpTransformable.ts";
+import Document, {
+  DocumentOptions,
+} from './Document.ts';
 
+/**
+ * built-in css preprocessor for Ogone
+ * should be usable into the browser
+ * don't use Deno inside
+ * or any reference from Ogone
+ */
 interface StyleOptions {
   vars: { [k: string]: string | StyleOptions["vars"] }
 }
-interface StyleDocumentOptions {
-  text: string;
-  expressions: Expressions;
-  typedExpressions: TypedExpressions
-}
-class StyleDocument implements StyleDocumentOptions {
-  constructor(
-    public text: StyleDocumentOptions['text'],
-    public expressions: StyleDocumentOptions['expressions'],
-    public typedExpressions: StyleDocumentOptions['typedExpressions']
-  ) {}
-}
 export default class Style extends Utils {
-  private static currentDocument: StyleDocument;
+  private static currentDocument: Document;
   private static readonly variables: ProtocolScriptRegExpList = [
     // exportable variables
     new RegExpTransformable(/(\b@export)(\s+const(?<evaluated>\*){0,1}\b)(?<name>.+?)(\=)/, () => '')
@@ -91,37 +88,26 @@ export default class Style extends Utils {
       typedExpressions,
       text: result,
     });
-    this.parseDocument();
     return result;
   }
-  public static setCurrentDocument(document: StyleDocumentOptions) {
-    this.currentDocument = new StyleDocument(document.text, document.expressions, document.typedExpressions);
-  }
-  /**
-   * main method to start parsing the document
-   * we will use all blocks expressions
-   */
-  public static parseDocument() {
-    if (!this.currentDocument.typedExpressions) return;
-    Object.entries(this.currentDocument.typedExpressions.blocks)
-      .reverse()
-      .forEach(([key, value]) => {
-        console.log(key, value);
-      });
+  public static setCurrentDocument(document: DocumentOptions) {
+    this.currentDocument = new Document(document.text, document.expressions, document.typedExpressions);
   }
 }
 const test1 = Style.transform(`
-  @const var1 = test;
-  div {
-    ...$var1;
-    color: red;
-    span {
-      element {
-        a {
-          color: blue;
-        }
-      }
-    }
+  color: red;
+  a::fdsqfdsqfdsqf_vsvsq  fdsqfdsqfd,fdsqfdsqfd
+  , h2sqfdsqf, test {}
+  @interface TypeName<U, T, V> {
+    div: [red, blue, green];
+  }
+  @const var: TypeName = {}
+  @m :::dsqfdsqf ____sqfdsqf, test dqsfdsqf {
+
+  }
+  @keyframes {} b {}
+  @<TypeName<other>>div {
+
   }
 `, {
   vars: {},
