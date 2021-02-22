@@ -2,6 +2,7 @@ import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement } from '../ogone.dom.d.ts';
 import { WebSocketServer, WS } from '../../deps/ws.ts';
 import { HTMLOgoneElement } from '../ogone.main.d.ts';
+import { ModuleErrorsDiagnostic } from './ModuleErrors.ts';
 
 declare const document: Document;
 interface ModuleGraph {
@@ -22,9 +23,10 @@ export default class HMR {
   static startHandshake() {
 
   }
-  static async sendError(error: string) {
+  static async sendError(error: string, diagnostics: ModuleErrorsDiagnostic[]) {
     this.postMessage({
       error,
+      diagnostics,
     });
   }
   static useOgone(ogone: typeof Ogone) {
@@ -37,7 +39,7 @@ export default class HMR {
     this.client = new WebSocket(this.connect);
     this.client.onmessage = (evt: any) => {
       const payload = JSON.parse(evt.data);
-      const { uuid, output, error, errorFile, type, pathToModule, uuidReq } = payload;
+      const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq } = payload;
       if (type === 'style') {
         let style = document.querySelector(`style#${uuid}`);
         if (style) {
@@ -55,7 +57,12 @@ export default class HMR {
       }
       if (error) {
         console.error(error);
-        Ogone.displayError(errorFile || 'Error found in application.', 'TypeError', new Error(error));
+        (diagnostics as  ModuleErrorsDiagnostic[]).forEach((diag) => {
+          const { sourceLine, start, messageText } = diag;
+          Ogone.displayError(messageText || errorFile || 'Error found in application.', 'TypeError', new Error(`
+            ${sourceLine}
+          `));
+        })
         return;
       }
       this.rerenderComponents(uuid, output);

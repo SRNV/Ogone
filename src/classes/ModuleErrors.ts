@@ -109,6 +109,7 @@ export abstract class ModuleErrors extends Utils {
         }
         this.ShowErrors(
           `\n${errors}`,
+          diagnostics as ModuleErrorsDiagnostic[]
         );
       } else {
         return;
@@ -118,7 +119,7 @@ export abstract class ModuleErrors extends Utils {
 ${err.stack}`);
     }
   }
-  static ShowErrors(message: string, opts?: { [k: string]: unknown }): void {
+  static ShowErrors(message: string, diagnostics: ModuleErrorsDiagnostic[]): void {
     try {
       const { bgRed, red, bold, yellow } = colors;
       const m: string = ModuleErrors.message(
@@ -132,7 +133,7 @@ ${err.stack}`);
         });
       }
       console.error(m);
-      HMR.sendError(m);
+      HMR.sendError(m, diagnostics);
       setTimeout(() => {
         if (!Configuration.OgoneDesignerOpened) {
           // if the webview isn't opened

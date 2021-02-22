@@ -118,4 +118,12 @@ export default class Rules extends Utils {
             source = source.replace(reg, '');
         }
     }
+    /**
+     * transformed data with
+     * - parent references
+     * - self references
+     */
+    get data() {
+        return;
+    }
 }

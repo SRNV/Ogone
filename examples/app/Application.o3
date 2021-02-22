@@ -31,7 +31,7 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
 <proto type="app">
   declare:
     public readonly test: any = Obj;
-    public scrollY: number = 0;
+    public scrollY: string = 0;
     public setScrollY(n: number) {
       this.scrollY = n;
     }
