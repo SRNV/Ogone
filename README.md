@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/SRNV/Ogone/0.28.0/src/public/ogone-svg.svg" width="350">
+  <img src="./src/public/ogone-svg.svg" width="350">
 </p>
 <h1 align="center">Ogone</h1>
 <p align="center">
@@ -23,7 +23,7 @@
      <img alt="license" src="https://img.shields.io/github/license/SRNV/Ogone">
    </a>
    <a href="https://github.com/denoland/deno">
-     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.7.0-lightgrey?logo=deno">
+     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.4.0-lightgrey?logo=deno">
    </a>
    <a href="https://deno.land/x/ogone">
      <img alt="denoland" src="http://img.shields.io/badge/available%20on-deno.land/x-lightgrey.svg?logo=deno&modifierColor=black">
@@ -39,12 +39,14 @@ Ogone for Front-end fields using Deno.
 Designed differently, start creating differently.
 Everything is a component because everything is a part of the composition.
 
-Actually Ogone is too young to be used for production, expect breaking changes until the 1.0.0.
+Actually Ogone is too young to be used for production, expect breaking chnages until the 1.0.0.
 
-Ogone has it's own extension `*.o3` which allows some new features.
+Ogone has it own extension `*.o3` which allow some new features.
 
 
 If you're interested by this project: [please join the Discord here](https://discord.gg/gCnGzh2wMc)
+
+If you want to collaborate: [please find the project's architecture here](https://whimsical.com/ogone-flow-and-architecture-F8AqYfXs46t65gL9eofFkk) 
 
 # Installation
 
@@ -52,14 +54,9 @@ If you're interested by this project: [please join the Discord here](https://dis
 deno install -Afq --unstable https://deno.land/x/ogone/cli/ogone.ts
 ```
 
-and run your application like following
-```
-ogone run path/to/Application.o3
-```
-
 - [Introduction](https://github.com/SRNV/Ogone/tree/master/docs/introduction.md)
 - [Examples](https://github.com/SRNV/Ogone/tree/master/docs/examples.md)
-- [Contributions](https://github.com/SRNV/Ogone/tree/master/docs/contributions.md)
+- [Project Architecture](https://whimsical.com/ogone-flow-and-architecture-F8AqYfXs46t65gL9eofFkk)
 
 
 # Overview
