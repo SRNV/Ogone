@@ -45,6 +45,7 @@ Ogone has it own extension `*.o3` which allow some new features.
 
 
 If you're interested by this project: [please join the Discord here](https://discord.gg/gCnGzh2wMc)
+If you want to collaborate: [please find the project's architecture here](https://whimsical.com/ogone-flow-and-architecture-F8AqYfXs46t65gL9eofFkk) 
 
 # Installation
 
@@ -54,7 +55,7 @@ deno install -Afq --unstable https://deno.land/x/ogone/cli/ogone.ts
 
 - [Introduction](https://github.com/SRNV/Ogone/tree/master/docs/introduction.md)
 - [Examples](https://github.com/SRNV/Ogone/tree/master/docs/examples.md)
-- [Contributions](https://github.com/SRNV/Ogone/tree/master/docs/contributions.md)
+- [Project Architecture](https://whimsical.com/ogone-flow-and-architecture-F8AqYfXs46t65gL9eofFkk)
 
 
 # Overview
