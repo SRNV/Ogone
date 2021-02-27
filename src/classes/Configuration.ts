@@ -3,7 +3,7 @@ import { Utils } from "./Utils.ts";
 export abstract class Configuration {
   /**
    * @property entrypoint
-   * @description path to the root component, this one has to be an untyped component
+   * @description path to the root component, this one has to be an app component
    */
   public static entrypoint: string = "/index.o3";
 

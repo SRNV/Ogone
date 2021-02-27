@@ -3,7 +3,6 @@ import MapOutput from './MapOutput.ts';
 import { Bundle } from "../ogone.main.d.ts";
 
 export default class TSTranspiler extends Utils {
-  static browserBundlePatternURL = new URL('../bundle/browser_pattern.ts', import.meta.url);
   static runtimeURL = new URL('../main/Ogone.ts', import.meta.url);
   static runtimeBaseURL = new URL('../main/OgoneBase.ts', import.meta.url);
   static subdistFolderUrl = './.ogone';

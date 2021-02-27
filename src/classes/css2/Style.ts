@@ -22,7 +22,7 @@ import Document, {
  * or any reference from Ogone
  */
 interface StyleOptions {
-  vars: { [k: string]: string | StyleOptions["vars"] }
+  data: DocumentOptions['data'];
 }
 export default class Style extends Utils {
   private static currentDocument: Document;
@@ -87,27 +87,49 @@ export default class Style extends Utils {
       expressions,
       typedExpressions,
       text: result,
+      data: opts.data,
     });
     return result;
   }
   public static setCurrentDocument(document: DocumentOptions) {
-    this.currentDocument = new Document(document.text, document.expressions, document.typedExpressions);
+    this.currentDocument = new Document(
+      document.text,
+      document.expressions,
+      document.typedExpressions,
+      document.data,
+    );
   }
 }
 const test1 = Style.parse(`
+@const flex = 10px;
+@const rule = div {
+  color: red;
+};
 .container {
   overflow: hidden;
   display: flex;
   flex-direction: row-reverse;
+  ...$ComponentName;
+  ...$SelfArt;
   .view {
     flex: 18;
     overflow: auto;
     .content {
-      flex: 18;
+      flex: $flex;
+      $flex;
     }
   }
 }
 `, {
-  vars: {},
+  data: {
+    shouldnt: 'fdfdsfdsf',
+    ComponentName: {
+      width: 'name',
+      test: 'another one'
+    },
+    SelfArt: {
+      color: 'red',
+    }
+  },
 });
 console.warn(test1);

@@ -32,13 +32,24 @@ export default class Rules extends Utils {
      * varName with 12px as value
      */
     public mapExportableLiteralVariables: Map<string, string> = new Map();
+    /**
+     * any children rule that is saved into a variable.
+     * @export const RuleName = div {};
+     */
+    public mapConstRules: Map<string, Rules> = new Map();
     constructor(public opts: RulesOptions) {
         super();
         const { parent } = this;
         if (parent) {
             parent.children.push(this);
+            // save into parent.mapConstRules
+            // if the current rule is saved into a var
+            this.saveConst();
+            console.warn(parent.mapConstRules);
         }
+        // this.readVariables();
         this.readProperties();
+        console.warn(this._data);
     }
     /**
      * regular expression to identify the selector of the current rule
@@ -103,17 +114,71 @@ export default class Rules extends Utils {
      */
     get isInterface(): boolean { return !!this.selector && !!this.selector.match(/^\@interface\b/) }
     get isTyped(): boolean { return !!this.selector && !!this.selector.match(/^\@\<([\s\S]*?)\>\b/) }
+    saveConst(): void {
+        if (this.isConst || this.isExport) {
+            const { parent, selector } = this;
+            if (parent) {
+                // get the variable name
+                let match;
+                if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>[\S]+?)\s*=/)) && match.groups) {
+                    let { name } = match.groups;
+                    if (name) parent.mapConstRules.set(name, this);
+                }
+            }
+        }
+    }
     /**
      * start getting all the properties of the current rule
      * those will be saved into the data object
      */
     readProperties(): void {
-        const reg = /(?:\;|\{|^|\d+_block|\n)\s*(?<property>[^\:\n]+?)\s*(:)\s*(?<value>[^\:\;]+?)(\;|\}|$)/i;
+        const reg = /(?:\;|\{|^|\d+_block|\n)\s*((?<property>[^\:\n]+?)\s*(:)\s*(?<value>[^\:\;]+?)|(\.){3}\$(?<spreaded>[\S]+?))(\;|\}|$)/i;
         let source = this.source.trim();
         let match;
         while(match = source.match(reg)) {
+            // any named group is captured
             if (match.groups) {
-                this._data[match.groups.property] = match.groups.value;
+                // a property/value group is captured by the regexp
+                if (match.groups.property) {
+                    // save the value and property into the private data object
+                    this._data[match.groups.property] = match.groups.value;
+                }
+                // user can spread variables and rules's children into the current rule
+                // by using the following syntax ...$Spreaded;
+                if (match.groups.spreaded) {
+                    const { spreaded } = match.groups;
+                    const obj = Object.assign({},
+                        Object.fromEntries(this.mapLiteralVariables.entries()),
+                        Object.fromEntries(this.mapExportableLiteralVariables.entries()),
+                        Object.fromEntries(this.mapConstRules.entries()),
+                        this.opts.document.data,
+                    );
+                    const sourceEntries = Object.entries(obj);
+                    const entries = sourceEntries.filter(([, value]: [string, unknown]) => !(value instanceof Rules)
+                        && !(value instanceof String));
+                    const keys = entries.map(([key]) => key);
+                    const values = entries.map(([, value]) => value);
+
+                    // create the util to spread all the variables
+                    if (keys.length) {
+                        const assignFunction = new Function('$$origin', ...keys, `return Object.assign($$origin, ${spreaded || '{}'});`);
+                        assignFunction(this._data, ...values);
+                    }
+
+                    // now start spreading rules's children
+                    const entriesRules = sourceEntries.filter(([, value]: [string, unknown]) => value instanceof Rules);
+                    const keysRules = entriesRules.map(([key]) => key);
+                    const valuesRules = entriesRules.map(([, value]) => value);
+
+                    // create the util function to spread the children
+                    if (keysRules.length) {
+                        const spreadChildrenFunction = new Function('currentRule', 'constructor', ...keysRules, `
+                            if (typeof ${spreaded} === undefined || !(${spreaded} instanceof constructor)) return;
+                            return currentRule.push(...(${spreaded || '{ children: [] }'}).children);
+                        `);
+                        spreadChildrenFunction(this, Rules, ...valuesRules);
+                    }
+                }
             }
             source = source.replace(reg, '');
         }

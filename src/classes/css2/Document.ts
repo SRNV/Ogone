@@ -15,7 +15,8 @@ import type {
 export interface DocumentOptions {
   text: string;
   expressions: Expressions;
-  typedExpressions: TypedExpressions
+  typedExpressions: TypedExpressions;
+  data: {[key: string]: string | { [exported: string]: string; }};
 }
 export default class Document extends Utils implements DocumentOptions {
   static mapComponents: Map<string, Rules["mapExportableLiteralVariables"]> = new Map();
@@ -23,7 +24,8 @@ export default class Document extends Utils implements DocumentOptions {
   constructor(
     public text: DocumentOptions['text'],
     public expressions: DocumentOptions['expressions'],
-    public typedExpressions: DocumentOptions['typedExpressions']
+    public typedExpressions: DocumentOptions['typedExpressions'],
+    public data: DocumentOptions['data'],
   ) {
     super();
     this.parseDocument();

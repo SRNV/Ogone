@@ -57,16 +57,48 @@ export default class HMR {
       }
       if (error) {
         console.error(error);
+        let errorUuid: string | undefined;
         (diagnostics as  ModuleErrorsDiagnostic[]).forEach((diag) => {
-          const { sourceLine, start, messageText } = diag;
-          Ogone.displayError(messageText || errorFile || 'Error found in application.', 'TypeError', new Error(`
-            ${sourceLine}
+          let errorMessage = '';
+          const { sourceLine, messageText } = diag;
+          if (diag) {
+            errorUuid = diag.fileName && diag.fileName.match(/(?<=\/)(?<uuid>[\w\d\-]+?)\.tsx$/)?.groups?.uuid || undefined;
+          }
+          const start = diag.start && diag.start.character || 0;
+          const end = diag.end && diag.end.character || 0;
+          const repeatNumber = end - start - 1
+          const underline = `${' '.repeat(start)}^${'~'.repeat(repeatNumber > 0 ? repeatNumber : 0)}`
+          let sourceline = diag && sourceLine || '';
+          sourceline = repeatNumber >= 0 ?
+          sourceline.substring(0, start)
+            + sourceline.substring(start, end)
+            + sourceline.substring(end) :
+            sourceline;
+          // add the error
+          errorMessage = `
+          TS${diag && diag.code} [ERROR] ${diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || ''}
+        ${this.renderChainedDiags(diag && diag.messageChain && diag.messageChain.next || [])}
+          ${sourceline}
+          ${underline}`;
+          Ogone.displayError(messageText || errorFile || 'Error found in application.', `TS${diag.code}` || 'TypeError', new Error(`
+            ${errorMessage}
           `));
         })
         return;
       }
       this.rerenderComponents(uuid, output);
     };
+  }
+  static renderChainedDiags(chainedDiags: ModuleErrorsDiagnostic[]): string {
+    let result = ``;
+    if (chainedDiags && chainedDiags.length) {
+      for (const d of chainedDiags) {
+        const diag = d as (ModuleErrorsDiagnostic);
+        result += `TS${diag.code} [ERROR] `;
+        result += `${diag && diag.messageText}\n`
+      }
+    }
+    return result;
   }
   static rerenderComponents(uuid: string, output ?: string) {
     const savedComponents = this.components[uuid];
