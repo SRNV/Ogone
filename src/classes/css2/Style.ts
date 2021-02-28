@@ -65,9 +65,8 @@ export default class Style extends Utils {
   /**
    * use this method to transform the style of the components
    * @param css {string}
-   * @param opts {StyleOptions}
    */
-  public static parse(css: string, opts: StyleOptions): string {
+  public static createDocument(css: string): Document {
     // to create the top level of the document
     // we will add some curly and edit the inputs
     // of the end user
@@ -87,20 +86,19 @@ export default class Style extends Utils {
       expressions,
       typedExpressions,
       text: result,
-      data: opts.data,
+      data: void 0,
     });
-    return result;
+    return this.currentDocument;
   }
   public static setCurrentDocument(document: DocumentOptions) {
     this.currentDocument = new Document(
       document.text,
       document.expressions,
       document.typedExpressions,
-      document.data,
     );
   }
 }
-const test1 = Style.parse(`
+const test1 = Style.createDocument(`
 @const flex = 10px;
 @const rule = div {
   color: red;
@@ -109,8 +107,7 @@ const test1 = Style.parse(`
   overflow: hidden;
   display: flex;
   flex-direction: row-reverse;
-  ...$ComponentName;
-  ...$SelfArt;
+  ...$Belf;
   .view {
     flex: 18;
     overflow: auto;
@@ -120,16 +117,10 @@ const test1 = Style.parse(`
     }
   }
 }
-`, {
-  data: {
-    shouldnt: 'fdfdsfdsf',
-    ComponentName: {
-      width: 'name',
-      test: 'another one'
-    },
-    SelfArt: {
-      color: 'red',
-    }
-  },
+`);
+test1.use({
+  Belf: {
+    color: 'red',
+  }
 });
 console.warn(test1);

@@ -32,20 +32,14 @@ export default class Rules extends Utils {
      * varName with 12px as value
      */
     public mapExportableLiteralVariables: Map<string, string> = new Map();
-    /**
-     * any children rule that is saved into a variable.
-     * @export const RuleName = div {};
-     */
-    public mapConstRules: Map<string, Rules> = new Map();
     constructor(public opts: RulesOptions) {
         super();
         const { parent } = this;
         if (parent) {
             parent.children.push(this);
-            // save into parent.mapConstRules
+            // save into this.opts.document.mapAssignedRules
             // if the current rule is saved into a var
             this.saveConst();
-            console.warn(parent.mapConstRules);
         }
         // this.readVariables();
         this.readProperties();
@@ -114,15 +108,32 @@ export default class Rules extends Utils {
      */
     get isInterface(): boolean { return !!this.selector && !!this.selector.match(/^\@interface\b/) }
     get isTyped(): boolean { return !!this.selector && !!this.selector.match(/^\@\<([\s\S]*?)\>\b/) }
+    /**
+     * real query of the rule
+     */
+    get query(): string | null {
+        if (this.isConst || this.isExport) {
+            let match, { selector } = this;
+            if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>[\S]+?)\s*=(?<query>[\s\S]+?)$/)) && match.groups) {
+                const { query } = match.groups;
+                return query;
+            }
+        }
+        return this.selector;
+    }
+    /**
+     * save the current rule if the property isConst or isExport is true
+     */
     saveConst(): void {
         if (this.isConst || this.isExport) {
             const { parent, selector } = this;
-            if (parent) {
+            const { document } = this.opts;
+            if (document && document.mapAssignedRules) {
                 // get the variable name
                 let match;
                 if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>[\S]+?)\s*=/)) && match.groups) {
                     let { name } = match.groups;
-                    if (name) parent.mapConstRules.set(name, this);
+                    if (name) document.mapAssignedRules.set(name, this);
                 }
             }
         }
@@ -150,7 +161,7 @@ export default class Rules extends Utils {
                     const obj = Object.assign({},
                         Object.fromEntries(this.mapLiteralVariables.entries()),
                         Object.fromEntries(this.mapExportableLiteralVariables.entries()),
-                        Object.fromEntries(this.mapConstRules.entries()),
+                        Object.fromEntries(this.opts.document.mapAssignedRules.entries()),
                         this.opts.document.data,
                     );
                     const sourceEntries = Object.entries(obj);

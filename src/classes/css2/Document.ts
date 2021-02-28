@@ -16,25 +16,38 @@ export interface DocumentOptions {
   text: string;
   expressions: Expressions;
   typedExpressions: TypedExpressions;
-  data: {[key: string]: string | { [exported: string]: string; }};
+  data?: {[key: string]: string | { [exported: string]: string; }};
 }
 export default class Document extends Utils implements DocumentOptions {
   static mapComponents: Map<string, Rules["mapExportableLiteralVariables"]> = new Map();
   mapRules: Map<string, Rules>  = new Map();
+    /**
+   * any children rule that is saved into a variable.
+   * @export const RuleName = div {};
+   */
+  public mapAssignedRules: Map<string, Rules> = new Map();
+  data?: DocumentOptions['data'];
   constructor(
     public text: DocumentOptions['text'],
     public expressions: DocumentOptions['expressions'],
     public typedExpressions: DocumentOptions['typedExpressions'],
-    public data: DocumentOptions['data'],
   ) {
     super();
+  }
+  /**
+   * all the data of the current document,
+   * will overwrite the document's data
+   * after setting the data, the document will start parsing and save all the rules inside it
+   */
+  use(data: DocumentOptions['data']) {
+    this.data = data;
     this.parseDocument();
   }
-    /**
+  /**
    * main method to start parsing the document
    * we will use all blocks expressions
    */
-  public parseDocument() {
+  private parseDocument() {
     const blocks = Object.entries(this.typedExpressions.blocks)
       .reverse();
     /**
