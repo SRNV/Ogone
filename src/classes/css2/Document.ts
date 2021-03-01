@@ -19,9 +19,21 @@ export interface DocumentOptions {
   data?: {[key: string]: string | { [exported: string]: string; }};
 }
 export default class Document extends Utils implements DocumentOptions {
-  static mapComponents: Map<string, Rules["mapExportableLiteralVariables"]> = new Map();
   mapRules: Map<string, Rules>  = new Map();
-    /**
+  /**
+   * all the variables that are not handling a selector
+   * @const varName = 12px;
+   * varName with 12px as value
+   */
+  public mapLiteralVariables: Map<string, string> = new Map();
+  /**
+   * same as MapLiteralVariables
+   * but should only save the exported variables like following
+   * @export const Varname = 12px;
+   * varName with 12px as value
+   */
+  public mapExportableLiteralVariables: Map<string, string> = new Map();
+  /**
    * any children rule that is saved into a variable.
    * @export const RuleName = div {};
    */

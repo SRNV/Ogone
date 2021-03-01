@@ -3,7 +3,7 @@ import Document from "./Document.ts";
 
 export interface RulesOptions {
     readonly id: string;
-    readonly source: string;
+    source: string;
     parent?: Rules;
     selector?: string;
     document: Document;
@@ -19,19 +19,6 @@ export default class Rules extends Utils {
      */
     private _data: { [k: string]: string } = {};
     public children: Rules[] = [];
-    /**
-     * all the variables that are not handling a selector
-     * @const varName = 12px;
-     * varName with 12px as value
-     */
-    public mapLiteralVariables: Map<string, string> = new Map();
-    /**
-     * same as MapLiteralVariables
-     * but should only save the exported variables like following
-     * @export const Varname = 12px;
-     * varName with 12px as value
-     */
-    public mapExportableLiteralVariables: Map<string, string> = new Map();
     constructor(public opts: RulesOptions) {
         super();
         const { parent } = this;
@@ -41,9 +28,8 @@ export default class Rules extends Utils {
             // if the current rule is saved into a var
             this.saveConst();
         }
-        // this.readVariables();
+        this.readVariables();
         this.readProperties();
-        console.warn(this._data);
     }
     /**
      * regular expression to identify the selector of the current rule
@@ -159,8 +145,8 @@ export default class Rules extends Utils {
                 if (match.groups.spreaded) {
                     const { spreaded } = match.groups;
                     const obj = Object.assign({},
-                        Object.fromEntries(this.mapLiteralVariables.entries()),
-                        Object.fromEntries(this.mapExportableLiteralVariables.entries()),
+                        Object.fromEntries(this.opts.document.mapLiteralVariables.entries()),
+                        Object.fromEntries(this.opts.document.mapExportableLiteralVariables.entries()),
                         Object.fromEntries(this.opts.document.mapAssignedRules.entries()),
                         this.opts.document.data,
                     );
@@ -189,6 +175,26 @@ export default class Rules extends Utils {
                         `);
                         spreadChildrenFunction(this, Rules, ...valuesRules);
                     }
+                }
+            }
+            source = source.replace(reg, '');
+        }
+    }
+    readVariables(): void {
+        const reg = /(?:\;|\{|^|\d+_block|\n)\s*(\@(?<statement>export\s+const\s+|const\s+)(?<name>[\S]+?)(\s*=\s*)(?<value>[\s\S]+?))(\;|\}|$)/i;
+        let source = this.source.trim();
+        let match;
+        while(match = source.match(reg)) {
+            if (match.groups) {
+                const { statement, name, value } = match.groups;
+                if (!this.isTopLevel) {
+                    this.error(`Cannot assign the variable '${name}' inside the rule [${this.query}]`);
+                }
+                // save it into the correct map
+                if (statement.startsWith('export')) {
+                    this.opts.document.mapExportableLiteralVariables.set(name, value);
+                } else {
+                    this.opts.document.mapLiteralVariables.set(name, value);
                 }
             }
             source = source.replace(reg, '');

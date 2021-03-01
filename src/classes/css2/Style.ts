@@ -103,6 +103,7 @@ const test1 = Style.createDocument(`
 @const rule = div {
   color: red;
 };
+@export const test = 20px;
 .container {
   overflow: hidden;
   display: flex;
