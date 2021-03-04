@@ -111,6 +111,15 @@ const test1 = Style.createDocument(`
   ...$Belf;
   .view {
     flex: 18;
+    flex-direction::media(
+      row: default;
+      column: 500px;
+    );
+    color::media(
+      green: default;
+      red: 300px;
+      blue: 320px
+    );
     overflow: auto;
     .content {
       flex: $flex;
@@ -124,4 +133,3 @@ test1.use({
     color: 'red',
   }
 });
-console.warn(test1);

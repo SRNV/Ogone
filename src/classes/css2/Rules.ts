@@ -1,6 +1,32 @@
 import { Utils } from "../Utils.ts";
 import Document from "./Document.ts";
 
+/**
+ * lets the user write properties with sugar syntax like following
+ * div {
+ *   color::media(green; red: 300px)
+ *   background::media(blue; black: 300px)
+ * }
+ */
+export class PseudoProperty {
+    constructor(
+        /**
+         * the rule that is used
+         */
+        public parent: Rules,
+        /**
+         * the property to transform
+         */
+        public readonly property: string,
+        /**
+         * the name of the pseudo property
+         */
+        public readonly name: string,
+        public readonly opts: { values: string[][] }) {
+            console.warn(this);
+    }
+}
+
 export interface RulesOptions {
     readonly id: string;
     source: string;
@@ -19,6 +45,7 @@ export default class Rules extends Utils {
      */
     private _data: { [k: string]: string } = {};
     public children: Rules[] = [];
+    mapPseudoProperties: Map<string, PseudoProperty> = new Map();
     constructor(public opts: RulesOptions) {
         super();
         const { parent } = this;
@@ -28,6 +55,7 @@ export default class Rules extends Utils {
             // if the current rule is saved into a var
             this.saveConst();
         }
+        this.readPseudoProperties();
         this.readVariables();
         this.readProperties();
     }
@@ -123,6 +151,37 @@ export default class Rules extends Utils {
                 }
             }
         }
+    }
+    /**
+     * get all pseudo properties of the rule
+     * syntax:
+     *  div {
+     *    color::media(green; red: 400px);
+     * }
+     * where color as for default green and red when the min-width: 400px
+     */
+    readPseudoProperties(): void {
+        const reg = /(?<=\;|\{|^|\d+_block|\n|\s*)(?<property>[\w\-\_]+?)(\:){2}(?<name>[\w\-\_]+?)\s*(?<values>\d+_parenthese)(\;|\}|$)/i;
+        let source = this.source.trim();
+        let match;
+        while(match = source.match(reg)) {
+            if (match.groups) {
+                const { values, property, name } = match.groups;
+                const sourceValues = this.opts.document.expressions[values];
+                const allValues = sourceValues.slice(1, -1)
+                    .split(';')
+                    .map((v) => v.trim().split(':'));
+                const pseudo = new PseudoProperty(
+                    this,
+                    property,
+                    name,
+                    { values: allValues, }
+                );
+                this.mapPseudoProperties.set(property, pseudo);
+            }
+            source = source.replace(reg, '');
+        }
+        this.opts.source = source;
     }
     /**
      * start getting all the properties of the current rule
