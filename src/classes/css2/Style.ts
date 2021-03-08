@@ -102,12 +102,24 @@ const test1 = Style.createDocument(`
   color: red;
 };
 @export const test = 20px;
+@declare interface DeclaredC {
+  color;
+  justify-content;
+}
+@export interface GlobalC {
+  color;
+  background;
+}
+@interface Colored {
+  color;
+  background;
+}
 .container {
   overflow: hidden;
   display: flex;
   flex-direction: row-reverse;
   ...$Belf;
-  .view {
+  @<Colored>.view {
     flex: 18;
     flex-direction::media(
       row: default;
