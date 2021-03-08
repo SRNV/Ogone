@@ -6,9 +6,7 @@ import notParsedElements from "../../../utils/not-parsed.ts";
 import read from "../../../utils/agnostic-transformer.ts";
 import { Utils } from "../Utils.ts";
 import type {
-  Expressions,
   ProtocolScriptRegExpList,
-  TypedExpressions,
 } from "../../ogone.main.d.ts";
 import RegExpTransformable from "../RegExpTransformable.ts";
 import Document, {
@@ -123,7 +121,6 @@ const test1 = Style.createDocument(`
     overflow: auto;
     .content {
       flex: $flex;
-      $flex;
     }
   }
 }
@@ -131,5 +128,6 @@ const test1 = Style.createDocument(`
 test1.use({
   Belf: {
     color: 'red',
+    var: "17",
   }
 });

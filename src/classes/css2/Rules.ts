@@ -23,7 +23,6 @@ export class PseudoProperty {
          */
         public readonly name: string,
         public readonly opts: { values: string[][] }) {
-            console.warn(this);
     }
 }
 
@@ -58,6 +57,18 @@ export default class Rules extends Utils {
         this.readPseudoProperties();
         this.readVariables();
         this.readProperties();
+        console.warn(this.data);
+    }
+    /**
+     * returns the array with every defined data
+     */
+    get dataRessources() {
+        return [
+            Object.fromEntries(this.opts.document.mapLiteralVariables.entries()),
+            Object.fromEntries(this.opts.document.mapExportableLiteralVariables.entries()),
+            Object.fromEntries(this.opts.document.mapAssignedRules.entries()),
+            this.opts.document.data,
+        ];
     }
     /**
      * regular expression to identify the selector of the current rule
@@ -72,16 +83,16 @@ export default class Rules extends Utils {
     get source(): string {
         return this.opts.source;
     }
-     /**
-     * returns the parent of the current rule
-     */
+    /**
+    * returns the parent of the current rule
+    */
     get parent(): Rules | undefined {
         const entries = Object.entries(this.opts.document.typedExpressions.blocks);
         const maybeParent = entries.find(([, block]: string[]) => {
             return block.includes(this.opts.id);
         });
         if (maybeParent) {
-            const [key, ] = maybeParent;
+            const [key,] = maybeParent;
             const result = this.opts.document.mapRules.get(key);
             this.opts.parent = result;
             return result;
@@ -128,7 +139,7 @@ export default class Rules extends Utils {
     get query(): string | null {
         if (this.isConst || this.isExport) {
             let match, { selector } = this;
-            if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>[\S]+?)\s*=(?<query>[\s\S]+?)$/)) && match.groups) {
+            if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>([\S]+)+?)\s*=(?<query>[\s\S]+?)$/)) && match.groups) {
                 const { query } = match.groups;
                 return query;
             }
@@ -145,7 +156,7 @@ export default class Rules extends Utils {
             if (document && document.mapAssignedRules) {
                 // get the variable name
                 let match;
-                if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>[\S]+?)\s*=/)) && match.groups) {
+                if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>([\S]+)+?)\s*=/)) && match.groups) {
                     let { name } = match.groups;
                     if (name) document.mapAssignedRules.set(name, this);
                 }
@@ -164,7 +175,7 @@ export default class Rules extends Utils {
         const reg = /(?<=\;|\{|^|\d+_block|\n|\s*)(?<property>[\w\-\_]+?)(\:){2}(?<name>[\w\-\_]+?)\s*(?<values>\d+_parenthese)(\;|\}|$)/i;
         let source = this.source.trim();
         let match;
-        while(match = source.match(reg)) {
+        while (match = source.match(reg)) {
             if (match.groups) {
                 const { values, property, name } = match.groups;
                 const sourceValues = this.opts.document.expressions[values];
@@ -188,10 +199,10 @@ export default class Rules extends Utils {
      * those will be saved into the data object
      */
     readProperties(): void {
-        const reg = /(?:\;|\{|^|\d+_block|\n)\s*((?<property>[^\:\n]+?)\s*(:)\s*(?<value>[^\:\;]+?)|(\.){3}\$(?<spreaded>[\S]+?))(\;|\}|$)/i;
+        const reg = /(?:\;|\{|^|\d+_block|\n)\s*((?<property>[^\:\n]+?)\s*(:)\s*(?<value>[^\:\;]+?)|(\.){3}\$(?<spreaded>([\S]+)+?))(\;|\}|$)/i;
         let source = this.source.trim();
         let match;
-        while(match = source.match(reg)) {
+        while (match = source.match(reg)) {
             // any named group is captured
             if (match.groups) {
                 // a property/value group is captured by the regexp
@@ -203,12 +214,7 @@ export default class Rules extends Utils {
                 // by using the following syntax ...$Spreaded;
                 if (match.groups.spreaded) {
                     const { spreaded } = match.groups;
-                    const obj = Object.assign({},
-                        Object.fromEntries(this.opts.document.mapLiteralVariables.entries()),
-                        Object.fromEntries(this.opts.document.mapExportableLiteralVariables.entries()),
-                        Object.fromEntries(this.opts.document.mapAssignedRules.entries()),
-                        this.opts.document.data,
-                    );
+                    const obj = Object.assign({}, ...this.dataRessources);
                     const sourceEntries = Object.entries(obj);
                     const entries = sourceEntries.filter(([, value]: [string, unknown]) => !(value instanceof Rules)
                         && !(value instanceof String));
@@ -240,10 +246,10 @@ export default class Rules extends Utils {
         }
     }
     readVariables(): void {
-        const reg = /(?:\;|\{|^|\d+_block|\n)\s*(\@(?<statement>export\s+const\s+|const\s+)(?<name>[\S]+?)(\s*=\s*)(?<value>[\s\S]+?))(\;|\}|$)/i;
+        const reg = /(?:\;|\{|^|\d+_block|\n)\s*(\@(?<statement>export\s+const\s+|const\s+)(?<name>([\S]+)+?)(\s*=\s*)(?<value>[\s\S]+?))(\;|\}|$)/i;
         let source = this.source.trim();
         let match;
-        while(match = source.match(reg)) {
+        while (match = source.match(reg)) {
             if (match.groups) {
                 const { statement, name, value } = match.groups;
                 if (!this.isTopLevel) {
@@ -265,6 +271,31 @@ export default class Rules extends Utils {
      * - self references
      */
     get data() {
-        return;
+        const newObj = Object.assign({}, this._data);
+        for (let key in newObj) {
+            let match;
+            let data = newObj[key];
+            let reg = /(\$)(?<varname>([^\{\[\(\n\r\#\s]+)+?)/;
+            let result = '';
+            while ((match = data.match(reg))) {
+                if (match.groups?.varname) {
+                    const { varname } = match.groups;
+                    const obj = Object.assign({}, ...this.dataRessources);
+                    const sourceEntries = Object.entries(obj);
+                    const entries = sourceEntries.filter(([, value]: [string, unknown]) => !(value instanceof Rules)
+                        && !(value instanceof String));
+                    const keys = entries.map(([key]) => key);
+                    const values = entries.map(([, value]) => value);
+                    // create the util to get the required value
+                    if (keys.length) {
+                        const getter = new Function(...keys, `return (${varname || 'undefined'});`);
+                        result = getter(...values);
+                    }
+                }
+                data = data.replace(reg, result);
+            }
+            newObj[key] = data;
+        }
+        return newObj;
     }
 }
