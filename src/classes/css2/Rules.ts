@@ -53,6 +53,8 @@ export default class Rules extends Utils {
             parent.children.push(this);
             // save into this.opts.document.mapAssignedRules
             // if the current rule is saved into a var
+            // TODO parent should read all the saved rules
+            // and not the saved rule itself
             this.saveConst();
         }
         this.readPseudoProperties();
