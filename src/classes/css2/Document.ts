@@ -25,14 +25,14 @@ export default class Document extends Utils implements DocumentOptions {
    * @const varName = 12px;
    * varName with 12px as value
    */
-  public mapLiteralVariables: Map<string, string> = new Map();
+  public mapLitteralVariables: Map<string, string> = new Map();
   /**
    * same as MapLiteralVariables
    * but should only save the exported variables like following
    * @export const Varname = 12px;
    * varName with 12px as value
    */
-  public mapExportableLiteralVariables: Map<string, string> = new Map();
+  public mapExportableLitteralVariables: Map<string, string> = new Map();
   /**
    * any children rule that is saved into a variable.
    * @export const RuleName = div {};
@@ -81,5 +81,25 @@ export default class Document extends Utils implements DocumentOptions {
     const entries = Array.from(this.mapRules);
     const result = entries.find(([, rule]) => rule.isTopLevel);
     return result && result[1];
+  }
+  /**
+   * returns a conform CSS string
+   */
+  render(
+    /**
+     * rendering options for the document
+     */
+    opts: {
+      minify?: boolean
+    }
+  ): string {
+    const { minify } = opts;
+    let result = '';
+    const entries = this.mapRules.entries();
+    for (let entry of entries) {
+      const [key, rule] = entry;
+      result += rule.render(opts);
+    }
+    return result;
   }
 }

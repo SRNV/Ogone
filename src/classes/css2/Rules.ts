@@ -33,6 +33,7 @@ export interface RulesOptions {
     selector?: string;
     document: Document;
 }
+// TODO implement css import statement
 /**
  * class Rules that will define its own selector
  * by fetching it into the parent Rule
@@ -57,15 +58,97 @@ export default class Rules extends Utils {
         this.readPseudoProperties();
         this.readVariables();
         this.readProperties();
-        console.warn(this.data);
+    }
+    /**
+     * if the rule is a media query
+     */
+    get isMedia(): boolean { return !!this.selector && !!this.selector.match(/^\@media\b/) }
+    /**
+     * if the rule is defined for animations
+     */
+    get isKeyframes(): boolean { return !!this.selector && !!this.selector.match(/^\@keyframes\b/) }
+    /**
+     * if the rule is saved into the document
+     */
+    get isConst(): boolean { return !!this.selector && !!this.selector.match(/^\@const\b/) }
+    /**
+     * if the rule is saved and is exportable
+     */
+    get isExport(): boolean { return !!this.selector && !!this.selector.match(/^\@export\s+const\b/) }
+    /**
+     * if the rule is a supports rule
+     */
+    get isSupports(): boolean { return !!this.selector && !!this.selector.match(/^\@supports\b/) }
+    /**
+     * if the rule is a document rule,
+     * not a document instance
+     */
+    get isDocument(): boolean { return !!this.selector && !!this.selector.match(/^\@document\b/) }
+    /**
+     * if the rule has no parent.
+     */
+    get isTopLevel(): boolean { return !this.parent };
+    /**
+     * need to provide specs here
+     *  @interface InterfaceName<U,T,V> {
+     *      color: name;
+     *      color: U;
+     *  }
+     * usage:
+     * @<InterfaceName> div.container { ... }
+     */
+    get isInterface(): boolean { return !!this.selector && !!this.selector.match(/^\@interface\b/) }
+    get isExportableInterface(): boolean { return !!this.selector && !!this.selector.match(/^\@export\s+interface\b/) }
+    /**
+     * when a rule should implement a trait
+     * traits will only check if a property is used or not
+     * @trait TraitName {
+     *     color;
+     *     background;
+     * }
+     *
+     * usage:
+     *
+     * @<TraitName> div.container { ... }
+     */
+    get isTrait(): boolean { return !!this.selector && !!this.selector.match(/^\@trait\b/) }
+    get isExportableTrait(): boolean { return !!this.selector && !!this.selector.match(/^\@export\s+trait\b/) }
+    /**
+     * this is an augmented interface
+     * but the querySelector is type checked
+     * and also the children are type checked
+     * @structure StructureName[div.container]<U,T> {
+     *     color: U;
+     *     background: T;
+     *     &:hover {...}
+     * }
+     *
+     * usage: structures are automatically type-checking matching elements
+     */
+    get isStructure(): boolean { return !!this.selector && !!this.selector.match(/^\@structure\b/) }
+    get isExportableStructure(): boolean { return !!this.selector && !!this.selector.match(/^\@export\s+structure\b/) }
+    get isTyped(): boolean { return !!this.selector && !!this.selector.match(this.typeInterferenceRegExp) }
+    /**
+     * check if the rule should render
+     */
+    get isNotToRender(): boolean {
+        return this.isInterface
+            || this.isConst
+            || this.isExport
+            || this.isExportableInterface
+            || this.isExportableStructure
+            || this.isExportableTrait
+            || this.isStructure
+            || this.isTrait
+            || this.isTopLevel;
     }
     /**
      * returns the array with every defined data
      */
     get dataRessources() {
         return [
-            Object.fromEntries(this.opts.document.mapLiteralVariables.entries()),
-            Object.fromEntries(this.opts.document.mapExportableLiteralVariables.entries()),
+            Object.fromEntries(this.opts.document.mapLitteralVariables.entries()),
+            Object.fromEntries(this.opts.document.mapExportableLitteralVariables.entries()),
             Object.fromEntries(this.opts.document.mapAssignedRules.entries()),
             this.opts.document.data,
         ];
@@ -76,6 +159,9 @@ export default class Rules extends Utils {
      */
     get regExpIdentifier(): RegExp {
         return new RegExp(`(?:(;|\\{|^))(?<selector>[\\S\\s]+?)(?<!\$)(${this.opts.id})`, 'i');
+    }
+    get typeInterferenceRegExp(): RegExp {
+        return /^\@\<(([\s\S]*)+?)\>/;
     }
     /**
      * the content of the
@@ -98,7 +184,7 @@ export default class Rules extends Utils {
             return result;
         }
     }
-    get selector(): string | null {
+    private get selector(): string | null {
         if (this._selector) return this._selector;
         const { parent } = this;
         if (parent) {
@@ -108,7 +194,7 @@ export default class Rules extends Utils {
                 const { selector } = match.groups;
                 const regSplit = /(?:\d+_block|;)/gi;
                 const splitted = selector.split(regSplit);
-                const realName = splitted[splitted.length - 1];
+                let realName = splitted[splitted.length - 1];
                 if (realName) {
                     let result = realName.trim()
                     this._selector = result;
@@ -118,33 +204,42 @@ export default class Rules extends Utils {
         }
         return null;
     }
-    get isMedia(): boolean { return !!this.selector && !!this.selector.match(/^\@media\b/) }
-    get isKeyframes(): boolean { return !!this.selector && !!this.selector.match(/^\@keyframes\b/) }
-    get isConst(): boolean { return !!this.selector && !!this.selector.match(/^\@const\b/) }
-    get isExport(): boolean { return !!this.selector && !!this.selector.match(/^\@export\s+const\b/) }
-    get isSupports(): boolean { return !!this.selector && !!this.selector.match(/^\@supports\b/) }
-    get isDocument(): boolean { return !!this.selector && !!this.selector.match(/^\@document\b/) }
-    get isTopLevel(): boolean { return !this.parent };
     /**
-     * need to provide specs here
-     *   @interface TypeName<U,T,V> {
-     *       color;
-     *  }
+     * method to transform the & token to the parent selector
      */
-    get isInterface(): boolean { return !!this.selector && !!this.selector.match(/^\@interface\b/) }
-    get isTyped(): boolean { return !!this.selector && !!this.selector.match(/^\@\<([\s\S]*?)\>\b/) }
+    private renderParentReference(query: string | null): string | null {
+        if (!query) return query;
+        let result = query;
+        const newQuery = result.split(',');
+        result = newQuery.map((sub: string) => {
+            const match = sub.match(/&/gi);
+            if (match && this.parent?.query) {
+                return sub.replace(/&/gi, this.parent.query);
+            } else if (this.parent && !this.parent.isTopLevel && this.parent.query) {
+                const parentQuery = this.parent.query;
+                return `${parentQuery} ${sub}`;
+            }
+            return sub;
+        }).join(',\n');
+        return result;
+    }
     /**
-     * real query of the rule
+     * queryselector of the current rule
      */
     get query(): string | null {
+        let result = this.selector;
         if (this.isConst || this.isExport) {
             let match, { selector } = this;
             if ((match = selector!.match(/^@(export\s+const|const)\s+(?<name>([\S]+)+?)\s*=(?<query>[\s\S]+?)$/)) && match.groups) {
                 const { query } = match.groups;
-                return query;
+                result = query;
             }
         }
-        return this.selector;
+        if (this.isTyped && this.selector) {
+            // remove type interference from the selector
+            result = this.selector.replace(this.typeInterferenceRegExp, '');
+        }
+        return this.renderParentReference(result);
     }
     /**
      * save the current rule if the property isConst or isExport is true
@@ -165,10 +260,13 @@ export default class Rules extends Utils {
     }
     /**
      * get all pseudo properties of the rule
-     * syntax:
-     *  div {
+     *
+     * usage:
+     * ```css
+     * div {
      *    color::media(green; red: 400px);
      * }
+     * ```
      * where color as for default green and red when the min-width: 400px
      */
     readPseudoProperties(): void {
@@ -220,7 +318,7 @@ export default class Rules extends Utils {
                         && !(value instanceof String));
                     const keys = entries.map(([key]) => key);
                     const values = entries.map(([, value]) => value);
-
+                    console.warn(obj);
                     // create the util to spread all the variables
                     if (keys.length) {
                         const assignFunction = new Function('$$origin', ...keys, `return Object.assign($$origin, ${spreaded || '{}'});`);
@@ -245,6 +343,10 @@ export default class Rules extends Utils {
             source = source.replace(reg, '');
         }
     }
+    /**
+     * saves all the defined variables
+     * into the current document
+     */
     readVariables(): void {
         const reg = /(?:\;|\{|^|\d+_block|\n)\s*(\@(?<statement>export\s+const\s+|const\s+)(?<name>([\S]+)+?)(\s*=\s*)(?<value>[\s\S]+?))(\;|\}|$)/i;
         let source = this.source.trim();
@@ -257,9 +359,9 @@ export default class Rules extends Utils {
                 }
                 // save it into the correct map
                 if (statement.startsWith('export')) {
-                    this.opts.document.mapExportableLiteralVariables.set(name, value);
+                    this.opts.document.mapExportableLitteralVariables.set(name, value);
                 } else {
-                    this.opts.document.mapLiteralVariables.set(name, value);
+                    this.opts.document.mapLitteralVariables.set(name, value);
                 }
             }
             source = source.replace(reg, '');
@@ -297,5 +399,31 @@ export default class Rules extends Utils {
             newObj[key] = data;
         }
         return newObj;
+    }
+    /**
+     * returns the output of the current rule
+     */
+    render(opts: { minify?: boolean }): string {
+        let result = '';
+        const { query } = this;
+        const properties = Array.from(
+            Object.entries(this.data)
+        )
+            .map(([key, property]) => `  ${key}: ${property}`)
+            .join(';\n');
+        switch (true) {
+            case this.isNotToRender: return '';
+            case this.isMedia:
+            case this.isKeyframes:
+            case this.isSupports:
+            case this.isDocument:
+            case !this.isNotToRender:
+                return `
+${query} {
+${properties}
+}
+`;
+            default: return '';
+        }
     }
 }

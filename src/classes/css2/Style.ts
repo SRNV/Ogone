@@ -99,20 +99,12 @@ export default class Style extends Utils {
 const test1 = Style.createDocument(`
 @const flex = 10px;
 @const rule = div {
-  color: red;
+  color: blue-shark;
 };
 @export const test = 20px;
-@declare interface DeclaredC {
+@trait DeclaredC {
   color;
   justify-content;
-}
-@export interface GlobalC {
-  color;
-  background;
-}
-@interface Colored {
-  color;
-  background;
 }
 .container {
   overflow: hidden;
@@ -126,13 +118,13 @@ const test1 = Style.createDocument(`
       column: 500px;
     );
     color::media(
-      green: default;
-      red: 300px;
-      blue: 320px
+      default: green;
+      300px: red;
     );
     overflow: auto;
-    .content {
+    .content, ul {
       flex: $flex;
+      ...$rule;
     }
   }
 }
@@ -143,3 +135,5 @@ test1.use({
     var: "17",
   }
 });
+const transformed = test1.render({ });
+console.log(transformed);
