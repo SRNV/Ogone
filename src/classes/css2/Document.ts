@@ -40,8 +40,17 @@ export default class Document extends Utils implements DocumentOptions {
   public mapAssignedRules: Map<string, Rules> = new Map();
   data?: DocumentOptions['data'];
   constructor(
+    /**
+     * the text to parse and to create the document with
+     */
     public text: DocumentOptions['text'],
+    /**
+     * all tokens/expressions of the text
+     */
     public expressions: DocumentOptions['expressions'],
+    /**
+     * all the typed expressions of the text
+     */
     public typedExpressions: DocumentOptions['typedExpressions'],
   ) {
     super();

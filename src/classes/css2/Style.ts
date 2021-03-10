@@ -1,8 +1,6 @@
 import getTypedExpression from "../../../utils/typedExpressions.ts";
 import elements from "../../../utils/elements.ts";
 import notParsedElements from "../../../utils/not-parsed.ts";
-// import forceInlineElements from "../../../utils/forceInlineElements.ts";
-// import getDeepTranslation from "../../../utils/template-recursive.ts";
 import read from "../../../utils/agnostic-transformer.ts";
 import { Utils } from "../Utils.ts";
 import type {
@@ -17,11 +15,8 @@ import Document, {
  * built-in css preprocessor for Ogone
  * should be usable into the browser
  * don't use Deno inside
- * or any reference from Ogone
+ * or any reference to Ogone
  */
-interface StyleOptions {
-  data: DocumentOptions['data'];
-}
 export default class Style extends Utils {
   private static currentDocument: Document;
   private static readonly variables: ProtocolScriptRegExpList = [
