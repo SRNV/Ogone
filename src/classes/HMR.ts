@@ -5,6 +5,7 @@ import { HTMLOgoneElement } from '../ogone.main.d.ts';
 import { ModuleErrorsDiagnostic } from './ModuleErrors.ts';
 
 declare const document: Document;
+declare const LSP_HSE_RUNNING: boolean;
 interface ModuleGraph {
   listeners: Function[];
   graph: string[];
@@ -30,6 +31,14 @@ export default class HMR {
     });
   }
   static useOgone(ogone: typeof Ogone) {
+    /**
+     * check if HSE (Hot Scoped Editor)
+     * is currently
+     * running on the browser.
+     */
+    if (typeof LSP_HSE_RUNNING !== "undefined") {
+      return;
+    }
     if (typeof document !== "undefined") {
       this.ogone = ogone;
       this.clientSettings();

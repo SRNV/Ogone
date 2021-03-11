@@ -54,11 +54,11 @@ export default class EnvServer extends Env {
         //start compilation of o3 files
         this.setDevTool(Configuration.devtool as boolean);
         this.listenHMRWebsocket();
-        this.listenLSPWebsocket();
         this.compile(Configuration.entrypoint, true)
-          .then(() => {
+        .then(() => {
             // Ogone is now ready to serve
             this.startDevelopment();
+            this.listenLSPWebsocket();
           })
       }
     } catch (err) {

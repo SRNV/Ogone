@@ -17,6 +17,7 @@ import type { ButtonInterface } from '../../lib/menu-button-types.ts';
       status: 'todo'
     };
 </proto>
+
 <style>
   .container {
     display: inline-flex;

@@ -28,6 +28,8 @@ export default class Env extends Constructor {
   public static _devtool?: boolean;
   public static _env: Environment = "development";
   protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
+  private timeoutBeforeSendingLSPRequests?: number;
+  private timeoutBeforeSendingHMRMessage?: number;
   constructor() {
     super();
     this.devtool = Configuration.devtool;
@@ -116,31 +118,35 @@ ${err.stack}`);
    * connected to the IDE
    * it sends two messages
    */
-  public listenLSPWebsocket(): void {
+  public async listenLSPWebsocket(): Promise<void> {
     try {
-      let timeoutBeforeSendingRequests: number;
       // send open designer message to the LSP
       if (Deno.args.includes(Flags.DESIGNER)) {
         Configuration.OgoneDesignerOpened = true;
         OgoneWorkers.lspWebsocketClientWorker.postMessage({
           type: Workers.LSP_OPEN_WEBVIEW,
         })
+      } else {
+        return;
       }
-      OgoneWorkers.lspWebsocketClientWorker.addEventListener('message', (event) => {
-        if (timeoutBeforeSendingRequests !== undefined) {
-          clearTimeout(timeoutBeforeSendingRequests);
-        }
+      OgoneWorkers.lspWebsocketClientWorker.addEventListener('message', async (event) => {
+        console.clear();
+        this.infos(`Hot Scoped Editor - received new messages, running tasks...`);
+        clearTimeout(this.timeoutBeforeSendingLSPRequests);
         // this timeout fixes all the broken pipe issue
-        timeoutBeforeSendingRequests = setTimeout(() => {
+        this.timeoutBeforeSendingLSPRequests = setTimeout(() => {
           const { data } = event;
           switch (data.type) {
+            default:
+              this.infos(`Hot Scoped Editor - nothing to do.`);
+              break;
             case Workers.LSP_UPDATE_CURRENT_COMPONENT:
               const filePath = data.data.path;
               const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
                 filePath: filePath.replace(Deno.cwd(), '@'),
               });
               // save the content of the file to overwrite
-              // this allows the live edition
+              // this allows the live editor
               MapFile.files.set(filePath, {
                 content: data.data.text,
                 original: Deno.readTextFileSync(data.data.path),
@@ -160,15 +166,19 @@ ${err.stack}`);
                   OgoneWorkers.lspWebsocketClientWorker.postMessage({
                     type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
                     application,
+                    rerender: true,
                   });
+                  // clear all previous messages
+                  this.success(`Hot Scoped Editor - updated`);
                   await this.TSXContextCreator.read(bundle, {
                     checkOnly: filePath.replace(Deno.cwd(), ''),
                   });
+                  this.exposeSession();
                 })
                 .then(() => {
                   Deno.remove(tmpFile);
                 })
-                .catch(() => {
+                .catch((error) => {
                   Deno.remove(tmpFile);
                 })
               break;
@@ -360,7 +370,6 @@ ${err.stack}`);
   }
   public listenHMRWebsocket(): void {
     this.trace('setting HMR server');
-    let timeoutBeforeSendingRequests: number;
     HMR.setServer(
       new WebSocketServer(HMR.port)
     );
@@ -370,13 +379,13 @@ ${err.stack}`);
     });
     try {
       OgoneWorkers.hmrContext.addEventListener('message', (event) => {
-        if (timeoutBeforeSendingRequests !== undefined) {
-          clearTimeout(timeoutBeforeSendingRequests);
-        }
+        clearTimeout(this.timeoutBeforeSendingHMRMessage);
         // this timeout fixes all the broken pipe issue
-        timeoutBeforeSendingRequests = setTimeout(() => {
+        this.timeoutBeforeSendingHMRMessage = setTimeout(() => {
           if (event.data.isOgone) {
-            if(event.data.path === Configuration.entrypoint
+            console.clear();
+            this.infos('HMR - running tasks...');
+            if (event.data.path === Configuration.entrypoint
               || ComponentBuilder.mapUuid.get(event.data.path) === ComponentBuilder.mapUuid.get(Configuration.entrypoint)) {
               this.updateRootComponent(event);
             } else {

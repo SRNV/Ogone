@@ -31,19 +31,21 @@ self.addEventListener('unload', () => {
 })
 self.onmessage = (ev: any) => {
   try {
-    const { type, application, port, component, data, message } = ev.data;
+    const { type, application, port, component, data, message, rerender } = ev.data;
     switch (type) {
       case Workers.LSP_SEND_COMPONENT_INFORMATIONS:
-        notify(Workers.LSP_SEND_COMPONENT_INFORMATIONS, component);
+        notify(type, component);
         break;
       case Workers.LSP_SEND_PORT:
-        notify(Workers.LSP_SEND_PORT, port);
+        notify(type, port);
         break;
       case Workers.LSP_CURRENT_COMPONENT_RENDERED:
-        notify(Workers.LSP_CURRENT_COMPONENT_RENDERED, application);
+        notify(type, application, {
+          rerender,
+        });
         break;
       case Workers.LSP_ERROR:
-        notify(Workers.LSP_ERROR, message);
+        notify(type, message);
         break;
       default:
         notify(type, data);
@@ -53,18 +55,20 @@ self.onmessage = (ev: any) => {
     throw err;
   }
 }
-function notify(type: any, message: Object | string | number) {
+function notify(type: string, message: Object | string | number, opts: any = {}) {
   try {
     if (client) {
       if (client.readyState !== 1) {
         FIFOMessages.push(JSON.stringify({
           type: type || 'message',
-          data: message
+          data: message,
+          opts,
         }));
       } else {
         client.send(JSON.stringify({
           type: type || 'message',
-          data: message
+          data: message,
+          opts,
         }));
       }
     }
