@@ -1,4 +1,19 @@
 <template>
+  <style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
+    li {
+      color: black;
+      font-size: 10pt;
+      list-style: decimal;
+      margin: 5px;
+      cursor: pointer;
+      &:hover {
+        color: cadetblue;
+      }
+    }
+    ul {
+      padding-left: 15px;
+    }
+  </style>
   <li
     --event:animationend:fade-in-bottom
     --router-go={this.item.route}
@@ -19,19 +34,3 @@
   default:
     Async.resolve();
 </proto>
-
-<style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
-  li {
-    color: black;
-    font-size: 10pt;
-    list-style: decimal;
-    margin: 5px;
-    cursor: pointer;
-    &:hover {
-      color: cadetblue;
-    }
-  }
-  ul {
-    padding-left: 15px;
-  }
-</style>

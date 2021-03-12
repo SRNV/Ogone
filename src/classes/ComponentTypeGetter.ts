@@ -70,18 +70,10 @@ ${err.stack}`);
             Using a private|protected template is not allowed for ${component.type} components
             `);
           }
-        } else if (component.elements.styles.length && template && (template.attributes.private || template.attributes.protected)) {
-          const position = MapPosition.mapNodes.get(template)!;
-          this.error(`${component.file}:${position.line}:${position.column}\n\t
-          useless Style Tags for private template
-          Turning to private the template of the component will encapsulate all the elements inside the template.
-          the style won't have any effect, because it's inserted into the head of the document.
-          please wrap this style element into the template element.
-          `);
         } else if (template && template.attributes.private && template.attributes.protected) {
           const position = MapPosition.mapNodes.get(template)!;
           this.error(`${component.file}:${position.line}:${position.column}\n\t
-          cannot set both,private and protected, on template. please choose one attribute.
+          cannot set both, private and protected, on template. please choose one attribute.
           `);
         }
       });

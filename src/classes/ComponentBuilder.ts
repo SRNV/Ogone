@@ -39,6 +39,24 @@ export default class ComponentBuilder extends Utils {
         .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
       const head = template && template.childNodes
         .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
+      const styles: XMLNodeDescription[] = [];
+      /**
+       * save styles only if they are the very firsts children
+       * of the template node
+       */
+      if (template
+        && !(template.attributes.private || template.attributes.protected)) {
+        for (let n of template.childNodes) {
+          if (n.nodeType === 1 && n.tagName === "style") {
+            template.childNodes.splice(
+              template.childNodes.indexOf(n),
+              1);
+            styles.push(n);
+          } else if (n.nodeType === 1 && n.tagName !== "head") {
+            break;
+          }
+        }
+      }
       const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
       const uuid = ComponentBuilder.mapUuid.get(opts.file) || `o${crypto.getRandomValues(new Uint32Array(1)).join('')}`;
       return {
@@ -77,7 +95,7 @@ export default class ComponentBuilder extends Utils {
         ...opts,
         mapStyleBundle: undefined,
         elements: {
-          styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
+          styles,
           template,
           proto: protos,
           head,

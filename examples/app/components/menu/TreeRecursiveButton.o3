@@ -2,6 +2,50 @@ import component ScrollComponent from '@/examples/app/components/Scroll.o3';
 import type { TreeRecursive } from '../../lib/tree-recursive-types.ts';
 
 <template>
+  <style>
+    .container {
+      color: var(--o-grey);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .child {
+      padding-left: 30px;
+      height: 0;
+      overflow: hidden;
+      transition: flex 0.5s ease;
+    }
+    .child-open {
+      flex: 1;
+    }
+    .title {
+      padding-bottom: 10px;
+      padding: 5px;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      &:hover {
+        background: var(--o-primary);
+        color: white;
+      }
+    }
+    .child .title {
+      border-left: 1px solid #555;
+    }
+    .status {
+      display: list-item;
+    }
+    .ok {
+      color: var(--o-success)
+    }
+    .todo {
+      color: var(--o-error)
+    }
+    .in-progress {
+      color: var(--o-info)
+    }
+  </style>
   <div class="container">
     <div
       class="title"
@@ -40,47 +84,4 @@ import type { TreeRecursive } from '../../lib/tree-recursive-types.ts';
     break;
 </proto>
 
-<style>
-  .container {
-    color: var(--o-grey);
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-  .child {
-    padding-left: 30px;
-    height: 0;
-    overflow: hidden;
-    transition: flex 0.5s ease;
-  }
-  .child-open {
-    flex: 1;
-  }
-  .title {
-    padding-bottom: 10px;
-    padding: 5px;
-    cursor: pointer;
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    &:hover {
-      background: var(--o-primary);
-      color: white;
-    }
-  }
-  .child .title {
-    border-left: 1px solid #555;
-  }
-  .status {
-    display: list-item;
-  }
-  .ok {
-    color: var(--o-success)
-  }
-  .todo {
-    color: var(--o-error)
-  }
-  .in-progress {
-    color: var(--o-info)
-  }
-</style>
+

@@ -1,4 +1,10 @@
 <template>
+  <!-- style is by default scoped, use the attribute global if you want to make the style general -->
+  <style>
+    img {
+      margin: 5px;
+    }
+  </style>
   <p align="center">
     <a href="https://github.com/denoland/deno">
       <img alt="deno version" src="https://img.shields.io/badge/deno-^1.2.1-informational">
@@ -20,10 +26,3 @@
     </a>
   </p>
 </template>
-
-<!-- style is by default scoped, use the attribute global if you want to make the style general -->
-<style>
-  img {
-    margin: 5px;
-  }
-</style>

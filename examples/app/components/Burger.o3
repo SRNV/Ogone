@@ -4,6 +4,36 @@ import attr from '../lib/attr.ts';
 import type { isOpenType } from '../lib/type.ts';
 
 <template>
+  <style>
+    @const shadowColor = #00000045;
+    @const lineBackground = #848181;
+    .container {
+      padding: 9px;
+      width: 28px;
+      height: auto;
+      background: var(--o-header);
+      display: flex;
+      flex-direction: column;
+      filter: drop-shadow(0px 0px 0px $shadowColor);
+      &:hover {
+        filter: drop-shadow(0px 5px 3px $shadowColor);
+      }
+      &:hover .line {
+        background: var(--o-primary);
+      }
+      .line {
+        background: $lineBackground;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        height: 4px;
+      }
+      .line, & {
+        border-radius: 5px;
+        transition: filter 0.2s ease;
+        cursor: pointer;
+      }
+    }
+  </style>
   <StoreMenu namespace="menu" />
   <div class="container" --click:openMenu>
     <div class="line" attr={attr(20) + '' + this.isOpen}></div>
@@ -27,34 +57,3 @@ import type { isOpenType } from '../lib/type.ts';
       });
     break;
 </proto>
-
-<style>
-  @const shadowColor = #00000045;
-  @const lineBackground = #848181;
-  .container {
-    padding: 9px;
-    width: 28px;
-    height: auto;
-    background: var(--o-header);
-    display: flex;
-    flex-direction: column;
-    filter: drop-shadow(0px 0px 0px $shadowColor);
-    &:hover {
-      filter: drop-shadow(0px 5px 3px $shadowColor);
-    }
-    &:hover .line {
-      background: var(--o-primary);
-    }
-    .line {
-      background: $lineBackground;
-      margin-top: 2px;
-      margin-bottom: 2px;
-      height: 4px;
-    }
-    .line, & {
-      border-radius: 5px;
-      transition: filter 0.2s ease;
-      cursor: pointer;
-    }
-  }
-</style>

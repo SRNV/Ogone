@@ -3,6 +3,12 @@ use @/examples/tests/greeting.o3 as 'greeting-g'
 use @/examples/tests/hmr/sub.o3 as 'sub-1';
 
 <template>
+  <style>
+    .hmr-update {
+      background: blue;
+      color: brown;
+    }
+  </style>
   <h1>HMR tests</h1>
   <h3> update nodes </h3>
   <ul>
@@ -44,11 +50,3 @@ use @/examples/tests/hmr/sub.o3 as 'sub-1';
   default:
     console.warn('change the default')
 </proto>
-
-
-<style>
-  .hmr-update {
-    background: blue;
-    color: brown;
-  }
-</style>

@@ -71,23 +71,24 @@ ${err.stack}`);
       bundle.components.forEach((component: Component) => {
         const forbiddenNode = component.rootNode.childNodes.find((n: XMLNodeDescription) => n
           && n.nodeType === 1
-          && !["template", "proto", "style"].includes(n.tagName as string));
+          && !["template", "proto"].includes(n.tagName as string));
         if (forbiddenNode) {
           const position = MapPosition.mapNodes.get(forbiddenNode)!;
           this.error(`Component Structure Error: ${component.file}:${position.line}:${position.column}
-          [v0.20.0] Only proto, template and style elements are allowed at the top-level of the component:
+          [v0.29.0] Only proto and template elements are allowed at the top-level of the component:
           please follow this pattern:
-            <proto>
-              ...
-            </proto>
             <template>
               <${forbiddenNode.tagName} />
             </template>
-            <style>
+            <proto>
               ...
-            </style>
+            </proto>
+
           you're getting this error cause the ${forbiddenNode.tagName} element is not wrapped into the template element.
           This is to keep a scalable structure for your components.
+
+          Also note that since 0.29.0, to style your component you will need to define the style element into the template element.
+          the first style elements will be scoped as before 0.29.0
         `)
         }
         if (component.elements.template) {

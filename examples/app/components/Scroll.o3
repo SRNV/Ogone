@@ -1,4 +1,18 @@
 <template>
+  <style>
+    .container {
+      overflow: hidden;
+      display: flex;
+      flex-direction: row-reverse;
+      .view {
+        flex: 18;
+        overflow: auto;
+        .content {
+          flex: 18;
+        }
+      }
+    }
+  </style>
   <div class="container">
     <div
       ref="view"
@@ -9,18 +23,3 @@
     </div>
   </div>
 </template>
-
-<style>
-  .container {
-    overflow: hidden;
-    display: flex;
-    flex-direction: row-reverse;
-    .view {
-      flex: 18;
-      overflow: auto;
-      .content {
-        flex: 18;
-      }
-    }
-  }
-</style>

@@ -2,6 +2,70 @@ import component GithubBadges from '../atoms/github-badges.o3';
 import component OBtn from '../atoms/button.o3';
 
 <template>
+  <!-- style is by default scoped, use the attribute global if you want to make the style general -->
+  <style --keyframes={[
+    get('fade-in-down', { time: 2, style: 'ease-in' }),
+    ]}>
+    .container {
+      transition: 0.5s ease;
+      filter: drop-shadow(-10px 10px 10px #00000055);
+      background: white;
+      width: min-content;
+      margin: auto;
+      border-radius: 6px;
+      overflow: hidden;
+      position: relative;
+      z-index: 5;
+    }
+    .brand {
+      width: fit-content;
+      margin: auto;
+    }
+    .brand__message {
+      text-align: center;
+      font-size: 24pt;
+      text-rendering: optimizeSpeed;
+      color: #b9b9b9;
+      margin: 37px;
+    }
+    .logo {
+      width: 400px;
+      height: auto;
+      margin: 0px 333px;
+      @media screen and (max-width: 1170px) {
+        width: 30vw;
+        margin: 0px 15vw;
+      }
+    }
+    .links {
+      background: #f1f1f1;
+      box-shadow: inset -3px 10px 8px #00000027, inset 10px -9px 11px #ffffff;
+      padding: 30px;
+      border-radius: 7px;
+      margin: 5px;
+    }
+    .brand_big {
+      display: inline-block;
+      overflow: hidden;
+      text-align: initial;
+      white-space: nowrap;
+      font-size: 132pt;
+      color: #e3e3e3;
+      transform: rotateZ(90deg);
+      transform-origin: top left;
+      position: fixed;
+      left: 64vw;
+      top: 0px;
+      width: 100vh;
+      font-weight: 700;
+      z-index: 4;
+      height: 100vh;
+    }
+    ul {
+      column-count: 3;
+    }
+
+  </style>
   <div
     ref="container"
     --if={this.display}
@@ -87,68 +151,3 @@ import component OBtn from '../atoms/button.o3';
     Async.resolve();
 </proto>
 
-
-<!-- style is by default scoped, use the attribute global if you want to make the style general -->
-<style --keyframes={[
-  get('fade-in-down', { time: 2, style: 'ease-in' }),
-  ]}>
-  .container {
-    transition: 0.5s ease;
-    filter: drop-shadow(-10px 10px 10px #00000055);
-    background: white;
-    width: min-content;
-    margin: auto;
-    border-radius: 6px;
-    overflow: hidden;
-    position: relative;
-    z-index: 5;
-  }
-  .brand {
-    width: fit-content;
-    margin: auto;
-  }
-  .brand__message {
-    text-align: center;
-    font-size: 24pt;
-    text-rendering: optimizeSpeed;
-    color: #b9b9b9;
-    margin: 37px;
-  }
-  .logo {
-    width: 400px;
-    height: auto;
-    margin: 0px 333px;
-    @media screen and (max-width: 1170px) {
-      width: 30vw;
-      margin: 0px 15vw;
-    }
-  }
-  .links {
-    background: #f1f1f1;
-    box-shadow: inset -3px 10px 8px #00000027, inset 10px -9px 11px #ffffff;
-    padding: 30px;
-    border-radius: 7px;
-    margin: 5px;
-  }
-  .brand_big {
-    display: inline-block;
-    overflow: hidden;
-    text-align: initial;
-    white-space: nowrap;
-    font-size: 132pt;
-    color: #e3e3e3;
-    transform: rotateZ(90deg);
-    transform-origin: top left;
-    position: fixed;
-    left: 64vw;
-    top: 0px;
-    width: 100vh;
-    font-weight: 700;
-    z-index: 4;
-    height: 100vh;
-  }
-  ul {
-    column-count: 3;
-  }
-
-</style>

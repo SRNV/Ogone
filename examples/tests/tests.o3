@@ -1,6 +1,18 @@
 use ../tests/testdirectives.o3 as 'test-d'
 
 <template>
+  <style>
+    @media screen and (max-width:200px) {
+        .container,
+        element,
+        [attr]:hover {
+            background: red;
+        }
+        *:not(.class#element test) > element:hover > [attr]:nth-child(2) {
+          background: red
+        }
+    }
+  </style>
   <test-d text={'test'}>
     <h1>Test des flags</h1>
     <div --for={o of this.array.map((a, i) => i)}>
@@ -23,16 +35,3 @@ use ../tests/testdirectives.o3 as 'test-d'
       this.array.push("t");
     }, 1000)
 </proto>
-
-<style>
-@media screen and (max-width:200px) {
-    .container,
-    element,
-    [attr]:hover {
-        background: red;
-    }
-    *:not(.class#element test) > element:hover > [attr]:nth-child(2) {
-      background: red
-    }
-}
-</style>

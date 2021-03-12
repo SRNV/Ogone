@@ -1,4 +1,10 @@
 <template>
+  <style>
+    .title {
+      background: grey;
+      color: white;
+    }
+  </style>
   <div>
     <div class="title">
       target component
@@ -8,9 +14,3 @@
     </div>
   </div>
 </template>
-<style>
-.title {
-  background: grey;
-  color: white;
-}
-</style>

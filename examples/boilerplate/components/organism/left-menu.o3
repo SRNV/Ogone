@@ -1,6 +1,36 @@
 import component AsyncLiMenu from '../atoms/li-menu.o3';
 
 <template>
+  <style>
+    hr {
+      opacity: 0.4;
+      border-width: thick;
+    }
+    .logo {
+      width: 40%;
+      filter: grayscale(1) brightness(1.5);
+    }
+    .container {
+      filter: drop-shadow(-6px 4px 6px black);
+      background: linear-gradient(0deg, #f9f9f9, white);
+      border-right: 1px solid #e8e8e8;
+      height: 100%;
+      z-index: 400;
+      position: relative;
+    }
+    .fade-in-slide-in-left {
+      @keyframes fade-in-slide-in-left {
+        animation-iteration-count: 1;
+        animation-direction: normal;
+        animation-fill-mode: forwards;
+        animation-duration: 1.5s;
+
+        position: relative;
+        opacity: 0   | 1;
+        left: -500px | 0px;
+      }
+    }
+  </style>
   <div class="container fade-in-slide-in-left">
     <div
       class="header"
@@ -29,34 +59,3 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
     Async.resolve();
 </proto>
 
-
-<style>
-  hr {
-    opacity: 0.4;
-    border-width: thick;
-  }
-  .logo {
-    width: 40%;
-    filter: grayscale(1) brightness(1.5);
-  }
-  .container {
-    filter: drop-shadow(-6px 4px 6px black);
-    background: linear-gradient(0deg, #f9f9f9, white);
-    border-right: 1px solid #e8e8e8;
-    height: 100%;
-    z-index: 400;
-    position: relative;
-  }
-  .fade-in-slide-in-left {
-    @keyframes fade-in-slide-in-left {
-      animation-iteration-count: 1;
-      animation-direction: normal;
-      animation-fill-mode: forwards;
-      animation-duration: 1.5s;
-
-      position: relative;
-      opacity: 0   | 1;
-      left: -500px | 0px;
-    }
-  }
-</style>

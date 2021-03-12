@@ -2,6 +2,51 @@ import component Nav from './nav.o3';
 import component StoreDocComponent from '../stores/doc.store.o3';
 
 <template>
+  <style>
+    iframe {
+      height: 100%;
+      width: 100%;
+      background: white;
+      border: 0;
+      padding-top: 22px;
+    }
+    .container {
+      background: #ffffff;
+      border-right: 1px solid #e8e8e8;
+      height: fit-content;
+      z-index: 300;
+      position: relative;
+      padding-bottom: 30px;
+      padding-top: 30px;
+      position: absolute;
+      top: 0px;
+    }
+    .slide-in-right {
+      animation-name: slide-in-right;
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+      animation-direction: normal;
+      animation-fill-mode: forwards;
+      @keyframes slide-in-right {
+        right: -1000% | 0px;
+      }
+    }
+    .slide-out-right {
+      @keyframes slide-out-right {
+        animation-duration: 1s;
+        animation-iteration-count: 1;
+        animation-direction: normal;
+        animation-fill-mode: forwards;
+        position: relative;
+        right: 0px | -1000%;
+      };
+    }
+  </style>
+  <style global>
+    .content-component > *:not(.highlight) {
+      margin-left: 30px;
+    }
+  </style>
   <StoreDocComponent namespace="pages"/>
   <iframe src={this.page}></iframe>
   <div class="nav">
@@ -12,49 +57,3 @@ import component StoreDocComponent from '../stores/doc.store.o3';
   declare:
     public page: string = '';
 </proto>
-
-<style>
-  iframe {
-    height: 100%;
-    width: 100%;
-    background: white;
-    border: 0;
-    padding-top: 22px;
-  }
-  .container {
-    background: #ffffff;
-    border-right: 1px solid #e8e8e8;
-    height: fit-content;
-    z-index: 300;
-    position: relative;
-    padding-bottom: 30px;
-    padding-top: 30px;
-    position: absolute;
-    top: 0px;
-  }
-  .slide-in-right {
-    animation-name: slide-in-right;
-    animation-duration: 1s;
-    animation-iteration-count: 1;
-    animation-direction: normal;
-    animation-fill-mode: forwards;
-    @keyframes slide-in-right {
-      right: -1000% | 0px;
-    }
-  }
-  .slide-out-right {
-    @keyframes slide-out-right {
-      animation-duration: 1s;
-      animation-iteration-count: 1;
-      animation-direction: normal;
-      animation-fill-mode: forwards;
-      position: relative;
-      right: 0px | -1000%;
-    };
-  }
-</style>
-<style global>
-  .content-component > *:not(.highlight) {
-    margin-left: 30px;
-  }
-</style>
