@@ -46,13 +46,11 @@ or any event:
 
 we can also wait for a component to resolve all it's internal promises:
 ```typescript
-// async-parent-component.o3
-// Ogone use this component as 'async-component'
-use @/path/to/async-component.o3 as 'async-component';
+import component AsyncComponent from '@/path/to/AsyncComponent.o3';
 
 <proto type="async"/>
 <template>
-  <async-component --await />
+  <AsyncComponent --await />
 </template>
 ```
 ![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/docs/assets/async.3.jpg)
@@ -65,8 +63,7 @@ Waiting for the resolution of the Async Component.
 Then is a mixed flag/case, it means that it requires the name of case that you will use after the resolution of the component.
 Use `--then` like in JS:
 ```typescript
-// Ogone use this component as 'async-component'
-use @/path/to/async-component.o3 as 'async-component';
+import component AsyncComponent from '@/path/to/AsyncComponent.o3';
 
 <proto type="async">
   case 'then:caseName':
@@ -74,7 +71,7 @@ use @/path/to/async-component.o3 as 'async-component';
   break;
 </proto>
 <template>
-  <async-component --await --then:caseName/>
+  <AsyncComponent --await --then:caseName/>
 </template>
 ```
 ![ogone](https://raw.githubusercontent.com/SRNV/Ogone/master/docs/assets/async.4.jpg)
@@ -88,8 +85,7 @@ Any error inside an Async Component.
 catch is a mixed flag/case, it means that it requires the name of case that you will use after an error in Async Component.
 Use `--catch` like in JS:
 ```typescript
-// Ogone use this component as 'async-component'
-use @/path/to/async-component.o3 as 'async-component';
+import component AsyncComponent from '@/path/to/AsyncComponent.o3';
 
 <proto type="async">
   case 'catch:caseName':
@@ -97,7 +93,7 @@ use @/path/to/async-component.o3 as 'async-component';
   break;
 </proto>
 <template>
-  <async-component --await --catch:caseName/>
+  <AsyncComponent --await --catch:caseName/>
 </template>
 ```
 ________
@@ -110,8 +106,7 @@ internal promises all fulfilled successfully or rejected.
 finally is a mixed flag/case, it means that it requires the name of case that you will use after resolution/error in Async Component.
 Use `--finally` like in JS:
 ```typescript
-// Ogone use this component as 'async-component'
-use @/path/to/async-component.o3 as 'async-component';
+import component AsyncComponent from '@/path/to/AsyncComponent.o3';
 
 <proto type="async">
   case 'finally:caseName':
@@ -119,7 +114,7 @@ use @/path/to/async-component.o3 as 'async-component';
   break;
 </proto>
 <template>
-  <async-component --await --finally:caseName/>
+  <AsyncComponent --await --finally:caseName/>
 </template>
 ```
 ________
@@ -132,8 +127,7 @@ Inserts a promise or anything into an Async Component.
 the Async Component will includes this promise in it's own promise group.
 
 ```typescript
-// Ogone use this component as 'async-component'
-use @/path/to/async-component.o3 as 'async-component';
+import component AsyncComponent from '@/path/to/AsyncComponent.o3';
 
 <proto type="async">
   def:
@@ -147,7 +141,7 @@ use @/path/to/async-component.o3 as 'async-component';
   })
 </proto>
 <template>
-  <async-component --await --defer="promise"/>
+  <AsyncComponent --await --defer="promise"/>
 </template>
 ```
 ________
