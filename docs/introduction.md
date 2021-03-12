@@ -29,7 +29,7 @@ let's change the name after 1 second.
     }, 1000);
   break;
 </proto>
-<template>Hello ${name}</template>
+<template>Hello ${this.name}</template>
 ```
 
 this will only update the textnode containing 'Hello \${name}' and replace name by it's value.
@@ -76,6 +76,7 @@ Following this structure of declarations is strongly recommanded:
 - before-each\*
 - case
 - default
+- compute
 
 \*only supported by Ogone
 
