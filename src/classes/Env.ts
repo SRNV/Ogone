@@ -113,6 +113,80 @@ ${err.stack}`);
     }
   }
   /**
+   * @name listenLSPHSEServer
+   */
+  public async listenLSPHSEServer(): Promise<void> {
+    try {
+      /**
+       * open the server for LSP
+       * HOT Scoped Editor for HSE
+       */
+      Configuration.OgoneDesignerOpened = true;
+      OgoneWorkers.lspHSEServer.postMessage({
+        type: Workers.INIT_MESSAGE_SERVICE_DEV,
+      });
+      OgoneWorkers.lspHSEServer.addEventListener('message', async (event) => {
+        console.clear();
+        this.infos(`Hot Scoped Editor - received new messages, running tasks...`);
+        clearTimeout(this.timeoutBeforeSendingLSPRequests);
+        // this timeout fixes all the broken pipe issue
+        this.timeoutBeforeSendingLSPRequests = setTimeout(() => {
+          const { data } = event;
+          switch (data.type) {
+            default:
+              this.infos(`Hot Scoped Editor - nothing to do.`);
+              break;
+            case Workers.LSP_UPDATE_CURRENT_COMPONENT:
+              const filePath = data.data.path;
+              const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
+                filePath: filePath.replace(Deno.cwd(), '@'),
+              });
+              // save the content of the file to overwrite
+              // this allows the live editor
+              MapFile.files.set(filePath, {
+                content: data.data.text,
+                original: Deno.readTextFileSync(data.data.path),
+                path: data.data.path,
+              });
+              const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
+              Deno.writeTextFileSync(tmpFile, file);
+              this.compile(tmpFile)
+                .then(async (bundle) => {
+                  const application = await this.renderBundle(tmpFile,
+                    bundle
+                  );
+                  OgoneWorkers.serviceDev.postMessage({
+                    type: Workers.LSP_UPDATE_SERVER_COMPONENT,
+                    application,
+                  })
+                  OgoneWorkers.lspHSEServer.postMessage({
+                    type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
+                    application,
+                    rerender: true,
+                  });
+                  // clear all previous messages
+                  this.success(`Hot Scoped Editor - updated`);
+                  await this.TSXContextCreator.read(bundle, {
+                    checkOnly: filePath.replace(Deno.cwd(), ''),
+                  });
+                  this.exposeSession();
+                })
+                .then(() => {
+                  Deno.remove(tmpFile);
+                })
+                .catch((error) => {
+                  Deno.remove(tmpFile);
+                })
+              break;
+          }
+        }, 50);
+      });
+    } catch(err) {
+      this.error(`Env: ${err.message}
+${err.stack}`);
+    }
+  }
+  /**
    * @name listenLSPWebsocket
    * takes no argument, this method add an event listener on the LSP websocket worker
    * connected to the IDE
