@@ -109,10 +109,14 @@ export default class HMR {
     }
     return result;
   }
-  static rerenderComponents(uuid: string, output ?: string) {
+  static rerenderComponents(uuid: string, output?: string) {
     const savedComponents = this.components[uuid];
+    console.warn(savedComponents);
     if (savedComponents) {
-      const components = savedComponents.filter((component) => component.isOriginalNode && component.isTemplate);
+      const renderedRouter = savedComponents.filter(c => c.routerCalling?.isRouter
+        && c.routerCalling.isOriginalNode);
+      const components = savedComponents.filter((component) => component.isOriginalNode
+        && component.isTemplate);
       if (output) {
         const replacement = eval(`((Ogone) => {
           ${output}
@@ -121,6 +125,13 @@ export default class HMR {
         replacement(Ogone);
       }
       console.warn('[Ogone] rendering new components.');
+      /**
+       * remove previously generated components
+       */
+      savedComponents.splice(0);
+      renderedRouter.forEach((component) => {
+        component.routerCalling?.rerender();
+      });
       components.forEach((component) => {
         component.rerender();
       });

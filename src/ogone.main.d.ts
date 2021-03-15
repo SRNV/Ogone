@@ -69,6 +69,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   position?: number[];
   flags: any;
   original?: HTMLOgoneElement;
+  routerCalling?: HTMLOgoneElement;
   component: HTMLOgoneElement;
   refs: {[k: string]: HTMLElement[]},
   props: any;
@@ -176,6 +177,7 @@ export interface OgoneParameters {
   position?: number[];
   flags: any;
   original?: HTMLOgoneElement;
+  routerCalling?: HTMLOgoneElement;
   component?: HTMLOgoneElement | null;
   props: any;
   nodeProps?: [string, string][];

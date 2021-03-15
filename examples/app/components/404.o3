@@ -50,3 +50,9 @@
     <div class="text">404 route not found.</div>
   </div>
 </template>
+
+<proto type="component">
+  default:
+    console.warn(Ogone);
+    break;
+</proto>

@@ -179,12 +179,18 @@ export class OgoneBaseClass extends HTMLElement {
       );
       return;
     }
+    if (this.isRouter) {
+      this.actualRoute = null;
+      setActualRouterTemplate(this);
+      renderRouter(this);
+      return;
+    }
     for (let i = this.context.list.length, a = 0; i > a; i--) {
       destroy(
         this.context.list.pop() as HTMLOgoneElement
       );
     }
-    renderContext(this);
+    renderContext(this, true);
   }
 }
 // @ts-ignore it actually exists
@@ -851,6 +857,7 @@ export function setActualRouterTemplate(Onode: HTMLOgoneElement) {
       isRoot: false,
       name: rendered.name || rendered.component,
       parentNodeKey: o.key,
+      routerCalling: o,
     };
     setOgone(co, ogoneOpts);
     ogoneOpts = null;
@@ -1656,9 +1663,9 @@ export function renderingProcess(Onode: HTMLOgoneElement) {
  * or of the parent component if it's already a component
  * the component render function will duplicate the element using the user's --for flag
  */
-export function renderContext(Onode: HTMLOgoneElement) {
+export function renderContext(Onode: HTMLOgoneElement, force?: boolean) {
   const o = Onode, oc = Onode;
-  if (!oc || !o.getContext || !o.isOriginalNode) return false;
+  if (!force && (!oc || !o.getContext || !o.isOriginalNode)) return false;
   const length = o.getContext(
     { getLength: true, position: o.position },
   ) as number;
