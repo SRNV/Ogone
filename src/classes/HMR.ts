@@ -111,7 +111,6 @@ export default class HMR {
   }
   static rerenderComponents(uuid: string, output?: string) {
     const savedComponents = this.components[uuid];
-    console.warn(savedComponents);
     if (savedComponents) {
       const renderedRouter = savedComponents.filter(c => c.routerCalling?.isRouter
         && c.routerCalling.isOriginalNode);
