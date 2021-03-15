@@ -41,7 +41,6 @@ import type { isOpenType } from '../lib/type.ts';
     <div class="line"></div>
   </div>
 </template>
-
 <proto>
   declare:
     public isOpen: isOpenType = false;

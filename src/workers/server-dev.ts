@@ -127,7 +127,7 @@ self.onmessage = async (e: any): Promise<void> => {
         background: #FFFFFF00 !important;
       }
     </style>
-    <script>const LSP_HSE_RUNNING = true;</script>
+    <script>window.LSP_HSE_RUNNING = true;</script>
       ${application}`;
     return;
   }

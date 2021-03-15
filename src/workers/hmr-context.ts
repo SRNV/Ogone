@@ -12,8 +12,8 @@ self.onmessage = async (ev: any): Promise<void> => {
         if (event.kind === 'modify') {
           event.paths.forEach((path) => {
             self.postMessage({
+              path,
               type: Workers.WS_FILE_UPDATED,
-              path: path,
               isOgone: path.endsWith('.o3'),
             });
           });

@@ -3,32 +3,33 @@ import { serve, join, fetchRemoteRessource } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 
-const registry = {
-  application: '',
-  webview_application: '',
+interface LSPHSECache {
+  port: number;
+  updateResponse: Function | null;
 }
-
+const cache: LSPHSECache = {
+  port: 0,
+  updateResponse: null,
+};
+let serverOpened = false;
 self.onmessage = async (e: any): Promise<void> => {
-  Utils.trace(`Worker: Dev Server received a message`);
-  const { application, Configuration, type } = e.data;
-  if (type === Workers.UPDATE_APPLICATION) {
-    registry.application = application;
+  Utils.trace(`Worker: HSE Server received a message`);
+  const { application, Configuration, type, port: configPort } = e.data;
+  if (cache.updateResponse && type === Workers.LSP_CURRENT_COMPONENT_RENDERED) {
+    cache.updateResponse();
+    cache.updateResponse = null;
     return;
   }
-  if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
-    registry.webview_application = `
-    <style>
-      body {
-        background: #FFFFFF00 !important;
-      }
-    </style>
-    <script>const LSP_HSE_RUNNING = true;</script>
-      ${application}`;
+  if (type === Workers.INIT_MESSAGE_SERVICE_DEV) {
+    cache.port = configPort;
+  }
+  if (serverOpened) {
     return;
   }
-  let port: number = 533;
+  let port: number = 5330;
   // open the server
   const server = serve({ port });
+  serverOpened = true;
   // close the server when the window is unloaded
   // or the worker is killed
   self.addEventListener("unload", () => {
@@ -51,13 +52,18 @@ self.onmessage = async (e: any): Promise<void> => {
     const component = params.get('component');
     switch (true) {
       case req.method === 'POST' && req.url === '/hse/update':
-          console.warn(req);
+          const buf: Uint8Array = await Deno.readAll(req.body);
+          const text = new TextDecoder().decode(buf);
+          const data = Object.assign(JSON.parse(text),
+            { type: Workers.LSP_UPDATE_CURRENT_COMPONENT });
+          self.postMessage(data);
+          cache.updateResponse = () => req.respond({ body: 'ok' });
           break;
       case req.url === '/hse/live':
           req.respond({ body: 'ok' });
           break;
-      case !!component:
-        req.respond({ body: registry.webview_application });
+      case req.url === '/hse/port':
+        req.respond({ body: JSON.stringify(cache.port) });
         break;
     }
   }

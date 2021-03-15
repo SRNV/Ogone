@@ -115,7 +115,7 @@ ${err.stack}`);
   /**
    * @name listenLSPHSEServer
    */
-  public async listenLSPHSEServer(): Promise<void> {
+  public async listenLSPHSEServer(port: number): Promise<void> {
     try {
       /**
        * open the server for LSP
@@ -124,145 +124,62 @@ ${err.stack}`);
       Configuration.OgoneDesignerOpened = true;
       OgoneWorkers.lspHSEServer.postMessage({
         type: Workers.INIT_MESSAGE_SERVICE_DEV,
+        port,
       });
+      this.trace('LSP HSE Server opened.')
       OgoneWorkers.lspHSEServer.addEventListener('message', async (event) => {
-        console.clear();
-        this.infos(`Hot Scoped Editor - received new messages, running tasks...`);
-        clearTimeout(this.timeoutBeforeSendingLSPRequests);
-        // this timeout fixes all the broken pipe issue
-        this.timeoutBeforeSendingLSPRequests = setTimeout(() => {
-          const { data } = event;
-          switch (data.type) {
-            default:
-              this.infos(`Hot Scoped Editor - nothing to do.`);
-              break;
-            case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-              const filePath = data.data.path;
-              const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
-                filePath: filePath.replace(Deno.cwd(), '@'),
-              });
-              // save the content of the file to overwrite
-              // this allows the live editor
-              MapFile.files.set(filePath, {
-                content: data.data.text,
-                original: Deno.readTextFileSync(data.data.path),
-                path: data.data.path,
-              });
-              const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
-              Deno.writeTextFileSync(tmpFile, file);
-              this.compile(tmpFile)
-                .then(async (bundle) => {
-                  const application = await this.renderBundle(tmpFile,
-                    bundle
-                  );
-                  OgoneWorkers.serviceDev.postMessage({
-                    type: Workers.LSP_UPDATE_SERVER_COMPONENT,
-                    application,
-                  })
-                  OgoneWorkers.lspHSEServer.postMessage({
-                    type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
-                    application,
-                    rerender: true,
-                  });
-                  // clear all previous messages
-                  this.success(`Hot Scoped Editor - updated`);
-                  await this.TSXContextCreator.read(bundle, {
-                    checkOnly: filePath.replace(Deno.cwd(), ''),
-                  });
-                  this.exposeSession();
-                })
-                .then(() => {
-                  Deno.remove(tmpFile);
-                })
-                .catch((error) => {
-                  Deno.remove(tmpFile);
-                })
-              break;
-          }
-        }, 50);
-      });
-    } catch(err) {
-      this.error(`Env: ${err.message}
-${err.stack}`);
-    }
-  }
-  /**
-   * @name listenLSPWebsocket
-   * takes no argument, this method add an event listener on the LSP websocket worker
-   * connected to the IDE
-   * it sends two messages
-   */
-  public async listenLSPWebsocket(): Promise<void> {
-    try {
-      // send open designer message to the LSP
-      if (Deno.args.includes(Flags.DESIGNER)) {
-        Configuration.OgoneDesignerOpened = true;
-        OgoneWorkers.lspWebsocketClientWorker.postMessage({
-          type: Workers.LSP_OPEN_WEBVIEW,
-        })
-      } else {
-        return;
-      }
-      OgoneWorkers.lspWebsocketClientWorker.addEventListener('message', async (event) => {
-        console.clear();
-        this.infos(`Hot Scoped Editor - received new messages, running tasks...`);
-        clearTimeout(this.timeoutBeforeSendingLSPRequests);
-        // this timeout fixes all the broken pipe issue
-        this.timeoutBeforeSendingLSPRequests = setTimeout(() => {
-          const { data } = event;
-          switch (data.type) {
-            default:
-              this.infos(`Hot Scoped Editor - nothing to do.`);
-              break;
-            case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-              const filePath = data.data.path;
-              const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
-                filePath: filePath.replace(Deno.cwd(), '@'),
-              });
-              // save the content of the file to overwrite
-              // this allows the live editor
-              MapFile.files.set(filePath, {
-                content: data.data.text,
-                original: Deno.readTextFileSync(data.data.path),
-                path: data.data.path,
-              });
-              const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
-              Deno.writeTextFileSync(tmpFile, file);
-              this.compile(tmpFile)
-                .then(async (bundle) => {
-                  const application = await this.renderBundle(tmpFile,
-                    bundle
-                  );
-                  OgoneWorkers.serviceDev.postMessage({
-                    type: Workers.LSP_UPDATE_SERVER_COMPONENT,
-                    application,
-                  })
-                  OgoneWorkers.lspWebsocketClientWorker.postMessage({
-                    type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
-                    application,
-                    rerender: true,
-                  });
-                  // clear all previous messages
-                  this.success(`Hot Scoped Editor - updated`);
-                  await this.TSXContextCreator.read(bundle, {
-                    checkOnly: filePath.replace(Deno.cwd(), ''),
-                  });
-                  this.exposeSession();
-                })
-                .then(() => {
-                  Deno.remove(tmpFile);
-                })
-                .catch((error) => {
-                  Deno.remove(tmpFile);
-                })
-              break;
-          }
-        }, 50);
+        const { data } = event;
+        switch (data.type) {
+          default: break;
+          case Workers.LSP_UPDATE_CURRENT_COMPONENT:
+            clearTimeout(this.timeoutBeforeSendingLSPRequests);
+            this.timeoutBeforeSendingLSPRequests = setTimeout(() => this.updateLSPCurrentComponent(data), 50);
+            break;
+        }
       });
     } catch (err) {
       this.error(`Env: ${err.message}
 ${err.stack}`);
     }
+  }
+  updateLSPCurrentComponent(data: any) {
+    const filePath = data.path;
+    const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
+      filePath: filePath.replace(Deno.cwd(), '@'),
+    });
+    // save the content of the file to overwrite
+    // this allows the live editor
+    MapFile.files.set(filePath, {
+      content: data.text,
+      original: Deno.readTextFileSync(data.path),
+      path: data.path,
+    });
+    const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
+    Deno.writeTextFileSync(tmpFile, file);
+    this.compile(tmpFile)
+      .then(async (bundle) => {
+        const application = await this.renderBundle(tmpFile,
+          bundle
+        );
+        OgoneWorkers.serviceDev.postMessage({
+          type: Workers.LSP_UPDATE_SERVER_COMPONENT,
+          application,
+        })
+        this.success(`Hot Scoped Editor - updated`);
+        OgoneWorkers.lspHSEServer.postMessage({
+          type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
+        })
+        await this.TSXContextCreator.read(bundle, {
+          checkOnly: filePath.replace(Deno.cwd(), ''),
+        });
+        this.exposeSession();
+      })
+      .then(() => {
+        Deno.remove(tmpFile);
+      })
+      .catch((error) => {
+        Deno.remove(tmpFile);
+      })
   }
   public async renderBundle(entrypoint: string, bundle: Bundle): Promise<string> {
     try {
@@ -434,14 +351,6 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  /**
-   * get the output of the application
-   * including HTML CSS and JS
-   */
-  public async getBuild() {
-    // TODO use worker instead
-    this.error(`\nbuild is not yet ready.\nwaiting for a fix on the ts compiler\nplease check this issue: https://github.com/denoland/deno/issues/7054`);
-  }
   public listenHMRWebsocket(): void {
     this.trace('setting HMR server');
     HMR.setServer(
@@ -452,8 +361,9 @@ ${err.stack}`);
       type: Workers.WS_INIT,
     });
     try {
-      OgoneWorkers.hmrContext.addEventListener('message', (event) => {
+      OgoneWorkers.hmrContext.addEventListener('message', async (event) => {
         clearTimeout(this.timeoutBeforeSendingHMRMessage);
+        clearTimeout(this.timeoutBeforeSendingLSPRequests);
         // this timeout fixes all the broken pipe issue
         this.timeoutBeforeSendingHMRMessage = setTimeout(() => {
           if (event.data.isOgone) {
