@@ -181,115 +181,6 @@ ${err.stack}`);
         Deno.remove(tmpFile);
       })
   }
-  public async renderBundle(entrypoint: string, bundle: Bundle): Promise<string> {
-    try {
-      const entries = Array.from(bundle.components.entries());
-      const stylesDev = entries
-        .map((
-          entry: any,
-        ) => {
-          let result = "";
-          if (entry[1].style.join("\n").trim().length) {
-            result = `<style id="${entry[1].uuid}">${entry[1].style.join("\n")}</style>`;
-          }
-          return result;
-        }).join("\n");
-      const esm = entries.map((
-        entry: any,
-      ) => entry[1].dynamicImportsExpressions).join("\n");
-      const style = stylesDev;
-      const rootComponent = bundle.components.get(entrypoint);
-      const dependencies = entries.map(([, component]) => component)
-        .map((component) => {
-          return component.deps.map((dep: Dependency) => dep.structuredOgoneRequire).join('\n');
-        }).join('\n');
-      // TODO fix runtime
-      // TODO use Deno.emit to bundle Ogone's runtime
-      //    and components
-      if (rootComponent) {
-        if (
-          rootComponent &&
-          ["router", "store", "async"].includes(rootComponent.type)
-        ) {
-          this.error(
-            `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports basic component`,
-          );
-        }
-        const scriptDev = this.template(
-          `
-        const ___perfData = window.performance.timing;
-        const ROOT_UUID = "${rootComponent.uuid}";
-        const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
-        const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
-        const _ogone_node_ = "o-node";
-
-        ${MapOutput.runtime}
-        {% dependencies %}
-          {% promise %}
-        `,
-          {
-            promise: esm.trim().length
-              ? `
-            Promise.all([
-              ${esm}
-            ]).then(() => {
-              {% start %}
-            });
-          `
-              : "{%start%}",
-            start: `document.body.append(
-            document.createElement(_ogone_node_)
-          );`,
-            render: {},
-            root: bundle.components.get(entrypoint),
-            destroy: {},
-            nodes: {},
-            dependencies,
-          },
-        );
-        // in production DOM has to be
-        // <template is="${rootComponent.uuid}-nt"></template>
-        const DOMDev = ` `;
-        let script = `
-      <script type="module">
-        ${await TSTranspiler.transpile(scriptDev.trim())}
-      </script>`;
-        let head = `
-          ${style}
-          ${Configuration.head || ""}`;
-        let body = this.template(HTMLDocument.PAGE, {
-          head,
-          script,
-          dom: DOMDev,
-        });
-
-        // start watching components
-        // TODO fix HMR
-        // use websocket
-        // HCR(this.bundle);
-        return body;
-      } else {
-        return "no root-component found";
-      }
-    } catch (err) {
-      this.error(`Env: ${err.message}
-${err.stack}`);
-    }
-  }
-  public async getApplication(): Promise<string> {
-    try {
-      if (!this.bundle) {
-        throw this.error(
-          "undefined bundle, please use setBundle method before accessing to the application",
-        );
-      }
-      let result = await this.renderBundle(Configuration.entrypoint, this.bundle);
-      return result;
-    } catch (err) {
-      this.error(`Env: ${err.message}
-${err.stack}`);
-    }
-  }
 
   public async resolveAndReadText(path: string) {
     try {
@@ -316,41 +207,6 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  private recursiveRead(
-    opts: { entrypoint: string; onContent: Function },
-  ): void {
-    try {
-      if (!existsSync(opts.entrypoint)) {
-        this.error("can't find entrypoint for this.recursiveRead");
-      }
-      if (Deno.build.os !== "windows") {
-        Deno.chmodSync(opts.entrypoint, 0o777);
-      }
-      const stats = Deno.statSync(opts.entrypoint);
-      if (stats.isFile) {
-        if (Deno.build.os !== "windows") {
-          Deno.chmodSync(opts.entrypoint, 0o777);
-        }
-        const content = Deno.readTextFileSync(opts.entrypoint);
-        opts.onContent(opts.entrypoint, content);
-      } else if (stats.isDirectory) {
-        if (Deno.build.os !== "windows") {
-          Deno.chmodSync(opts.entrypoint, 0o777);
-        }
-        const dir = Deno.readDirSync(opts.entrypoint);
-        for (let p of dir) {
-          const path = join(opts.entrypoint, p.name);
-          this.recursiveRead({
-            entrypoint: path,
-            onContent: opts.onContent,
-          });
-        }
-      }
-    } catch (err) {
-      this.error(`Env: ${err.message}
-${err.stack}`);
-    }
-  }
   public listenHMRWebsocket(): void {
     this.trace('setting HMR server');
     HMR.setServer(
@@ -363,7 +219,6 @@ ${err.stack}`);
     try {
       OgoneWorkers.hmrContext.addEventListener('message', async (event) => {
         clearTimeout(this.timeoutBeforeSendingHMRMessage);
-        clearTimeout(this.timeoutBeforeSendingLSPRequests);
         // this timeout fixes all the broken pipe issue
         this.timeoutBeforeSendingHMRMessage = setTimeout(() => {
           if (event.data.isOgone) {
@@ -492,4 +347,114 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
+  public async renderBundle(entrypoint: string, bundle: Bundle): Promise<string> {
+    try {
+      const entries = Array.from(bundle.components.entries());
+      const stylesDev = entries
+        .map((
+          entry: any,
+        ) => {
+          let result = "";
+          if (entry[1].style.join("\n").trim().length) {
+            result = `<style id="${entry[1].uuid}">${entry[1].style.join("\n")}</style>`;
+          }
+          return result;
+        }).join("\n");
+      const esm = entries.map((
+        entry: any,
+      ) => entry[1].dynamicImportsExpressions).join("\n");
+      const style = stylesDev;
+      const rootComponent = bundle.components.get(entrypoint);
+      const dependencies = entries.map(([, component]) => component)
+        .map((component) => {
+          return component.deps.map((dep: Dependency) => dep.structuredOgoneRequire).join('\n');
+        }).join('\n');
+      // TODO fix runtime
+      // TODO use Deno.emit to bundle Ogone's runtime
+      //    and components
+      if (rootComponent) {
+        if (
+          rootComponent &&
+          ["router", "store", "async"].includes(rootComponent.type)
+        ) {
+          this.error(
+            `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports basic component`,
+          );
+        }
+        const scriptDev = this.template(
+          `
+        const ___perfData = window.performance.timing;
+        const ROOT_UUID = "${rootComponent.uuid}";
+        const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
+        const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
+        const _ogone_node_ = "o-node";
+
+        ${MapOutput.runtime}
+        {% dependencies %}
+          {% promise %}
+        `,
+          {
+            promise: esm.trim().length
+              ? `
+            Promise.all([
+              ${esm}
+            ]).then(() => {
+              {% start %}
+            });
+          `
+              : "{%start%}",
+            start: `document.body.append(
+            document.createElement(_ogone_node_)
+          );`,
+            render: {},
+            root: bundle.components.get(entrypoint),
+            destroy: {},
+            nodes: {},
+            dependencies,
+          },
+        );
+        // in production DOM has to be
+        // <template is="${rootComponent.uuid}-nt"></template>
+        const DOMDev = ` `;
+        let script = `
+      <script type="module">
+        ${await TSTranspiler.transpile(scriptDev.trim())}
+      </script>`;
+        let head = `
+          ${style}
+          ${Configuration.head || ""}`;
+        let body = this.template(HTMLDocument.PAGE, {
+          head,
+          script,
+          dom: DOMDev,
+        });
+
+        // start watching components
+        // TODO fix HMR
+        // use websocket
+        // HCR(this.bundle);
+        return body;
+      } else {
+        return "no root-component found";
+      }
+    } catch (err) {
+      this.error(`Env: ${err.message}
+${err.stack}`);
+    }
+  }
+  public async getApplication(): Promise<string> {
+    try {
+      if (!this.bundle) {
+        throw this.error(
+          "undefined bundle, please use setBundle method before accessing to the application",
+        );
+      }
+      let result = await this.renderBundle(Configuration.entrypoint, this.bundle);
+      return result;
+    } catch (err) {
+      this.error(`Env: ${err.message}
+${err.stack}`);
+    }
+  }
+
 }

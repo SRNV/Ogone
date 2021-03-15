@@ -9,7 +9,7 @@ self.onmessage = async (ev: any): Promise<void> => {
       Utils.infos('HMR - initialization');
       const watcher = Deno.watchFs(Deno.cwd(), { recursive: true });
       for await (let event of watcher) {
-        if (event.kind === 'modify') {
+        if (event.kind === 'access') {
           event.paths.forEach((path) => {
             self.postMessage({
               path,
