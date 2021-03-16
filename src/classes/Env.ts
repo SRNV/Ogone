@@ -132,7 +132,9 @@ ${err.stack}`);
         switch (data.type) {
           default: break;
           case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-            clearTimeout(this.timeoutBeforeSendingLSPRequests);
+            if (this.timeoutBeforeSendingLSPRequests) {
+              clearTimeout(this.timeoutBeforeSendingLSPRequests);
+            }
             this.timeoutBeforeSendingLSPRequests = setTimeout(() => this.updateLSPCurrentComponent(data), 50);
             break;
         }
@@ -165,10 +167,10 @@ ${err.stack}`);
           type: Workers.LSP_UPDATE_SERVER_COMPONENT,
           application,
         })
-        this.success(`Hot Scoped Editor - updated`);
         OgoneWorkers.lspHSEServer.postMessage({
           type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
         })
+        this.success(`Hot Scoped Editor - updated`);
         await this.TSXContextCreator.read(bundle, {
           checkOnly: filePath.replace(Deno.cwd(), ''),
         });
@@ -231,7 +233,7 @@ ${err.stack}`);
               this.updateWithTMPFile(event);
             }
           }
-        }, 100);
+        }, 300);
       });
     } catch (err) {
       this.error(`Env: ${err.message}

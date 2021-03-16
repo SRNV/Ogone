@@ -10,6 +10,7 @@ import transformPathFileToUUID from '../../utils/transformPathFileToUUID.ts';
 const registry = {
   application: '',
   webview_application: '',
+  port: 0,
 }
 export interface Controller {
   namespace: string;
@@ -129,6 +130,8 @@ self.onmessage = async (e: any): Promise<void> => {
     </style>
     <script>window.LSP_HSE_RUNNING = true;</script>
       ${application}`;
+      // ping the HSE Server
+      fetch(`http://localhost:${registry.port+1}/`);
     return;
   }
   let port: number = Configuration.port || 8080;
@@ -137,6 +140,7 @@ self.onmessage = async (e: any): Promise<void> => {
   }
   // open the server
   const server = serve({ port });
+  registry.port = port;
   // close the server when the window is unloaded
   // or the worker is killed
   self.addEventListener("unload", () => {
