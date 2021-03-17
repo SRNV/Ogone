@@ -10,12 +10,20 @@ interface ModuleGraph {
   listeners: Function[];
   graph: string[];
 }
+interface Client  {
+  ready: boolean;
+  connection: WebSocket;
+}
 export default class HMR {
   static FIFOMessages: string[] = [];
   static port = 3434;
   static components: { [k: string]: HTMLOgoneElement[] } = {};
   static server?: WebSocketServer;
   static client?: WebSocket;
+  /**
+   * only Deno side
+   */
+  static clients: Map<string, Client> = new Map();
   static ogone?: typeof Ogone;
   static listeners: Map<string, ModuleGraph> = new Map();
   static get connect (): string {
@@ -183,25 +191,38 @@ export default class HMR {
   static setServer(server: WebSocketServer) {
     this.server = server;
     this.server.on('connection', (ws: WebSocket) => {
-      HMR.client = ws;
-      HMR.sendFIFOMessages();
+      const key = `client_${crypto.getRandomValues(new Uint16Array(10)).join('')}`;
+      HMR.clients.set(key, {
+        ready: false,
+        connection: ws,
+      });
+      HMR.sendFIFOMessages(key);
     });
   }
   static postMessage(obj: Object) {
     const message = JSON.stringify(obj);
-    if(this.client?.readyState !== 1) {
-      this.FIFOMessages.push(message);
-    } else {
-      this.sendFIFOMessages();
-    }
-    if (this.client) this.client.send(message);
+    const entries = Array.from(this.clients.entries());
+    entries.forEach(([key, client]) => {
+      if (client?.connection.readyState !== 1
+        && !this.FIFOMessages.includes(message)) {
+        this.FIFOMessages.push(message);
+      } else if (!client.ready) {
+        this.sendFIFOMessages(key);
+      }
+      if (client) client.connection.send(message);
+    })
   }
-  static async sendFIFOMessages() {
+  static async sendFIFOMessages(id: string) {
     // if (this.client?.readyState !== 1) return;
-    this.FIFOMessages.forEach((m: string) => {
-      if (this.client) this.client.send(m);
+    const entries = Array.from(this.clients.entries())
+      .filter(([key, client]) => !client.ready && key === id)
+    entries.forEach(([key, client]) => {
+      this.FIFOMessages.forEach((m: string) => {
+        client.connection.send(m);
+        client.ready = client.connection.readyState === 1
+          && true;
+      });
     });
-    this.FIFOMessages.splice(0);
   }
   static subscribe(pathToModule: string, listener: Function) {
     if (!this.listeners.has(pathToModule)) this.listeners.set(pathToModule, {

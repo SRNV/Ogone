@@ -263,7 +263,7 @@ ${err.stack}`);
           this.compile(tmpFile)
             .then(async (bundle) => {
               console.clear();
-              if (HMR.client) {
+              if (HMR.clients.size) {
                 this.infos(`HMR - sending output.`);
                 HMR.postMessage({
                   output: bundle.output,
