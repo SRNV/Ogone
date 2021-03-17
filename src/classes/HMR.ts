@@ -10,9 +10,20 @@ interface ModuleGraph {
   listeners: Function[];
   graph: string[];
 }
+enum ClientRole {
+  /**
+   * getting only updates on Saving events
+   */
+  Standard = 0,
+  /**
+   * getting updates while editing
+   */
+  Edition = 1,
+}
 interface Client  {
   ready: boolean;
   connection: WebSocket;
+  role: ClientRole;
 }
 export default class HMR {
   static FIFOMessages: string[] = [];
@@ -195,6 +206,7 @@ export default class HMR {
       HMR.clients.set(key, {
         ready: false,
         connection: ws,
+        role: 0,
       });
       HMR.sendFIFOMessages(key);
     });
