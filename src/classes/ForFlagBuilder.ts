@@ -45,14 +45,17 @@ function readDestructuration(destructured: string, opts: {
     throw err;
   }
 }
-function* gen(i: number): Generator {
-  yield i;
+let i = 0;
+function reinit() {
+  i = 0;
+}
+function* gen(): Generator {
   while (true) {
     yield i++;
   }
 }
-const iterator: Generator = gen(0);
-const arrayAliasIterator: Generator = gen(0);
+const iterator: Generator = gen();
+const arrayAliasIterator: Generator = gen();
 iterator.next().value
 arrayAliasIterator.next().value
 /**
@@ -67,6 +70,7 @@ arrayAliasIterator.next().value
 export default class ForFlagBuilder extends Utils {
   public startAnalyze(bundle: Bundle) {
     try {
+      reinit();
       const entries = bundle.components.entries();
       for (let [path, component] of entries) {
         this.read(bundle, path, component.rootNode);

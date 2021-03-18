@@ -57,12 +57,12 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     return `§§${iterator.value}${id}§§`;
   }
   private getNodeUniquekey(id = "", iterator: DOMParserIterator): string {
-    iterator.node = generator.next().value;
+    iterator.node++;
     // critical all regexp are based on this line
     return `§§${iterator.node}${id}§§`;
   }
   private getTextUniquekey(id = "", iterator: DOMParserIterator): string {
-    iterator.text = generator.next().value;
+    iterator.text++;
     // critical all regexp are based on this line
     return `§§${iterator.text}${id}§§`;
   }

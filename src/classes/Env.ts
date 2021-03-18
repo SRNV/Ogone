@@ -265,10 +265,6 @@ ${err.stack}`);
               console.clear();
               if (HMR.clients.size) {
                 this.infos(`HMR - sending output.`);
-                HMR.postMessage({
-                  output: bundle.output,
-                  uuid: ComponentBuilder.mapUuid.get(data.path)
-                });
                 this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
               } else {
                 this.warn(`HMR - no connection...`);
@@ -302,10 +298,6 @@ ${err.stack}`);
             console.clear();
             if (HMR.client) {
               this.infos(`HMR - sending output.`);
-              HMR.postMessage({
-                output: completeBundle.output,
-                uuid: ComponentBuilder.mapUuid.get(data.path)
-              });
               this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
             } else {
               this.warn(`HMR - no connection...`);

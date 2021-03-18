@@ -5,6 +5,7 @@ import { HTMLOgoneElement } from '../ogone.main.d.ts';
 import { ModuleErrorsDiagnostic } from './ModuleErrors.ts';
 
 declare const document: Document;
+declare const window: any;
 declare const LSP_HSE_RUNNING: boolean;
 interface ModuleGraph {
   listeners: Function[];
@@ -133,9 +134,9 @@ export default class HMR {
     if (savedComponents) {
       const renderedRouter = savedComponents.filter(c => c.routerCalling?.isRouter
         && c.routerCalling.isOriginalNode);
-      const components = savedComponents.filter((component) => component.isOriginalNode
-        && component.isTemplate);
+      const components = savedComponents.map((component) => component.isTemplate && component.original );
       if (output) {
+        console.warn(components);
         const replacement = eval(`((Ogone) => {
           ${output}
           console.warn('[Ogone] references are updated.');
@@ -151,7 +152,7 @@ export default class HMR {
         component.routerCalling?.rerender();
       });
       components.forEach((component) => {
-        component.rerender();
+        if (component) component.rerender();
       });
     }
   }
@@ -209,9 +210,17 @@ export default class HMR {
         role: 0,
       });
       HMR.sendFIFOMessages(key);
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        console.warn(message);
+        if (message.type === 'closing') {
+          HMR.clients.delete(key);
+        }
+      };
     });
   }
   static postMessage(obj: Object) {
+    this.cleanClients();
     const message = JSON.stringify(obj);
     const entries = Array.from(this.clients.entries());
     entries.forEach(([key, client]) => {
@@ -221,8 +230,20 @@ export default class HMR {
       } else if (!client.ready) {
         this.sendFIFOMessages(key);
       }
-      if (client) client.connection.send(message);
+      if (client) {
+        try {
+          client.connection.send(message);
+        } catch (err) {}
+      }
     })
+  }
+  static cleanClients() {
+    const entries = Array.from(this.clients.entries());
+    entries.forEach(([key, client]) => {
+      if (client.connection.readyState > 1) {
+        this.clients.delete(key);
+      }
+    });
   }
   static async sendFIFOMessages(id: string) {
     // if (this.client?.readyState !== 1) return;
@@ -252,4 +273,18 @@ export default class HMR {
       if (candidate) candidate.graph = candidate.graph.concat(graph);
     }
   }
+  static beforeClosing() {
+    if (typeof document === 'undefined') {
+      this.postMessage({
+        type: 'close',
+      })
+    } else if (this.client) {
+      this.client.send(JSON.stringify({
+        type: 'close',
+      }));
+    }
+  }
 }
+window.addEventListener('unload', () => {
+  HMR.beforeClosing();
+});

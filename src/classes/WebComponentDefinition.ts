@@ -2,6 +2,7 @@ import Env from "./Env.ts";
 import type { Bundle, Component, XMLNodeDescription } from "./../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import MapOutput from './MapOutput.ts';
+import HMR from './HMR.ts';
 /**
  * @name WebComponentDefinition
  * @code OWCD1-ONAC3-ORC8-OC0
@@ -12,6 +13,8 @@ import MapOutput from './MapOutput.ts';
  * ```
  */
 export default class WebComponentDefinition extends Utils {
+  static mapRender: Map<string, string> = new Map();
+  static mapTypes: Map<string, string> = new Map();
   protected render(
     bundle: Bundle,
     component: Component,
@@ -41,9 +44,23 @@ export default class WebComponentDefinition extends Utils {
         .replace(/\n/gi, "")
         .replace(/\s+/gi, " ")
         }`;
-      const types = `Ogone.types[${variable}] = ogone_types_{% component.type %};`
-      MapOutput.outputs.render.push(this.template(render, templateSlots));
-      MapOutput.outputs.types.push(this.template(types, templateSlots));
+      const types = `Ogone.types[${variable}] = ogone_types_{% component.type %};`;
+      // transform the template with the slots
+      const newrender = this.template(render, templateSlots);
+      const newtypes = this.template(types, templateSlots);
+      // save it into the MapOutputs
+      MapOutput.outputs.render.push(newrender);
+      MapOutput.outputs.types.push(newtypes);
+      // send changes through HMR
+      if (isTemplate) {
+        WebComponentDefinition.sendChanges({
+          node,
+          key: component.uuid,
+          component,
+          render: newrender,
+          types: newtypes,
+        });
+      }
       if (["controller"].includes(component.type)) {
         return `class extends HTMLTemplateElement {
         constructor(){super();}
@@ -53,6 +70,48 @@ export default class WebComponentDefinition extends Utils {
     } catch (err) {
       this.error(`WebComponentDefinition: ${err.message}
 ${err.stack}`);
+    }
+  }
+  /**
+   * start sending changes through HMR
+   * save the initial state
+   */
+  static sendChanges(opts: {
+    component: Component;
+    node: XMLNodeDescription;
+    key: string;
+    render: string;
+    types: string;
+  }) {
+    const { render, types, key, component, node } = opts;
+    const output = `
+    ${MapOutput.outputs.vars
+      .filter((v) => v && v.includes(component.uuid))
+      .join('\n')}
+    ${MapOutput.outputs.data
+      .filter((v) => v && v.includes(component.uuid))
+      .join('\n')}
+    ${MapOutput.outputs.types
+      .filter((v) => v && v.includes(component.uuid))
+      .join('\n')}
+      ${MapOutput.outputs.context
+        .filter((v) => v && v.includes(component.uuid))
+        .join('\n')}
+    ${render}
+    `;
+    if (this.mapRender.has(key)) {
+      const item = this.mapRender.get(key)!;
+      if (item !== node.dna) {
+        HMR.postMessage({
+          output,
+          invalid: item,
+          uuid: component.uuid,
+          type: 'render',
+        });
+        this.mapRender.set(key, node.dna);
+      }
+    } else {
+      this.mapRender.set(key, node.dna);
     }
   }
 }
