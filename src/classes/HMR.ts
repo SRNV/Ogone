@@ -411,7 +411,7 @@ ${errorMessage}
   static addMessageToHMR(message: string, type: string = '') {
     this.panelInformations.innerHTML +=`
     <li class="hmr--message">
-      <span class="hmr--infos">${new Date().toUTCString()}</span><span class="hmr--title">HMR - </span><span class="hmr--message ${type}"> ${message}</span> </li>
+      <span class="hmr--infos">${new Date().toUTCString()}</span><span class="hmr--title"> Ogone - </span><span class="hmr--message ${type}"> ${message}</span> </li>
     `;
   }
   static hideHMRMessage() {
