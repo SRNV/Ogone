@@ -238,13 +238,13 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  static sendChanges(opts: { component: Component; output: string; }) {
+  static async sendChanges(opts: { component: Component; output: string; }) {
     const { component, output } = opts;
     if (this.mapData.has(component.uuid)) {
       const item = this.mapData.get(component.uuid)!;
       if (item !== output) {
         HMR.postMessage({
-          output,
+          output: TSTranspiler.transpile(output),
           uuid: component.uuid,
         });
         this.mapData.set(component.uuid, output);

@@ -128,7 +128,6 @@ self.onmessage = async (e: any): Promise<void> => {
         background: #FFFFFF00 !important;
       }
     </style>
-    <script>window.LSP_HSE_RUNNING = true;</script>
       ${application}`;
       // ping the HSE Server
       fetch(`http://localhost:${registry.port+1}/`);

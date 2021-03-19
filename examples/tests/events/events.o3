@@ -43,26 +43,26 @@ import component TargetComponent from '@/examples/tests/events/target-comp.o3';
   <TargetComponent --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </TargetComponent>
 </template>
 
-<proto>
-  def:
-    countClick: 0
-    countDblClick: 0
-    countmouseOver: 0
-    countmouseEnter: 0
-    countmouseLeave: 0
-    countmouseMove: 0
-    countmouseDown: 0
-    countmouseUp: 0
-    countKeypress: 0
-    countKeyUp: 0
-    countKeyDown: 0
-    countKeyDownSpace: 0
-    countKeyUpSpace: 0
-    wheelCount: 0
-    wheelDownCount: 0
-    wheelRightCount: 0
-    wheelLeftCount: 0
-    wheelUpCount: 0
+<proto type="app" engine="proxy-reaction">
+  declare:
+    countClick: number = 20
+    countDblClick: number = 0
+    countmouseOver: number = 0
+    countmouseEnter: number = 0
+    countmouseLeave: number = 0
+    countmouseMove: number = 0
+    countmouseDown: number = 0
+    countmouseUp: number = 0
+    countKeypress: number = 0
+    countKeyUp: number = 0
+    countKeyDown: number = 0
+    countKeyDownSpace: number = 0
+    countKeyUpSpace: number = 0
+    wheelCount: number = 0
+    wheelDownCount: number = 0
+    wheelRightCount: number = 0
+    wheelLeftCount: number = 0
+    wheelUpCount: number = 0
   case 'click:increase':
     this.countClick++;
   break;

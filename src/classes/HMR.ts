@@ -1,12 +1,11 @@
 import Ogone from '../main/OgoneBase.ts';
-import { Document, HTMLIFrameElement } from '../ogone.dom.d.ts';
+import { Document, HTMLIFrameElement, HTMLUListElement } from '../ogone.dom.d.ts';
 import { WebSocketServer, WS } from '../../deps/ws.ts';
 import { HTMLOgoneElement } from '../ogone.main.d.ts';
 import { ModuleErrorsDiagnostic } from './ModuleErrors.ts';
 
 declare const document: Document;
 declare const window: any;
-declare const LSP_HSE_RUNNING: boolean;
 interface ModuleGraph {
   listeners: Function[];
   graph: string[];
@@ -29,6 +28,13 @@ interface Client  {
 export default class HMR {
   static FIFOMessages: string[] = [];
   static port = 3434;
+  /**
+   * if the session has an error
+   */
+  static isInErrorState = false;
+  private static _panelInformations?: HTMLUListElement;
+  static heartBeatIntervalTime = 500;
+  static heartBeatInterval: ReturnType<typeof setInterval>;
   static components: { [k: string]: HTMLOgoneElement[] } = {};
   static server?: WebSocketServer;
   static client?: WebSocket;
@@ -50,25 +56,40 @@ export default class HMR {
       diagnostics,
     });
   }
+  static get isInBrowser(): boolean {
+    return typeof document !== 'undefined';
+  }
+  static get panelInformations(): HTMLUListElement {
+    if (!this.isInBrowser) throw new Error('cannot use panelInformations outside the browser');
+    return this._panelInformations || (this._panelInformations = document.createElement('ul'))
+  }
   static useOgone(ogone: typeof Ogone) {
-    /**
-     * check if HSE (Hot Scoped Editor)
-     * is currently
-     * running on the browser.
-     */
-    if (typeof LSP_HSE_RUNNING !== "undefined") {
-      return;
-    }
-    if (typeof document !== "undefined") {
+    if (this.isInBrowser) {
       this.ogone = ogone;
       this.clientSettings();
     }
   }
   static clientSettings(): void {
-    this.client = new WebSocket(this.connect);
+    try {
+      this.client = new WebSocket(this.connect);
+    } catch(err) {
+      return;
+    }
+    setTimeout(() => {
+      if (this.checkHeartBeat()) {
+        this.hideHMRMessage();
+      } else {
+        this.showHMRMessage('heart beat goes on false', 'warn');
+      }
+    }, this.heartBeatIntervalTime);
     this.client.onmessage = (evt: any) => {
       const payload = JSON.parse(evt.data);
       const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq } = payload;
+      if (type === 'resolved') {
+        this.isInErrorState = false;
+        this.hideHMRMessage();
+        return;
+      }
       if (type === 'style') {
         let style = document.querySelector(`style#${uuid}`);
         if (style) {
@@ -85,6 +106,7 @@ export default class HMR {
         this.getModule(pathToModule, uuidReq, uuid);
       }
       if (error) {
+        this.isInErrorState = true;
         console.error(error);
         let errorUuid: string | undefined;
         (diagnostics as  ModuleErrorsDiagnostic[]).forEach((diag) => {
@@ -105,25 +127,33 @@ export default class HMR {
             sourceline;
           // add the error
           errorMessage = `
-          TS${diag && diag.code} [ERROR] ${diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || ''}
-        ${this.renderChainedDiags(diag && diag.messageChain && diag.messageChain.next || [])}
-          ${sourceline}
-          ${underline}`;
+TS${diag && diag.code} [ERROR] ${diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || ''}
+${this.renderChainedDiags(diag && diag.messageChain && diag.messageChain.next || [])}
+${sourceline}
+${underline}`;
+          this.showHMRMessage(`
+${messageText || errorFile || 'Error found in application.'}
+${errorMessage}
+          `, 'error');
+          /*
           Ogone.displayError(messageText || errorFile || 'Error found in application.', `TS${diag.code}` || 'TypeError', new Error(`
             ${errorMessage}
           `));
+          */
         })
         return;
       }
       this.rerenderComponents(uuid, output);
     };
+    // start checking if the server is still ok
+    this.startHearBeat();
   }
   static renderChainedDiags(chainedDiags: ModuleErrorsDiagnostic[]): string {
     let result = ``;
     if (chainedDiags && chainedDiags.length) {
       for (const d of chainedDiags) {
         const diag = d as (ModuleErrorsDiagnostic);
-        result += `TS${diag.code} [ERROR] `;
+        result += `<span class="critic">TS${diag.code} [ERROR] </span>`;
         result += `${diag && diag.messageText}\n`
       }
     }
@@ -203,6 +233,7 @@ export default class HMR {
   static setServer(server: WebSocketServer) {
     this.server = server;
     this.server.on('connection', (ws: WebSocket) => {
+      this.cleanClients();
       const key = `client_${crypto.getRandomValues(new Uint16Array(10)).join('')}`;
       HMR.clients.set(key, {
         ready: false,
@@ -213,6 +244,9 @@ export default class HMR {
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
         console.warn(message);
+        if (!event.data.length) {
+          return;
+        }
         if (message.type === 'closing') {
           HMR.clients.delete(key);
         }
@@ -224,7 +258,8 @@ export default class HMR {
     const message = JSON.stringify(obj);
     const entries = Array.from(this.clients.entries());
     entries.forEach(([key, client]) => {
-      if (client?.connection.readyState !== 1
+      /**@ts-ignore*/
+      if (client?.connection.state !== 1
         && !this.FIFOMessages.includes(message)) {
         this.FIFOMessages.push(message);
       } else if (!client.ready) {
@@ -240,7 +275,8 @@ export default class HMR {
   static cleanClients() {
     const entries = Array.from(this.clients.entries());
     entries.forEach(([key, client]) => {
-      if (client.connection.readyState > 1) {
+      /**@ts-ignore*/
+      if (client.connection.state > 1) {
         this.clients.delete(key);
       }
     });
@@ -252,7 +288,8 @@ export default class HMR {
     entries.forEach(([key, client]) => {
       this.FIFOMessages.forEach((m: string) => {
         client.connection.send(m);
-        client.ready = client.connection.readyState === 1
+        /**@ts-ignore*/
+        client.ready = client.connection.state === 1
           && true;
       });
     });
@@ -279,10 +316,108 @@ export default class HMR {
         type: 'close',
       })
     } else if (this.client) {
+      this.clearInterval();
       this.client.send(JSON.stringify({
         type: 'close',
       }));
     }
+  }
+  static clearInterval() {
+    clearInterval(this.heartBeatInterval);
+  }
+  static checkHeartBeat(): boolean {
+    let heartbeat = true;
+    if (this.client) {
+      if (this.client.readyState > 1) {
+        heartbeat = false;
+      } else {
+        try {
+          this.client.send('');
+        } catch(err) {
+          heartbeat = false;
+        }
+      }
+    }
+    return heartbeat;
+  }
+  static startHearBeat() {
+    this.clearInterval();
+    this.heartBeatInterval = setInterval(() => {
+      if (!this.checkHeartBeat()) {
+        this.showHMRMessage('HMR disconnected - retrying in 1s ...');
+        this.clearInterval();
+        setTimeout(() => {
+          this.showHMRMessage('HMR disconnected - sending heart beat message');
+          this.useOgone(this.ogone!);
+        }, 1000);
+      }
+    }, this.heartBeatIntervalTime);
+  }
+  static showHMRMessage(message: string, messageType: string ='') {
+    if (this.isInBrowser) {
+      console.error(message);
+      if (!this.panelInformations.isConnected) {
+        const style = document.createElement('style');
+        style.innerHTML = /*css */`
+        .hmr--panel {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          position: fixed;
+          z-index: 50000;
+          background: #2a2a2d;
+          width: 100vw;
+          height: 100vh;
+          top: 0;
+          margin: 0;
+          overflow: auto;
+          list-style: none;
+        }
+        .hmr--message {
+          padding: 5px;
+          margin: 0px 2px;
+          color: #efefef;
+          font-family: sans-serif;
+        }
+        .hmr--message .hmr--infos {
+          color: #4a4a4d;
+        }
+        .hmr--message .hmr--title {
+          color: #7d7a7d;
+        }
+        .hmr--message .hmr--message {
+          color: inherit;
+          white-space: pre;
+        }
+        .hmr--message .error {
+          color: #fb7191;
+        }
+        .hmr--message .error {
+          color: #ff7191;
+        }
+        .hmr--message .warn {
+          color: #fff2ae;
+        }
+        `;
+        document.body.append(this.panelInformations);
+        document.head.append(style);
+      }
+      this.addMessageToHMR(message, messageType)
+      if (!this.panelInformations.classList.contains('hmr--panel')) {
+        this.panelInformations.classList.add('hmr--panel');
+      }
+    }
+  }
+  static addMessageToHMR(message: string, type: string = '') {
+    this.panelInformations.innerHTML +=`
+    <li class="hmr--message">
+      <span class="hmr--infos">${new Date().toUTCString()}</span><span class="hmr--title">HMR - </span><span class="hmr--message ${type}"> ${message}</span> </li>
+    `;
+  }
+  static hideHMRMessage() {
+    if (this.isInErrorState) return;
+    this.panelInformations.classList.remove('hmr--panel');
+    this.panelInformations.innerHTML = '';
   }
 }
 window.addEventListener('unload', () => {

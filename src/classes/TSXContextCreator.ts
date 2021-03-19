@@ -3,6 +3,8 @@ import { colors, existsSync, } from '../../deps/deps.ts';
 import { walkSync } from '../../deps/walk.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";
+import HMR from './HMR.ts';
+
 /**
  * this class should create for each component
  * a new tsx file, it should expose the diagnostics to the end-user
@@ -47,6 +49,9 @@ export default class TSXContextCreator extends Utils {
       if (!hasError) {
         this.infos(`Type checking took ~${Math.floor(performance.now() - startPerf)} ms`);
         this.success('no type error found.');
+        HMR.postMessage({
+          type: 'resolved',
+        });
       }
     } catch (err) {
       this.error(`TSXContextCreator: ${err.message}
