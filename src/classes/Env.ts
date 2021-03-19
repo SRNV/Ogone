@@ -171,10 +171,10 @@ ${err.stack}`);
           type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
         })
         this.success(`Hot Scoped Editor - updated`);
+        this.exposeSession();
         await this.TSXContextCreator.read(bundle, {
           checkOnly: filePath.replace(Deno.cwd(), ''),
         });
-        this.exposeSession();
       })
       .then(() => {
         Deno.remove(tmpFile);
@@ -220,20 +220,16 @@ ${err.stack}`);
     });
     try {
       OgoneWorkers.hmrContext.addEventListener('message', async (event) => {
-        clearTimeout(this.timeoutBeforeSendingHMRMessage);
-        // this timeout fixes all the broken pipe issue
-        this.timeoutBeforeSendingHMRMessage = setTimeout(() => {
-          if (event.data.isOgone) {
-            console.clear();
-            this.infos('HMR - running tasks...');
-            if (event.data.path === Configuration.entrypoint
-              || ComponentBuilder.mapUuid.get(event.data.path) === ComponentBuilder.mapUuid.get(Configuration.entrypoint)) {
-              this.updateRootComponent(event);
-            } else {
-              this.updateWithTMPFile(event);
-            }
+        if (event.data.isOgone) {
+          console.clear();
+          this.infos('HMR - running tasks...');
+          if (event.data.path === Configuration.entrypoint
+            || ComponentBuilder.mapUuid.get(event.data.path) === ComponentBuilder.mapUuid.get(Configuration.entrypoint)) {
+            this.updateRootComponent(event);
+          } else {
+            this.updateWithTMPFile(event);
           }
-        }, 300);
+        }
       });
     } catch (err) {
       this.error(`Env: ${err.message}
@@ -265,6 +261,12 @@ ${err.stack}`);
               console.clear();
               if (HMR.clients.size) {
                 this.infos(`HMR - sending output.`);
+                /*
+                HMR.postMessage({
+                  output: bundle.output,
+                  uuid: ComponentBuilder.mapUuid.get(data.path)
+                });
+                */
                 this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
               } else {
                 this.warn(`HMR - no connection...`);
@@ -272,10 +274,10 @@ ${err.stack}`);
               await this.compile(Configuration.entrypoint, true)
                 .then(async (completeBundle) => {
                   await this.sendNewApplicationToServer();
-                  // start typechecking
-                  await this.TSXContextCreator.read(completeBundle);
                   this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
                   this.exposeSession();
+                  // start typechecking
+                  await this.TSXContextCreator.read(completeBundle);
                 });
             })
             .then(() => {
@@ -298,15 +300,21 @@ ${err.stack}`);
             console.clear();
             if (HMR.client) {
               this.infos(`HMR - sending output.`);
+              /*
+              HMR.postMessage({
+                output: completeBundle.output,
+                uuid: ComponentBuilder.mapUuid.get(data.path)
+              });
+              */
               this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
             } else {
               this.warn(`HMR - no connection...`);
             }
             await this.sendNewApplicationToServer();
-            // start typechecking
-            await this.TSXContextCreator.read(completeBundle);
             this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
             this.exposeSession();
+            // start typechecking
+            await this.TSXContextCreator.read(completeBundle);
           });
         break;
     }

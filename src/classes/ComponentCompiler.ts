@@ -4,6 +4,7 @@ import Env from './Env.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from "./TSTranspiler.ts";
+import HMR from './HMR.ts';
 // TODO create a file dedicated to the APIs
 /**
  * @name ComponentCompiler
@@ -11,6 +12,7 @@ import TSTranspiler from "./TSTranspiler.ts";
  * @description this will build Components and add access to APIs like: Async, Refs, Controllers, Store
  */
 export default class ComponentCompiler extends Utils {
+  static mapData: Map<string, string> = new Map();
   public async startAnalyze(bundle: Bundle): Promise<void> {
     try {
       const entries = Array.from(bundle.components);
@@ -214,21 +216,41 @@ ${err.stack}`);
               item,
             },
           );
-          MapOutput.outputs.data.push(this.template(result, d))
+          result = this.template(result, d);
         } else {
           mapRender.set(result, {
             id: component.uuid,
           });
-          MapOutput.outputs.data.push(this.template(
+          result = this.template(
             `Ogone.components[{% componentVar %}] = ${result.trim()};
             `,
             d,
-          ));
+          );
         }
+        MapOutput.outputs.data.push(result);
+        ComponentCompiler.sendChanges({
+          output: result,
+          component,
+        });
       }
     } catch (err) {
       this.error(`ComponentCompiler: ${err.message}
 ${err.stack}`);
+    }
+  }
+  static sendChanges(opts: { component: Component; output: string; }) {
+    const { component, output } = opts;
+    if (this.mapData.has(component.uuid)) {
+      const item = this.mapData.get(component.uuid)!;
+      if (item !== output) {
+        HMR.postMessage({
+          output,
+          uuid: component.uuid,
+        });
+        this.mapData.set(component.uuid, output);
+      }
+    } else {
+      this.mapData.set(component.uuid, output);
     }
   }
 }
