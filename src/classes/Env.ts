@@ -269,7 +269,7 @@ ${err.stack}`);
               } else {
                 this.warn(`HMR - no connection...`);
               }
-              this.compile(Configuration.entrypoint, true)
+              await this.compile(Configuration.entrypoint, true)
                 .then(async (completeBundle) => {
                   await this.sendNewApplicationToServer();
                   this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);

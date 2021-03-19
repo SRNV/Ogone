@@ -231,6 +231,7 @@ ${err.stack}`);
         ComponentCompiler.sendChanges({
           output: result,
           component,
+          variable: componentVar,
         });
       }
     } catch (err) {
@@ -238,14 +239,23 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  static async sendChanges(opts: { component: Component; output: string; }) {
-    const { component, output } = opts;
+  static async sendChanges(opts: { component: Component; output: string; variable: string}) {
+    const { component, output, variable } = opts;
     if (this.mapData.has(component.uuid)) {
       const item = this.mapData.get(component.uuid)!;
       if (item !== output) {
+        /**
+         * need to turn the protocol to null
+         * to force using the new one
+         */
+        let result = `
+        Ogone.protocols[${variable}] = null;
+        ${output}
+        `
         HMR.postMessage({
-          output: TSTranspiler.transpile(output),
+          output: await TSTranspiler.transpile(result),
           uuid: component.uuid,
+          type: 'data',
         });
         this.mapData.set(component.uuid, output);
       }
