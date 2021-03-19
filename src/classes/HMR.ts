@@ -129,7 +129,7 @@ export default class HMR {
           errorMessage = `
 TS${diag && diag.code} [ERROR] ${diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || ''}
 ${this.renderChainedDiags(diag && diag.messageChain && diag.messageChain.next || [])}
-${sourceline}
+<span class="critic">${sourceline}</span>
 ${underline}`;
           this.showHMRMessage(`
 ${messageText || errorFile || 'Error found in application.'}
@@ -392,7 +392,7 @@ ${errorMessage}
         .hmr--message .error {
           color: #fb7191;
         }
-        .hmr--message .error {
+        .hmr--message .critic {
           color: #ff7191;
         }
         .hmr--message .warn {

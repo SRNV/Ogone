@@ -1175,8 +1175,8 @@ export function displayError(message: string, errorType: string, errorObject: Er
   // here we render the errors in development
   HMR.showHMRMessage(`
   ${message}
-  <span class="error">${errorType}</span>
-  <span class="error">${errorObject && errorObject.message ? errorObject.message : ''}</span>
+  <span class="critic">${errorType}</span>
+  <span class="critic">${errorObject && errorObject.message ? errorObject.message : ''}</span>
   `);
 };
 

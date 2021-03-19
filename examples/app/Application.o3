@@ -76,10 +76,11 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
     public readonly test: any = Obj;
     public scrollY: number = 0;
     public setScrollY(n: number) {
-      this.scrollY = n;
+      this.scrollY = n + 10;
     }
   default:
     const [header] = Refs.head;
+    this.setScrollY(window.scrollY);
     window.addEventListener('scroll', (ev) => {
       if (header) {
         if (window.scrollY > this.scrollY) {
