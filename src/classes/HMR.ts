@@ -1,6 +1,6 @@
 import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement, HTMLUListElement } from '../ogone.dom.d.ts';
-import { WebSocketServer, WS } from '../../deps/ws.ts';
+import { WebSocketServer, WebSocketAcceptedClient } from '../../deps/ws.ts';
 import { HTMLOgoneElement } from '../ogone.main.d.ts';
 import { ModuleErrorsDiagnostic } from './ModuleErrors.ts';
 
@@ -22,7 +22,7 @@ enum ClientRole {
 }
 interface Client  {
   ready: boolean;
-  connection: WebSocket;
+  connection: WebSocketAcceptedClient;
   role: ClientRole;
 }
 export default class HMR {
@@ -69,7 +69,7 @@ export default class HMR {
       this.clientSettings();
     }
   }
-  static clientSettings(): void {
+  static clientSettings(shouldReload?: boolean): void {
     try {
       this.client = new WebSocket(this.connect);
     } catch(err) {
@@ -77,7 +77,13 @@ export default class HMR {
     }
     setTimeout(() => {
       if (this.checkHeartBeat()) {
-        this.hideHMRMessage();
+        if (shouldReload) {
+          this.clearInterval();
+          this.showHMRMessage('HMR reconnected, reloading application in 1s', 'success');
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
       } else {
         this.showHMRMessage('heart beat goes on false', 'warn');
       }
@@ -106,6 +112,7 @@ export default class HMR {
         this.getModule(pathToModule, uuidReq, uuid);
       }
       if (error) {
+        this.hideHMRMessage();
         this.isInErrorState = true;
         console.error(error);
         let errorUuid: string | undefined;
@@ -118,23 +125,24 @@ export default class HMR {
           const start = diag.start && diag.start.character || 0;
           const end = diag.end && diag.end.character || 0;
           const repeatNumber = end - start - 1
-          const underline = `${' '.repeat(start)}^${'~'.repeat(repeatNumber > 0 ? repeatNumber : 0)}`
           let sourceline = diag && sourceLine || '';
           sourceline = repeatNumber >= 0 ?
           sourceline.substring(0, start)
+            + '<span class="critic">'
             + sourceline.substring(start, end)
+            + '</span>'
             + sourceline.substring(end) :
             sourceline;
           // add the error
           errorMessage = `
-TS${diag && diag.code} [ERROR] ${diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || ''}
+<span class="critic">TS${diag && diag.code} [ERROR] </span>${diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || ''}
 ${this.renderChainedDiags(diag && diag.messageChain && diag.messageChain.next || [])}
-<span class="critic">${sourceline}</span>
-${underline}`;
+${sourceline}
+`;
           this.showHMRMessage(`
 ${messageText || errorFile || 'Error found in application.'}
 ${errorMessage}
-          `, 'error');
+          `);
           /*
           Ogone.displayError(messageText || errorFile || 'Error found in application.', `TS${diag.code}` || 'TypeError', new Error(`
             ${errorMessage}
@@ -232,7 +240,7 @@ ${errorMessage}
   }
   static setServer(server: WebSocketServer) {
     this.server = server;
-    this.server.on('connection', (ws: WebSocket) => {
+    this.server.on('connection', (ws: WebSocketAcceptedClient) => {
       this.cleanClients();
       const key = `client_${crypto.getRandomValues(new Uint16Array(10)).join('')}`;
       HMR.clients.set(key, {
@@ -240,17 +248,6 @@ ${errorMessage}
         connection: ws,
         role: 0,
       });
-      HMR.sendFIFOMessages(key);
-      ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        console.warn(message);
-        if (!event.data.length) {
-          return;
-        }
-        if (message.type === 'closing') {
-          HMR.clients.delete(key);
-        }
-      };
     });
   }
   static postMessage(obj: Object) {
@@ -258,14 +255,14 @@ ${errorMessage}
     const message = JSON.stringify(obj);
     const entries = Array.from(this.clients.entries());
     entries.forEach(([key, client]) => {
-      /**@ts-ignore*/
       if (client?.connection.state !== 1
+        && !client.connection.isClosed
         && !this.FIFOMessages.includes(message)) {
         this.FIFOMessages.push(message);
       } else if (!client.ready) {
         this.sendFIFOMessages(key);
       }
-      if (client) {
+      if (client && !client.connection.isClosed) {
         try {
           client.connection.send(message);
         } catch (err) {}
@@ -275,8 +272,7 @@ ${errorMessage}
   static cleanClients() {
     const entries = Array.from(this.clients.entries());
     entries.forEach(([key, client]) => {
-      /**@ts-ignore*/
-      if (client.connection.state > 1) {
+      if (client.connection.isClosed) {
         this.clients.delete(key);
       }
     });
@@ -288,7 +284,6 @@ ${errorMessage}
     entries.forEach(([key, client]) => {
       this.FIFOMessages.forEach((m: string) => {
         client.connection.send(m);
-        /**@ts-ignore*/
         client.ready = client.connection.state === 1
           && true;
       });
@@ -348,14 +343,13 @@ ${errorMessage}
         this.clearInterval();
         setTimeout(() => {
           this.showHMRMessage('HMR disconnected - sending heart beat message');
-          this.useOgone(this.ogone!);
+          this.clientSettings(true);
         }, 1000);
       }
     }, this.heartBeatIntervalTime);
   }
   static showHMRMessage(message: string, messageType: string ='') {
     if (this.isInBrowser) {
-      console.error(message);
       if (!this.panelInformations.isConnected) {
         const style = document.createElement('style');
         style.innerHTML = /*css */`
@@ -392,8 +386,12 @@ ${errorMessage}
         .hmr--message .error {
           color: #fb7191;
         }
+        .hmr--message .success {
+          color: #91fba1;
+        }
         .hmr--message .critic {
           color: #ff7191;
+          text-decoration: underline;
         }
         .hmr--message .warn {
           color: #fff2ae;

@@ -15,7 +15,7 @@ import OgoneWorkers from "./OgoneWorkers.ts";
 import { Flags } from "../enums/flags.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
-import { WebSocketServer, WS } from "../../deps/ws.ts";
+import { WebSocketServer } from "../../deps/ws.ts";
 import HMR from "./HMR.ts";
 import Ogone from "../main/OgoneBase.ts";
 import ComponentBuilder from './ComponentBuilder.ts';

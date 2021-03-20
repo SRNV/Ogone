@@ -153,7 +153,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
                     return `\n${key} `
                   }
                   if (key.startsWith(`:`)) {
-                    return `\n${key.slice(1)}={${value}} `
+                    return `\n${key.slice(1)}={${value}}`
                   }
                   if (node.isSVG) {
                     return `\n${key.replace(/[\:]/gi, '-')}="${value}"`
