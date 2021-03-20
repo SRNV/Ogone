@@ -76,7 +76,7 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
     public readonly test: any = Obj;
     public scrollY: number = 0;
     public setScrollY(n: number) {
-      this.scrollY = n + 10;
+      this.scrollY = n;
     }
   default:
     const [header] = Refs.head;

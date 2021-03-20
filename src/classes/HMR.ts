@@ -32,6 +32,10 @@ export default class HMR {
    * if the session has an error
    */
   static isInErrorState = false;
+  /**
+   * if the session need to reload
+   */
+  static isWaitingForServerPort = false;
   private static _panelInformations?: HTMLUListElement;
   static heartBeatIntervalTime = 500;
   static heartBeatInterval: ReturnType<typeof setInterval>;
@@ -79,10 +83,8 @@ export default class HMR {
       if (this.checkHeartBeat()) {
         if (shouldReload) {
           this.clearInterval();
-          this.showHMRMessage('HMR reconnected, reloading application in 1s', 'success');
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
+          this.showHMRMessage('HMR reconnected, waiting for reload message', 'success');
+          this.isWaitingForServerPort = true;
         }
       } else {
         this.showHMRMessage('heart beat goes on false', 'warn');
@@ -90,7 +92,10 @@ export default class HMR {
     }, this.heartBeatIntervalTime);
     this.client.onmessage = (evt: any) => {
       const payload = JSON.parse(evt.data);
-      const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq } = payload;
+      const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq, port } = payload;
+      if (type === 'server') {
+        window.location.replace(`http://localhost:${port}/`);
+      }
       if (type === 'resolved') {
         this.isInErrorState = false;
         this.hideHMRMessage();

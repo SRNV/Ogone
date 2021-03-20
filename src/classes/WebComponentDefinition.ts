@@ -88,12 +88,6 @@ ${err.stack}`);
     ${MapOutput.outputs.vars
       .filter((v) => v && v.includes(component.uuid))
       .join('\n')}
-    ${MapOutput.outputs.data
-      .filter((v) => v && v.includes(component.uuid))
-      .join('\n')}
-    ${MapOutput.outputs.types
-      .filter((v) => v && v.includes(component.uuid))
-      .join('\n')}
       ${MapOutput.outputs.context
         .filter((v) => v && v.includes(component.uuid))
         .join('\n')}

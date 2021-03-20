@@ -10,6 +10,7 @@ import type {
 import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
 import TSXContextCreator from './TSXContextCreator.ts';
+import HMR from './HMR.ts';
 
 export default class EnvServer extends Env {
   public readonly contributorMessage: { [k: string]: string } = messages;
@@ -76,6 +77,12 @@ ${err.stack}`);
             }
             break;
           case Workers.SERVICE_DEV_GET_PORT:
+            setTimeout(() => {
+              HMR.postMessage({
+                type: 'server',
+                port: event.data.port,
+              });
+            }, 2000);
             this.listenLSPHSEServer(event.data.port);
             break;
         }

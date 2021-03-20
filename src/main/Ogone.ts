@@ -1565,6 +1565,7 @@ export function renderingProcess(Onode: HTMLOgoneElement) {
 export function renderContext(Onode: HTMLOgoneElement, force?: boolean) {
   const o = Onode, oc = Onode;
   if (!force && (!oc || !o.getContext || !o.isOriginalNode)) return false;
+  if (!o.getContext) return false;
   const length = o.getContext(
     { getLength: true, position: o.position },
   ) as number;
