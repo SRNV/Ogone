@@ -175,11 +175,17 @@ ${errorMessage}
   static rerenderComponents(uuid: string, output?: string) {
     const savedComponents = this.components[uuid];
     if (savedComponents) {
-      const renderedRouter = savedComponents.filter(c => c.routerCalling?.isRouter
-        && c.routerCalling.isOriginalNode);
-      const components = savedComponents.map((component) => component.isTemplate && component.original );
+      const setComponentToRerender: Set<HTMLOgoneElement> = new Set();
+      savedComponents.filter(c => c.routerCalling?.isRouter
+        && c.routerCalling.isOriginalNode).forEach((c) => {
+          setComponentToRerender.add(c)
+        });
+      savedComponents.forEach((component) => {
+        if (component.isTemplate && component.original) {
+          setComponentToRerender.add(component.original);
+        }
+      });
       if (output) {
-        console.warn(components);
         const replacement = eval(`((Ogone) => {
           ${output}
           console.warn('[Ogone] references are updated.');
@@ -191,10 +197,7 @@ ${errorMessage}
        * remove previously generated components
        */
       savedComponents.splice(0);
-      renderedRouter.forEach((component) => {
-        component.routerCalling?.rerender();
-      });
-      components.forEach((component) => {
+      setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
       });
     }
