@@ -91,6 +91,5 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
       }
       this.setScrollY(window.scrollY);
     });
-    console.warn(this.test);
     break;
 </proto>

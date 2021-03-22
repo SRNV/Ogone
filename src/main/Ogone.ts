@@ -199,19 +199,19 @@ window.customElements.define(_ogone_node_, OgoneBaseClass);
 window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
 });
+const mapProxies: Map<unknown, Object> = new Map();
 export function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
-  const proxies: Map<unknown, Object> = new Map();
   return new Proxy(target, {
     get(obj: { [k: string]: unknown }, key: string, ...args: unknown[]) {
       let v;
       const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
       if (key === 'prototype') {
         v = Reflect.get(obj, key, ...args)
-      } else if (proxies.get(obj[key])) {
-        return proxies.get(obj[key]);
-      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !proxies.has(obj[key])) {
+      } else if (mapProxies.get(obj[key])) {
+        return mapProxies.get(obj[key]);
+      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !mapProxies.has(obj[key])) {
         v = setReactivity(obj[key] as Object, updateFunction, id);
-        proxies.set(obj[key], v);
+        mapProxies.set(obj[key], v);
       } else {
         v = Reflect.get(obj, key, ...args);
       }
@@ -1826,7 +1826,6 @@ export function OnodeListRendering(
   if (!context) return;
   // no need to render if it's the same
   if (context.list.length === dataLength) return;
-  console.warn("test onodeListRendering", dataLength, context.list.length, HMR.components[Onode.uuid!].length);
   // first we to add missing nodes
   for (let i = context.list.length, a = dataLength; i < a; i++) {
     let node: HTMLOgoneElement;
@@ -1880,8 +1879,6 @@ export function OnodeListRendering(
   }
   // no need to remove if it's the same
   if (context.list.length === dataLength) return;
-  console.warn("before remove test onodeListRendering", dataLength, context.list.length, HMR.components[Onode.uuid!].length);
-
   // now we remove the extra elements
   for (let i = context.list.length, a = dataLength; i > a; i--) {
     destroy(
