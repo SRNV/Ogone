@@ -207,9 +207,11 @@ export function setReactivity(target: Object, updateFunction: Function, parentKe
       const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
       if (key === 'prototype') {
         v = Reflect.get(obj, key, ...args)
-      } else if (obj[key] instanceof Object && !proxies[id]) {
+      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !proxies[id]) {
         v = setReactivity(obj[key] as Object, updateFunction, id);
         proxies[id] = v;
+      } else if (proxies[id]) {
+        return proxies[id];
       } else {
         v = Reflect.get(obj, key, ...args);
       }
@@ -553,6 +555,7 @@ export function destroy(Onode: HTMLOgoneElement) {
     Onode.component.react.splice(0);
   }
   // ogone: {% destroy.devTool %}
+  Onode.context.list.splice(0);
   Onode.remove();
 }
 /**
@@ -1667,14 +1670,9 @@ export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   );
 };
 export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true, opts: { parent?: HTMLOgoneElement } = {}) {
-  if (!Onode || !Onode.component || !Onode.component.activated) {
-    // Onode.component.texts.splice(0);
-    return;
-  }
   Onode.component.texts.forEach((t: HTMLOgoneText, i: number, arr: HTMLOgoneText[]) => {
     // if there is no update of the texts
     // this can be the reason why
-    // if (t && !t(dependency)) delete arr[i];
     const { code, position, dependencies, getContext } = t;
     if (dependencies && !dependencies.includes(dependency as string)) return;
     if (Onode.component.activated) {

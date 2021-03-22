@@ -95,8 +95,8 @@ export default class HMR {
       const payload = JSON.parse(evt.data);
       const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq, port } = payload;
       if (type === 'server') {
-        const { search } = window.location
-        window.location.replace(`http://localhost:${port}/${search}`);
+        const { search,pathname } = window.location
+        window.location.replace(`http://localhost:${port}${pathname}${search}`);
         return;
       }
       if (type === 'reload') {

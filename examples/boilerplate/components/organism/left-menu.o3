@@ -56,6 +56,9 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
       ]},
     ];
   default:
+    setInterval(() => {
+      this.links.push({ label: 'Ogone', route: '/ogone', children: []});
+    }, 1000);
     Async.resolve();
 </proto>
 
