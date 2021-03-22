@@ -203,6 +203,7 @@ ${errorMessage}
       /**
        * remove previously generated components
        */
+      console.warn(savedComponents.length, setComponentToRerender.size);
       savedComponents.splice(0);
       setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
@@ -377,6 +378,7 @@ ${errorMessage}
           background: #2a2a2d;
           width: 100vw;
           height: 100vh;
+          padding-right: 15px;
           top: 0;
           margin: 0;
           overflow: auto;
@@ -396,7 +398,7 @@ ${errorMessage}
         }
         .hmr--message .hmr--message {
           color: inherit;
-          white-space: pre;
+          white-space: pre-wrap;
         }
         .hmr--message .error {
           color: #fb7191;

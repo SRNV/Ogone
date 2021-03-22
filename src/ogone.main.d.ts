@@ -117,7 +117,6 @@ export interface OgoneInterface {
   routerReactions: Function[];
   displayError(message: string, errorType: string, errorObject: Error): void;
   actualRoute: string | null;
-  websocketPort: number;
   // usable on Deno side
   files: string[];
   directories: string[];

@@ -18,7 +18,7 @@
     --event:animationend:fade-in-bottom
     --router-go={this.item.route}
     class="fade-in-bottom">
-    ${this.item?.label}aamm
+    ${this.item?.label}
   </li>
   <ul>
     <Self

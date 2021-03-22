@@ -30,7 +30,6 @@ export const Ogone: OgoneInterface = {
   instances: {},
   routerReactions: [],
   actualRoute: null,
-  websocketPort: 3434,
   displayError(message: string, errorType: string, errorObject: Error) {
     // here we render the errors in development
     if (!Ogone.errorPanel) {
