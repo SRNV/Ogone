@@ -200,18 +200,18 @@ window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
 });
 export function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
-  const proxies: { [k: string]: Object } = {};
+  const proxies: Map<unknown, Object> = new Map();
   return new Proxy(target, {
     get(obj: { [k: string]: unknown }, key: string, ...args: unknown[]) {
       let v;
       const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
       if (key === 'prototype') {
         v = Reflect.get(obj, key, ...args)
-      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !proxies[id]) {
+      } else if (proxies.get(obj[key])) {
+        return proxies.get(obj[key]);
+      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !proxies.has(obj[key])) {
         v = setReactivity(obj[key] as Object, updateFunction, id);
-        proxies[id] = v;
-      } else if (proxies[id]) {
-        return proxies[id];
+        proxies.set(obj[key], v);
       } else {
         v = Reflect.get(obj, key, ...args);
       }
@@ -227,7 +227,6 @@ export function setReactivity(target: Object, updateFunction: Function, parentKe
     deleteProperty(obj, key) {
       const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
       const v = Reflect.deleteProperty(obj, key)
-      delete proxies[id];
       updateFunction(id);
       return v;
     }
