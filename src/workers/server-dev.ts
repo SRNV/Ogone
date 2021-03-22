@@ -129,8 +129,6 @@ self.onmessage = async (e: any): Promise<void> => {
       }
     </style>
       ${application}`;
-      // ping the HSE Server
-      fetch(`http://localhost:${registry.port+1}/`);
     return;
   }
   let port: number = Configuration.port || 8080;

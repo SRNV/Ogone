@@ -84,6 +84,7 @@ export default class HMR {
         if (shouldReload) {
           this.clearInterval();
           this.showHMRMessage('HMR reconnected, waiting for reload message', 'success');
+          this.showHMRMessage(`<span class="link" onclick="window.location.reload()">click here to reload it manually</span>`);
           this.isWaitingForServerPort = true;
         }
       } else {
@@ -94,7 +95,13 @@ export default class HMR {
       const payload = JSON.parse(evt.data);
       const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq, port } = payload;
       if (type === 'server') {
-        window.location.replace(`http://localhost:${port}/`);
+        const { search } = window.location
+        window.location.replace(`http://localhost:${port}/${search}`);
+        return;
+      }
+      if (type === 'reload') {
+        window.location.reload();
+        return;
       }
       if (type === 'resolved') {
         this.isInErrorState = false;
@@ -178,7 +185,7 @@ ${errorMessage}
       const setComponentToRerender: Set<HTMLOgoneElement> = new Set();
       savedComponents.filter(c => c.routerCalling?.isRouter
         && c.routerCalling.isOriginalNode).forEach((c) => {
-          setComponentToRerender.add(c)
+          setComponentToRerender.add(c.routerCalling!);
         });
       savedComponents.forEach((component) => {
         if (component.isTemplate && component.original) {
@@ -378,7 +385,7 @@ ${errorMessage}
         .hmr--message {
           padding: 5px;
           margin: 0px 2px;
-          color: #efefef;
+          color: #9ea0a0;
           font-family: sans-serif;
         }
         .hmr--message .hmr--infos {
@@ -400,6 +407,10 @@ ${errorMessage}
         .hmr--message .critic {
           color: #ff7191;
           text-decoration: underline;
+        }
+        .hmr--message .link {
+          text-decoration: underline;
+          cursor: pointer;
         }
         .hmr--message .warn {
           color: #fff2ae;

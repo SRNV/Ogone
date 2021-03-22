@@ -4,6 +4,7 @@ import { MapPosition } from "./MapPosition.ts";
 import Ogone from "../main/OgoneBase.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
 import { Utils } from "./Utils.ts";
+import HMR from './HMR.ts';
 
 const registry: { [k: string]: { [c: string]: boolean } } = {};
 /**
@@ -37,7 +38,12 @@ ${err.stack}`);
           this.error(`${rootComponent.file}\n\troot component type should be defined as app.`);
         }
         if (head && head.getInnerHTML) {
-          Configuration.head = head.getInnerHTML();
+          const headHasChanged = Configuration.setHead(head.getInnerHTML());
+          if (headHasChanged) {
+            HMR.postMessage({
+              type: 'reload',
+            });
+          }
           if (template) {
             // remove the head in the template
             template.childNodes.splice(

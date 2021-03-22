@@ -70,6 +70,7 @@ export abstract class Configuration {
    * if the webview is required by the end user
    */
   public static OgoneDesignerOpened: boolean = false;
+  private static savedHead?: string;
   /**
    * @param {typeof Configuration} config
    * set the current global configuration of the compiler
@@ -84,7 +85,6 @@ export abstract class Configuration {
       Configuration.entrypoint = config.entrypoint;
       Configuration.port = config.port ? config.port : 0;
       Configuration.static = config.static;
-      Configuration.head = config.head;
       Configuration.controllers = config.controllers;
       Configuration.devtool = config.devtool;
       Configuration.minifyCSS = config.minifyCSS;
@@ -92,6 +92,19 @@ export abstract class Configuration {
       Configuration.build = config.build;
       Configuration.serve = config.serve;
       Configuration.types = config.types;
+    } catch (err) {
+      Utils.error(`Configuration: ${err.message}
+${err.stack}`);
+    }
+  }
+  static setHead(head: string): boolean {
+    try {
+      Configuration.head = head;
+      if (Configuration.savedHead && Configuration.savedHead !== head) {
+        Configuration.savedHead = head;
+        return true;
+      }
+      return false;
     } catch (err) {
       Utils.error(`Configuration: ${err.message}
 ${err.stack}`);
