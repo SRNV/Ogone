@@ -138,6 +138,7 @@ ${err.stack}`);
   }
   public async buildProtocol(component: Component) {
     try {
+      const deno = await DenoEnv();
       const item = this.mapProtocols.get(component.uuid);
       if (item) {
         Object.defineProperty(component.context, 'protocol', {
@@ -147,6 +148,7 @@ ${err.stack}`);
             return this.template(ProtocolEnum.BUILD, {
               runtime,
               namespaces,
+              deno: deno.ambient,
               modules: component.deps
                 .map((dep) => dep.importStatementAbsolutePath)
                 .join('\n'),
