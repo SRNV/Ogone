@@ -155,11 +155,6 @@ ${sourceline}
 ${messageText || errorFile || 'Error found in application.'}
 ${errorMessage}
           `);
-          /*
-          Ogone.displayError(messageText || errorFile || 'Error found in application.', `TS${diag.code}` || 'TypeError', new Error(`
-            ${errorMessage}
-          `));
-          */
         })
         return;
       }
@@ -203,8 +198,6 @@ ${errorMessage}
       /**
        * remove previously generated components
        */
-      console.warn(savedComponents.length, setComponentToRerender.size);
-      savedComponents.splice(0);
       setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
       });

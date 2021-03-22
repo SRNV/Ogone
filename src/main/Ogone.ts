@@ -279,7 +279,7 @@ export function _hns(parent: SVGElement | string, ...a: any[]) {
 export function _atns(parent: SVGElement | Element, n: Element | string, a: string, b: string) {
   if (typeof n === 'string') {
     return parent.setAttributeNS(null, n, a);
-  }else {
+  } else {
     return (n as Element).setAttributeNS(null, a, b);
   }
 };
@@ -523,7 +523,7 @@ export function removeNodes(Onode: HTMLOgoneElement) {
   function rm(n: any) {
     if (n.extending) {
       destroy(n);
-      // n.context.placeholder.remove();
+      // n.context.placeholder?.remove();
     } else {
       (n as HTMLElement).remove();
     }
@@ -1827,6 +1827,7 @@ export function OnodeListRendering(
   if (!context) return;
   // no need to render if it's the same
   if (context.list.length === dataLength) return;
+  console.warn("test onodeListRendering", dataLength, context.list.length, HMR.components[Onode.uuid!].length);
   // first we to add missing nodes
   for (let i = context.list.length, a = dataLength; i < a; i++) {
     let node: HTMLOgoneElement;
@@ -1863,16 +1864,16 @@ export function OnodeListRendering(
       component: Onode.component,
       nodeProps: Onode.nodeProps,
     } : {
-        props: Onode.props,
-        dependencies: Onode.dependencies,
-        requirements: Onode.requirements,
-        params: Onode.params,
-        parentComponent: Onode.parentComponent,
-        parentCTXId: Onode.parentCTXId,
-        positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
-          .slice() : [],
-        levelInParentComponent: Onode.levelInParentComponent,
-      }));
+      props: Onode.props,
+      dependencies: Onode.dependencies,
+      requirements: Onode.requirements,
+      params: Onode.params,
+      parentComponent: Onode.parentComponent,
+      parentCTXId: Onode.parentCTXId,
+      positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
+        .slice() : [],
+      levelInParentComponent: Onode.levelInParentComponent,
+    }));
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
     Onode.placeholder.replaceWith(node, Onode.placeholder);
@@ -1880,6 +1881,8 @@ export function OnodeListRendering(
   }
   // no need to remove if it's the same
   if (context.list.length === dataLength) return;
+  console.warn("before remove test onodeListRendering", dataLength, context.list.length, HMR.components[Onode.uuid!].length);
+
   // now we remove the extra elements
   for (let i = context.list.length, a = dataLength; i > a; i--) {
     destroy(

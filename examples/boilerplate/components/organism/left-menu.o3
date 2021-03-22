@@ -53,11 +53,9 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
   declare:
     public readonly links: ({label: string; route: string; children: any[] })[] = [
       { label: 'Ogone', route: '/ogone', children: [
-        { label: 'Examples', route: '/ogone/examples'},
       ]},
     ];
   default:
-    console.warn(Deno.env);
     Async.resolve();
 </proto>
 
