@@ -56,6 +56,7 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
       ]},
     ];
   default:
+    console.warn(Deno.env);
     Async.resolve();
 </proto>
 
