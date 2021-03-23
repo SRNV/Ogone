@@ -358,27 +358,13 @@ ${err.stack}`);
           }
           return result;
         }).join("\n");
-      const esm = entries.map((
-        entry: any,
-      ) => entry[1].dynamicImportsExpressions).join("\n");
       const style = stylesDev;
       const rootComponent = bundle.components.get(entrypoint);
       const dependencies = entries.map(([, component]) => component)
         .map((component) => {
           return component.deps.map((dep: Dependency) => dep.structuredOgoneRequire).join('\n');
         }).join('\n');
-      // TODO fix runtime
-      // TODO use Deno.emit to bundle Ogone's runtime
-      //    and components
       if (rootComponent) {
-        if (
-          rootComponent &&
-          ["router", "store", "async"].includes(rootComponent.type)
-        ) {
-          this.error(
-            `the component provided in the entrypoint option has type: ${rootComponent.type}, entrypoint option only supports basic component`,
-          );
-        }
         const scriptDev = this.template(
           `
         const ___perfData = window.performance.timing;
@@ -389,18 +375,9 @@ ${err.stack}`);
 
         ${MapOutput.runtime}
         {% dependencies %}
-          {% promise %}
+        {%start%}
         `,
           {
-            promise: esm.trim().length
-              ? `
-            Promise.all([
-              ${esm}
-            ]).then(() => {
-              {% start %}
-            });
-          `
-              : "{%start%}",
             start: `document.body.append(
             document.createElement(_ogone_node_)
           );`,
@@ -426,11 +403,68 @@ ${err.stack}`);
           script,
           dom: DOMDev,
         });
+        return body;
+      } else {
+        return "no root-component found";
+      }
+    } catch (err) {
+      this.error(`Env: ${err.message}
+${err.stack}`);
+    }
+  }
+  public async renderBundleAndBuildForProduction(entrypoint: string, bundle: Bundle): Promise<string> {
+    try {
+      const entries = Array.from(bundle.components.entries());
+      const globalStyle: string[] = [];
+      const stylesDev = entries
+        .map((
+          entry: any,
+        ) => {
+          let result = "";
+          globalStyle.push(entry[1].style.join("\n"));
+          return result;
+        }).join("\n");
+      const style = `<style>
+${entries.map(([, component]: [string, Component],) => component.style.join("\n"))}
+      </style>`;
+      const rootComponent = bundle.components.get(entrypoint);
+      const dependencies = entries.map(([, component]) => component)
+        .map((component) => {
+          return component.deps.map((dep: Dependency) => dep.structuredOgoneRequire).join('\n');
+        }).join('\n');
+      if (rootComponent) {
+        const scriptProd = this.template(
+          `
+        const ROOT_UUID = "${rootComponent.uuid}";
+        const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
+        const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
+        const _ogone_node_ = "o-node";
 
-        // start watching components
-        // TODO fix HMR
-        // use websocket
-        // HCR(this.bundle);
+        ${MapOutput.runtime}
+        `,
+          {
+            render: {},
+            root: bundle.components.get(entrypoint),
+            destroy: {},
+            nodes: {},
+            dependencies,
+          },
+        );
+        // in production DOM has to be
+        // <template is="${rootComponent.uuid}-nt"></template>
+        const dom = `<o-node></o-node>`;
+        let script = `
+      <script type="module">
+        ${await TSTranspiler.transpile(scriptProd.trim())}
+      </script>`;
+        let head = `
+          ${style}
+          ${Configuration.head || ""}`;
+        let body = this.template(HTMLDocument.PAGE_BUILD, {
+          head,
+          script,
+          dom,
+        });
         return body;
       } else {
         return "no root-component found";
@@ -447,7 +481,15 @@ ${err.stack}`);
           "undefined bundle, please use setBundle method before accessing to the application",
         );
       }
-      let result = await this.renderBundle(Configuration.entrypoint, this.bundle);
+      let result = '';
+      switch(true) {
+        case this.env === "production":
+          result = await this.renderBundleAndBuildForProduction(Configuration.entrypoint, this.bundle);
+          break;
+        default:
+          result = await this.renderBundle(Configuration.entrypoint, this.bundle);
+          break;
+      }
       return result;
     } catch (err) {
       this.error(`Env: ${err.message}

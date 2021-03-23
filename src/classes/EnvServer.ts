@@ -45,9 +45,8 @@ export default class EnvServer extends Env {
         this.setDevTool(false);
         this.compile(Configuration.entrypoint, true)
           .then(async () => {
-            /*
-            TODO use workers for build
-            */
+            let app = await this.getApplication();
+            console.warn(app);
           })
       } else {
         //start compilation of o3 files

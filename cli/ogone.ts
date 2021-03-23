@@ -11,6 +11,11 @@ export class OgoneCLI extends Utils {
       case Commands.CREATE:
         break;
       case Commands.BUILD:
+        const [, entrypoint, build] = Deno.args;
+        o3.run({
+          entrypoint,
+          build,
+        });
         break;
       case Commands.LINT:
         break;

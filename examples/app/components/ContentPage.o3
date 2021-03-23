@@ -62,7 +62,7 @@
     </div>
   </div>
 </template>
-<proto>
+<proto engine="inline-reaction">
   declare:
     inherit title: string = 'untitled';
     inherit text: string = 'no text';

@@ -41,7 +41,7 @@ import type { isOpenType } from '../lib/type.ts';
     <div class="line"></div>
   </div>
 </template>
-<proto>
+<proto engine="inline-reaction">
   declare:
     public isOpen: isOpenType = false;
   case 'click:openMenu':
