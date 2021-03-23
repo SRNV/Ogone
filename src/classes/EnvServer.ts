@@ -44,9 +44,15 @@ export default class EnvServer extends Env {
         this.setEnv("production");
         this.setDevTool(false);
         this.compile(Configuration.entrypoint, true)
-          .then(async () => {
-            let app = await this.getApplication();
-            console.warn(app);
+          .then(async (bundle) => {
+            let app = await this.renderBundleAndBuildForProduction(
+              Configuration.entrypoint,
+              bundle,
+              opts.build!
+            );
+            await this.build(app);
+            this.success(`Application built for production: ${opts.build}`);
+            Deno.exit(0);
           })
       } else {
         //start compilation of o3 files

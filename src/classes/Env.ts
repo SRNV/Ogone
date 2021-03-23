@@ -1,9 +1,12 @@
 import HTMLDocument from '../enums/templateDocumentHTML.ts';
 import { BoilerPlate } from '../enums/templateComponent.ts';
-// TODO fix HMR
-// use std websocket instead of deno.x one
-// import { HCR } from "../../lib/hmr/index.ts";
-import type { Bundle, Environment, Component } from "./../ogone.main.d.ts";
+import type {
+  Bundle,
+  Environment,
+  Component,
+  ProductionFiles,
+  ProductionFile,
+} from "./../ogone.main.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { join } from "../../deps/deps.ts";
 import Constructor from "./Constructor.ts";
@@ -412,62 +415,72 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  public async renderBundleAndBuildForProduction(entrypoint: string, bundle: Bundle): Promise<string> {
+  /***
+   * get production files
+   */
+  public async renderBundleAndBuildForProduction(
+    entrypoint: string,
+    bundle: Bundle,
+    buildPath: string): Promise<ProductionFiles> {
     try {
       const entries = Array.from(bundle.components.entries());
-      const globalStyle: string[] = [];
-      const stylesDev = entries
-        .map((
-          entry: any,
-        ) => {
-          let result = "";
-          globalStyle.push(entry[1].style.join("\n"));
-          return result;
-        }).join("\n");
-      const style = `<style>
-${entries.map(([, component]: [string, Component],) => component.style.join("\n"))}
-      </style>`;
       const rootComponent = bundle.components.get(entrypoint);
-      const dependencies = entries.map(([, component]) => component)
+      if (rootComponent) {
+        /**
+         * CSS File for production
+         */
+        const css: ProductionFile = {
+          path: join(buildPath, './style.css'),
+          source: entries.map(([, component]: [string, Component],) => component.style.join("\n")).join("\n"),
+        };
+        const dependencies = entries.map(([, component]) => component)
         .map((component) => {
           return component.deps.map((dep: Dependency) => dep.structuredOgoneRequire).join('\n');
         }).join('\n');
-      if (rootComponent) {
-        const scriptProd = this.template(
-          `
-        const ROOT_UUID = "${rootComponent.uuid}";
-        const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
-        const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
-        const _ogone_node_ = "o-node";
+        /**
+         * Javascript File for production
+         */
+        const js: ProductionFile = {
+          path: join(buildPath, './app.js'),
+          source: await TSTranspiler.transpile(this.template(`
+          const ROOT_UUID = "${rootComponent.uuid}";
+          const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
+          const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
+          const _ogone_node_ = "o-node";
+          ${MapOutput.runtime}
+          {% dependencies %}
+          `,
+            {
+              render: {},
+              root: bundle.components.get(entrypoint),
+              destroy: {},
+              nodes: {},
+              dependencies,
+            },
+          ).trim()),
+        };
+        /**
+         * HTML File for production
+         */
+        const html: ProductionFile = {
+          path: join(buildPath, './index.html'),
+          source: this.template(HTMLDocument.PAGE_BUILD, {
+            head: `
+            <link rel="stylesheet" href="./css/style.css" />
+            ${Configuration.head || ""}`,
+            script: `<script src="${js.path}" ></script>`,
+            dom: `<o-node></o-node>`,
+          }),
+        };
 
-        ${MapOutput.runtime}
-        `,
-          {
-            render: {},
-            root: bundle.components.get(entrypoint),
-            destroy: {},
-            nodes: {},
-            dependencies,
-          },
-        );
-        // in production DOM has to be
-        // <template is="${rootComponent.uuid}-nt"></template>
-        const dom = `<o-node></o-node>`;
-        let script = `
-      <script type="module">
-        ${await TSTranspiler.transpile(scriptProd.trim())}
-      </script>`;
-        let head = `
-          ${style}
-          ${Configuration.head || ""}`;
-        let body = this.template(HTMLDocument.PAGE_BUILD, {
-          head,
-          script,
-          dom,
-        });
-        return body;
+        return {
+          css,
+          html,
+          js,
+          ressources: [],
+        };
       } else {
-        return "no root-component found";
+        Deno.exit(1);
       }
     } catch (err) {
       this.error(`Env: ${err.message}
@@ -481,20 +494,17 @@ ${err.stack}`);
           "undefined bundle, please use setBundle method before accessing to the application",
         );
       }
-      let result = '';
-      switch(true) {
-        case this.env === "production":
-          result = await this.renderBundleAndBuildForProduction(Configuration.entrypoint, this.bundle);
-          break;
-        default:
-          result = await this.renderBundle(Configuration.entrypoint, this.bundle);
-          break;
-      }
+      let result = await this.renderBundle(Configuration.entrypoint, this.bundle);
       return result;
     } catch (err) {
       this.error(`Env: ${err.message}
 ${err.stack}`);
     }
   }
-
+  public async build(app: ProductionFiles): Promise<void> {
+    const { css, html, js, ressources } = app;
+    await Deno.writeTextFile(html.path, html.source, { create: true });
+    await Deno.writeTextFile(css.path, css.source, { create: true });
+    await Deno.writeTextFile(js.path, js.source, { create: true });
+  }
 }

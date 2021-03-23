@@ -100,7 +100,8 @@ export default class Dependency extends Utils {
      */
     get importStatementAbsolutePath(): string {
         if (this.isRemote) return this.input;
-        return this.input.replace(this.data.path, `${this.absolutePathURL.pathname}?uuid=${this.component.uuid}`);
+        if (Env._env !== 'production') return this.input.replace(this.data.path, `${this.absolutePathURL.pathname}?uuid=${this.component.uuid}`);
+        return this.input.replace(this.data.path, this.absolutePathURL.pathname);
     }
     /**
      * exposes the import statement with the dependency's url in parameter
@@ -122,13 +123,17 @@ export default class Dependency extends Utils {
         function getStructure(pathToModule: string, memberName: string, opts: { isDefault: boolean, isAllAs: boolean, isMember: boolean }): string {
             const { isDefault, isMember, isAllAs } = opts;
             if (isRemote) `Ogone.require[${pathToModule}].${memberName} = ${memberName}`;
-            return `
+            let result = `
             Ogone.require[${pathToModule}].${memberName} = ${memberName}
-            HMR.subscribe(${pathToModule}, (mod) => {
-                Ogone.require[${pathToModule}].${memberName} = mod${isDefault ? '.default' : isAllAs ? '' : memberName}
-            });
-            HMR.setGraph(${pathToModule}, ${JSON.stringify(graph)});
-            `
+            `;
+            if (Env._env !== 'production') {
+                result += `
+                HMR.subscribe(${pathToModule}, (mod) => {
+                    Ogone.require[${pathToModule}].${memberName} = mod${isDefault ? '.default' : isAllAs ? '' : memberName}
+                });
+                HMR.setGraph(${pathToModule}, ${JSON.stringify(graph)});`;
+            }
+            return result
         }
         let importStatement = `
 /**

@@ -28,12 +28,16 @@ export default class TSTranspiler extends Utils {
     }
   }
   static async bundle(url: URL | string): Promise<string> {
-    let result = (await Deno.emit(url, {
-      bundle: 'esm',
-      check: false,
-    }));
-    const file = result.files['deno:///bundle.js'];
-    return file;
+    try {
+      let result = (await Deno.emit(url, {
+        bundle: 'esm',
+        check: false,
+      }));
+      const file = result.files['deno:///bundle.js'];
+      return file;
+    } catch(err) {
+      this.error(`TSTranspiler: ${err.message}`);
+    }
   }
   /**
    * saves Ogone's runtime, which is bundled, into MapOutput.runtime

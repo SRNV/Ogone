@@ -858,3 +858,25 @@ interface FileBundle {
 }
 
 type SusanoOptions = { path: string; parent?: FileBundle } | { code: string, path: string; parent?: FileBundle };
+export interface ProductionFile {
+  path: string;
+  source: string;
+}
+export interface ProductionFiles {
+  /**
+   * All the styles
+   */
+  css: ProductionFile;
+  /**
+   * the html of the index.html file
+   */
+  html: ProductionFile;
+  /**
+   * the script of the application
+   */
+  js: ProductionFile;
+  /**
+   * all ressources needed
+   */
+  ressources: string[];
+}
