@@ -151,6 +151,7 @@ ${err.stack}`);
           Object.freeze(Async);
           `;
         let result: string = `function (Onode) {
+            {% modules %}
             {% ControllersAPI %}
             {% StoreAPI %}
             const ___ = (prop, inst, value) => {

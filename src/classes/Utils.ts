@@ -168,6 +168,9 @@ export abstract class Utils {
     - Releases: ${cyan(`https://github.com/SRNV/Ogone/releases`)}
     - Github: ${cyan(`https://github.com/SRNV/Ogone`)}
     - Projects: ${cyan(`https://github.com/SRNV/Ogone/projects`)}
+
+      deno:\t\t${Deno.version.deno}
+      typescript:\t${Deno.version.typescript}
     `);
   }
   public exposeSession = Utils.exposeSession.bind(this);

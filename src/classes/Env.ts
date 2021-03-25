@@ -431,7 +431,7 @@ ${err.stack}`);
          */
         const css: ProductionFile = {
           path: join(buildPath, './style.css'),
-          source: entries.map(([, component]: [string, Component],) => component.style.join("\n")).join("\n"),
+          source: entries.map(([, component]: [string, Component],) => component.style.join("\n")).join(""),
         };
         const dependencies = entries.map(([, component]) => component)
         .map((component) => {
@@ -442,7 +442,7 @@ ${err.stack}`);
          */
         const js: ProductionFile = {
           path: join(buildPath, './app.js'),
-          source: await TSTranspiler.transpile(this.template(`
+          source: await TSTranspiler.bundleText(this.template(`
           const ROOT_UUID = "${rootComponent.uuid}";
           const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
           const ROOT_IS_PROTECTED = ${!!rootComponent.elements.template?.attributes.protected};
@@ -467,8 +467,9 @@ ${err.stack}`);
           source: this.template(HTMLDocument.PAGE_BUILD, {
             head: `
             <link rel="stylesheet" href="./css/style.css" />
-            ${Configuration.head || ""}`,
-            script: `<script src="${js.path}" ></script>`,
+            ${Configuration.head || ""}
+            <script src="${js.path}" ></script>`,
+            script: ``,
             dom: `<o-node></o-node>`,
           }),
         };
@@ -503,8 +504,19 @@ ${err.stack}`);
   }
   public async build(app: ProductionFiles): Promise<void> {
     const { css, html, js, ressources } = app;
+    let perf = performance.now();
+    const start = perf;
     await Deno.writeTextFile(html.path, html.source, { create: true });
     await Deno.writeTextFile(css.path, css.source, { create: true });
     await Deno.writeTextFile(js.path, js.source, { create: true });
+    perf = performance.now() - perf;
+    this.success(`App built in ${(performance.now() - start).toFixed(4)} ms
+\t\t\thtml:\t\t${html.path}
+\t\t\tjs:\t\t${js.path}
+\t\t\tcss:\t\t${css.path}
+
+\t\t\tdeno:\t\t${Deno.version.deno}
+\t\t\ttypescript:\t${Deno.version.typescript}
+`);
   }
 }

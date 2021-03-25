@@ -16,8 +16,7 @@ enum HTMLDocument {
             {% head %}
         </head>
         <body>
-            {% dom %}
-            {% script %}
+            {% dom %}{% script %}
         </body>
     </html>
     `

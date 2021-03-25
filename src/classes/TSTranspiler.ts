@@ -39,6 +39,25 @@ export default class TSTranspiler extends Utils {
       this.error(`TSTranspiler: ${err.message}`);
     }
   }
+  static async bundleText(text: string): Promise<string> {
+    const url = Deno.makeTempFileSync({
+      prefix: 'ogone_production',
+      suffix: '.ts',
+    });
+    try {
+      Deno.writeTextFileSync(url, text);
+      let result = (await Deno.emit(url, {
+        bundle: 'esm',
+        check: false,
+      }));
+      const file = result.files['deno:///bundle.js'];
+      Deno.removeSync(url);
+      return file;
+    } catch(err) {
+      Deno.removeSync(url);
+      this.error(`TSTranspiler: ${err.message}`);
+    }
+  }
   /**
    * saves Ogone's runtime, which is bundled, into MapOutput.runtime
    */

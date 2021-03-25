@@ -17,6 +17,7 @@ export default class Dependency extends Utils {
     private AssetsParser: AssetsParser = new AssetsParser();
     private children: Dependency[] = [];
     public file: string = '';
+    public uuid: string = `dep_${crypto.getRandomValues(new Uint16Array(4)).join('')}`;
     constructor(
         public component: Component,
         /**
@@ -183,7 +184,7 @@ ${getStructure("'{% absolute %}'", allAsName, {
 `;
         }
         return this.template(importStatement, {
-            absolute: this.absolutePathURL.pathname
+            absolute: this.uuid,
         });
     }
     /**
@@ -192,7 +193,6 @@ ${getStructure("'{% absolute %}'", allAsName, {
      * returns an empty string if the environment isn't development
      */
     get destructuredOgoneRequire(): string {
-        if (Env._env === 'production') return '';
         const { defaultName, allAsName, members, path, isType } = this.data;
         if (isType) return '';
         let destructured = `
@@ -203,7 +203,7 @@ ${getStructure("'{% absolute %}'", allAsName, {
         return this.template(`const { {% destructured %} } = Ogone.require['{% absolute %}'];
 `, {
             destructured,
-            absolute: this.absolutePathURL.pathname
+            absolute: this.uuid
         });
     }
     /**
