@@ -5,6 +5,7 @@ import Ogone from "../main/OgoneBase.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
 import { Utils } from "./Utils.ts";
 import HMR from './HMR.ts';
+import { absolute, existsSync } from '../../deps/deps.ts';
 
 const registry: { [k: string]: { [c: string]: boolean } } = {};
 /**
@@ -52,6 +53,7 @@ ${err.stack}`);
             );
           }
         }
+        this.setApplicationConfiguration(rootComponent);
         rootComponent.type = "component";
       }
       // change all the sub component that are typed as app
@@ -174,5 +176,24 @@ ${err.stack}`);
       this.error(`ComponentTypeGetter: ${err.message}
 ${err.stack}`);
     }
+  }
+  setApplicationConfiguration(component: Component) {
+    let result;
+    if (component.elements.proto) {
+      const [proto] = component.elements.proto;
+      result = proto.attributes.base as string;
+      if (result) {
+        result = absolute(component.file, result);
+        const position = MapPosition.mapNodes.get(proto)!;
+        if (!existsSync(result)) {
+          this.error(`${component.file}:${position.line}:${position.column}\n\t base folder does not exist.`);
+        }
+        const info = Deno.statSync(result);
+        if (info.isFile) {
+          this.error(`${component.file}:${position.line}:${position.column}\n\t a folder is required for proto's base attribute.`);
+        }
+      }
+    }
+    Configuration.static = result || Configuration.static;
   }
 }
