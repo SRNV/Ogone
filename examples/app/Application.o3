@@ -13,7 +13,7 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
 <template>
   <head>
     <link href="./style.css" rel="stylesheet"/>
-    <link rel="icon" href="./favicon.ico">
+    <link rel="icon" href="./favicon.ico" />
     <link href="./animations.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.2/styles/night-owl.min.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>

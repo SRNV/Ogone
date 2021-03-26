@@ -100,7 +100,7 @@ ${err.stack}`);
   static setHead(head: string): boolean {
     try {
       Configuration.head = head;
-      if (Configuration.savedHead && Configuration.savedHead !== head) {
+      if (Configuration.savedHead !== head) {
         Configuration.savedHead = head;
         return true;
       }
