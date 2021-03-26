@@ -10,6 +10,6 @@
     }
   </style>
   <div class="container">
-    <img class="img" src="/src/public/ogone.svg"/>
+    <img class="img" src="./ogone.svg"/>
   </div>
 </template>

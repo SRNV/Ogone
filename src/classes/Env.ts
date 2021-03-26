@@ -400,7 +400,8 @@ ${err.stack}`);
       </script>`;
         let head = `
           ${style}
-          ${Configuration.head || ""}`;
+          ${Configuration.head || ""}
+          <base href="/${Configuration.static}" />`;
         let body = this.template(HTMLDocument.PAGE, {
           head,
           script,
@@ -466,6 +467,7 @@ ${err.stack}`);
           path: join(buildPath, './index.html'),
           source: this.template(HTMLDocument.PAGE_BUILD, {
             head: `
+            <base href="./static/" />
             <link rel="stylesheet" href="./css/style.css" />
             ${Configuration.head || ""}
             <script src="${js.path}" ></script>`,

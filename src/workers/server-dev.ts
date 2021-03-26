@@ -1,7 +1,7 @@
 import { getHeaderContentTypeOf } from "../../utils/extensions-resolution.ts";
 import { existsSync } from "../../utils/exists.ts";
 // import HMR from "../lib/hmr/index.ts";
-import { serve, join, fetchRemoteRessource } from "../../deps/deps.ts";
+import { serve, absolute, fetchRemoteRessource } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
@@ -161,11 +161,13 @@ self.onmessage = async (e: any): Promise<void> => {
   });
 
   for await (const req of server) {
+    /*
     const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
       }/${req.url}`.replace(/\/+/gi, '/');
+    */
+    const pathToPublic: string = `${Deno.cwd()}/${getPublicPath(req.url, Configuration.static)}`.replace(/\/+/gi, '/');
     const params = new URLSearchParams('?' + req.url.split("?")[1]);
     // for imported modules
-    const importedFile = params.get('import');
     const serveModule = params.get('serve_module');
     // for lsp
     const component = params.get('component');
@@ -185,7 +187,7 @@ self.onmessage = async (e: any): Promise<void> => {
           ]),
         });
         break;
-      case existsSync(realUrl) && (realUrl.endsWith('.ts') || realUrl.endsWith('.js')):
+      case isUrlFile && Deno.statSync(pathToPublic).isFile && (realUrl.endsWith('.ts') || realUrl.endsWith('.js')):
         const file = await cache(
           realUrl
         );
@@ -198,18 +200,6 @@ self.onmessage = async (e: any): Promise<void> => {
         break;
       case component && port === parseFloat(keyPort as string):
         req.respond({ body: registry.webview_application });
-        break;
-      case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
-        // TODO fix HMR
-        // use std websocket
-        // HMR(denoReqUrl);
-        req.respond({
-          body: await resolveAndReadText(importedFile!),
-          headers: new Headers([
-            getHeaderContentTypeOf(importedFile!),
-            ["X-Content-Type-Options", "nosniff"],
-          ]),
-        });
         break;
       case isUrlFile && Deno.statSync(pathToPublic).isFile:
         if (Deno.build.os !== "windows") {
@@ -229,4 +219,18 @@ self.onmessage = async (e: any): Promise<void> => {
     }
   }
 }
+function getPublicPath(path: string, publicPath: string) {
+  let result = path.split('?')[0];
+  const regExp = new RegExp(`^${Deno.cwd()
+    .replace(/'[\\\/\:\.]'/gi, '\$1')}\\b`, 'i');
+  const publicReg = new RegExp(`${publicPath.replace(/'[\\\/\:\.]'/gi, '\$1')}`);
+  // remove Deno.cwd()
+  result = result.replace(regExp, '');
+  // add public path if it's missing
+  if (!result.match(publicReg)) {
+    result = `${publicPath}${result}`;
+  }
+  return result;
+}
+console.warn(getPublicPath("/home/rudy/Documents/Perso/Ogone/examples/app/public/modules/attr.ts?uuid=o2245517610", '/'))
 export { };

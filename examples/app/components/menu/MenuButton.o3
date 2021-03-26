@@ -1,4 +1,4 @@
-import type { ButtonInterface } from '../../lib/menu-button-types.ts';
+import type { ButtonInterface } from '../../public/modules/menu-button-types.ts';
 
 <template>
   <style>

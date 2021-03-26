@@ -445,8 +445,6 @@ export interface ImportDescription {
   object: boolean;
   members: ({ name: string, alias: string })[];
   value: string;
-  static: (namespace: string) => string;
-  dynamic: (importFn: string, namespace: string) => string;
   getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
 }
 export interface Bundle {

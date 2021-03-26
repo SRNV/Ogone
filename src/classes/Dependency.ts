@@ -184,7 +184,7 @@ ${getStructure("'{% absolute %}'", allAsName, {
 `;
         }
         return this.template(importStatement, {
-            absolute: this.uuid,
+            absolute: this.absolutePathURL.pathname,
         });
     }
     /**
@@ -203,7 +203,7 @@ ${getStructure("'{% absolute %}'", allAsName, {
         return this.template(`const { {% destructured %} } = Ogone.require['{% absolute %}'];
 `, {
             destructured,
-            absolute: this.uuid
+            absolute: this.absolutePathURL.pathname
         });
     }
     /**

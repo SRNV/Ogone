@@ -12,8 +12,9 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
  */
 <template>
   <head>
-    <link href="/src/public/style.css" rel="stylesheet"/>
-    <link href="/src/public/animations.css" rel="stylesheet"/>
+    <link href="./style.css" rel="stylesheet"/>
+    <link rel="icon" href="./favicon.ico">
+    <link href="./animations.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.2/styles/night-owl.min.css">
     <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
   </head>
@@ -71,7 +72,9 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
   <MenuMain />
   <RightSection {...this} />
 </template>
-<proto type="app">
+<proto
+  type="app"
+  base="./public/">
   declare:
     public readonly test: any = Obj;
     public scrollY: number = 0;

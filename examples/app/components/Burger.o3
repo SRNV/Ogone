@@ -1,7 +1,7 @@
 import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
-import print from '../lib/print.ts';
-import attr from '../lib/attr.ts';
-import type { isOpenType } from '../lib/type.ts';
+import print from '../public/modules/print.ts';
+import attr from '../public/modules/attr.ts';
+import type { isOpenType } from '../public/modules/type.ts';
 
 <template>
   <style>

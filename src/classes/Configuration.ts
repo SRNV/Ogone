@@ -17,7 +17,7 @@ export abstract class Configuration {
    * @property static
    * @description allow user to serve files to client
    */
-  public static ["static"]?: string = "/public";
+  public static ["static"]?: string = "/public/";
 
   /**
    * @property modules

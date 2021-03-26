@@ -194,6 +194,6 @@ ${err.stack}`);
         }
       }
     }
-    Configuration.static = result || Configuration.static;
+    Configuration.static = result ? `${result.replace(/\/$/, '')}/` : Configuration.static;
   }
 }

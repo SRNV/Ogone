@@ -6,7 +6,6 @@ import type {
 import getDeepTranslation from "./template-recursive.ts";
 import exports from "./esm-exports.ts";
 import { getMembersKeys, getMembers } from './get-members.ts';
-import { join } from '../deps/deps.ts';
 function getHmrModuleSystem({
   variable,
   registry,
@@ -67,18 +66,6 @@ const esm: ProtocolScriptRegExpList = [
           allAsName: null,
           getHmrModuleSystem,
           members: [],
-          static: (namespace: string) => {
-            if (type === 'remote') return getDeepTranslation(value, expressions);
-            const result = getDeepTranslation(value, expressions);
-            return result;
-          },
-          dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {
-            if (type === 'remote') return `${importFn}('${path}'),`;
-            const baseUrl = new URL(import.meta.url);
-            baseUrl.pathname = join(Deno.cwd(), namespace);
-            const newUrl = new URL(path, baseUrl);
-            return `${importFn}('${path}', '${newUrl.pathname}'),`
-          },
         };
       }
       return id;
@@ -122,18 +109,6 @@ const esm: ProtocolScriptRegExpList = [
           defaultName: importDescription.default.alias || importDescription.default.name || null,
           allAsName: importDescription.allAs || null,
           path,
-          static: (namespace: string) => {
-            if (type === 'remote') return getDeepTranslation(value, expressions);
-            const result = getDeepTranslation(value, expressions);
-            return result;
-          },
-          dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {
-            if (type === 'remote') return `${importFn}('${path}'),`;
-            const baseUrl = new URL(import.meta.url);
-            baseUrl.pathname = join(Deno.cwd(), namespace);
-            const newUrl = new URL(path, baseUrl);
-            return `${importFn}('${path}', '${newUrl.pathname}'),`
-          },
           value: getDeepTranslation(value, expressions),
           members: importDescription.members,
           getHmrModuleSystem,

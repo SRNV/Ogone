@@ -1,5 +1,5 @@
 import component ScrollComponent from '@/examples/app/components/Scroll.o3';
-import type { TreeRecursive } from '../../lib/tree-recursive-types.ts';
+import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
 <template>
   <style>
