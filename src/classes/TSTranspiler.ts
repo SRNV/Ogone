@@ -1,13 +1,14 @@
+import Env from './Env.ts';
 import { Utils } from "./Utils.ts";
 import MapOutput from './MapOutput.ts';
 import { Bundle } from "../ogone.main.d.ts";
 
 export default class TSTranspiler extends Utils {
   static runtimeURL = new URL('../main/Ogone.ts', import.meta.url);
-  static runtimeBaseURL = new URL('../main/OgoneBase.ts', import.meta.url);
   static subdistFolderUrl = './.ogone';
   static outputURL = './.ogone/out.ts';
-  static transpileCompilerOptions = { sourceMap: false, };
+  static transpileCompilerOptions = { sourceMap: false, removeComments: false };
+  static bundleCompilerOptions = { removeComments: false };
   static cache: { [k: string]: string; } = {};
   static async transpile(text: string): Promise<string> {
     try {
@@ -32,6 +33,7 @@ export default class TSTranspiler extends Utils {
       let result = (await Deno.emit(url, {
         bundle: 'esm',
         check: false,
+        compilerOptions: this.bundleCompilerOptions,
       }));
       const file = result.files['deno:///bundle.js'];
       return file;
@@ -49,6 +51,7 @@ export default class TSTranspiler extends Utils {
       let result = (await Deno.emit(url, {
         bundle: 'esm',
         check: false,
+        compilerOptions: this.bundleCompilerOptions,
       }));
       const file = result.files['deno:///bundle.js'];
       Deno.removeSync(url);
@@ -58,12 +61,19 @@ export default class TSTranspiler extends Utils {
       this.error(`TSTranspiler: ${err.message}`);
     }
   }
+  static get runtimeBaseURL(): URL {
+    if (Env._env === 'production') return new URL('../main/OgoneProduction.ts', import.meta.url);
+    return new URL('../main/OgoneDev.ts', import.meta.url);
+  }
   /**
    * saves Ogone's runtime, which is bundled, into MapOutput.runtime
    */
   static async getRuntime(bundle: Bundle) {
     const file = `
-      import { Ogone } from '${this.runtimeBaseURL}';
+      import {
+        Ogone,
+        displayError,
+      } from '${this.runtimeBaseURL}';
       import {
         setReactivity,
         _h,
@@ -94,7 +104,6 @@ export default class TSTranspiler extends Utils {
         bindStyle,
         setContext,
         setDevToolContext,
-        displayError,
         showPanel,
         infosMessage,
         renderSlots,
@@ -110,7 +119,6 @@ export default class TSTranspiler extends Utils {
         renderContext,
         triggerLoad,
         setDeps,
-        setHMRContext,
         routerGo,
         OnodeTriggerDefault,
         OnodeUpdate,

@@ -7,6 +7,8 @@ import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
 import transformPathFileToUUID from '../../utils/transformPathFileToUUID.ts';
 
+Utils.infos('worker for dev server created.');
+
 const registry = {
   application: '',
   webview_application: '',
@@ -23,12 +25,15 @@ export type Controllers = {
 }
 let controllers: Controllers = {};
 
-async function control(req: any): Promise<boolean> {
-  const ns = req.url.slice(1).split("/")[0];
-  if (req.url.indexOf("/") > -1 && req.url.startsWith(`/${ns}/`)) {
+async function control(req: any, baseURL: string): Promise<boolean> {
+  const realUrl = req.url.replace(baseURL, '');
+  const ns = realUrl
+    .slice(1)
+    .split("/")[0];
+  if (realUrl.indexOf("/") > -1 && realUrl.startsWith(`/${ns}/`)) {
     const controller = controllers[ns] || controllers[`/${ns}`];
     if (controller) {
-      const route = req.url.replace(`/${ns}`, "");
+      const route = realUrl.replace(`/${ns}`, "");
       const t = req.method;
       let response = await controller.runtime(`${t}:${route}`, req);
       if (response) {
@@ -161,10 +166,6 @@ self.onmessage = async (e: any): Promise<void> => {
   });
 
   for await (const req of server) {
-    /*
-    const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
-      }/${req.url}`.replace(/\/+/gi, '/');
-    */
     const pathToPublic: string = `${Deno.cwd()}/${getPublicPath(req.url, Configuration.static)}`.replace(/\/+/gi, '/');
     const params = new URLSearchParams('?' + req.url.split("?")[1]);
     // for imported modules
@@ -172,7 +173,7 @@ self.onmessage = async (e: any): Promise<void> => {
     // for lsp
     const component = params.get('component');
     const keyPort = params.get('port');
-    const controllerRendered = await control(req);
+    const controllerRendered = await control(req, Configuration.static);
     if (controllerRendered) {
       continue;
     }
@@ -221,6 +222,7 @@ self.onmessage = async (e: any): Promise<void> => {
 }
 function getPublicPath(path: string, publicPath: string) {
   let result = path.split('?')[0];
+  if (!publicPath) return result;
   const regExp = new RegExp(`^${Deno.cwd()
     .replace(/'[\\\/\:\.]'/gi, '\$1')}\\b`, 'i');
   const publicReg = new RegExp(`${publicPath.replace(/'[\\\/\:\.]'/gi, '\$1')}`);
@@ -232,5 +234,4 @@ function getPublicPath(path: string, publicPath: string) {
   }
   return result;
 }
-console.warn(getPublicPath("/home/rudy/Documents/Perso/Ogone/examples/app/public/modules/attr.ts?uuid=o2245517610", '/'))
 export { };

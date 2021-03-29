@@ -1,5 +1,6 @@
 import { Utils } from "../classes/Utils.ts";
 import Workers from "../enums/workers.ts";
+Utils.infos('worker for HMR system created.');
 
 export default {};
 self.onmessage = async (ev: any): Promise<void> => {

@@ -7,15 +7,12 @@ import type {
   ProductionFiles,
   ProductionFile,
 } from "./../ogone.main.d.ts";
-import { existsSync } from "../../utils/exists.ts";
-import { join } from "../../deps/deps.ts";
+import { join, colors } from "../../deps/deps.ts";
 import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
 import MapFile from "./MapFile.ts";
-import OgoneWorkers from "./OgoneWorkers.ts";
-import { Flags } from "../enums/flags.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
 import { WebSocketServer } from "../../deps/ws.ts";
@@ -32,7 +29,34 @@ export default class Env extends Constructor {
   public static _env: Environment = "development";
   protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
   private timeoutBeforeSendingLSPRequests?: number;
-  private timeoutBeforeSendingHMRMessage?: number;
+  /**
+   * the worker to run the dev server
+   */
+  public serviceDev = new Worker(new URL("../workers/server-dev.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
+  /**
+   * the worker to watch modules for HMR
+   */
+  public hmrContext = new Worker(new URL("../workers/hmr-context.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
+  /**
+   * the worker for
+   */
+  public lspWebsocketClientWorker = new Worker(new URL("../workers/lsp-websocket-client.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
+  /**
+   * the worker for Otone's Hot Scoped Editor
+   */
+  public lspHSEServer = new Worker(new URL("../workers/lsp-hse-server.ts", import.meta.url).href, {
+    type: "module",
+    deno: true,
+  });
   constructor() {
     super();
     this.devtool = Configuration.devtool;
@@ -105,7 +129,7 @@ ${err.stack}`);
           isTyped: component.isTyped,
           requirements: component.requirements,
         };
-        OgoneWorkers.lspWebsocketClientWorker.postMessage({
+        this.lspWebsocketClientWorker.postMessage({
           type: Workers.LSP_SEND_COMPONENT_INFORMATIONS,
           component: lightComponent,
         });
@@ -125,12 +149,12 @@ ${err.stack}`);
        * HOT Scoped Editor for HSE
        */
       Configuration.OgoneDesignerOpened = true;
-      OgoneWorkers.lspHSEServer.postMessage({
+      this.lspHSEServer.postMessage({
         type: Workers.INIT_MESSAGE_SERVICE_DEV,
         port,
       });
       this.trace('LSP HSE Server opened.')
-      OgoneWorkers.lspHSEServer.addEventListener('message', async (event) => {
+      this.lspHSEServer.addEventListener('message', async (event) => {
         const { data } = event;
         switch (data.type) {
           default: break;
@@ -166,11 +190,11 @@ ${err.stack}`);
         const application = await this.renderBundle(tmpFile,
           bundle
         );
-        OgoneWorkers.serviceDev.postMessage({
+        this.serviceDev.postMessage({
           type: Workers.LSP_UPDATE_SERVER_COMPONENT,
           application,
         })
-        OgoneWorkers.lspHSEServer.postMessage({
+        this.lspHSEServer.postMessage({
           type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
         })
         this.success(`Hot Scoped Editor - updated`);
@@ -218,11 +242,11 @@ ${err.stack}`);
       new WebSocketServer(HMR.port)
     );
     // start watching files and open websocket server
-    OgoneWorkers.hmrContext.postMessage({
+    this.hmrContext.postMessage({
       type: Workers.WS_INIT,
     });
     try {
-      OgoneWorkers.hmrContext.addEventListener('message', async (event) => {
+      this.hmrContext.addEventListener('message', async (event) => {
         if (event.data.isOgone) {
           console.clear();
           this.infos('HMR - running tasks...');
@@ -320,7 +344,7 @@ ${err.stack}`);
   }
   async initServer(): Promise<void> {
     try {
-      OgoneWorkers.serviceDev.postMessage({
+      this.serviceDev.postMessage({
         type: Workers.INIT_MESSAGE_SERVICE_DEV,
         application: await this.getApplication(),
         controllers: Ogone.controllers,
@@ -335,7 +359,7 @@ ${err.stack}`);
   }
   async sendNewApplicationToServer(): Promise<void> {
     try {
-      OgoneWorkers.serviceDev.postMessage({
+      this.serviceDev.postMessage({
         type: Workers.UPDATE_APPLICATION,
         application: await this.getApplication(),
         controllers: Ogone.controllers,
@@ -399,9 +423,10 @@ ${err.stack}`);
         ${await TSTranspiler.transpile(scriptDev.trim())}
       </script>`;
         let head = `
+          <base href="/${Configuration.static}" />
           ${style}
           ${Configuration.head || ""}
-          <base href="/${Configuration.static}" />`;
+          `;
         let body = this.template(HTMLDocument.PAGE, {
           head,
           script,
@@ -506,19 +531,24 @@ ${err.stack}`);
   }
   public async build(app: ProductionFiles): Promise<void> {
     const { css, html, js, ressources } = app;
+    const { blue, cyan, gray } = colors;
     let perf = performance.now();
     const start = perf;
     await Deno.writeTextFile(html.path, html.source, { create: true });
     await Deno.writeTextFile(css.path, css.source, { create: true });
     await Deno.writeTextFile(js.path, js.source, { create: true });
     perf = performance.now() - perf;
-    this.success(`App built in ${(performance.now() - start).toFixed(4)} ms
-\t\t\thtml:\t\t${html.path}
-\t\t\tjs:\t\t${js.path}
-\t\t\tcss:\t\t${css.path}
-
+    const message = gray(`App built in about ${(performance.now() - start).toFixed(4)} ms`);
+    const versions = gray(`
 \t\t\tdeno:\t\t${Deno.version.deno}
-\t\t\ttypescript:\t${Deno.version.typescript}
+\t\t\ttypescript:\t${Deno.version.typescript}`);
+// now show the message
+    this.success(`${message}
+${versions}
+\t\t\thtml:\t\t${cyan(html.path)}
+\t\t\tjs:\t\t${cyan(js.path)}
+\t\t\tcss:\t\t${cyan(css.path)}
+
 `);
   }
 }

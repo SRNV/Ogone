@@ -2,7 +2,6 @@ import { colors } from "../../deps/deps.ts";
 import { Utils } from "./Utils.ts";
 import { Bundle } from '../ogone.main.d.ts';
 import { Configuration } from "./Configuration.ts";
-import OgoneWorkers from "./OgoneWorkers.ts";
 import Workers from "../enums/workers.ts";
 import { MapPosition } from './MapPosition.ts';
 import HMR from "./HMR.ts";
@@ -126,12 +125,6 @@ ${err.stack}`);
         `${bgRed("  ERROR  ")} ${red(message)}`,
         { returns: true },
       ) as string;
-      if (Configuration.OgoneDesignerOpened) {
-        OgoneWorkers.lspWebsocketClientWorker.postMessage({
-          type: Workers.LSP_ERROR,
-          message: m,
-        });
-      }
       console.error(m);
       HMR.sendError(m, diagnostics);
       setTimeout(() => {

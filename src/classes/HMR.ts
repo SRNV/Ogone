@@ -2,10 +2,32 @@ import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement, HTMLUListElement } from '../ogone.dom.d.ts';
 import { WebSocketServer, WebSocketAcceptedClient } from '../../deps/ws.ts';
 import { HTMLOgoneElement } from '../ogone.main.d.ts';
-import { ModuleErrorsDiagnostic } from './ModuleErrors.ts';
-
 declare const document: Document;
 declare const window: any;
+/**
+ * a class to display the errors inside the module
+ */
+ export interface ModuleErrorsDiagnostic {
+  start?: {
+    character: number;
+    line: number;
+  };
+  end?: {
+    character: number;
+    line: number;
+  };
+  sourceLine?: string;
+  messageText?: string;
+  messageChain?: {
+    messageText: string;
+    category: number;
+    code: number;
+    next: Pick<ModuleErrorsDiagnostic, 'messageText' | 'category' | 'code'>[];
+  }
+  fileName?: string;
+  category: number;
+  code: number;
+}
 interface ModuleGraph {
   listeners: Function[];
   graph: string[];
@@ -432,6 +454,3 @@ ${errorMessage}
     this.panelInformations.innerHTML = '';
   }
 }
-window.addEventListener('unload', () => {
-  HMR.beforeClosing();
-});

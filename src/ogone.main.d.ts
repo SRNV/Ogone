@@ -115,7 +115,7 @@ export interface OgoneInterface {
   instances: { [componentUuid: string]: any[] };
   protocols: { [componentUuid: string]: FunctionConstructor };
   routerReactions: Function[];
-  displayError(message: string, errorType: string, errorObject: Error): void;
+  subscribeComponent?: (Onode: HTMLOgoneElement) => void;
   actualRoute: string | null;
   // usable on Deno side
   files: string[];

@@ -2,7 +2,6 @@ import Ogone from "../main/OgoneBase.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
 import Workers from '../enums/workers.ts';
-import OgoneWorkers from "./OgoneWorkers.ts";
 import { existsSync } from "../../utils/exists.ts";
 import type {
   OgoneConfiguration,
@@ -73,7 +72,7 @@ ${err.stack}`);
     try {
       TSXContextCreator.cleanDistFolder();
       await this.initServer();
-      OgoneWorkers.serviceDev.addEventListener('message', async (event) => {
+      this.serviceDev.addEventListener('message', async (event) => {
         switch (event.data.type) {
           case Workers.SERVICE_DEV_READY:
             // start type checking of all typed components

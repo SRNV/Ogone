@@ -13,7 +13,6 @@ import {
   SVGElement
 } from "../ogone.dom.d.ts";
 import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions, HTMLOgoneText } from "../ogone.main.d.ts";
-import HMR from "../classes/HMR.ts";
 declare const document: Document;
 declare const location: Location;
 declare const ROOT_UUID: string;
@@ -141,7 +140,6 @@ export class OgoneBaseClass extends HTMLElement {
 
     // set the context of the node
     setContext(this);
-    // setHMRContext();
 
     // parse the route that match with location.pathname
     if (this.type === "router") {
@@ -383,11 +381,7 @@ export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
     Onode.historyState = { query };
   }
   construct(Onode);
-  if (Onode.isComponent) {
-    HMR.components[Onode.uuid!] = HMR.components[Onode.uuid!] || [];
-    HMR.components[Onode.uuid!]
-      .push(Onode);
-  }
+  if (Ogone.subscribeComponent) Ogone.subscribeComponent(Onode);
 }
 /**
  * for dynamic attributes of any elements
@@ -1173,14 +1167,6 @@ export function setDevToolContext(Onode: HTMLOgoneElement) {
     type: o.isTemplate ? o.isRoot ? "root" : oc.type : "element",
   });
 }
-export function displayError(message: string, errorType: string, errorObject: Error) {
-  // here we render the errors in development
-  HMR.showHMRMessage(`
-  ${message}
-  <span class="critic">${errorType}</span>
-  <span class="critic">${errorObject && errorObject.message ? errorObject.message : ''}</span>
-  `);
-};
 
 export function showPanel(panelName: 'infos' | 'error' | 'success' | 'warn', time: number | undefined) {
   const panel = panelName === 'infos' ?
@@ -1606,36 +1592,6 @@ export function setDeps(Onode: HTMLOgoneElement) {
     );
     renderContext(o);
   }
-}
-export function setHMRContext(Onode: HTMLOgoneElement) {
-  const o = Onode, oc = Onode;
-  // register to hmr
-  if (o.isTemplate && oc && o.uuid) {
-    Ogone.instances[o.uuid].push(oc);
-  }
-  Ogone.mod[Onode.extending!].push((pragma: string) => {
-    Ogone.render[Onode.extending!] = eval(pragma);
-    if (!o.nodes) return;
-    if (o.isTemplate) {
-      return true;
-    } else if (oc) {
-      const invalidatedNodes = o.nodes.slice();
-      const ns = Array.from(o.nodes);
-      o.renderNodes = Ogone.render[Onode.extending!];
-      renderingProcess(Onode);
-      invalidatedNodes.forEach((n, i) => {
-        if (n.extending) {
-          if (i === 0) n.firstNode.replaceWith(...ns);
-          destroy(n);
-        } else {
-          if (i === 0) n.replaceWith(...ns);
-          (n as HTMLElement).remove();
-        }
-      });
-      OnodeRenderTexts(oc, true);
-      return true;
-    }
-  });
 }
 export function routerGo(url: string, state: any) {
   if (Ogone.actualRoute === url) return;
