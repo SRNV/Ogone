@@ -6,7 +6,11 @@ export abstract class Configuration {
    * @description path to the root component, this one has to be an app component
    */
   public static entrypoint: string = "/index.o3";
-
+  /**
+   * should be used with build option
+   * this will render the deploy.ts file inside the destination folder
+   */
+  public static deploySPA?: boolean;
   /**
    * @property port
    * @description which port to use for development
@@ -92,6 +96,7 @@ export abstract class Configuration {
       Configuration.build = config.build;
       Configuration.serve = config.serve;
       Configuration.types = config.types;
+      Configuration.deploySPA = config.deploySPA;
     } catch (err) {
       Utils.error(`Configuration: ${err.message}
 ${err.stack}`);
@@ -100,6 +105,10 @@ ${err.stack}`);
   static setHead(head: string): boolean {
     try {
       Configuration.head = head;
+      if (!Configuration.savedHead) {
+        Configuration.savedHead = head;
+        return false;
+      }
       if (Configuration.savedHead !== head) {
         Configuration.savedHead = head;
         return true;

@@ -118,7 +118,7 @@ export default class HMR {
       const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq, port } = payload;
       if (type === 'server') {
         const { search,pathname } = window.location
-        window.location.replace(`http://localhost:${port}${pathname}${search}`);
+        window.location.assign(`http://localhost:${port}${pathname}${search}`);
         return;
       }
       if (type === 'reload') {
@@ -201,7 +201,7 @@ ${errorMessage}
     if (savedComponents) {
       const setComponentToRerender: Set<HTMLOgoneElement> = new Set();
       savedComponents.filter(c => c.routerCalling?.isRouter
-        && c.routerCalling.isOriginalNode).forEach((c) => {
+        && c.routerCalling.isOriginalNode && c.actualTemplate === c).forEach((c) => {
           setComponentToRerender.add(c.routerCalling!);
         });
       savedComponents.forEach((component) => {

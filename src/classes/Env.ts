@@ -8,6 +8,8 @@ import type {
   ProductionFile,
 } from "./../ogone.main.d.ts";
 import { join, colors } from "../../deps/deps.ts";
+import { copy } from "../../deps/fs.ts";
+import { walkSync } from '../../deps/walk.ts';
 import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
@@ -20,6 +22,7 @@ import HMR from "./HMR.ts";
 import Ogone from "../main/OgoneBase.ts";
 import ComponentBuilder from './ComponentBuilder.ts';
 import Dependency from "./Dependency.ts";
+import Deployer from "../enums/deployer.ts";
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
@@ -451,12 +454,14 @@ ${err.stack}`);
     try {
       const entries = Array.from(bundle.components.entries());
       const rootComponent = bundle.components.get(entrypoint);
+      const cssPath = './style.css';
+      const jsPath = './app.js';
       if (rootComponent) {
         /**
          * CSS File for production
          */
         const css: ProductionFile = {
-          path: join(buildPath, './style.css'),
+          path: join(buildPath, cssPath),
           source: entries.map(([, component]: [string, Component],) => component.style.join("\n")).join(""),
         };
         const dependencies = entries.map(([, component]) => component)
@@ -467,7 +472,7 @@ ${err.stack}`);
          * Javascript File for production
          */
         const js: ProductionFile = {
-          path: join(buildPath, './app.js'),
+          path: join(buildPath, jsPath),
           source: await TSTranspiler.bundleText(this.template(`
           const ROOT_UUID = "${rootComponent.uuid}";
           const ROOT_IS_PRIVATE = ${!!rootComponent.elements.template?.attributes.private};
@@ -492,10 +497,10 @@ ${err.stack}`);
           path: join(buildPath, './index.html'),
           source: this.template(HTMLDocument.PAGE_BUILD, {
             head: `
+            <link rel="stylesheet" href="${cssPath}" />
+            <script src="${jsPath}" ></script>
             <base href="./static/" />
-            <link rel="stylesheet" href="./css/style.css" />
-            ${Configuration.head || ""}
-            <script src="${js.path}" ></script>`,
+            ${Configuration.head || ""}`,
             script: ``,
             dom: `<o-node></o-node>`,
           }),
@@ -533,22 +538,116 @@ ${err.stack}`);
     const { css, html, js, ressources } = app;
     const { blue, cyan, gray } = colors;
     let perf = performance.now();
+    let message = '';
     const start = perf;
+    /**
+     * copy static folder with configuration
+     */
+    await this.copyStaticFolder();
+    /**
+     * all the minifications
+     */
+    await this.minifyJS(js);
+    await this.minifyCSS(css);
+    /**
+     * create Deno Deploy Project
+     */
+    if (Configuration.deploySPA) {
+      await this.deploySPA(app);
+      Deno.exit(0);
+    }
+    /**
+     * end of the minifications
+     */
     await Deno.writeTextFile(html.path, html.source, { create: true });
     await Deno.writeTextFile(css.path, css.source, { create: true });
     await Deno.writeTextFile(js.path, js.source, { create: true });
+    /**
+     * get files stats
+     */
+    const statHTML = Deno.statSync(html.path);
+    const statCSS = Deno.statSync(css.path);
+    const statJS = Deno.statSync(js.path);
     perf = performance.now() - perf;
-    const message = gray(`App built in about ${(performance.now() - start).toFixed(4)} ms`);
+    message = gray(`App built. \ttook ${(performance.now() - start).toFixed(4)} ms`);
     const versions = gray(`
 \t\t\tdeno:\t\t${Deno.version.deno}
 \t\t\ttypescript:\t${Deno.version.typescript}`);
 // now show the message
     this.success(`${message}
 ${versions}
-\t\t\thtml:\t\t${cyan(html.path)}
-\t\t\tjs:\t\t${cyan(js.path)}
-\t\t\tcss:\t\t${cyan(css.path)}
+\t\t\thtml:\t\t${cyan(html.path)}\t${gray(`${statHTML.size} bytes`)}
+\t\t\tjs:\t\t${cyan(js.path)}\t${gray(`${statJS.size} bytes`)}
+\t\t\tcss:\t\t${cyan(css.path)}\t${gray(`${statCSS.size} bytes`)}`);
+  }
+  public async minifyCSS(css: ProductionFile): Promise<void> {
+    const { blue, cyan, gray } = colors;
+    let perf = performance.now();
+    let message = '';
+    this.infos(gray(`Loading csso from esm.sh/csso`));
+    try {
+      perf = performance.now();
+      const csso = await import("https://esm.sh/csso");
+      if (csso) {
+        const { minify } = csso;
+        css.source = (await minify(css.source, { restructure: true })).css;
+        message = gray(` \ttook ${(performance.now() - perf).toFixed(4)} ms`);
+        this.success(`style minified.${message}`);
+      }
+    } catch(err) {
+      this.warn('Couldn\'t load csso from esm.sh/csso or something went wrong');
+    }
+  }
+  public async minifyJS(js: ProductionFile): Promise<void> {
+    const { blue, cyan, gray } = colors;
+    let perf = performance.now();
+    let message = '';
+    this.infos(gray(`Loading terser from esm.sh/terser`));
+    try {
+      perf = performance.now();
+      const terser = await import("https://esm.sh/terser");
+      if (terser) {
+        const { minify } = terser;
+        js.source = (await minify(js.source, { mangle: { toplevel: true } })).code!;
+        message = gray(` \ttook ${(performance.now() - perf).toFixed(4)} ms`);
+        this.success(`script minified.${message}`);
+      }
+    } catch(err) {
+      this.warn('Couldn\'t load terser from esm.sh/terser or something went wrong');
+    }
+  }
+  private async copyStaticFolder(): Promise<void> {
+    const dest = join(Configuration.build!, 'static');
+    await copy(Configuration.static!, dest);
+    const files = walkSync(dest, {
+      includeFiles: true,
+      includeDirs: false,
+    });
+    for (let file of files) {
+      if (!file.path.endsWith('.ts')) continue;
+      Deno.removeSync(file.path);
+    }
+  }
+  public async deploySPA(app: ProductionFiles) {
+    const { html, js, css } = app;
+    const { blue, cyan, gray } = colors;
+    const encoder = new TextEncoder();
+    let perf = performance.now();
+    const project = this.template(Deployer.App, {
+      HTML: encoder.encode(html.source).join(),
+      CSS: encoder.encode(css.source).join(),
+      JS: encoder.encode(js.source).join(),
+    });
+    const projectPath = join(Configuration.build!, 'deploy.ts')
+    await Deno.writeTextFile(projectPath, project, { create: true });
+    const stats = Deno.statSync(projectPath);
+    let message = gray(` \ttook ${(performance.now() - perf).toFixed(4)} ms`);
+    this.success(`Deno deploy file is ready.${message}
 
+    \t\t\tdeploy file:\t${cyan(projectPath)} ${gray(`${stats.size} bytes`)}
+${gray(`
+\t\t\tdeno:\t\t${Deno.version.deno}
+\t\t\ttypescript:\t${Deno.version.typescript}`)}
 `);
   }
 }

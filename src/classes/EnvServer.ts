@@ -10,11 +10,13 @@ import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
 import TSXContextCreator from './TSXContextCreator.ts';
 import HMR from './HMR.ts';
+import { join, colors } from '../../deps/deps.ts';
 
 export default class EnvServer extends Env {
   public readonly contributorMessage: { [k: string]: string } = messages;
   run(opts: OgoneConfiguration) {
     try {
+      const { gray } = colors;
       if (!opts) {
         this.error("run method is expecting for 1 argument, got 0.");
       }
@@ -27,6 +29,7 @@ export default class EnvServer extends Env {
       }
 
       if (opts.build) {
+        const staticDir = join(opts.build, 'static');
         if (!existsSync(opts.build)) {
           Deno.mkdirSync(opts.build);
         }
@@ -39,6 +42,11 @@ export default class EnvServer extends Env {
             `build: build destination should be a directory. \n\tinput: ${opts.build}`,
           );
         }
+        if (existsSync(staticDir)) {
+          Deno.remove(staticDir, {
+            recursive: true,
+          });
+        }
         //start compilation of o3 files
         this.setEnv("production");
         this.setDevTool(false);
@@ -50,7 +58,7 @@ export default class EnvServer extends Env {
               opts.build!
             );
             await this.build(app);
-            this.success(`Application built for production: ${opts.build}`);
+            this.success(`Application built for production: ${opts.build} ${gray(`in ${(performance.now() - opts.startTime!).toFixed(4)} ms`)}`);
             Deno.exit(0);
           })
       } else {
@@ -58,10 +66,10 @@ export default class EnvServer extends Env {
         this.setDevTool(Configuration.devtool as boolean);
         this.listenHMRWebsocket();
         this.compile(Configuration.entrypoint, true)
-        .then(async () => {
-          // Ogone is now ready to serve
-          this.startDevelopment();
-        })
+          .then(async () => {
+            // Ogone is now ready to serve
+            this.startDevelopment();
+          })
       }
     } catch (err) {
       this.error(`Ogone: ${err.message}

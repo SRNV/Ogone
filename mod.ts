@@ -41,6 +41,10 @@ export {
 };
 export default {
   async run(opts: OgoneConfiguration): Promise<void> {
+    const startTime = performance.now();
+    Object.assign(opts, {
+      startTime,
+    });
     console.clear();
     Utils.infos('compiling...')
     TSXContextCreator.createDistFolder();

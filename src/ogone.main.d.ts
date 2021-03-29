@@ -362,7 +362,12 @@ export interface OgoneConfiguration {
    * @description path to the root component, this one has to be an untyped component
    */
   entrypoint: string;
-
+  /**
+   * should be used with the build config
+   * will add the deploy.ts file
+   * to the dest folder
+   */
+  deploySPA?: boolean;
   /**
    * @property port
    * @description which port to use for development
@@ -415,6 +420,10 @@ export interface OgoneConfiguration {
    * paths to the types for tsc
    */
   types?: string[];
+  /**
+   * UTC time at the begining of tasks
+   */
+  startTime?: number;
 }
 interface Remote {
   base: string;
