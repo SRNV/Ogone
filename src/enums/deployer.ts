@@ -12,7 +12,7 @@ async function handleRequest(request) {
     case request.url === '/app.js':
       files.script = files.script || await (
         await (
-          await fetch(new URL('./app.js', import.meta.url).pathname)
+          await fetch(new URL('./app.js', import.meta.url).href)
         ).blob()
       ).text();
       return new Response(files.script, {
@@ -23,7 +23,7 @@ async function handleRequest(request) {
     case request.url === '/style.css':
       files.style = files.style || await (
         await (
-          await fetch(new URL('./style.css', import.meta.url).pathname)
+          await fetch(new URL('./style.css', import.meta.url).href)
         ).blob()
       ).text();
       return new Response(files.style, {
@@ -34,7 +34,7 @@ async function handleRequest(request) {
     default:
       files.template = files.template || await (
         await (
-          await fetch(new URL('./index.html', import.meta.url).pathname)
+          await fetch(new URL('./index.html', import.meta.url).href)
         ).blob()
       ).text();
       return new Response(files.template, {
