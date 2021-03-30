@@ -562,7 +562,7 @@ ${err.stack}`);
           this.infos('allowed to push project.');
           const cmd = await Deno.run({
             cwd: Deno.cwd(),
-            cmd: `git add .; git commit -m "push to production - deploy.ts"; git push;`.split(' '),
+            cmd: `git add . ; git commit -m "push to production - deploy.ts" ; git push ;`.split(' '),
             stdin: 'piped',
             stdout: 'piped',
             stderr: 'piped',
