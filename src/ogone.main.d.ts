@@ -885,5 +885,5 @@ export interface ProductionFiles {
   /**
    * all ressources needed
    */
-  ressources: string[];
+  ressources: ProductionFile[];
 }

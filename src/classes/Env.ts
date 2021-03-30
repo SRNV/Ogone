@@ -1,4 +1,5 @@
 import HTMLDocument from '../enums/templateDocumentHTML.ts';
+import { getHeaderContentTypeOf } from "../../utils/extensions-resolution.ts";
 import { BoilerPlate } from '../enums/templateComponent.ts';
 import type {
   Bundle,
@@ -538,12 +539,11 @@ ${err.stack}`);
     const { css, html, js, ressources } = app;
     const { blue, cyan, gray } = colors;
     let perf = performance.now();
-    let message = '';
     const start = perf;
     /**
      * copy static folder with configuration
      */
-    await this.copyStaticFolder();
+    await this.copyStaticFolder(app);
     /**
      * all the minifications
      */
@@ -554,7 +554,6 @@ ${err.stack}`);
      */
     if (Configuration.deploySPA) {
       await this.deploySPA(app);
-      Deno.exit(0);
     }
     /**
      * end of the minifications
@@ -569,12 +568,11 @@ ${err.stack}`);
     const statCSS = Deno.statSync(css.path);
     const statJS = Deno.statSync(js.path);
     perf = performance.now() - perf;
-    message = gray(`App built. \ttook ${(performance.now() - start).toFixed(4)} ms`);
     const versions = gray(`
 \t\t\tdeno:\t\t${Deno.version.deno}
 \t\t\ttypescript:\t${Deno.version.typescript}`);
 // now show the message
-    this.success(`${message}
+    this.success(`
 ${versions}
 \t\t\thtml:\t\t${cyan(html.path)}\t${gray(`${statHTML.size} bytes`)}
 \t\t\tjs:\t\t${cyan(js.path)}\t${gray(`${statJS.size} bytes`)}
@@ -616,7 +614,7 @@ ${versions}
       this.warn('Couldn\'t load terser from esm.sh/terser or something went wrong');
     }
   }
-  private async copyStaticFolder(): Promise<void> {
+  private async copyStaticFolder(app: ProductionFiles): Promise<void> {
     const dest = join(Configuration.build!, 'static');
     await copy(Configuration.static!, dest);
     const files = walkSync(dest, {
@@ -624,19 +622,40 @@ ${versions}
       includeDirs: false,
     });
     for (let file of files) {
-      if (!file.path.endsWith('.ts')) continue;
+      if (!file.path.endsWith('.ts')) {
+        app.ressources.push({
+          path: file.path,
+          source: Deno.readTextFileSync(file.path),
+        });
+        continue;
+      }
       Deno.removeSync(file.path);
     }
   }
   public async deploySPA(app: ProductionFiles) {
     const { html, js, css } = app;
     const { blue, cyan, gray } = colors;
+    const dest = join(Configuration.build!, 'static')
     const encoder = new TextEncoder();
     let perf = performance.now();
     const project = this.template(Deployer.App, {
       HTML: encoder.encode(html.source).join(),
       CSS: encoder.encode(css.source).join(),
       JS: encoder.encode(js.source).join(),
+      ressources: app.ressources,
+      static: dest,
+      requests: app.ressources.map((file: ProductionFile) => {
+        const candidateURL = file.path.replace(Configuration.build!, '');
+        return `
+        case request.url === '${candidateURL}':
+          files['${candidateURL}'] = await (await (await fetch(new URL(".${candidateURL}", import.meta.url))).blob()).text();
+          return new Response(files['${candidateURL}'], {
+            headers: {
+              "content-type": "${getHeaderContentTypeOf(file.path)[1]}; charset=UTF-8",
+            },
+          });
+        `;
+      }),
     });
     const projectPath = join(Configuration.build!, 'deploy.ts')
     await Deno.writeTextFile(projectPath, project, { create: true });
@@ -645,9 +664,6 @@ ${versions}
     this.success(`Deno deploy file is ready.${message}
 
     \t\t\tdeploy file:\t${cyan(projectPath)} ${gray(`${stats.size} bytes`)}
-${gray(`
-\t\t\tdeno:\t\t${Deno.version.deno}
-\t\t\ttypescript:\t${Deno.version.typescript}`)}
 `);
   }
 }
