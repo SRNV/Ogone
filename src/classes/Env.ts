@@ -548,10 +548,7 @@ ${err.stack}`);
      * all the minifications
      */
     await this.minifyJS(js);
-    // @ts-ignore
-    if (await confirm(this.message('minify style ?', { returns: true }) as string)) {
-      await this.minifyCSS(css);
-    }
+    await this.minifyCSS(css);
     /**
      * create Deno Deploy Project
      */
