@@ -554,6 +554,17 @@ ${err.stack}`);
      */
     if (Configuration.deploySPA) {
       await this.deploySPA(app);
+      if (Deno.build.os !== 'windows') {
+        const pushIt = await confirm(this.message('Push to deployer ? (y/n)', { returns: true }) as string);
+        if (pushIt) {
+          this.infos('allowed to push project.');
+          await Deno.run({
+            cmd: `git add .; git commit -m "push to production - deploy.ts"; git push;`.split(' '),
+            stdin: 'piped',
+            stderr: 'piped',
+          });
+        }
+      }
     }
     /**
      * end of the minifications
