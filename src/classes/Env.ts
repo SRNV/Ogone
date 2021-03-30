@@ -554,7 +554,8 @@ ${err.stack}`);
      */
     if (Configuration.deploySPA) {
       await this.deploySPA(app);
-      if (Deno.build.os !== 'windows') {
+      if (Deno.build.os !== 'windows' && typeof confirm !== 'undefined') {
+        // @ts-ignore
         const pushIt = await confirm(this.message('Push to repos ?', { returns: true }) as string);
         if (pushIt) {
           this.infos('allowed to push project.');
