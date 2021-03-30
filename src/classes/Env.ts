@@ -566,9 +566,9 @@ ${err.stack}`);
             stdout: 'piped',
             stderr: 'piped',
           });
-          for await (let out of cmd.output()) {
-            this.infos(new TextDecoder().decode(out));
-          }
+          const out = await cmd.output();
+          this.infos(new TextDecoder()
+            .decode(out));
         }
       }
     }
