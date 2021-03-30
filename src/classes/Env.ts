@@ -588,7 +588,7 @@ ${versions}
       const csso = await import("https://esm.sh/csso");
       if (csso) {
         const { minify } = csso;
-        css.source = (await minify(css.source, { restructure: true })).css;
+        css.source = (await minify(css.source, { restructure: false })).css;
         message = gray(` \ttook ${(performance.now() - perf).toFixed(4)} ms`);
         this.success(`style minified.${message}`);
       }
