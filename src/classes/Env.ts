@@ -647,7 +647,7 @@ ${versions}
       requests: app.ressources.map((file: ProductionFile) => {
         const candidateURL = file.path.replace(Configuration.build!, '');
         return `
-        case request.url === '${candidateURL}':
+        case PATHNAME === '${candidateURL}':
           files['${candidateURL}'] = await (await (await fetch(new URL(".${candidateURL}", import.meta.url).href)).blob()).text();
           return new Response(files['${candidateURL}'], {
             headers: {
