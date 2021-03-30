@@ -648,7 +648,7 @@ ${versions}
         const candidateURL = file.path.replace(Configuration.build!, '');
         return `
         case request.url === '${candidateURL}':
-          files['${candidateURL}'] = await (await (await fetch(new URL(".${candidateURL}", import.meta.url))).blob()).text();
+          files['${candidateURL}'] = await (await (await fetch(new URL(".${candidateURL}", import.meta.url).pathname)).blob()).text();
           return new Response(files['${candidateURL}'], {
             headers: {
               "content-type": "${getHeaderContentTypeOf(file.path)[1]}; charset=UTF-8",
