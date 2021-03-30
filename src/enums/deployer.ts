@@ -1,6 +1,6 @@
 enum Deployer {
     App = `
-const files: { [k: string]?: string } = {
+const files: { [k: string]: string } = {
   template: void 0,
   script: void 0,
   style: void 0,
