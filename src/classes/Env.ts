@@ -555,7 +555,7 @@ ${err.stack}`);
     if (Configuration.deploySPA) {
       await this.deploySPA(app);
       if (Deno.build.os !== 'windows') {
-        const pushIt = await confirm(this.message('Push to deployer ? (y/n)', { returns: true }) as string);
+        const pushIt = await confirm(this.message('Push to repos ?', { returns: true }) as string);
         if (pushIt) {
           this.infos('allowed to push project.');
           await Deno.run({
