@@ -15,7 +15,7 @@ async function handleRequest(request) {
           await fetch(new URL(request.url, import.meta.url).pathname)
         ).blob()
       ).text();
-      return new Response(app.script, {
+      return new Response(files.script, {
         headers: {
           "content-type": "application/javascript; charset=UTF-8",
         },
@@ -26,7 +26,7 @@ async function handleRequest(request) {
           await fetch(new URL(request.url, import.meta.url).pathname)
         ).blob()
       ).text();
-      return new Response(app.style, {
+      return new Response(files.style, {
         headers: {
           "content-type": "text/css; charset=UTF-8",
         },
