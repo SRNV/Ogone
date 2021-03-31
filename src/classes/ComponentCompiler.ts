@@ -13,6 +13,7 @@ import HMR from './HMR.ts';
  */
 export default class ComponentCompiler extends Utils {
   static mapData: Map<string, string> = new Map();
+  static mapDepsAmount: Map<string, number> = new Map();
   public async startAnalyze(bundle: Bundle): Promise<void> {
     try {
       const entries = Array.from(bundle.components);
@@ -234,6 +235,7 @@ ${err.stack}`);
           component,
           variable: componentVar,
         });
+        ComponentCompiler.checkDepsAmountChanges(component);
       }
     } catch (err) {
       this.error(`ComponentCompiler: ${err.message}
@@ -263,5 +265,25 @@ ${err.stack}`);
     } else {
       this.mapData.set(component.uuid, output);
     }
+  }
+  /**
+   * this function will force the application to reload if there's more or less
+   * dependency than previously
+   */
+  static checkDepsAmountChanges(component: Component): void {
+    if (!this.mapDepsAmount.has(component.uuid)) {
+      this.mapDepsAmount.set(component.uuid, component.deps.length);
+      return;
+    }
+    const previousAmount = this.mapDepsAmount.get(component.uuid);
+    if (component.deps.length === previousAmount) return;
+    this.mapDepsAmount.set(component.uuid, component.deps.length);
+    setTimeout(() => {
+      if (HMR.diagnostics.length) return;
+      Utils.infos('reloading. synchronization of dependencies.');
+      HMR.postMessage({
+        type: 'reload',
+      });
+    }, 5000);
   }
 }

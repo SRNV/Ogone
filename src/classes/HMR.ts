@@ -64,23 +64,26 @@ export default class HMR {
   static components: { [k: string]: HTMLOgoneElement[] } = {};
   static server?: WebSocketServer;
   static client?: WebSocket;
+  static error?: string;
   /**
    * only Deno side
    */
   static clients: Map<string, Client> = new Map();
   static ogone?: typeof Ogone;
+  static diagnostics: ModuleErrorsDiagnostic[] = [];
   static listeners: Map<string, ModuleGraph> = new Map();
   static get connect (): string {
     return `ws://0.0.0.0:${this.port}/`
-  }
-  static startHandshake() {
-
   }
   static async sendError(error: string, diagnostics: ModuleErrorsDiagnostic[]) {
     this.postMessage({
       error,
       diagnostics,
     });
+  }
+  static removeErrors() {
+    this.diagnostics.splice(0);
+    this.error = void 0;
   }
   static get isInBrowser(): boolean {
     return typeof document !== 'undefined';
@@ -273,6 +276,9 @@ ${errorMessage}
     this.server = server;
     this.server.on('connection', (ws: WebSocketAcceptedClient) => {
       this.cleanClients();
+      if (this.diagnostics.length && this.error) {
+        this.sendError(this.error, this.diagnostics);
+      }
       const key = `client_${crypto.getRandomValues(new Uint16Array(10)).join('')}`;
       HMR.clients.set(key, {
         ready: false,
@@ -354,6 +360,7 @@ ${errorMessage}
   static checkHeartBeat(): boolean {
     let heartbeat = true;
     if (this.client) {
+      if (this.client.readyState === 0) return true;
       if (this.client.readyState > 1) {
         heartbeat = false;
       } else {

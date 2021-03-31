@@ -111,6 +111,7 @@ export abstract class ModuleErrors extends Utils {
           diagnostics as ModuleErrorsDiagnostic[]
         );
       } else {
+        HMR.removeErrors();
         return;
       }
     } catch (err) {
@@ -126,6 +127,8 @@ ${err.stack}`);
         { returns: true },
       ) as string;
       console.error(m);
+      HMR.error = m;
+      HMR.diagnostics = diagnostics;
       HMR.sendError(m, diagnostics);
       setTimeout(() => {
         if (!Configuration.OgoneDesignerOpened) {
