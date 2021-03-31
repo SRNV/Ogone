@@ -52,8 +52,6 @@ ${err.stack}`);
     try {
       const { mapRender } = bundle;
       if (component.data instanceof Object) {
-        const { runtime } = component.scripts;
-        const { modules } = component;
         const controllers = this.getControllers(bundle, component);
         const ControllersAPI = controllers.length > 0
           ? `
@@ -83,14 +81,14 @@ ${err.stack}`);
             if (path.length > 1) {
               const [namespace, action] = path;
               const mod = Onode.component.store[namespace];
-              if (mod && mod.runtime) {
-                return mod.runtime(\`action:$\{action}\`, ctx)
+              if (mod) {
+                return (mod.isAsync  || mod.isStore? Ogone.run  : Ogone.runSync).apply(mod.data, [mod,\`action:$\{action}\`, ctx])
                   .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             } else {
               const mod = Onode.component.store[null];
-              if (mod && mod.runtime) {
-                return mod.runtime(\`action:$\{id}\`, ctx)
+              if (mod) {
+                return (mod.isAsync  || mod.isStore? Ogone.run  : Ogone.runSync).apply(mod.data, [mod,\`action:$\{id}\`, ctx])
                   .catch((err) => displayError(err.message, \`Error in dispatch. action: \${action} component: {% component.file %}\`, err));
               }
             }
@@ -100,13 +98,13 @@ ${err.stack}`);
             if (path.length > 1) {
               const [namespace, mutation] = path;
               const mod = Onode.component.store[namespace];
-              if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{mutation}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
+              if (mod) {
+                return (mod.isAsync  || mod.isStore? Ogone.run  : Ogone.runSync).apply(mod.data, [mod,\`mutation:$\{mutation}\`, ctx]).catch((err) => displayError(err.message, \`Error in commit. mutation: \${mutation} component: {% component.file %}\`, err));
               }
             } else {
               const mod = Onode.component.store[null];
-              if (mod && mod.runtime) {
-                return mod.runtime(\`mutation:$\{id}\`, ctx).catch((err) => displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
+              if (mod) {
+                return (mod.isAsync  || mod.isStore? Ogone.run  : Ogone.runSync).apply(mod.data, [mod,\`mutation:$\{id}\`, ctx]).catch((err) => displayError(err.message, \`Error in commit. mutation: \${id} component: {% component.file %}\`, err));
               }
             }
           },
@@ -159,7 +157,7 @@ ${err.stack}`);
               return value;
             };
             const ____r = (name, use, once) => {
-              Onode.component.runtime(name, use[0], use[1], once);
+              (Onode.component.isAsync  || Onode.component.isStore? Ogone.run  : Ogone.runSync).apply(Onode.component.data, [Onode.component,name, use[0], use[1], once]);
             };
             const Refs = {
               {% refs %}
@@ -171,7 +169,6 @@ ${err.stack}`);
             return {
               data,
               Refs,
-              runtime: ({% runtime %}).bind(data),
             }
           };
           `;
@@ -194,7 +191,6 @@ ${err.stack}`);
             `setReactivity({% dataSource %}, (prop) => OnodeUpdate(Onode, prop))`
             // if the end user uses the def modifier, the reactivity is inline
             : '{% dataSource %}',
-          runtime,
           ControllersAPI: component.type === "store" ? ControllersAPI : "let Controllers;",
           refs: Object.entries(component.refs).length
             ? Object.entries(component.refs).map(([key, value]) =>

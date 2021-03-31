@@ -45,7 +45,8 @@ export enum Context {
     /**
    * template for the runtime of the component
    */
-  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_FUNCTION = `{% async %} function runtime (_state: string | number, ctx: any, event: any, _once: number = 0) {
+  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_A_CASE = `
+  case {% uuid %}: {
     try {
       {% modules %}
       {% body %}

@@ -542,7 +542,7 @@ export function destroy(Onode: HTMLOgoneElement) {
   removeNodes(Onode);
   if (o.isTemplate) {
     OnodeDestroyPluggedWebcomponent(oc);
-    oc.component.runtime("destroy");
+    (oc.component.isAsync  || oc.component.isStore? Ogone.run  : Ogone.runSync).apply(oc.component.data, [oc.component,"destroy"]);
     o.component.activated = false;
     Onode.component.texts.splice(0);
     Onode.component.react.splice(0);
@@ -587,19 +587,19 @@ export function setEvents(Onode: HTMLOgoneElement) {
                 });
                 switch (true) {
                   case filter === "right" && ev.wheelDeltaX < 0:
-                    c.component.runtime(flag.case, ctx, ev);
+                    (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                     break;
                   case filter === "left" && ev.wheelDeltaX > 0:
-                    c.component.runtime(flag.case, ctx, ev);
+                    (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                     break;
                   case filter === "up" && ev.wheelDeltaY > 0:
-                    c.component.runtime(flag.case, ctx, ev);
+                    (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                     break;
                   case filter === "down" && ev.wheelDeltaY < 0:
-                    c.component.runtime(flag.case, ctx, ev);
+                    (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                     break;
                   case filter === null:
-                    c.component.runtime(flag.case, ctx, ev);
+                    (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                     break;
                 }
               }
@@ -622,19 +622,19 @@ export function setEvents(Onode: HTMLOgoneElement) {
               });
               switch (true) {
                 case filter === "right" && ev.wheelDeltaX < 0:
-                  c.component.runtime(flag.case, ctx, ev);
+                  (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                   break;
                 case filter === "left" && ev.wheelDeltaX > 0:
-                  c.component.runtime(flag.case, ctx, ev);
+                  (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                   break;
                 case filter === "up" && ev.wheelDeltaY > 0:
-                  c.component.runtime(flag.case, ctx, ev);
+                  (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                   break;
                 case filter === "down" && ev.wheelDeltaY < 0:
-                  c.component.runtime(flag.case, ctx, ev);
+                  (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                   break;
                 case filter === null:
-                  c.component.runtime(flag.case, ctx, ev);
+                  (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
                   break;
               }
             }
@@ -653,19 +653,19 @@ export function setEvents(Onode: HTMLOgoneElement) {
           });
           switch (true) {
             case ev.charCode === filter:
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               break;
             case ev.key === filter:
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               break;
             case ev.keyCode === filter:
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               break;
             case ev.code.toLowerCase() === filter:
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               break;
             case !filter:
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               break;
           }
         },
@@ -713,7 +713,7 @@ export function setEvents(Onode: HTMLOgoneElement) {
                 position,
               });
               if (c) {
-                c.component.runtime(flag.case, ctx, ev);
+                (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               }
             });
           })
@@ -724,7 +724,7 @@ export function setEvents(Onode: HTMLOgoneElement) {
               position,
             });
             if (c) {
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
             }
           });
         }
@@ -736,7 +736,7 @@ export function setEvents(Onode: HTMLOgoneElement) {
                 position,
               });
               if (c) {
-                c.component.runtime(flag.case, ctx, ev);
+                (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
               }
             });
           })
@@ -746,7 +746,7 @@ export function setEvents(Onode: HTMLOgoneElement) {
               position,
             });
             if (c) {
-              c.component.runtime(flag.case, ctx, ev);
+              (c.component.isAsync  || c.component.isStore? Ogone.run  : Ogone.runSync).apply(c.component.data, [c.component,flag.case, ctx, ev]);
             }
           });
         }
@@ -1326,7 +1326,7 @@ export function renderRouter(Onode: HTMLOgoneElement) {
     o.replacer.append(o.actualTemplate as unknown as Node, (o.actualTemplate! as HTMLOgoneElement).placeholder);
   }
   // run case router:xxx on the router component
-  oc.component.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
+  (oc.component.isAsync  || oc.component.isStore? Ogone.run  : Ogone.runSync).apply(oc.component.data, [oc.component,`router:${o.actualRouteName || o.locationPath}`, history.state]);
 }
 /**
  * rendering instructions for the router components inside an async component context
@@ -1479,12 +1479,12 @@ export function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentCompone
           renderNode(Onode);
           if (oc.async.then && shouldReportToParentComponent && oc.parent) {
             // handle resolution with --then:...
-            oc.parent.runtime(oc.async.then, { value: args, await: p });
+            (oc.parent.isAsync  || oc.parent.isStore? Ogone.run  : Ogone.runSync).apply(oc.parent.data, [oc.parent,oc.async.then, { value: args, await: p }]);
           }
         }).catch((err) => {
           if (oc.async.catch && shouldReportToParentComponent && oc.parent) {
             // handle error with --catch:...
-            oc.parent.runtime(oc.async.catch, err);
+            (oc.parent.isAsync  || oc.parent.isStore? Ogone.run  : Ogone.runSync).apply(oc.parent.data, [oc.parent,oc.async.catch, err]);
           }
           displayError(
             err.message,
@@ -1494,7 +1494,7 @@ export function renderAsync(Onode: HTMLOgoneElement, shouldReportToParentCompone
         }).finally(() => {
           if (oc.async.finally && shouldReportToParentComponent && oc.parent) {
             // handle finally with --finally:...
-            oc.parent.runtime(oc.async.finally);
+            (oc.parent.isAsync  || oc.parent.isStore? Ogone.run  : Ogone.runSync).apply(oc.parent.data, [oc.parent,oc.async.finally]);
           }
         });
     });
@@ -1571,7 +1571,7 @@ export function triggerLoad(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
   if (!oc) return;
   const rr = Ogone.routerReactions;
-  oc.component.runtime(0, o.historyState);
+  (oc.component.isAsync  || oc.component.isStore? Ogone.run  : Ogone.runSync).apply(oc.component.data, [oc.component,0, o.historyState]);
   rr.push((path: string) => {
     o.locationPath = path;
     setActualRouterTemplate(Onode);
@@ -1608,14 +1608,14 @@ export function OnodeTriggerDefault(Onode: HTMLOgoneElement, params?: any, event
     initStore(Onode);
   }
   OnodeUpdateProps(Onode);
-  Onode.component.runtime(0, params, event);
+  (Onode.component.isAsync  || Onode.component.isStore? Ogone.run  : Ogone.runSync).apply(Onode.component.data, [Onode.component,0, params, event]);
 };
 export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
   if (Onode.type === "store") {
     OnodeUpdateStore(Onode, dependency!);
     return;
   }
-  Onode.component.runtime(`update:${dependency}`);
+  (Onode.component.isAsync  || Onode.component.isStore? Ogone.run  : Ogone.runSync).apply(Onode.component.data, [Onode.component,`update:${dependency}`]);
   OnodeReactions(Onode, dependency as string);
   OnodeRenderTexts(Onode, dependency as string);
   Onode.component.childs.filter((c: HTMLOgoneElement) => c.type !== "store").forEach(

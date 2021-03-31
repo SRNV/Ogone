@@ -19,8 +19,8 @@ function getHmrModuleSystem({
     $_2['*'].push(["$_3", (m) => {
       if (!this.activated) return false;
       $_1 = m$_4;
-      this.runtime('destroy');
-      this.runtime(0);
+      (this.isAsync  || this.isStore? Ogone.run  : Ogone.runSync).apply(this.data, [this,'destroy']);
+      (this.isAsync  || this.isStore? Ogone.run  : Ogone.runSync).apply(this.data, [this,0]);
       return this.activated;
     }]);`, {
     $_1: variable,

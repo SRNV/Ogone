@@ -55,6 +55,8 @@ export const Ogone: OgoneInterface = {
   get isDeno() {
     return typeof Deno !== "undefined"
       && !!Deno.chmod
-  }
+  },
+  runSync(Onode, state) {},
+  async run(Onode, state): Promise<any> {},
 }
 export default Ogone;

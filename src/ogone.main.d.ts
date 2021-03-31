@@ -116,6 +116,8 @@ export interface OgoneInterface {
   protocols: { [componentUuid: string]: FunctionConstructor };
   routerReactions: Function[];
   subscribeComponent?: (Onode: HTMLOgoneElement) => void;
+  runSync: (Onode: HTMLOgoneElement, _state: number | string, ctx?: any, event?: Parameters<OnodeComponent['OnodeTriggerDefault']>[1]) => any;
+  run: (Onode: HTMLOgoneElement, _state: number | string, ctx?: any, event?: Parameters<OnodeComponent['OnodeTriggerDefault']>[1]) => Promise<any>;
   actualRoute: string | null;
   // usable on Deno side
   files: string[];

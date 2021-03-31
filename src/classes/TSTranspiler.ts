@@ -30,11 +30,13 @@ export default class TSTranspiler extends Utils {
   }
   static async bundle(url: URL | string): Promise<string> {
     try {
+      this.trace('before emit');
       let result = (await Deno.emit(url, {
         bundle: 'esm',
-        check: false,
+        check: true,
         compilerOptions: this.bundleCompilerOptions,
       }));
+      this.trace('emit');
       const file = result.files['deno:///bundle.js'];
       return file;
     } catch(err) {
@@ -69,6 +71,7 @@ export default class TSTranspiler extends Utils {
    * saves Ogone's runtime, which is bundled, into MapOutput.runtime
    */
   static async getRuntime(bundle: Bundle) {
+    this.trace('get Runtime');
     const file = `
       import {
         Ogone,
@@ -136,6 +139,8 @@ export default class TSTranspiler extends Utils {
       ${bundle.output}
     `;
     Deno.writeTextFileSync(this.outputURL, file);
+    this.trace('after writetextFileSync in getRuntime');
     MapOutput.runtime = (await this.bundle(this.outputURL)).replace(/\n/gi, ' ');
+    this.trace('bundle finished');
   }
 }

@@ -5,7 +5,7 @@ import ProtocolEnum from '../enums/templateProtocol.ts';
 import ProtocolReactivity from './ProtocolReactivity.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
 import TSTranspiler from './TSTranspiler.ts';
-import DenoEnv from "./DenoEnv.ts";
+import MapOutput from './MapOutput.ts';
 interface ProtocolClassConstructorItem {
   /** one string that contains all the properties of the protocol */
   value: string;
@@ -18,7 +18,8 @@ interface ProtocolClassConstructorItem {
 }
 export default class ProtocolClassConstructor extends ProtocolReactivity {
   private mapProtocols: Map<string, ProtocolClassConstructorItem> = new Map();
-  private ProtocolReactivity: ProtocolReactivity = new ProtocolReactivity();
+  private mapRuntimeSync: Map<string, string> = new Map();
+  private mapRuntime: Map<string, string> = new Map();
   public setItem(component: Component) {
     try {
       this.mapProtocols.set(component.uuid, {
@@ -215,7 +216,7 @@ ${err.stack}`);
       let casesValue = component.modifiers.cases
         .map((modifier: ModifierContext) => `${modifier.token} ${modifier.argument}: ${modifier.value}`)
         .join('\n');
-      let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_FUNCTION,
+      let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_A_CASE,
         {
           modules: component.deps
             .map((dep) => dep.destructuredOgoneRequire)
@@ -230,11 +231,7 @@ ${err.stack}`);
             : '',
           reflections: component.modifiers.compute,
           beforeEach: component.modifiers.beforeEach,
-          async: ["async", "store", "controller"].includes(
-            component.type as string,
-          )
-            ? "async"
-            : "",
+          uuid: `'${component.uuid}'`,
         },
       );
       const runtime = await TSTranspiler.transpile(script);
@@ -243,9 +240,29 @@ ${err.stack}`);
         || !component.isTyped && component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
         ? runtime
         : this.getReactivity({ text: runtime });
+      // save it into the map
+      // will serve at the end to build the global runtime
+      if (['async', 'store', 'controller'].includes(component.type)) {
+        this.mapRuntime.set(component.uuid, component.scripts.runtime);
+      } else {
+        this.mapRuntimeSync.set(component.uuid, component.scripts.runtime);
+      }
+      this.updateGlobalRuntimes();
     } catch (err) {
       this.error(`ProtocolClassConstructor: ${err.message}
 ${err.stack}`);
     }
+  }
+  public updateGlobalRuntimes() {
+    const entriesSync = Array.from(this.mapRuntimeSync.values());
+    const entries = Array.from(this.mapRuntime.values());
+    MapOutput.outputs.globalRuntime = `
+    switch (Onode.uuid) {
+      ${entries.join('\n')}
+    }`;
+    MapOutput.outputs.globalRuntimeSync = `
+    switch (Onode.uuid) {
+      ${entriesSync.join('\n')}
+    }`;
   }
 }

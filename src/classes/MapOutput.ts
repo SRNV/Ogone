@@ -36,6 +36,11 @@ interface ComponentOutput {
    * referenced types for all ogone-nodes
    */
   types: string[];
+  /**
+   * create a runtime service with Ogone.run and Ogone.runSync
+   */
+  globalRuntime: string;
+  globalRuntimeSync: string;
 }
 export default abstract class MapOutput {
   static outputs: ComponentOutput = {
@@ -45,6 +50,8 @@ export default abstract class MapOutput {
     context: [],
     customElement: [],
     types: [],
+    globalRuntime: '',
+    globalRuntimeSync: '',
 };
   /**
    * fullfiled by TSTranspiler
@@ -60,6 +67,7 @@ export default abstract class MapOutput {
       const ogone_types_controller = "controller";
       const ogone_types_app = "app";
       const ogone_types_gl = "gl";
+      ${this.getGlobalRuntimes()}
       ${this.outputs.vars.join('\n')}
       ${this.outputs.types.join('\n')}
       ${this.outputs.data.join('\n')}
@@ -95,5 +103,19 @@ export default abstract class MapOutput {
         }
       })
     });
+  }
+  static getGlobalRuntimes(): string {
+    return `
+Ogone.run = async function (Onode, _state, ctx, event) {
+  switch(Onode.uuid) {
+    ${this.outputs.globalRuntime}
+  }
+}
+Ogone.runSync = function (Onode, _state, ctx, event) {
+  switch(Onode.uuid) {
+    ${this.outputs.globalRuntimeSync}
+  }
+}
+    `;
   }
 }
