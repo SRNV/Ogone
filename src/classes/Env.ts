@@ -9,6 +9,7 @@ import type {
   ProductionFile,
 } from "./../ogone.main.d.ts";
 import { join, colors } from "../../deps/deps.ts";
+import { existsSync } from "../../deps/deps.ts";
 import { copy } from "../../deps/fs.ts";
 import { walkSync } from '../../deps/walk.ts';
 import Constructor from "./Constructor.ts";
@@ -577,6 +578,7 @@ ${versions}
 \t\t\thtml:\t\t${cyan(html.path)}\t${gray(`${statHTML.size} bytes`)}
 \t\t\tjs:\t\t${cyan(js.path)}\t${gray(`${statJS.size} bytes`)}
 \t\t\tcss:\t\t${cyan(css.path)}\t${gray(`${statCSS.size} bytes`)}`);
+    await Env.pushProject();
   }
   public async minifyCSS(css: ProductionFile): Promise<void> {
     const { blue, cyan, gray } = colors;
@@ -634,7 +636,6 @@ ${versions}
   }
   public async deploySPA(app: ProductionFiles) {
     const { blue, cyan, gray } = colors;
-    const isPushed = Deno.args.includes('--ogone-push');
     const dest = join(Configuration.build!, 'static')
     let perf = performance.now();
     const project = this.template(Deployer.App, {
@@ -657,7 +658,16 @@ ${versions}
     await Deno.writeTextFile(projectPath, project, { create: true });
     const stats = Deno.statSync(projectPath);
     let message = gray(` \ttook ${(performance.now() - perf).toFixed(4)} ms`);
+    this.success(`Deno deploy file is ready.${message}
+
+    \t\t\tdeploy file:\t${cyan(projectPath)} ${gray(`${stats.size} bytes`)}
+`);
+  }
+
+  static async pushProject() {
+    const isPushed = Deno.args.includes('--ogone-push');
     if (isPushed) {
+      if (existsSync(`./.git/index.lock`)) Deno.removeSync(`./.git/index.lock`);
       const add = await Deno.run({
         cwd: Deno.cwd(),
         cmd: [
@@ -670,7 +680,7 @@ ${versions}
       const commit = await Deno.run({
         cwd: Deno.cwd(),
         cmd: [
-          'git', 'commit', '-m', '"ogone: deploy"',
+          'git', 'commit', '-a', '-m', '"ogone: deploy"',
         ],
         stdout: 'piped',
       });
@@ -687,9 +697,5 @@ ${versions}
       push.close();
       this.infos('deploy script file pushed.');
     }
-    this.success(`Deno deploy file is ready.${message}
-
-    \t\t\tdeploy file:\t${cyan(projectPath)} ${gray(`${stats.size} bytes`)}
-`);
   }
 }
