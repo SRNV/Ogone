@@ -633,15 +633,11 @@ ${versions}
     }
   }
   public async deploySPA(app: ProductionFiles) {
-    const { html, js, css } = app;
     const { blue, cyan, gray } = colors;
+    const isPushed = Deno.args.includes('--ogone-push');
     const dest = join(Configuration.build!, 'static')
-    const encoder = new TextEncoder();
     let perf = performance.now();
     const project = this.template(Deployer.App, {
-      HTML: encoder.encode(html.source).join(),
-      CSS: encoder.encode(css.source).join(),
-      JS: encoder.encode(js.source).join(),
       ressources: app.ressources,
       static: dest,
       requests: app.ressources.map((file: ProductionFile) => {
@@ -661,6 +657,36 @@ ${versions}
     await Deno.writeTextFile(projectPath, project, { create: true });
     const stats = Deno.statSync(projectPath);
     let message = gray(` \ttook ${(performance.now() - perf).toFixed(4)} ms`);
+    if (isPushed) {
+      const add = await Deno.run({
+        cwd: Deno.cwd(),
+        cmd: [
+          'git', 'add', '.',
+        ],
+        stdout: 'piped',
+      });
+      await add.output();
+      add.close();
+      const commit = await Deno.run({
+        cwd: Deno.cwd(),
+        cmd: [
+          'git', 'commit', '-m', '"ogone: deploy"',
+        ],
+        stdout: 'piped',
+      });
+      await commit.output();
+      commit.close();
+      const push = await Deno.run({
+        cwd: Deno.cwd(),
+        cmd: [
+          'git', 'push',
+        ],
+        stdout: 'piped',
+      });
+      await push.output();
+      push.close();
+      this.infos('deploy script file pushed.');
+    }
     this.success(`Deno deploy file is ready.${message}
 
     \t\t\tdeploy file:\t${cyan(projectPath)} ${gray(`${stats.size} bytes`)}
