@@ -578,7 +578,6 @@ ${versions}
 \t\t\thtml:\t\t${cyan(html.path)}\t${gray(`${statHTML.size} bytes`)}
 \t\t\tjs:\t\t${cyan(js.path)}\t${gray(`${statJS.size} bytes`)}
 \t\t\tcss:\t\t${cyan(css.path)}\t${gray(`${statCSS.size} bytes`)}`);
-    await Env.pushProject();
   }
   public async minifyCSS(css: ProductionFile): Promise<void> {
     const { blue, cyan, gray } = colors;
@@ -662,40 +661,5 @@ ${versions}
 
     \t\t\tdeploy file:\t${cyan(projectPath)} ${gray(`${stats.size} bytes`)}
 `);
-  }
-
-  static async pushProject() {
-    const isPushed = Deno.args.includes('--ogone-push');
-    if (isPushed) {
-      if (existsSync(`./.git/index.lock`)) Deno.removeSync(`./.git/index.lock`);
-      const add = await Deno.run({
-        cwd: Deno.cwd(),
-        cmd: [
-          'git', 'add', '.',
-        ],
-        stdout: 'piped',
-      });
-      await add.output();
-      add.close();
-      const commit = await Deno.run({
-        cwd: Deno.cwd(),
-        cmd: [
-          'git', 'commit', '-a', '-m', '"ogone: deploy"',
-        ],
-        stdout: 'piped',
-      });
-      await commit.output();
-      commit.close();
-      const push = await Deno.run({
-        cwd: Deno.cwd(),
-        cmd: [
-          'git', 'push',
-        ],
-        stdout: 'piped',
-      });
-      await push.output();
-      push.close();
-      this.infos('deploy script file pushed.');
-    }
   }
 }

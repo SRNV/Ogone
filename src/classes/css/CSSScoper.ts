@@ -3,7 +3,7 @@ import getDeepTranslation from "../../../utils/template-recursive.ts";
 let i = 0;
 function getId(type: string): string {
   i++;
-  return `${type}${i}`;
+  return `${i}_${type}`;
 }
 /**
  * @name CSSScoper
@@ -33,7 +33,7 @@ export default class CSSScoper {
       expressions[key] = content;
       result = result.replace(content, key);
     }
-    const regExp = /(block\d+)/gi;
+    const regExp = /(\d+_block)/gi;
     const matches = result.match(regExp);
     if (matches) {
       matches.forEach((block, i, arr) => {
@@ -97,31 +97,31 @@ export default class CSSScoper {
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@keyframes)([\s\w\d\-]*)+(block\d+)/,
+      /(\@keyframes)([\s\w\d\-]*)+(\d+_block)/,
     );
     // preserve all font-feature-values statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@font-feature-values)([\s\w\d\-]*)+(block\d+)/,
+      /(\@font-feature-values)([\s\w\d\-]*)+(\d+_block)/,
     );
     // preserve all font-face statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@font-face)([\s\w\d\-]*)+(block\d+)/,
+      /(\@font-face)([\s\w\d\-]*)+(\d+_block)/,
     );
     // preserve all counter-style statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@counter-style)([\s\w\d\-]*)+(block\d+)/,
+      /(\@counter-style)([\s\w\d\-]*)+(\d+_block)/,
     );
     // preserve all page statement
     result = this.preserveRegexp(
       result,
       expressions,
-      /(\@page)([\s\w\d\-]*)+(block\d+)/,
+      /(\@page)([\s\w\d\-]*)+(\d+_block)/,
     );
     // preserve pseudo elements
     result = this.preserveRegexp(
@@ -157,8 +157,8 @@ export default class CSSScoper {
           // for pseudo elements
           // like #id::selection
           // save ::selection which is already preserved
-          const savedPseudoElement = value.match(/(reserved\d+)+$/);
-          value = value.replace(/(reserved\d+)+$/, "");
+          const savedPseudoElement = value.match(/(\d+_reserved)+$/);
+          value = value.replace(/(\d+_reserved)+$/, "");
           value = value.replace(
             value,
             `${value}[${scopeId}]${
