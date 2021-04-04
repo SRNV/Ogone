@@ -19,12 +19,13 @@ import Workers from "../enums/workers.ts";
 import MapFile from "./MapFile.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
-import { WebSocketServer } from "../../deps/ws.ts";
+import { WebSocketServer } from "../../lib/websocket/index.ts";
 import HMR from "./HMR.ts";
 import Ogone from "../main/OgoneBase.ts";
 import ComponentBuilder from './ComponentBuilder.ts';
 import Dependency from "./Dependency.ts";
 import Deployer from "../enums/deployer.ts";
+import WebviewEngine from './WebviewEngine.ts';
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
@@ -147,29 +148,17 @@ ${err.stack}`);
   /**
    * @name listenLSPHSEServer
    */
-  public async listenLSPHSEServer(port: number): Promise<void> {
+  public async listenLSPHSEServer(): Promise<void> {
     try {
       /**
        * open the server for LSP
        * HOT Scoped Editor for HSE
        */
       Configuration.OgoneDesignerOpened = true;
-      this.lspHSEServer.postMessage({
-        type: Workers.INIT_MESSAGE_SERVICE_DEV,
-        port,
-      });
-      this.trace('LSP HSE Server opened.')
-      this.lspHSEServer.addEventListener('message', async (event) => {
-        const { data } = event;
-        switch (data.type) {
-          default: break;
-          case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-            if (this.timeoutBeforeSendingLSPRequests) {
-              clearTimeout(this.timeoutBeforeSendingLSPRequests);
-            }
-            this.timeoutBeforeSendingLSPRequests = setTimeout(() => this.updateLSPCurrentComponent(data), 50);
-            break;
-        }
+      WebviewEngine.subscribe('update LSP current Component', (content: string) => {
+        const data = JSON.parse(content);
+        console.warn(3);
+        this.updateLSPCurrentComponent(data);
       });
     } catch (err) {
       this.error(`Env: ${err.message}
@@ -198,10 +187,8 @@ ${err.stack}`);
         this.serviceDev.postMessage({
           type: Workers.LSP_UPDATE_SERVER_COMPONENT,
           application,
-        })
-        this.lspHSEServer.postMessage({
-          type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
-        })
+        });
+        WebviewEngine.updateDevServerApplicationFile(application);
         this.success(`Hot Scoped Editor - updated`);
         this.exposeSession();
         await this.TSXContextCreator.read(bundle, {

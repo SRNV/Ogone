@@ -11,6 +11,7 @@ import { Flags } from "../enums/flags.ts";
 import TSXContextCreator from './TSXContextCreator.ts';
 import HMR from './HMR.ts';
 import { join, colors } from '../../deps/deps.ts';
+import WebviewEngine from './WebviewEngine.ts';
 
 export default class EnvServer extends Env {
   public readonly contributorMessage: { [k: string]: string } = messages;
@@ -80,6 +81,8 @@ ${err.stack}`);
     try {
       TSXContextCreator.cleanDistFolder();
       await this.initServer();
+      WebviewEngine.initFolder();
+      this.listenLSPHSEServer();
       this.serviceDev.addEventListener('message', async (event) => {
         switch (event.data.type) {
           case Workers.SERVICE_DEV_READY:
@@ -95,7 +98,6 @@ ${err.stack}`);
                 port: event.data.port,
               });
             }, 2000);
-            this.listenLSPHSEServer(event.data.port);
             break;
         }
       });

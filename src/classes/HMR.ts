@@ -1,6 +1,6 @@
 import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement, HTMLUListElement } from '../ogone.dom.d.ts';
-import { WebSocketServer, WebSocketAcceptedClient } from '../../deps/ws.ts';
+import { WebSocketServer, WebSocketAcceptedClient } from '../../lib/websocket/index.ts';
 import { HTMLOgoneElement } from '../ogone.main.d.ts';
 declare const document: Document;
 declare const window: any;
@@ -320,9 +320,10 @@ ${errorMessage}
       .filter(([key, client]) => !client.ready && key === id)
     entries.forEach(([key, client]) => {
       this.FIFOMessages.forEach((m: string) => {
-        client.connection.send(m);
-        client.ready = client.connection.state === 1
-          && true;
+        if (!client.connection.isClosed) {
+          client.connection.send(m);
+          client.ready = client.connection.state === 1;
+        }
       });
     });
   }
