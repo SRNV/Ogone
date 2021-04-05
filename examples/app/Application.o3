@@ -65,7 +65,7 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
     <div class="logo">
       <AsyncLogoEl --router-go={'/'}></AsyncLogoEl>
     </div>
-    <div --router-dev-tool class="open-dev-tool"> Devaaa</div>
+    <div --router-dev-tool class="open-dev-tool"> Dev</div>
     <MenuContent />
   </div>
   <RouterComponent namespace="new" />

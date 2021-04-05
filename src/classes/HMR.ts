@@ -225,14 +225,10 @@ ${errorMessage}
         replacement(Ogone);
       }
       console.warn('[Ogone] rendering new components.');
-      /**
-       * remove previously generated components
-       */
       setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
         setComponentToRerender.delete(component);
       });
-      savedComponents.splice(0);
     }
   }
   static async getModule(pathToModule: string, uuidReq: string, uuid: string) {

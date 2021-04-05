@@ -309,6 +309,7 @@ ${err.stack}`);
   }
   private updateRootComponent(event: MessageEvent) {
     const { data } = event;
+    console.warn(event);
     switch (data.type) {
       case Workers.WS_FILE_UPDATED:
         let startPerf = performance.now();

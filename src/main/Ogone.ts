@@ -170,11 +170,13 @@ export class OgoneBaseClass extends HTMLElement {
   }
   rerender(this: HTMLOgoneElement) {
     if (this.isRoot) {
-      Ogone.root = false;
-      document.body.innerHTML = '';
-      document.body.append(
-        document.createElement(_ogone_node_)
-      );
+      setTimeout(() => {
+        Ogone.root = false;
+        document.body.innerHTML = '';
+        document.body.append(
+          document.createElement(_ogone_node_)
+        );
+      }, 0);
       return;
     }
     if (this.isRouter) {
