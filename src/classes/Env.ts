@@ -315,7 +315,7 @@ ${err.stack}`);
         this.compile(Configuration.entrypoint, true)
           .then(async (completeBundle) => {
             console.clear();
-            if (HMR.client) {
+            if (HMR.clients.size) {
               this.infos(`HMR - sending output.`);
               HMR.postMessage({
                 output: completeBundle.output,
