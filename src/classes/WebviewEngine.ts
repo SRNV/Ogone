@@ -43,14 +43,12 @@ export default class WebviewEngine extends Utils {
   static async watch() {
     this.watcher = Deno.watchFs(this.componentTextFileURL);
     for await (let event of this.watcher) {
-      console.warn(performance.now(), 'before reacting');
       const { kind } = event;
       if (kind === 'access') {
         this.clients.forEach((client) => {
           const text = Deno.readTextFileSync(this.componentTextFileURL);
           client(text);
         });
-        console.warn(this.clients);
       }
     }
   }

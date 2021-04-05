@@ -173,7 +173,6 @@ self.onmessage = async (e: any): Promise<void> => {
     }
     let isUrlFile: boolean = existsSync(pathToPublic);
     const realUrl = req.url.split('?')[0];
-    console.warn(performance.now(), 'request')
     switch (true) {
       case component && port === parseFloat(keyPort as string):
         req.respond({ body: registry.webview_application });

@@ -212,6 +212,11 @@ ${errorMessage}
           setComponentToRerender.add(component.original);
         }
       });
+      savedComponents.forEach((component) => {
+        if (component.isRoot) {
+          setComponentToRerender.add(component);
+        }
+      });
       if (output) {
         const replacement = eval(`((Ogone) => {
           ${output}
@@ -225,7 +230,9 @@ ${errorMessage}
        */
       setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
+        setComponentToRerender.delete(component);
       });
+      savedComponents.splice(0);
     }
   }
   static async getModule(pathToModule: string, uuidReq: string, uuid: string) {
@@ -291,7 +298,7 @@ ${errorMessage}
     this.cleanClients();
     const message = JSON.stringify(obj);
     const entries = Array.from(this.clients.entries());
-    entries.forEach(([key, client]) => {
+    entries.forEach(async ([key, client]) => {
       if (client?.connection.state !== 1
         && !client.connection.isClosed
         && !this.FIFOMessages.includes(message)) {
@@ -301,7 +308,7 @@ ${errorMessage}
       }
       if (client && !client.connection.isClosed) {
         try {
-          client.connection.send(message);
+          await client.connection.send(message);
         } catch (err) {}
       }
     })
@@ -318,10 +325,10 @@ ${errorMessage}
     // if (this.client?.readyState !== 1) return;
     const entries = Array.from(this.clients.entries())
       .filter(([key, client]) => !client.ready && key === id)
-    entries.forEach(([key, client]) => {
-      this.FIFOMessages.forEach((m: string) => {
+    entries.forEach(async ([key, client]) => {
+      this.FIFOMessages.forEach(async (m: string) => {
         if (!client.connection.isClosed) {
-          client.connection.send(m);
+          await client.connection.send(m);
           client.ready = client.connection.state === 1;
         }
       });

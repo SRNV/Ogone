@@ -157,7 +157,8 @@ ${err.stack}`);
       Configuration.OgoneDesignerOpened = true;
       WebviewEngine.subscribe('update LSP current Component', (content: string) => {
         const data = JSON.parse(content);
-        console.warn(3);
+        console.clear();
+        this.infos(`compiling...`);
         this.updateLSPCurrentComponent(data);
       });
     } catch (err) {
@@ -189,14 +190,12 @@ ${err.stack}`);
           application,
         });
         WebviewEngine.updateDevServerApplicationFile(application);
-        this.success(`Hot Scoped Editor - updated`);
+        Deno.removeSync(tmpFile);
+        console.clear();
         this.exposeSession();
         await this.TSXContextCreator.read(bundle, {
           checkOnly: filePath.replace(Deno.cwd(), ''),
         });
-      })
-      .then(() => {
-        Deno.remove(tmpFile);
       })
       .catch((error) => {
         Deno.remove(tmpFile);
@@ -244,6 +243,7 @@ ${err.stack}`);
           this.infos('HMR - running tasks...');
           if (event.data.path === Configuration.entrypoint
             || ComponentBuilder.mapUuid.get(event.data.path) === ComponentBuilder.mapUuid.get(Configuration.entrypoint)) {
+              console.warn('root component updated');
             this.updateRootComponent(event);
           } else {
             this.updateWithTMPFile(event);
