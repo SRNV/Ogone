@@ -244,7 +244,6 @@ ${err.stack}`);
           this.infos('HMR - running tasks...');
           if (event.data.path === Configuration.entrypoint
             || ComponentBuilder.mapUuid.get(event.data.path) === ComponentBuilder.mapUuid.get(Configuration.entrypoint)) {
-              console.warn('root component updated');
             this.updateRootComponent(event);
           } else {
             this.updateWithTMPFile(event);
