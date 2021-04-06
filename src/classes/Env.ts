@@ -31,6 +31,7 @@ export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
   public devtool?: boolean;
+  public applicationUpdatedCount = 0;
   public static _devtool?: boolean;
   public static _env: Environment = "development";
   protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
@@ -97,7 +98,7 @@ export default class Env extends Constructor {
   /**
    * Compile your application by giving the path to the root component.
    * @param entrypoint path to root component
-   * @param shouldBundle set the bundle of the component after compilation
+   * @param shouldBundle overwrite bundle
    */
   public async compile(
     entrypoint: string,
@@ -309,31 +310,26 @@ ${err.stack}`);
   }
   private updateRootComponent(event: MessageEvent) {
     const { data } = event;
-    console.warn(event);
-    switch (data.type) {
-      case Workers.WS_FILE_UPDATED:
-        let startPerf = performance.now();
-        this.compile(Configuration.entrypoint, true)
-          .then(async (completeBundle) => {
-            console.clear();
-            if (HMR.clients.size) {
-              this.infos(`HMR - sending output.`);
-              HMR.postMessage({
-                output: completeBundle.output,
-                uuid: ComponentBuilder.mapUuid.get(data.path)
-              });
-              this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
-            } else {
-              this.warn(`HMR - no connection...`);
-            }
-            await this.sendNewApplicationToServer();
-            this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
-            this.exposeSession();
-            // start typechecking
-            await this.TSXContextCreator.read(completeBundle);
+    let startPerf = performance.now();
+    this.compile(Configuration.entrypoint, true)
+      .then(async (completeBundle) => {
+        console.clear();
+        if (HMR.clients.size) {
+          this.infos(`HMR - sending output.`);
+          HMR.postMessage({
+            output: completeBundle.output,
+            uuid: ComponentBuilder.mapUuid.get(data.path),
           });
-        break;
-    }
+          this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
+        } else {
+          this.warn(`HMR - no connection...`);
+        }
+        await this.sendNewApplicationToServer(true);
+        this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
+        this.exposeSession();
+        // start typechecking
+        await this.TSXContextCreator.read(completeBundle);
+      });
   }
   async initServer(): Promise<void> {
     try {
@@ -350,7 +346,7 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  async sendNewApplicationToServer(): Promise<void> {
+  async sendNewApplicationToServer(allowReload?: boolean): Promise<void> {
     try {
       this.serviceDev.postMessage({
         type: Workers.UPDATE_APPLICATION,
@@ -360,6 +356,14 @@ ${err.stack}`);
           ...Configuration
         },
       });
+      this.applicationUpdatedCount++;
+      if (allowReload && this.applicationUpdatedCount > 10) {
+        this.applicationUpdatedCount = 0;
+        this.infos(`sync: reloading application`);
+        HMR.postMessage({
+          type: 'reload'
+        });
+      }
     } catch (err) {
       this.error(`EnvServer: ${err.message}
 ${err.stack}`);

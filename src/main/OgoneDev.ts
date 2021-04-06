@@ -24,6 +24,12 @@ export function displayError(message: string, errorType: string, errorObject: Er
 export function subscribeComponent(Onode: HTMLOgoneElement) {
   if (Onode.isComponent) {
     HMR.components[Onode.uuid!] = HMR.components[Onode.uuid!] || [];
+    if (Onode.isRoot && HMR.components[Onode.uuid!].length) {
+      /**
+       * remove previous root components
+       */
+      HMR.components[Onode.uuid!].splice(0);
+    }
     HMR.components[Onode.uuid!]
       .push(Onode);
   }

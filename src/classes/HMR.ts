@@ -227,7 +227,6 @@ ${errorMessage}
       console.warn('[Ogone] rendering new components.');
       setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
-        setComponentToRerender.delete(component);
       });
     }
   }
