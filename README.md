@@ -23,7 +23,7 @@
      <img alt="license" src="https://img.shields.io/github/license/SRNV/Ogone">
    </a>
    <a href="https://github.com/denoland/deno">
-     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.4.0-lightgrey?logo=deno">
+     <img alt="deno version" src="https://img.shields.io/badge/deno-^1.8.0-lightgrey?logo=deno">
    </a>
    <a href="https://deno.land/x/ogone">
      <img alt="denoland" src="http://img.shields.io/badge/available%20on-deno.land/x-lightgrey.svg?logo=deno&modifierColor=black">
