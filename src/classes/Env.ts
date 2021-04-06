@@ -16,7 +16,6 @@ import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
-import MapFile from "./MapFile.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
 import { WebSocketServer } from "../../lib/websocket/index.ts";
@@ -258,14 +257,6 @@ ${err.stack}`);
           filePath: filePath.replace(Deno.cwd(), '@'),
         });
         if (data.isOgone) {
-          // save the content of the file to overwrite
-          // this allows the live edition
-          const content = Deno.readTextFileSync(data.path);
-          MapFile.files.set(filePath, {
-            content,
-            original: content,
-            path: data.path,
-          });
           const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_hmr', suffix: '.o3' });
           Deno.writeTextFileSync(tmpFile, file);
           let startPerf = performance.now();
