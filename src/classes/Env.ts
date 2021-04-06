@@ -172,13 +172,6 @@ ${err.stack}`);
     const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
       filePath: filePath.replace(Deno.cwd(), '@'),
     });
-    // save the content of the file to overwrite
-    // this allows the live editor
-    MapFile.files.set(filePath, {
-      content: data.text,
-      original: Deno.readTextFileSync(data.path),
-      path: data.path,
-    });
     const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
     Deno.writeTextFileSync(tmpFile, file);
     this.compile(tmpFile)
@@ -239,6 +232,7 @@ ${err.stack}`);
     });
     try {
       this.hmrContext.addEventListener('message', async (event) => {
+        console.warn('message from hmr context', event.data);
         if (event.data.isOgone) {
           console.clear();
           this.infos('HMR - running tasks...');
