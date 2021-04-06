@@ -14,9 +14,9 @@ import notParsed from '../../utils/not-parsed.ts';
 import read from '../../utils/agnostic-transformer.ts';
 import getTypedExpressions from '../../utils/typedExpressions.ts';
 import { MapPosition } from './MapPosition.ts';
-// TODO use instances
-// like new Element()
-// like new Attributes()
+import MapOutput from "./MapOutput.ts";
+import generator from '../../utils/generator.ts';
+
 const openComment = "<!--";
 const closeComment = "-->";
 function savePosition(node: any, opts: {
@@ -52,7 +52,7 @@ export default class XMLParser extends XMLJSXOutputBuilder {
   public originalHTML: string = '';
   private ForFlagBuilder: ForFlagBuilder = new ForFlagBuilder();
   private getUniquekey(id = "", iterator: DOMParserIterator): string {
-    iterator.value++;
+    iterator.value = generator.next().value;
     // critical all regexp are based on this line
     return `§§${iterator.value}${id}§§`;
   }
@@ -70,6 +70,12 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     const { expressions, node, value, margin } = opts;
     const { key } = node;
     const exp = expressions;
+    if (
+      node
+      && node.nodeType === 1
+      && !MapOutput.outputs.vars.includes(node.declarationVarName!)) {
+      MapOutput.outputs.vars.push(node.declarationVarName!);
+    }
     if (!translateAll(value, exp).trim().length || text.indexOf(key!) < 0) return;
     const file = translateAll(text, exp);
     const part1 = translateAll(text.slice(0, text.indexOf(key!, margin)), exp);
@@ -96,21 +102,32 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           if (node.tagName === 'style') {
             templateOuterTSX = `\n<{%tagname%} {%attrs%}>\n{\`{%outers%}\`}\n</{%tagname%}>`
           }
-          if (node.autoclosing) {
+          if (node.autoclosing && !node.isSVG) {
             templateOuterTSX = `\n<{%tagname%} {%attrs%} />\n`
           }
           if (node.attributes['--for']) {
             const value = node.attributes['--for'];
             const flagDescript = this.ForFlagBuilder.getForFlagDescription(value as string);
             const { array, item, index } = flagDescript;
+            const filter = node.attributes['--if'] ? `(${node.attributes['--if']})
+            && ` : '';
             templateOuterTSX = `{
               ${array}
             .map((
               ${item},
               ${index}: number
             ) =>
+              ${filter}
               ${templateOuterTSX}
-            )}`;
+            )
+          }`;
+          } else if (node.attributes['--if']) {
+            templateOuterTSX = `{
+              ${node.attributes['--if']} ?
+              (<>
+                ${templateOuterTSX}
+              </>) : null
+            }`
           }
           let result = this.template(
             templateOuterTSX,
@@ -136,7 +153,10 @@ export default class XMLParser extends XMLJSXOutputBuilder {
                     return `\n${key} `
                   }
                   if (key.startsWith(`:`)) {
-                    return `\n${key.slice(1)}={${value}} `
+                    return `\n${key.slice(1)}={${value}}`
+                  }
+                  if (node.isSVG) {
+                    return `\n${key.replace(/[\:]/gi, '-')}="${value}"`
                   }
                   return `\n${key}="${value}"`;
                 }).join(' '),
@@ -404,13 +424,15 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     iterator: DOMParserIterator,
   ): string {
     let result = html;
-    const regexp = /<(\/){0,1}([a-zA-Z][^>\s]*)([^\>]*)+(\/){0,1}>/gi;
+    const regexp = /\<(\/){0,1}([a-zA-Z][^\>\s]*)([^\>]*)+(\/){0,1}\>/gi;
     const matches = result.match(regexp);
     matches?.forEach((node) => {
-      const regexpID = /<(\/){0,1}([a-zA-Z][^>\s\/]*)([^\>\/]*)+(\/){0,1}>/;
+      const regexpID = /\<(\/){0,1}([a-zA-Z][^\>\s\/]*)([^\>\/]*)+(\/){0,1}\>/;
       const id = node.match(regexpID);
       if (id) {
         let [input, slash, tagName, attrs, closingSlash] = id;
+        const varName = '___' +tagName.replace(/(\w+)(\b)/, '$1_');
+        const declarationVarName = `const ${varName} = '${tagName}';`;
         attrs = this.parseTSXSpreadAndAddSpreadFlag(attrs, expression, iterator);
         const key = `<${this.getNodeUniquekey("node", iterator)}>`;
         if (!!slash) {
@@ -437,6 +459,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
             expression[key] = {
               key,
               tagName,
+              varName,
+              declarationVarName,
               id: iterator.node,
               rawAttrs: attrs,
               attributes: {},
@@ -459,6 +483,8 @@ export default class XMLParser extends XMLJSXOutputBuilder {
           expression[key] = {
             key,
             tagName,
+            varName,
+            declarationVarName,
             id: iterator.node,
             rawAttrs: attrs,
             attributes: {},
@@ -823,22 +849,41 @@ export default class XMLParser extends XMLJSXOutputBuilder {
     this.textMarginEnd = end.length;
     // preserve comments
     str = this.preserveComments(str, expressions, iterator);
+    this.trace('preserve comments');
+
     // preserve blocks for TSX
     str = this.preserveBlocks(str, globalExpressions, typedExpressions);
+    this.trace('preserve blocks for TSX');
+
     // preserve strings of attrs and strings
     str = this.preserveBlocksAttrs(str, globalExpressions, expressions, iterator);
+    this.trace('preserve strings of attrs and strings');
+
     // remove all blocks transformation
     str = getDeepTranslation(str, globalExpressions);
+    this.trace('remove all blocks transformation deep Translation');
+
     str = this.preserveStringsAttrs(str, expressions, iterator);
+    this.trace('remove all blocks transformation preserve Strings Attrs');
+
     str = this.preserveStrings(str, expressions, iterator);
+    this.trace('remove all blocks transformation preserve Strings');
+
     // preserve templates ${}
     str = this.preserveTemplates(str, expressions, iterator);
+    this.trace('preserve templates ${}');
+
     // preserve nodes
     str = this.preserveNodes(str, expressions, iterator);
+    this.trace('preserve nodes');
+
     // parse text nodes
     str = this.parseTextNodes(str, expressions, iterator);
+    this.trace('parse text nodes');
+
     // parse nodes
     str = this.parseNodes(str, expressions, componentPath);
+    this.trace('parse nodes');
 
     const rootNode = this.getRootnode(str, expressions);
     if (rootNode) {

@@ -1,6 +1,17 @@
 import component ContentPage from '@/examples/app/components/ContentPage.o3';
 
 <template>
+  <style>
+    .container {
+      height: auto;
+      width: auto;
+      background: black;
+      margin-top: 45px;
+      animation-name: fade-in-right;
+      animation-iteration-count: 1;
+      animation-duration: 0.5s;
+    }
+  </style>
   <div class="container">
     <ContentPage
       --for={article of this.articles}
@@ -9,14 +20,3 @@ import component ContentPage from '@/examples/app/components/ContentPage.o3';
 </template>
 
 <proto def="examples/app/defs/body.proto.yml" />
-<style>
-  .container {
-    height: auto;
-    width: auto;
-    background: black;
-    margin-top: 45px;
-    animation-name: fade-in-right;
-    animation-iteration-count: 1;
-    animation-duration: 0.5s;
-  }
-</style>

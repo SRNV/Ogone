@@ -2,7 +2,6 @@ import Ogone from "../main/OgoneBase.ts";
 import Env from "./Env.ts";
 import { Configuration } from "./Configuration.ts";
 import Workers from '../enums/workers.ts';
-import OgoneWorkers from "./OgoneWorkers.ts";
 import { existsSync } from "../../utils/exists.ts";
 import type {
   OgoneConfiguration,
@@ -10,10 +9,15 @@ import type {
 import messages from "../../docs/chore/messages.ts";
 import { Flags } from "../enums/flags.ts";
 import TSXContextCreator from './TSXContextCreator.ts';
+import HMR from './HMR.ts';
+import { join, colors } from '../../deps/deps.ts';
+import WebviewEngine from './WebviewEngine.ts';
+
 export default class EnvServer extends Env {
   public readonly contributorMessage: { [k: string]: string } = messages;
   run(opts: OgoneConfiguration) {
     try {
+      const { gray } = colors;
       if (!opts) {
         this.error("run method is expecting for 1 argument, got 0.");
       }
@@ -26,6 +30,7 @@ export default class EnvServer extends Env {
       }
 
       if (opts.build) {
+        const staticDir = join(opts.build, 'static');
         if (!existsSync(opts.build)) {
           Deno.mkdirSync(opts.build);
         }
@@ -38,32 +43,34 @@ export default class EnvServer extends Env {
             `build: build destination should be a directory. \n\tinput: ${opts.build}`,
           );
         }
+        if (existsSync(staticDir)) {
+          Deno.remove(staticDir, {
+            recursive: true,
+          });
+        }
         //start compilation of o3 files
         this.setEnv("production");
         this.setDevTool(false);
         this.compile(Configuration.entrypoint, true)
-          .then(async () => {
-            //start compilation of o3 files
-            const b = await this.getBuild();
-            /*
-            TODO use workers for build
-            */
-          }).then(() => {
-            // message for any interested developer.
-            this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
-          });
+          .then(async (bundle) => {
+            let app = await this.renderBundleAndBuildForProduction(
+              Configuration.entrypoint,
+              bundle,
+              opts.build!
+            );
+            await this.build(app);
+            this.success(`Application built for production: ${opts.build} ${gray(`in ${(performance.now() - opts.startTime!).toFixed(4)} ms`)}`);
+            Deno.exit(0);
+          })
       } else {
         //start compilation of o3 files
         this.setDevTool(Configuration.devtool as boolean);
-        this.listenLSPWebsocket();
+        this.listenHMRWebsocket();
         this.compile(Configuration.entrypoint, true)
-          .then(() => {
+          .then(async () => {
             // Ogone is now ready to serve
             this.startDevelopment();
-          }).then(() => {
-            // message for any interested developer.
-            this.infos('Love Ogone\'s project ? Join the discord here: https://discord.gg/gCnGzh2wMc');
-          });
+          })
       }
     } catch (err) {
       this.error(`Ogone: ${err.message}
@@ -73,15 +80,10 @@ ${err.stack}`);
   public async startDevelopment(): Promise<void> {
     try {
       TSXContextCreator.cleanDistFolder();
-      OgoneWorkers.serviceDev.postMessage({
-        type: Workers.INIT_MESSAGE_SERVICE_DEV,
-        application: await this.getApplication(),
-        controllers: Ogone.controllers,
-        Configuration: {
-          ...Configuration
-        },
-      });
-      OgoneWorkers.serviceDev.addEventListener('message', async (event) => {
+      await this.initServer();
+      WebviewEngine.initFolder();
+      this.listenLSPHSEServer();
+      this.serviceDev.addEventListener('message', async (event) => {
         switch (event.data.type) {
           case Workers.SERVICE_DEV_READY:
             // start type checking of all typed components
@@ -90,10 +92,12 @@ ${err.stack}`);
             }
             break;
           case Workers.SERVICE_DEV_GET_PORT:
-            OgoneWorkers.lspWebsocketClientWorker.postMessage({
-              type: Workers.LSP_SEND_PORT,
-              port: event.data.port
-            })
+            setTimeout(() => {
+              HMR.postMessage({
+                type: 'server',
+                port: event.data.port,
+              });
+            }, 2000);
             break;
         }
       });

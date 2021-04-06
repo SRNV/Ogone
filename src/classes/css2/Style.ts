@@ -1,34 +1,24 @@
 import getTypedExpression from "../../../utils/typedExpressions.ts";
 import elements from "../../../utils/elements.ts";
 import notParsedElements from "../../../utils/not-parsed.ts";
-// import forceInlineElements from "../../../utils/forceInlineElements.ts";
-// import getDeepTranslation from "../../../utils/template-recursive.ts";
 import read from "../../../utils/agnostic-transformer.ts";
 import { Utils } from "../Utils.ts";
 import type {
-  Expressions,
   ProtocolScriptRegExpList,
-  TypedExpressions,
 } from "../../ogone.main.d.ts";
 import RegExpTransformable from "../RegExpTransformable.ts";
+import Document, {
+  DocumentOptions,
+} from './Document.ts';
 
-interface StyleOptions {
-  vars: { [k: string]: string | StyleOptions["vars"] }
-}
-interface StyleDocumentOptions {
-  text: string;
-  expressions: Expressions;
-  typedExpressions: TypedExpressions
-}
-class StyleDocument implements StyleDocumentOptions {
-  constructor(
-    public text: StyleDocumentOptions['text'],
-    public expressions: StyleDocumentOptions['expressions'],
-    public typedExpressions: StyleDocumentOptions['typedExpressions']
-  ) {}
-}
+/**
+ * built-in css preprocessor for Ogone
+ * should be usable into the browser
+ * don't use Deno inside
+ * or any reference to Ogone
+ */
 export default class Style extends Utils {
-  private static currentDocument: StyleDocument;
+  private static currentDocument: Document;
   private static readonly variables: ProtocolScriptRegExpList = [
     // exportable variables
     new RegExpTransformable(/(\b@export)(\s+const(?<evaluated>\*){0,1}\b)(?<name>.+?)(\=)/, () => '')
@@ -68,15 +58,14 @@ export default class Style extends Utils {
   /**
    * use this method to transform the style of the components
    * @param css {string}
-   * @param opts {StyleOptions}
    */
-  public static transform(css: string, opts: StyleOptions): string {
+  public static createDocument(css: string): Document {
     // to create the top level of the document
     // we will add some curly and edit the inputs
     // of the end user
     const toplevel = `{${css}}`;
     // we will now parse the document by using the read function
-    // which transforms all regular expressions to a specific id
+    // which parses all regular expressions to a specific id
     const typedExpressions = getTypedExpression();
     const expressions = {};
     let result = read({
@@ -90,40 +79,56 @@ export default class Style extends Utils {
       expressions,
       typedExpressions,
       text: result,
+      data: void 0,
     });
-    this.parseDocument();
-    return result;
+    return this.currentDocument;
   }
-  public static setCurrentDocument(document: StyleDocumentOptions) {
-    this.currentDocument = new StyleDocument(document.text, document.expressions, document.typedExpressions);
-  }
-  /**
-   * main method to start parsing the document
-   * we will use all blocks expressions
-   */
-  public static parseDocument() {
-    if (!this.currentDocument.typedExpressions) return;
-    Object.entries(this.currentDocument.typedExpressions.blocks)
-      .reverse()
-      .forEach(([key, value]) => {
-        console.log(key, value);
-      });
+  public static setCurrentDocument(document: DocumentOptions) {
+    this.currentDocument = new Document(
+      document.text,
+      document.expressions,
+      document.typedExpressions,
+    );
   }
 }
-const test1 = Style.transform(`
-  @const var1 = test;
-  div {
-    ...$var1;
-    color: red;
-    span {
-      element {
-        a {
-          color: blue;
-        }
-      }
+const test1 = Style.createDocument(`
+@const flex = 10px;
+@const rule = div {
+  color: blue-shark;
+};
+@export const test = 20px;
+@trait DeclaredC {
+  color;
+  justify-content;
+}
+.container {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row-reverse;
+  ...$Belf;
+  @<Colored>.view {
+    flex: 18;
+    flex-direction::media(
+      row: default;
+      column: 500px;
+    );
+    color::media(
+      default: green;
+      300px: red;
+    );
+    overflow: auto;
+    .content, ul {
+      flex: $flex;
+      ...$rule;
     }
   }
-`, {
-  vars: {},
+}
+`);
+test1.use({
+  Belf: {
+    color: 'red',
+    var: "17",
+  }
 });
-console.warn(test1);
+const transformed = test1.render({ });
+console.log(transformed);

@@ -1,46 +1,86 @@
+import Env from './Env.ts';
 import { Utils } from "./Utils.ts";
 import MapOutput from './MapOutput.ts';
 import { Bundle } from "../ogone.main.d.ts";
 
 export default class TSTranspiler extends Utils {
-  static browserBundlePatternURL = new URL('../bundle/browser_pattern.ts', import.meta.url);
   static runtimeURL = new URL('../main/Ogone.ts', import.meta.url);
-  static runtimeBaseURL = new URL('../main/OgoneBase.ts', import.meta.url);
-  static subdistFolderUrl = new URL('../main/dist/', import.meta.url);
-  static outputURL = new URL(`./out.ts`, TSTranspiler.subdistFolderUrl);
-  static transpileCompilerOptions = { sourceMap: false, };
+  static subdistFolderUrl = './.ogone';
+  static outputURL = './.ogone/out.ts';
+  static transpileCompilerOptions = { sourceMap: false, removeComments: false };
+  static bundleCompilerOptions = { removeComments: false };
+  static cache: { [k: string]: string; } = {};
   static async transpile(text: string): Promise<string> {
     try {
-      return (await Deno.emit('/transpiled.ts', {
+      if (this.cache[text]) return this.cache[text];
+      const result = (await Deno.emit('/transpiled.ts', {
         check: false,
         sources: {
           "/transpiled.ts": text,
         },
         compilerOptions: this.transpileCompilerOptions,
-      })).files["file:///transpiled.ts.js"]
+      })).files["file:///transpiled.ts.js"];
+      if (!this.cache[text] || this.cache[text] !== result) {
+        this.cache[text] = result;
+      }
+      return result;
     } catch {
       return text;
     }
   }
   static async bundle(url: URL | string): Promise<string> {
-    let result = (await Deno.emit(url, {
-      bundle: 'esm',
-      check: false,
-    }));
-    const file = result.files['deno:///bundle.js'];
-    return file;
+    try {
+      let result = (await Deno.emit(url, {
+        bundle: 'esm',
+        check: false,
+        compilerOptions: this.bundleCompilerOptions,
+      }));
+      const file = result.files['deno:///bundle.js'];
+      return file;
+    } catch(err) {
+      this.error(`TSTranspiler: ${err.message}`);
+    }
+  }
+  static async bundleText(text: string): Promise<string> {
+    const url = Deno.makeTempFileSync({
+      prefix: 'ogone_production',
+      suffix: '.ts',
+    });
+    try {
+      Deno.writeTextFileSync(url, text);
+      let result = (await Deno.emit(url, {
+        bundle: 'esm',
+        check: false,
+        compilerOptions: this.bundleCompilerOptions,
+      }));
+      const file = result.files['deno:///bundle.js'];
+      Deno.removeSync(url);
+      return file;
+    } catch(err) {
+      Deno.removeSync(url);
+      this.error(`TSTranspiler: ${err.message}`);
+    }
+  }
+  static get runtimeBaseURL(): URL {
+    if (Env._env === 'production') return new URL('../main/OgoneProduction.ts', import.meta.url);
+    return new URL('../main/OgoneDev.ts', import.meta.url);
   }
   /**
    * saves Ogone's runtime, which is bundled, into MapOutput.runtime
    */
   static async getRuntime(bundle: Bundle) {
     const file = `
-      import { Ogone } from '${this.runtimeBaseURL}';
+      import {
+        Ogone,
+        displayError,
+      } from '${this.runtimeBaseURL}';
       import {
         setReactivity,
         _h,
         _ap,
         _at,
+        _hns,
+        _atns,
         imp,
         construct,
         setOgone,
@@ -64,14 +104,8 @@ export default class TSTranspiler extends Utils {
         bindStyle,
         setContext,
         setDevToolContext,
-        displayError,
         showPanel,
         infosMessage,
-        hmr,
-        hmrTemplate,
-        hmrRuntime,
-        startConnection,
-        createClient,
         renderSlots,
         renderNode,
         renderStore,
@@ -85,7 +119,6 @@ export default class TSTranspiler extends Utils {
         renderContext,
         triggerLoad,
         setDeps,
-        setHMRContext,
         routerGo,
         OnodeTriggerDefault,
         OnodeUpdate,

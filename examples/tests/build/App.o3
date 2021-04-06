@@ -1,0 +1,15 @@
+import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
+
+/**
+ *  @name Application
+ *  @description
+ *    test for build
+ */
+<template>
+  test
+</template>
+<proto type="app">
+  default:
+    // initialization
+    break;
+</proto>

@@ -4,7 +4,7 @@
   <textarea --bind={this.count}></textarea>
 </template>
 
-<proto>
+<proto type="app">
   def:
     count: 5
 </proto>

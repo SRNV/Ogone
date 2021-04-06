@@ -1,7 +1,51 @@
 import component ScrollComponent from '@/examples/app/components/Scroll.o3';
-import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
+import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
 <template>
+  <style>
+    .container {
+      color: var(--o-grey);
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .child {
+      padding-left: 30px;
+      height: 0;
+      overflow: hidden;
+      transition: flex 0.5s ease;
+    }
+    .child-open {
+      flex: 1;
+    }
+    .title {
+      padding-bottom: 10px;
+      padding: 5px;
+      cursor: pointer;
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      &:hover {
+        background: var(--o-primary);
+        color: white;
+      }
+    }
+    .child .title {
+      border-left: 1px solid #555;
+    }
+    .status {
+      display: list-item;
+    }
+    .ok {
+      color: var(--o-success)
+    }
+    .todo {
+      color: var(--o-error)
+    }
+    .in-progress {
+      color: var(--o-info)
+    }
+  </style>
   <div class="container">
     <div
       class="title"
@@ -21,9 +65,9 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
       --if={this.item.children}
       --class={{ 'child-open': this.openTree }}>
       <ScrollComponent>
-        <TreeRecursive
+        <Self
           --for={child of this.item.children}
-          item={child}></TreeRecursive>
+          item={child} />
       </ScrollComponent>
     </div>
   </div>
@@ -32,65 +76,12 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
 <proto>
   declare:
     public openTree: boolean = false;
-    public inherit item: {
-      route: string;
-      status?: string;
-      name?: string;
-      children: ({
-        status?: string;
-        name: string;
-        route: string;
-        children: any[]
-      })[];
-    } = { name: 'no name', route: '', status: 'todo', children: []};
+    public inp: string = this.openTree ? 'open' : 'closed';
+    public inherit item: TreeRecursive = { name: 'no name', route: '', status: 'todo', children: []};
   case 'click:toggle':
-    this.openTree = !this.openTree
+    this.openTree = !this.openTree;
+    this.inp = this.openTree ? 'open' : 'closed';
     break;
 </proto>
 
-<style>
-  .container {
-    color: var(--o-grey);
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-  .child {
-    padding-left: 30px;
-    height: 0;
-    overflow: hidden;
-    transition: flex 0.5s ease;
-    background: #00000034;
-  }
-  .child-open {
-    flex: 1;
-  }
-  .title {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #555;
-    padding: 5px;
-    cursor: pointer;
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    &:hover {
-      background: var(--o-primary);
-      color: white;
-    }
-  }
-  .child .title {
-    border-left: 1px solid #555;
-  }
-  .status {
-    display: list-item;
-  }
-  .ok {
-    color: var(--o-success)
-  }
-  .todo {
-    color: var(--o-error)
-  }
-  .in-progress {
-    color: var(--o-info)
-  }
-</style>
+

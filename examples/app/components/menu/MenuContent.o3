@@ -2,6 +2,21 @@ import component Burger from '@/examples/app/components/Burger.o3';
 import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
 
 <template>
+  <style>
+    .menu {
+      flex: 8;
+      display: flex;
+      flex-direction: row;
+      vertical-align: middle;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    div.displayButtons {
+      @media screen and (max-width: 900px) {
+        display: none;
+      }
+    }
+  </style>
   <div id="test" class="menu">
     <div class="displayButtons">
       <MenuButton --for={t of this.menu} buttonOpts={t} />
@@ -13,19 +28,3 @@ import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
 </template>
 
 <proto def="examples/app/defs/source.yml" />
-
-<style>
-  .menu {
-    flex: 8;
-    display: flex;
-    flex-direction: row;
-    vertical-align: middle;
-    align-items: center;
-    justify-content: flex-end;
-  }
-  div.displayButtons {
-    @media screen and (max-width: 900px) {
-      display: none;
-    }
-  }
-</style>

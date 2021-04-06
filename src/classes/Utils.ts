@@ -158,4 +158,20 @@ export abstract class Utils {
     }
   }
   private notify = Utils.notify.bind(this);
+  static exposeSession(port?: number, entrypoint?: string): void {
+    const { cyan, blue } = colors;
+    this.success(`
+    App: ${cyan(entrypoint || Configuration.entrypoint)}
+    Running here: ${cyan(`http://localhost:${port || Configuration.port || 8080}/`)}
+
+    - Love Ogone's project ? Join the discord here: ${cyan(`https://discord.gg/gCnGzh2wMc`)}
+    - Releases: ${cyan(`https://github.com/SRNV/Ogone/releases`)}
+    - Github: ${cyan(`https://github.com/SRNV/Ogone`)}
+    - Projects: ${cyan(`https://github.com/SRNV/Ogone/projects`)}
+
+      deno:\t\t${Deno.version.deno}
+      typescript:\t${Deno.version.typescript}
+    `);
+  }
+  public exposeSession = Utils.exposeSession.bind(this);
 }

@@ -4,6 +4,7 @@ import Env from './Env.ts';
 import { ComponentEngine } from '../enums/componentEngine.ts';
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from "./TSTranspiler.ts";
+import HMR from './HMR.ts';
 // TODO create a file dedicated to the APIs
 /**
  * @name ComponentCompiler
@@ -11,6 +12,8 @@ import TSTranspiler from "./TSTranspiler.ts";
  * @description this will build Components and add access to APIs like: Async, Refs, Controllers, Store
  */
 export default class ComponentCompiler extends Utils {
+  static mapData: Map<string, string> = new Map();
+  static mapDepsAmount: Map<string, number> = new Map();
   public async startAnalyze(bundle: Bundle): Promise<void> {
     try {
       const entries = Array.from(bundle.components);
@@ -28,9 +31,9 @@ ${err.stack}`);
   ): [string, any][] {
     try {
       const controllers = Object.entries(component.imports)
-        .filter(([, path]) => {
+        .filter(([key, path]) => {
           const comp = bundle.components.get(path);
-          return comp && comp.type === "controller";
+          return key !== 'Self' && comp && comp.type === "controller";
         });
       if (controllers.length && component.type !== "store") {
         this.error(
@@ -149,7 +152,7 @@ ${err.stack}`);
           Object.freeze(Async);
           `;
         let result: string = `function (Onode) {
-            const data = {% data %};
+            {% modules %}
             {% ControllersAPI %}
             {% StoreAPI %}
             const ___ = (prop, inst, value) => {
@@ -163,8 +166,9 @@ ${err.stack}`);
               {% refs %}
             };
             {% AsyncAPI %}
-            {% modules %}
             {% protocol %}
+            {% protocolDeclarationForTypedComponent %}
+            const data = {% data %};
             return {
               data,
               Refs,
@@ -172,13 +176,17 @@ ${err.stack}`);
             }
           };
           `;
+        const componentVar = `${component.uuid.replace(/\-/gi, '_')}`;
         const d = {
           component,
-          modules: modules && Env._env !== "production" ? modules.flat().join("\n") : "",
+          componentVar,
+          modules: component.deps
+            .map((dep) => dep.destructuredOgoneRequire)
+            .join('\n'),
           AsyncAPI: component.type === "async" ? AsyncAPI : "let Async;",
           protocol: component.protocol ? component.protocol : "",
           dataSource: component.isTyped
-            ? `new Ogone.protocols['{% component.uuid %}']`
+            ? `new Ogone.protocols[{% componentVar %}]`
             : JSON.stringify(component.data),
           data: component.isTyped
             || component.context.engine.includes(ComponentEngine.ComponentProxyReaction)
@@ -196,37 +204,86 @@ ${err.stack}`);
             : "",
           StoreAPI: !!component.hasStore ? store : "let Store;",
           protocolDeclarationForTypedComponent: component.isTyped ? `
-          Ogone.protocols['{% component.uuid %}'] = ${component.context.protocolClass}
+          Ogone.protocols[{% componentVar %}] = Ogone.protocols[{% componentVar %}] || ${component.context.protocolClass}
           ` : '',
         };
         result = await TSTranspiler.transpile(`  ${this.template(result, d)}`);
         if (mapRender.has(result)) {
           const item = mapRender.get(result);
           result = this.template(
-            `Ogone.components['{% component.uuid %}'] = Ogone.components['{% item.id %}'];
-             {% protocolDeclarationForTypedComponent %}
+            `Ogone.components[{% componentVar %}] = Ogone.components['{% item.id %}'];
             `,
             {
               ...d,
               item,
             },
           );
-          MapOutput.outputs.data.push(this.template(result, d))
+          result = this.template(result, d);
         } else {
           mapRender.set(result, {
             id: component.uuid,
           });
-          MapOutput.outputs.data.push(this.template(
-            `Ogone.components['{% component.uuid %}'] = ${result.trim()};
-            {% protocolDeclarationForTypedComponent %}
+          result = this.template(
+            `Ogone.components[{% componentVar %}] = ${result.trim()};
             `,
             d,
-          ));
+          );
         }
+        MapOutput.outputs.data.push(result);
+        ComponentCompiler.sendChanges({
+          output: result,
+          component,
+          variable: componentVar,
+        });
+        ComponentCompiler.checkDepsAmountChanges(component);
       }
     } catch (err) {
       this.error(`ComponentCompiler: ${err.message}
 ${err.stack}`);
     }
+  }
+  static async sendChanges(opts: { component: Component; output: string; variable: string}) {
+    const { component, output, variable } = opts;
+    if (this.mapData.has(component.uuid)) {
+      const item = this.mapData.get(component.uuid)!;
+      if (item !== output) {
+        /**
+         * need to turn the protocol to null
+         * to force using the new one
+         */
+        let result = `
+        Ogone.protocols[${variable}] = null;
+        ${output}
+        `
+        HMR.postMessage({
+          output: await TSTranspiler.transpile(result),
+          uuid: component.uuid,
+          type: 'data',
+        });
+        this.mapData.set(component.uuid, output);
+      }
+    } else {
+      this.mapData.set(component.uuid, output);
+    }
+  }
+  /**
+   * this function will force the application to reload if there's more or less
+   * dependency than previously
+   */
+  static checkDepsAmountChanges(component: Component): void {
+    if (!this.mapDepsAmount.has(component.uuid)) {
+      this.mapDepsAmount.set(component.uuid, component.deps.length);
+      return;
+    }
+    const previousAmount = this.mapDepsAmount.get(component.uuid);
+    if (component.deps.length === previousAmount) return;
+    this.mapDepsAmount.set(component.uuid, component.deps.length);
+    setTimeout(() => {
+      if (HMR.diagnostics.length) return;
+      Utils.infos('reloading. synchronization of dependencies.');
+      HMR.postMessage({
+        type: 'reload',
+      });
+    }, 5000);
   }
 }

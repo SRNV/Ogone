@@ -1,9 +1,9 @@
 import getDeepTranslation from "../../../utils/template-recursive.ts";
 
-let i = 0;
+let id;
 function getId(type: string): string {
-  i++;
-  return `${type}${i}`;
+  id = crypto.getRandomValues(new Uint8Array(8)).join('');
+  return `${type}${id}`;
 }
 /**
  * @name CSSScoper

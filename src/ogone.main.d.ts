@@ -1,4 +1,5 @@
 import type OgoneStyle from "./classes/css/Style.ts";
+import Dependency from "./classes/Dependency.ts";
 import { HTMLTemplateElement, HTMLElement, HTMLDivElement, Comment, Text } from './ogone.dom.d.ts';
 
 // @ts-ignore
@@ -20,6 +21,11 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   };
   type: "store" | "async" | "component" | "router" | "controller";
   connectedCallback(): void;
+  /**
+   * forces rerendering by destroying the current one
+   * and creating a new one
+   */
+  rerender(): void;
   uuid?: string;
   promise?: null | Promise<void>;
   actualRouteName?: null | string;
@@ -27,7 +33,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   routeChanged?: boolean | null;
   locationPath?: string | null;
   historyState?: { query: Map<unknown, unknown> } | null;
-  actualTemplate?: HTMLOgoneElement | null;
+  actualTemplate?: HTMLOgoneElement | Text | null;
   replacer?: HTMLElement | HTMLOgoneElement | null;
   getContext?:
     null
@@ -63,7 +69,9 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   position?: number[];
   flags: any;
   original?: HTMLOgoneElement;
+  routerCalling?: HTMLOgoneElement;
   component: HTMLOgoneElement;
+  refs: {[k: string]: HTMLElement[]},
   props: any;
   nodeProps?: [string, string][];
   params?: any;
@@ -87,7 +95,9 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
 export interface OgoneInterface {
   // usable on browser side
   types: { [k: string]: OgoneParameters["type"] };
+  arrays: { [k: string]: any[] };
   root: boolean;
+  require: { [k: string]: any };
   stores: OgoneStores;
   clients: OgoneStoreClient[];
   render: OgoneRenderRegistry;
@@ -105,8 +115,8 @@ export interface OgoneInterface {
   instances: { [componentUuid: string]: any[] };
   protocols: { [componentUuid: string]: FunctionConstructor };
   routerReactions: Function[];
+  subscribeComponent?: (Onode: HTMLOgoneElement) => void;
   actualRoute: string | null;
-  websocketPort: number;
   // usable on Deno side
   files: string[];
   directories: string[];
@@ -166,6 +176,7 @@ export interface OgoneParameters {
   position?: number[];
   flags: any;
   original?: HTMLOgoneElement;
+  routerCalling?: HTMLOgoneElement;
   component?: HTMLOgoneElement | null;
   props: any;
   nodeProps?: [string, string][];
@@ -231,7 +242,7 @@ type OgoneComponentsRegistry = { [componentId: string]: (Onode: HTMLOgoneElement
   data: OnodeComponent['data'];
   runtime: OnodeComponent['runtime'];
   Refs: {
-    [k: string]: HTMLElement;
+    [k: string]: HTMLElement[];
   }
 }) };
 /**
@@ -267,6 +278,25 @@ export interface RouterBrowser {
   go: (url: string, state: any) => void;
   openDevTool?: (opts: any) => void;
 }
+export interface HTMLOgoneText extends Text {
+  /**
+   * the code to evaluate and set the text content
+   */
+  code: string;
+  /**
+   * get the context for the textnode
+   */
+  getContext: HTMLOgoneElement['getContext'];
+  /**
+   * the position of the textnode into the DOM
+   */
+  position: HTMLOgoneElement['position'];
+  /**
+   * dependencies of the textnode
+   * prevent for useless evaluations/reactions
+   */
+  dependencies?: string[];
+}
 export interface OnodeComponent {
   key: OgoneParameters['key'];
   data: { [s: string]: any } | null;
@@ -284,7 +314,7 @@ export interface OnodeComponent {
     finally: null | any;
   };
   promiseResolved: boolean;
-  texts: (() => any)[];
+  texts: (HTMLOgoneText)[];
   childs: HTMLOgoneElement[];
   parent: HTMLOgoneElement | null;
   requirements: any;
@@ -332,7 +362,12 @@ export interface OgoneConfiguration {
    * @description path to the root component, this one has to be an untyped component
    */
   entrypoint: string;
-
+  /**
+   * should be used with the build config
+   * will add the deploy.ts file
+   * to the dest folder
+   */
+  deploySPA?: boolean;
   /**
    * @property port
    * @description which port to use for development
@@ -385,6 +420,10 @@ export interface OgoneConfiguration {
    * paths to the types for tsc
    */
   types?: string[];
+  /**
+   * UTC time at the begining of tasks
+   */
+  startTime?: number;
 }
 interface Remote {
   base: string;
@@ -404,6 +443,8 @@ export interface ImportDescription {
   uuid: string;
   default: boolean;
   isComponent?: boolean;
+  isType?: boolean;
+  isRemote?: boolean;
   defaultName: string | null;
   ambient: boolean;
   allAs: boolean;
@@ -413,8 +454,6 @@ export interface ImportDescription {
   object: boolean;
   members: ({ name: string, alias: string })[];
   value: string;
-  static: (namespace: string) => string;
-  dynamic: (importFn: string, namespace: string) => string;
   getHmrModuleSystem: (opts: hmrModuleSystemOptions) => string;
 }
 export interface Bundle {
@@ -438,8 +477,10 @@ export interface Bundle {
 }
 
 export interface Component {
+  source: string;
   remote: Remote | null;
   isTyped: boolean;
+  isRecursive: boolean;
   for: any;
   refs: {};
   flags: [];
@@ -458,7 +499,7 @@ export interface Component {
   data: { [key: string]: any };
   rootNode: XMLNodeDescription;
   imports: MapIndexable;
-  deps: ImportDescription[];
+  deps: Dependency[];
   /**
    * first is the property
    * second is the types, unknown if undefined
@@ -530,6 +571,8 @@ export interface XMLNodeDescription {
   pragma: null | DOMParserPragmaDescription;
   nextElementSibling: null | XMLNodeDescription;
   previousElementSibling: null | XMLNodeDescription;
+  isSVG?: boolean;
+  isCanvas?: boolean;
   ifelseBlock?: {
     ifFlag: MapIndexable;
     elseFlag: MapIndexable;
@@ -700,6 +743,8 @@ interface DOMParserIterator {
 }
 interface DOMParserExp {
   id: number | null | string;
+  varName?: string;
+  declarationVarName?: string;
   type?: string;
   key?: string;
   nodeType: number;
@@ -718,6 +763,8 @@ interface DOMParserExp {
   parentNode: null | DOMParserExp;
   pragma: DOMParserPragmaDescription | null;
   isTSX?: boolean;
+  isSVG?: XMLNodeDescription["isSVG"];
+  isCanvas?: XMLNodeDescription["isCanvas"];
   isAttrSpreadTSX?: boolean;
 }
 interface DOMParserExpressions {
@@ -818,3 +865,25 @@ interface FileBundle {
 }
 
 type SusanoOptions = { path: string; parent?: FileBundle } | { code: string, path: string; parent?: FileBundle };
+export interface ProductionFile {
+  path: string;
+  source: string;
+}
+export interface ProductionFiles {
+  /**
+   * All the styles
+   */
+  css: ProductionFile;
+  /**
+   * the html of the index.html file
+   */
+  html: ProductionFile;
+  /**
+   * the script of the application
+   */
+  js: ProductionFile;
+  /**
+   * all ressources needed
+   */
+  ressources: ProductionFile[];
+}

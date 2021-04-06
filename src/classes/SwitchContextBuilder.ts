@@ -1,13 +1,15 @@
-import type { Bundle } from "../ogone.main.d.ts";
+import type { Bundle, Component } from "../ogone.main.d.ts";
 import type { XMLNodeDescription } from "../ogone.main.d.ts";
 import MapOutput from "./MapOutput.ts";
 import { Utils } from "./Utils.ts";
+import HMR from './HMR.ts';
 /**
  * @name SwitchContextBuilder
  * @code OSCB3-ORC8-OC0
  * @description this class will build the context part. context part helps for loop rendering
  */
 export default class SwitchContextBuilder extends Utils {
+  static mapContexts: Map<string, string> = new Map();
   public async startAnalyze(bundle: Bundle): Promise<void> {
     try {
       const entries = Array.from(bundle.components);
@@ -124,13 +126,13 @@ ${err.stack}`);
           const contextScript =
             node.hasFlag || !node.tagName && node.nodeType === 1 || isNodeDynamic
               ? `
-          Ogone.contexts['{% context.id %}'] = function(opts) {
+          Ogone.contexts[{% context.id %}] = function(opts) {
             const GET_TEXT = opts.getText;
             const GET_LENGTH = opts.getLength;
             const POSITION = opts.position;
             {% data %}
-            {% modules %}
             {% value %}
+            {% modules %}
             {% context.if %}
             {% context.getNodeDynamicLength || context.getLength %}
             try {
@@ -145,17 +147,17 @@ ${err.stack}`);
             }
           };
         `
-              : `Ogone.contexts['{% context.id %}'] = Ogone.contexts['{% context.parentId %}'];`;
+              : `Ogone.contexts[{% context.id %}] = Ogone.contexts[{% context.parentId %}];`;
           const result = this.template(contextScript, {
             component,
             data: component.context.data,
             value: script.value || "",
             itemName: aliasItem || itemName,
             context: {
-              id: `${component.uuid}-${nId}`,
+              id: (`${component.uuid}_${nId}`).replace(/\-/gi, '_'),
               if: contextIf ? contextIf : "",
               parentId: node.parentNode
-                ? `${component.uuid}-${node.parentNode.id}`
+                ? (`${component.uuid}_${node.parentNode.id}`).replace(/\-/gi, '_')
                 : "",
               result: component.data ? [
                 // the key can start with a bracket or a brace
@@ -175,11 +177,12 @@ ${err.stack}`);
                 })
                 : "",
             },
-            modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
+            modules: component.deps.map((dep) => dep.destructuredOgoneRequire).join('\n'),
           });
+          const key = `${component.uuid}-${node.id}`;
           // save context into bundle
           // will use it for type checking into props in compiler-time
-          bundle.mapContexts.set(`${component.uuid}-${node.id}`, {
+          bundle.mapContexts.set(key, {
             position: `const POSITION: number[] = Array.from(new Array(${script.level})).map((a,i) => 0);`,
             data: component.data instanceof Object
               ? Object.keys(component.data).map((prop) =>
@@ -190,11 +193,36 @@ ${err.stack}`);
             modules: modules ? modules.map((md) => md[0]).join(";\n") : "",
           });
           MapOutput.outputs.context.push(result);
+          SwitchContextBuilder.sendChanges({
+            output: result,
+            key,
+            component,
+          });
         });
       }
     } catch (err) {
       this.error(`SwitchContextBuilder: ${err.message}
 ${err.stack}`);
+    }
+  }
+  /**
+   * send changes through HMR
+   */
+  static sendChanges(opts: { key: string; component: Component; output: string }) {
+    const { key, output, component } = opts;
+    if (this.mapContexts.has(key)) {
+      const item = this.mapContexts.get(key);
+      if (item !== output) {
+        HMR.postMessage({
+          output,
+          invalid: item,
+          uuid: component.uuid,
+          type: 'context',
+        });
+        this.mapContexts.set(key, output);
+      }
+    } else {
+      this.mapContexts.set(key, output);
     }
   }
 }

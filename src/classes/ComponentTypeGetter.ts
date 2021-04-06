@@ -4,6 +4,8 @@ import { MapPosition } from "./MapPosition.ts";
 import Ogone from "../main/OgoneBase.ts";
 import RouterAnalyzer from "./RouterAnalyzer.ts";
 import { Utils } from "./Utils.ts";
+import HMR from './HMR.ts';
+import { absolute, existsSync } from '../../deps/deps.ts';
 
 const registry: { [k: string]: { [c: string]: boolean } } = {};
 /**
@@ -37,7 +39,16 @@ ${err.stack}`);
           this.error(`${rootComponent.file}\n\troot component type should be defined as app.`);
         }
         if (head && head.getInnerHTML) {
-          Configuration.head = head.getInnerHTML();
+          const headHasChanged = Configuration.setHead(head.getInnerHTML());
+          if (headHasChanged) {
+            this.infos('head element has changed. waiting 1 second before reloading application.');
+            setTimeout(() => {
+              this.infos('head element changed, reloading.');
+              HMR.postMessage({
+                type: 'reload',
+              });
+            }, 1000);
+          }
           if (template) {
             // remove the head in the template
             template.childNodes.splice(
@@ -46,6 +57,7 @@ ${err.stack}`);
             );
           }
         }
+        this.setApplicationConfiguration(rootComponent);
         rootComponent.type = "component";
       }
       // change all the sub component that are typed as app
@@ -70,18 +82,10 @@ ${err.stack}`);
             Using a private|protected template is not allowed for ${component.type} components
             `);
           }
-        } else if (component.elements.styles.length && template && (template.attributes.private || template.attributes.protected)) {
-          const position = MapPosition.mapNodes.get(template)!;
-          this.error(`${component.file}:${position.line}:${position.column}\n\t
-          useless Style Tags for private template
-          Turning to private the template of the component will encapsulate all the elements inside the template.
-          the style won't have any effect, because it's inserted into the head of the document.
-          please wrap this style element into the template element.
-          `);
         } else if (template && template.attributes.private && template.attributes.protected) {
           const position = MapPosition.mapNodes.get(template)!;
           this.error(`${component.file}:${position.line}:${position.column}\n\t
-          cannot set both,private and protected, on template. please choose one attribute.
+          cannot set both, private and protected, on template. please choose one attribute.
           `);
         }
       });
@@ -176,5 +180,24 @@ ${err.stack}`);
       this.error(`ComponentTypeGetter: ${err.message}
 ${err.stack}`);
     }
+  }
+  setApplicationConfiguration(component: Component) {
+    let result;
+    if (component.elements.proto) {
+      const [proto] = component.elements.proto;
+      result = proto.attributes.base as string;
+      if (result) {
+        result = absolute(component.file, result);
+        const position = MapPosition.mapNodes.get(proto)!;
+        if (!existsSync(result)) {
+          this.error(`${component.file}:${position.line}:${position.column}\n\t base folder does not exist.`);
+        }
+        const info = Deno.statSync(result);
+        if (info.isFile) {
+          this.error(`${component.file}:${position.line}:${position.column}\n\t a folder is required for proto's base attribute.`);
+        }
+      }
+    }
+    Configuration.static = result ? `${result.replace(/\/$/, '')}/` : Configuration.static;
   }
 }

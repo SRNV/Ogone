@@ -1,54 +1,71 @@
 <template>
+  <style>
+    @const screen = 965px;
+    .container {
+      min-height: 400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .left {
+      background: var(--o-background);
+      flex: 6;
+      padding: 98px;
+      padding-left: 326px;
+      @media screen and (max-width: $screen) {
+        padding-left: 77px;
+      }
+    }
+    .right {
+      flex: 5;
+      padding: 53px;
+      padding-top: 135px;
+      padding-bottom: 135px;
+      border-left: 1px solid #d8d8d8;
+      background: #f1f1f1;
+      color: var(--o-grey);
+      padding-left: 326px;
+      @media screen and (max-width: $screen) {
+        padding-left: 77px;
+      }
+    }
+    .code {
+      white-space: pre;
+    }
+    .text {
+      color: var(--o-grey);
+      margin-left: 30px;
+      white-space: pre;
+    }
+    .title {
+      color: var(--o-dark-blue);
+    }
+    .page {
+      opacity: 0.3;
+      color: cadetblue;
+    }
+  </style>
   <div class="container">
     <div class="left">
       <h2 class="title">${this.title}</h2>
       <p class="text">${this.text}</p>
     </div>
-    <div class="right">
+    <div class="right" --if={this.code}>
+      <p class="page" --if={this.page}>
+        ${this.page}
+      </p>
       <pre>
-        <code>
+        <code class="javascript">
           ${this.code}
         </code>
       </pre>
     </div>
   </div>
 </template>
-<proto type="component">
-  def:
-    inherit title: untitled
-    inherit text: no text
-    inherit code: "..."
+<proto engine="inline-reaction">
+  declare:
+    inherit title: string = 'untitled';
+    inherit text: string = 'no text';
+    inherit code: string = "...";
+    inherit page: string = "";
 </proto>
-<style>
-  .container {
-    min-height: 400px;
-    width: 100%;
-    display: flex;
-    @media screen and (max-width: 965px) {
-      flex-direction: column;
-    }
-  }
-  .left {
-    background: var(--o-background);
-    flex: 6;
-    padding: 98px;
-    padding-left: 77px;
-  }
-  .right {
-    background: var(--o-black);
-    flex: 5;
-    padding: 53px;
-    padding-top: 135px;
-    padding-bottom: 135px;
-  }
-  .code {
-    white-space: pre;
-  }
-  .text {
-    color: var(--o-grey);
-    margin-left: 30px;
-  }
-  .title {
-    color: var(--o-dark-blue);
-  }
-</style>

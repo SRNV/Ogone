@@ -1,11 +1,14 @@
 import type { OgoneInterface } from './../ogone.main.d.ts';
+
 declare function routerGo(...args: any[]): void;
 export const Ogone: OgoneInterface = {
   // usable on browser side
   types: {},
   root: false,
+  require: {},
   stores: {},
   clients: [],
+  arrays: {},
   render: {},
   protocols: {},
   contexts: {},
@@ -24,7 +27,6 @@ export const Ogone: OgoneInterface = {
   instances: {},
   routerReactions: [],
   actualRoute: null,
-  websocketPort: 3434,
   // usable on Deno side
   files: [],
   directories: [],
@@ -51,7 +53,7 @@ export const Ogone: OgoneInterface = {
     },
   },
   get isDeno() {
-    return typeof Deno !== "undefined"
+    return "Deno" in globalThis
       && !!Deno.chmod
   }
 }

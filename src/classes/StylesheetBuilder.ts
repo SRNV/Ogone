@@ -4,11 +4,12 @@ import {
   join,
   fetchRemoteRessource,
 } from "../../deps/deps.ts";
-import type { Bundle } from "../ogone.main.d.ts";
+import type { Bundle, Component } from "../ogone.main.d.ts";
 import { existsSync } from "../../utils/exists.ts";
 import { Utils } from "./Utils.ts";
 import keyframes from "../../utils/keyframes.ts";
 import Style from './css/Style.ts';
+import HMR from "./HMR.ts";
 // TODO fix code duplication
 /**
  * @name StylesheetBuilder
@@ -27,6 +28,7 @@ import Style from './css/Style.ts';
  * @dependency Style
  */
 export default class StylesheetBuilder extends Utils {
+  private static mapStyle: Map<string, string> = new Map();
   private CSSScoper: CSSScoper = new CSSScoper();
   private Style: Style = new Style();
   async read(bundle: Bundle) {
@@ -107,6 +109,8 @@ export default class StylesheetBuilder extends Utils {
             component.mapStyleBundle = this.Style.mapStyleBundle;
             const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
             component.style.push(css);
+            // send only if there's a change
+            StylesheetBuilder.sendChanges(component, css);
           }
         }
       }
@@ -190,7 +194,11 @@ ${err.stack}`);
 
             this.trace('start component style transformations');
             compiledCss = await this.Style.read(compiledCss, bundle, component);
-            compiledCss = isGlobal || element.parentNode === component.elements.head ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
+            compiledCss = component.elements.template?.attributes.protected
+              || component.elements.template?.attributes.private
+              || isGlobal || element.parentNode === component.elements.head
+                ? compiledCss
+                : this.CSSScoper.transform(compiledCss, component.uuid);
             element.childNodes[0].rawText = compiledCss;
           }
         }
@@ -225,6 +233,22 @@ ${err.stack}`);
     } catch (err) {
       this.error(`StylesheetBuilder: ${err.message}
 ${err.stack}`);
+    }
+  }
+  static sendChanges(component: Component, css:  string) {
+    if (!this.mapStyle.has(component.uuid)) {
+      this.mapStyle.set(component.uuid, css);
+    } else {
+      const item = this.mapStyle.get(component.uuid);
+      if (item !== css) {
+        HMR.postMessage({
+          type: 'style',
+          uuid: component.uuid,
+          output: css,
+        });
+        this.mapStyle.set(component.uuid, css);
+      }
+
     }
   }
 }

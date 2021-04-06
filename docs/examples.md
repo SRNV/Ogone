@@ -72,16 +72,16 @@ import component StoreComponent from "@/examples/tests/async/reloading/store.o3"
     }, 1000);
   break;
 </proto>
-<template>Hello ${fullname}</template>
+<template>Hello ${this.fullname}</template>
 ```
 
 more on reflected datas
 
 ```typescript
 <template>
-  ${position.name} ${position.origin}
-  <p --for="item of position.test">
-    ${item}
+  ${this.position.name} ${this.position.origin}
+  <p --for={item of this.position.test}>
+    ${this.item}
   </p>
 </template>
 <proto>

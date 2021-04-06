@@ -5,8 +5,8 @@ enum Protocol {
     }
   `,
   BUILD = `
-    export default {};
     {% modules %}
+    export default {};
     {% namespaces %}
     {% protocol %}
     declare const Deno: any;

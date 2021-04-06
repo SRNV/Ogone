@@ -2,13 +2,13 @@ import { colors } from "../../deps/deps.ts";
 import { Utils } from "./Utils.ts";
 import { Bundle } from '../ogone.main.d.ts';
 import { Configuration } from "./Configuration.ts";
-import OgoneWorkers from "./OgoneWorkers.ts";
 import Workers from "../enums/workers.ts";
 import { MapPosition } from './MapPosition.ts';
+import HMR from "./HMR.ts";
 /**
  * a class to display the errors inside the module
  */
-interface ModuleErrorsDiagnostic {
+export interface ModuleErrorsDiagnostic {
   start?: {
     character: number;
     line: number;
@@ -51,16 +51,21 @@ export abstract class ModuleErrors extends Utils {
           onError();
         }
         let errorUuid: string | undefined;
-        for (const d of diagnostics.filter(d => (d as ModuleErrorsDiagnostic).start)) {
+        for (const d of diagnostics.filter(d => !!(d as ModuleErrorsDiagnostic).start)) {
           const diag = d as (ModuleErrorsDiagnostic);
           if (diag) {
             errorUuid = diag.fileName && diag.fileName.match(/(?<=\/)(?<uuid>[\w\d\-]+?)\.tsx$/)?.groups?.uuid || undefined;
           }
           const start = diag.start && diag.start.character || 0;
           const end = diag.end && diag.end.character || 0;
-          const underline = red(`${' '.repeat(start)}^${'~'.repeat(end - start - 1)}`)
+          const repeatNumber = end - start - 1
+          const underline = red(`${' '.repeat(start)}^${'~'.repeat(repeatNumber > 0 ? repeatNumber : 0)}`)
           let sourceline = diag && diag.sourceLine || '';
-          sourceline = gray(sourceline.substring(0, start)) + red(sourceline.substring(start, end)) + gray(sourceline.substring(end));
+          sourceline = repeatNumber >= 0 ?
+            gray(sourceline.substring(0, start))
+            + red(sourceline.substring(start, end))
+            + gray(sourceline.substring(end)) :
+            red(sourceline);
           // add the error
           errors += `
         ${red(`TS${diag && diag.code} [ERROR]`)} ${blue(diag && diag.messageChain && diag.messageChain.messageText || diag && diag.messageText || '')}
@@ -103,14 +108,10 @@ export abstract class ModuleErrors extends Utils {
         }
         this.ShowErrors(
           `\n${errors}`,
+          diagnostics as ModuleErrorsDiagnostic[]
         );
-        if (!Configuration.OgoneDesignerOpened) {
-          // if the webview isn't opened
-          // this means the end user is not using the Ogone Designer
-          // so we can exit
-          Deno.exit(1);
-        }
       } else {
+        HMR.removeErrors();
         return;
       }
     } catch (err) {
@@ -118,20 +119,25 @@ export abstract class ModuleErrors extends Utils {
 ${err.stack}`);
     }
   }
-  static ShowErrors(message: string, opts?: { [k: string]: unknown }): void {
+  static ShowErrors(message: string, diagnostics: ModuleErrorsDiagnostic[]): void {
     try {
       const { bgRed, red, bold, yellow } = colors;
       const m: string = ModuleErrors.message(
         `${bgRed("  ERROR  ")} ${red(message)}`,
         { returns: true },
       ) as string;
-      if (Configuration.OgoneDesignerOpened) {
-        OgoneWorkers.lspWebsocketClientWorker.postMessage({
-          type: Workers.LSP_ERROR,
-          message: m,
-        });
-      }
       console.error(m);
+      HMR.error = m;
+      HMR.diagnostics = diagnostics;
+      HMR.sendError(m, diagnostics);
+      setTimeout(() => {
+        if (!Configuration.OgoneDesignerOpened) {
+          // if the webview isn't opened
+          // this means the end user is not using the Ogone Designer
+          // so we can exit
+          Deno.exit(1);
+        }
+      }, 500);
     } catch (err) {
       this.error(`ModuleErrors: ${err.message}
 ${err.stack}`);

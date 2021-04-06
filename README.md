@@ -72,6 +72,36 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
  *   this component will open the menu in the application
 */
 <template>
+  <style>
+    @const shadowColor = #00000045;
+    @const lineBackground = #848181;
+    .container {
+      padding: 9px;
+      width: 28px;
+      height: auto;
+      background: var(--o-header);
+      display: flex;
+      flex-direction: column;
+      filter: drop-shadow(0px 0px 0px $shadowColor);
+      &:hover {
+        filter: drop-shadow(0px 5px 3px $shadowColor);
+      }
+      &:hover .line {
+        background: var(--o-primary);
+      }
+      .line {
+        background: $lineBackground;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        height: 4px;
+      }
+      .line, & {
+        border-radius: 5px;
+        transition: filter 0.2s ease;
+        cursor: pointer;
+      }
+    }
+  </style>
   <StoreMenu namespace="menu" />
   <div class="container" --click:openMenu>
     <div class="line"></div>
@@ -79,7 +109,6 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
     <div class="line"></div>
   </div>
 </template>
-
 <proto>
   declare:
     public isOpen: boolean = false;
@@ -91,37 +120,6 @@ import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
       });
     break;
 </proto>
-
-<style>
-  @const shadowColor = #00000045;
-  @const lineBackground = #848181;
-  .container {
-    padding: 9px;
-    width: 28px;
-    height: auto;
-    background: var(--o-header);
-    display: flex;
-    flex-direction: column;
-    filter: drop-shadow(0px 0px 0px $shadowColor);
-    &:hover {
-      filter: drop-shadow(0px 5px 3px $shadowColor);
-    }
-    &:hover .line {
-      background: var(--o-primary);
-    }
-    .line {
-      background: $lineBackground;
-      margin-top: 2px;
-      margin-bottom: 2px;
-      height: 4px;
-    }
-    .line, & {
-      border-radius: 5px;
-      transition: filter 0.2s ease;
-      cursor: pointer;
-    }
-  }
-</style>
 
 ```
 ---

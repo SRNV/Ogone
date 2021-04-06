@@ -1,14 +1,19 @@
 import { getHeaderContentTypeOf } from "../../utils/extensions-resolution.ts";
 import { existsSync } from "../../utils/exists.ts";
 // import HMR from "../lib/hmr/index.ts";
-import { serve } from "../../deps/deps.ts";
+import { serve, absolute, fetchRemoteRessource } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
+import transformPathFileToUUID from '../../utils/transformPathFileToUUID.ts';
+import WebviewEngine from '../classes/WebviewEngine.ts';
+
+Utils.infos('worker for dev server created.');
 
 const registry = {
   application: '',
   webview_application: '',
+  port: 0,
 }
 export interface Controller {
   namespace: string;
@@ -21,12 +26,15 @@ export type Controllers = {
 }
 let controllers: Controllers = {};
 
-async function control(req: any): Promise<boolean> {
-  const ns = req.url.slice(1).split("/")[0];
-  if (req.url.indexOf("/") > -1 && req.url.startsWith(`/${ns}/`)) {
+async function control(req: any, baseURL: string): Promise<boolean> {
+  const realUrl = req.url.replace(baseURL, '');
+  const ns = realUrl
+    .slice(1)
+    .split("/")[0];
+  if (realUrl.indexOf("/") > -1 && realUrl.startsWith(`/${ns}/`)) {
     const controller = controllers[ns] || controllers[`/${ns}`];
     if (controller) {
-      const route = req.url.replace(`/${ns}`, "");
+      const route = realUrl.replace(`/${ns}`, "");
       const t = req.method;
       let response = await controller.runtime(`${t}:${route}`, req);
       if (response) {
@@ -57,11 +65,7 @@ async function resolveAndReadText(path: string) {
   const text = Deno.readTextFileSync(path);
   return isTsFile
     ? // @ts-ignore
-    (await Deno.transpileOnly({
-      [path]: text,
-    }, {
-      sourceMap: false,
-    }))[path].source
+    await TSTranspiler.transpile(text)
     : text;
 }
 
@@ -95,13 +99,33 @@ function isFreePort(port: number): boolean {
     throw err;
   }
 }
-
+async function cache(file: string): Promise<string> {
+  const cachePath = '.ogone/.cache/';
+  const fileContent = Deno.readTextFileSync(file);
+  const uuid = transformPathFileToUUID(file);
+  const fileCachePath = `${cachePath}${uuid}`;
+  if (!existsSync(cachePath)) {
+    Deno.mkdirSync(cachePath);
+  }
+  let currentText = existsSync(fileCachePath)
+      ? Deno.readTextFileSync(fileCachePath)
+      : '';
+  if (currentText !== fileContent) {
+    currentText = await TSTranspiler.transpile(fileContent);
+    Deno.writeTextFileSync(fileCachePath, currentText);
+  }
+  return currentText;
+}
 self.onmessage = async (e: any): Promise<void> => {
   Utils.trace(`Worker: Dev Server received a message`);
   const { application, Configuration, type } = e.data;
   if (type === Workers.INIT_MESSAGE_SERVICE_DEV) {
     registry.application = application;
     await initControllers(e.data);
+  }
+  if (type === Workers.UPDATE_APPLICATION) {
+    registry.application = application;
+    return;
   }
   if (type === Workers.LSP_UPDATE_SERVER_COMPONENT) {
     registry.webview_application = `
@@ -119,6 +143,7 @@ self.onmessage = async (e: any): Promise<void> => {
   }
   // open the server
   const server = serve({ port });
+  registry.port = port;
   // close the server when the window is unloaded
   // or the worker is killed
   self.addEventListener("unload", () => {
@@ -132,42 +157,42 @@ self.onmessage = async (e: any): Promise<void> => {
     );
   }
   Utils.trace(`Worker: Dev Server available on http://localhost:${port}/`);
-  Utils.success(`Your application is running here: http://localhost:${port}/`);
-  self.postMessage({
-    type: Workers.SERVICE_DEV_READY
-  });
-  self.postMessage({
-    type: Workers.SERVICE_DEV_GET_PORT,
-    port,
-  });
-
+  Utils.exposeSession(port, Configuration.entrypoint)
+  WebviewEngine.updateDevServerPortFile(port);
   for await (const req of server) {
-    const pathToPublic: string = `${Deno.cwd()}/${Configuration.static ? Configuration.static.replace(/^\//, '') : ''
-      }/${req.url}`.replace(/\/+/gi, '/');
+    const pathToPublic: string = `${Deno.cwd()}/${getPublicPath(req.url, Configuration.static)}`.replace(/\/+/gi, '/');
     const params = new URLSearchParams('?' + req.url.split("?")[1]);
     // for imported modules
-    const importedFile = params.get('import');
+    const serveModule = params.get('serve_module');
     // for lsp
     const component = params.get('component');
     const keyPort = params.get('port');
-    const controllerRendered = await control(req);
+    const controllerRendered = await control(req, Configuration.static);
     if (controllerRendered) {
       continue;
     }
     let isUrlFile: boolean = existsSync(pathToPublic);
+    const realUrl = req.url.split('?')[0];
     switch (true) {
       case component && port === parseFloat(keyPort as string):
         req.respond({ body: registry.webview_application });
         break;
-      case importedFile && existsSync(importedFile as string) && Deno.statSync(importedFile as string).isFile:
-        // TODO fix HMR
-        // use std websocket
-        // HMR(denoReqUrl);
+      case !!serveModule:
         req.respond({
-          body: await resolveAndReadText(importedFile!),
+          body: await TSTranspiler.bundle(serveModule!),
           headers: new Headers([
-            getHeaderContentTypeOf(importedFile!),
-            ["X-Content-Type-Options", "nosniff"],
+            getHeaderContentTypeOf('file.js'),
+          ]),
+        });
+        break;
+      case isUrlFile && Deno.statSync(pathToPublic).isFile && (realUrl.endsWith('.ts') || realUrl.endsWith('.js')):
+        const file = await cache(
+          realUrl
+        );
+        req.respond({
+          body: file,
+          headers: new Headers([
+            getHeaderContentTypeOf(realUrl!),
           ]),
         });
         break;
@@ -188,5 +213,19 @@ self.onmessage = async (e: any): Promise<void> => {
         break;
     }
   }
+}
+function getPublicPath(path: string, publicPath: string) {
+  let result = path.split('?')[0];
+  if (!publicPath) return result;
+  const regExp = new RegExp(`^${Deno.cwd()
+    .replace(/'[\\\/\:\.]'/gi, '\$1')}\\b`, 'i');
+  const publicReg = new RegExp(`${publicPath.replace(/'[\\\/\:\.]'/gi, '\$1')}`);
+  // remove Deno.cwd()
+  result = result.replace(regExp, '');
+  // add public path if it's missing
+  if (!result.match(publicReg)) {
+    result = `${publicPath}${result}`;
+  }
+  return result;
 }
 export { };

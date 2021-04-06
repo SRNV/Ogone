@@ -8,17 +8,17 @@ import {
   MouseEvent,
   history,
   Element,
-  Comment as Com,
   Node,
-  Text
+  Text,
+  SVGElement
 } from "../ogone.dom.d.ts";
-import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions } from "../ogone.main.d.ts";
+import { HTMLOgoneElement, OnodeComponentRenderOptions, OgoneParameters, Route, OgoneRecycleOptions, HTMLOgoneText } from "../ogone.main.d.ts";
 declare const document: Document;
 declare const location: Location;
-declare class Comment extends Com { };
 declare const ROOT_UUID: string;
 declare const ROOT_IS_PRIVATE: boolean;
 declare const ROOT_IS_PROTECTED: boolean;
+declare const _ogone_node_: string;
 export class OgoneBaseClass extends HTMLElement {
   declare nodes: OgoneParameters['nodes'];
   declare uuid: OgoneParameters['uuid'];
@@ -101,7 +101,10 @@ export class OgoneBaseClass extends HTMLElement {
     return `${this.uuid}${this.extends}`;
   }
   get name() {
-    return 'ogone-node';
+    return _ogone_node_;
+  }
+  set name(v) {
+
   }
   get isComponent() {
     return this.isTemplate;
@@ -137,7 +140,6 @@ export class OgoneBaseClass extends HTMLElement {
 
     // set the context of the node
     setContext(this);
-    // setHMRContext();
 
     // parse the route that match with location.pathname
     if (this.type === "router") {
@@ -166,23 +168,50 @@ export class OgoneBaseClass extends HTMLElement {
         break;
     }
   }
+  rerender(this: HTMLOgoneElement) {
+    if (this.isRoot) {
+      setTimeout(() => {
+        Ogone.root = false;
+        document.body.innerHTML = '';
+        document.body.append(
+          document.createElement(_ogone_node_)
+        );
+      }, 0);
+      return;
+    }
+    if (this.isRouter) {
+      this.actualRoute = null;
+      setActualRouterTemplate(this);
+      renderRouter(this);
+      return;
+    }
+    for (let i = this.context.list.length, a = 0; i > a; i--) {
+      destroy(
+        this.context.list.pop() as HTMLOgoneElement
+      );
+    }
+    renderContext(this, true);
+  }
 }
-window.customElements.define('ogone-node', OgoneBaseClass);
+// @ts-ignore it actually exists
+window.customElements.define(_ogone_node_, OgoneBaseClass);
 // Router implementation
 window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
 });
+const mapProxies: Map<unknown, Object> = new Map();
 export function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
-  const proxies: { [k: string]: Object } = {};
   return new Proxy(target, {
     get(obj: { [k: string]: unknown }, key: string, ...args: unknown[]) {
       let v;
       const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
       if (key === 'prototype') {
         v = Reflect.get(obj, key, ...args)
-      } else if (obj[key] instanceof Object && !proxies[id]) {
+      } else if (mapProxies.get(obj[key])) {
+        return mapProxies.get(obj[key]);
+      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !mapProxies.has(obj[key])) {
         v = setReactivity(obj[key] as Object, updateFunction, id);
-        proxies[id] = v;
+        mapProxies.set(obj[key], v);
       } else {
         v = Reflect.get(obj, key, ...args);
       }
@@ -198,7 +227,6 @@ export function setReactivity(target: Object, updateFunction: Function, parentKe
     deleteProperty(obj, key) {
       const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
       const v = Reflect.deleteProperty(obj, key)
-      delete proxies[id];
       updateFunction(id);
       return v;
     }
@@ -223,14 +251,36 @@ export async function imp(id: string, url?: string) {
     `));
   }
 };
-export function _ap(p, n) {
+export function _ap(p: HTMLElement, n: HTMLElement & HTMLOgoneElement) {
   n.placeholder ? p.append(n, n.placeholder) : p.append(n);
 }
 export function _h(...a: any[]) {
+  // @ts-ignore should fit
   return document.createElement(...a);
 }
 export function _at(n: Element, a: string, b: string) {
-  return n.setAttribute(a, b)
+  return n.setAttribute(a, b);
+};
+/**
+ * SVG with namespace
+ */
+const _svg_ns = 'http://www.w3.org/2000/svg';
+const _svg_xlinkNS = 'http://www.w3.org/1999/xlink';
+export function _hns(parent: SVGElement | string, ...a: any[]) {
+  if (typeof parent === 'string') {
+    // @ts-ignore should fit
+    return document.createElementNS(_svg_ns, parent);
+  } else {
+    // @ts-ignore should fit
+    return document.createElementNS(parent.namespaceURI, ...a);
+  }
+}
+export function _atns(parent: SVGElement | Element, n: Element | string, a: string, b: string) {
+  if (typeof n === 'string') {
+    return parent.setAttributeNS(null, n, a);
+  } else {
+    return (n as Element).setAttributeNS(null, a, b);
+  }
 };
 /**
  * function called right after Ogone.setOgone
@@ -250,11 +300,7 @@ export function construct(Onode: HTMLOgoneElement) {
     Onode.requirements = o.requirements;
     Onode.props = o.props;
     Onode.type = Ogone.types[Onode.extending!]!;
-    // define runtime for hmr
-    // Ogone.instances[o.uuid] = Ogone.instances[o.uuid] || [];
   }
-  // define templates of hmr
-  // Ogone.mod[node.extending] = Ogone.mod[node.extending] || [];
 }
 /**
  * function that will add the ogone parameters into the customElement
@@ -323,15 +369,8 @@ export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
 
     // usefull to delay actions on nodes
     methodsCandidate: [],
-    // overwrite properties
-    ...def,
   };
-  Object.entries(params)
-    .forEach(([key, value]: string[]) => {
-      try {
-        (Onode as { [k: string]: any })[key] = value;
-      } catch { }
-    })
+  Object.assign(Onode, params, def);
   // use the jsx function and save it into o.render
   // node function generates all the childNodes or the template
   Onode.renderNodes = Ogone.render[Onode.extending!];
@@ -344,6 +383,7 @@ export function setOgone(Onode: HTMLOgoneElement, def: OgoneParameters) {
     Onode.historyState = { query };
   }
   construct(Onode);
+  if (Ogone.subscribeComponent) Ogone.subscribeComponent(Onode);
 }
 /**
  * for dynamic attributes of any elements
@@ -478,15 +518,13 @@ export function removeNodes(Onode: HTMLOgoneElement) {
   function rm(n: any) {
     if (n.extending) {
       destroy(n);
-      // n.context.placeholder.remove();
+      // n.context.placeholder?.remove();
     } else {
       (n as HTMLElement).remove();
     }
   }
   if (o.actualTemplate) {
-    o.actualTemplate.forEach((n) => {
-      rm(n);
-    });
+    rm(o.actualTemplate);
   }
   o.nodes.forEach((n) => {
     rm(n);
@@ -508,9 +546,11 @@ export function destroy(Onode: HTMLOgoneElement) {
     OnodeDestroyPluggedWebcomponent(oc);
     oc.component.runtime("destroy");
     o.component.activated = false;
+    Onode.component.texts.splice(0);
+    Onode.component.react.splice(0);
   }
   // ogone: {% destroy.devTool %}
-  // Onode.placeholder.remove();
+  Onode.context.list.splice(0);
   Onode.remove();
 }
 /**
@@ -771,13 +811,13 @@ export function setActualRouterTemplate(Onode: HTMLOgoneElement) {
     o.actualRouteName = rendered.name || null;
   }
   if (!rendered) {
-    o.actualTemplate = new Comment();
+    o.actualTemplate = new Text(' ');
     o.actualRoute = null;
     o.routeChanged = true;
   } else if (
     rendered && !(rendered.once || o.actualRoute === rendered.component)
   ) {
-    const co = document.createElement("ogone-node") as HTMLOgoneElement;
+    const co = document.createElement(_ogone_node_) as HTMLOgoneElement;
     o.actualTemplate = co;
     o.actualRoute = rendered.component;
     o.routeChanged = true;
@@ -815,6 +855,7 @@ export function setActualRouterTemplate(Onode: HTMLOgoneElement) {
       isRoot: false,
       name: rendered.name || rendered.component,
       parentNodeKey: o.key,
+      routerCalling: o,
     };
     setOgone(co, ogoneOpts);
     ogoneOpts = null;
@@ -935,7 +976,7 @@ export function bindValue(Onode: HTMLOgoneElement) {
       n.value = evl;
     }
     if (
-      typeof k === "string" &&
+      typeof dependency === "string" &&
       k.indexOf(dependency as string) > -1 &&
       evl !== undefined && n.value !== evl
     ) {
@@ -944,6 +985,9 @@ export function bindValue(Onode: HTMLOgoneElement) {
     return n.isConnected;
   }
   for (let n of o.nodes) {
+    function bound() {
+
+    }
     (n as unknown as HTMLInputElement).addEventListener("keydown", (ev: Event) => {
       const k = o.flags.bind;
       const evl = o.getContext({
@@ -1125,115 +1169,6 @@ export function setDevToolContext(Onode: HTMLOgoneElement) {
     type: o.isTemplate ? o.isRoot ? "root" : oc.type : "element",
   });
 }
-export function displayError(message: string, errorType: string, errorObject: Error) {
-  // here we render the errors in development
-  if (!Ogone.errorPanel) {
-    const p = document.createElement("div");
-    Object.entries({
-      zIndex: "5000000",
-      background: "#00000097",
-      width: "100vw",
-      height: "100vh",
-      position: "fixed",
-      top: "0px",
-      left: "0px",
-      overflowY: "auto",
-      justifyContent: "center",
-      display: "grid",
-      flexDirection: "column",
-    }).forEach(([key, value]: [string, string]) => {
-      p.style[key as unknown as number] = value;
-    });
-    Ogone.errorPanel = p;
-  }
-  Ogone.errors++;
-  const err = document.createElement("div");
-  Object.entries({
-    zIndex: "5000000",
-    background: "#000000",
-    minHeight: "fit-content",
-    maxWidth: "70%",
-    padding: "21px",
-    color: "red",
-    borderLeft: "3px solid red",
-    margin: "auto",
-    display: "inline-flex",
-    flexDirection: "column",
-  }).forEach(([key, value]) => err.style[key as unknown as number] = value);
-  const errorId = Ogone.errors;
-  const code = document.createElement("code");
-  const stack = document.createElement("code");
-  const h = document.createElement("h4");
-  // set the text
-  h.innerText = `[Ogone] Error ${errorId}: ${errorType ||
-    "Undefined Type"}`;
-  code.innerText = `${message.trim()}`;
-  stack.innerText = `${errorObject && errorObject.stack ?
-    errorObject.stack.replace(message, "")
-    : ""
-    }`;
-  // check if stack is empty or not
-  if (!stack.innerText.length && errorObject && errorObject.message) {
-    stack.innerText = `${errorObject && errorObject.message ? errorObject.message : ""
-      }`;
-  }
-  !stack.innerText.length ? stack.innerText = "undefined stack" : "";
-  // set the styles
-  code.style.marginLeft = "20px";
-  code.style.whiteSpace = "pre-wrap";
-  code.style.wordBreak = "break-word";
-  stack.style.marginLeft = "20px";
-  stack.style.color = "#dc7373";
-  stack.style.padding = "17px";
-  stack.style.background = "#462626";
-  stack.style.whiteSpace = "pre-wrap";
-  stack.style.wordBreak = "break-word";
-  stack.style.border = "1px solid";
-  stack.style.marginTop = "10px";
-  h.style.color = "#8c8c8c";
-  if (!Ogone.firstErrorPerf) {
-    Ogone.firstErrorPerf = performance.now();
-  }
-  if (Ogone.errorPanel) {
-    Ogone.errorPanel.style.paddingTop = "30px";
-    // set the grid of errors
-    err.style.gridArea = `e${errorId}`;
-    const m = 2;
-    let grid = "";
-    let i = 0;
-    let a = 0;
-    for (i = 0, a = Ogone.errorPanel.childNodes.length + 1; i < a; i++) {
-      grid += `e${i + 1} `;
-    }
-    let b = i;
-    while (i % m) {
-      grid += `e${b} `;
-      i++;
-    }
-    const cells = grid.split(" ");
-    var o, j, temparray, chunk = m;
-    let newgrid = "";
-    for (o = 0, j = cells.length - 1; o < j; o += chunk) {
-      temparray = cells.slice(o, o + chunk);
-      newgrid += ` "${temparray.join(" ")}"`;
-    }
-    Ogone.errorPanel.style.gridGap = "10px";
-    Ogone.errorPanel.style.gridAutoRows = "max-content";
-    Ogone.errorPanel.style.gridTemplateRows = "masonry";
-    Ogone.errorPanel.style.gridTemplateAreas = newgrid;
-    err.style.animationName = "popup";
-    err.style.animationIterationCount = "1";
-    err.style.animationDuration = "0.5s";
-    // append elements
-    err.append(h, code, stack);
-    Ogone.errorPanel.append(err);
-    Ogone.errorPanel.style.pointerEvents = "scroll";
-    //  append only if it's not in the document
-    !Ogone.errorPanel.isConnected
-      ? document.body.append(Ogone.errorPanel)
-      : [];
-  }
-};
 
 export function showPanel(panelName: 'infos' | 'error' | 'success' | 'warn', time: number | undefined) {
   const panel = panelName === 'infos' ?
@@ -1274,122 +1209,6 @@ export function infosMessage(opts: { message: string; }) {
   Ogone.infosPanel!.innerHTML = opts.message;
   showPanel("infos", 2000);
 }
-export async function hmr(url: string) {
-  try {
-    const mod = await import(`${url}?p=\${performance.now()}`);
-    const keys = Object.keys(Ogone.mod);
-    keys.filter((key) => key === url).forEach((key) => {
-      Ogone.mod[key] = mod;
-    });
-    Ogone.mod["*"]
-      .forEach(([key, f]: [string, any], i, arr) => {
-        key === url && f && !f(mod) ? delete arr[i] : 0;
-      });
-    return mod;
-  } catch (err) {
-    displayError(err.message, "HMR-Error", new Error(`
-    module's url: ${url}
-    `));
-    throw err;
-  }
-}
-export async function hmrTemplate(uuid: string | number, pragma: any) {
-  try {
-    const templates = Ogone.mod[uuid];
-    if (templates) {
-      templates.forEach((f: (arg0: any) => any, i: string | number, arr: { [x: string]: any; }) => {
-        f && !f(pragma) ? delete arr[i] : 0;
-      });
-    }
-    return templates;
-  } catch (err) {
-    displayError(err.message, "HMR-Error", err);
-    throw err;
-  }
-}
-export async function hmrRuntime(uuid: string | number, runtime: { bind: (arg0: any) => any; }) {
-  try {
-    const components = Ogone.instances[uuid];
-    if (components) {
-      components.forEach((c, i, arr) => {
-        if (c.component.activated) {
-          c.component.runtime = runtime.bind(c.component.data);
-          c.component.runtime(0);
-          OnodeRenderTexts(c, true);
-        } else {
-          delete arr[i];
-        }
-      });
-    }
-    return components;
-  } catch (err) {
-    displayError(err.message, "HMR-Error", err);
-    throw err;
-  }
-}
-export function startConnection() {
-  if (Ogone.isDeno) {
-    // createServer();
-  } else {
-    createClient();
-  }
-}
-export function createClient() {
-  const ws = new WebSocket(`ws://localhost:${Ogone.websocketPort}/`);
-  ws.onmessage = (msg) => {
-    const { url, type, uuid, pragma, ctx, style, runtime } = JSON.parse(
-      msg.data,
-    );
-    if (type === "javascript") {
-      hmr(url).then(() => {
-        console.warn("[Ogone] hmr:", url);
-        infosMessage({
-          message: `[HMR] module updated: ${url}`,
-        });
-      });
-    }
-    if (type === "template" && pragma && uuid) {
-      eval(ctx);
-      hmrTemplate(uuid, pragma).then(() => {
-        infosMessage({
-          message: `[HMR] template updated: ${uuid}`,
-        });
-      });
-    }
-    if (type === "reload") {
-      console.warn("[Ogone] hmr: reloading the application");
-      infosMessage({
-        message: `[HMR] socket lost. Reloading your application`,
-      });
-      setTimeout(() => {
-        location.reload();
-      }, 1000);
-    }
-    if (type === "style") {
-      const styleElement = document.querySelector(`style[id="${uuid}"]`);
-      if (styleElement) styleElement.innerHTML = style;
-      infosMessage({
-        message: `[HMR] style updated: ${uuid}`,
-      });
-    }
-    if (type === "runtime") {
-      const r = eval(runtime);
-      hmrRuntime(uuid, (r || function () { })).then(() => {
-        infosMessage({
-          message: `[HMR] component updated: ${uuid}`,
-        });
-      });
-    }
-  };
-
-  ws.onclose = () => {
-    setTimeout(() => {
-      console.warn("[Ogone] ws closed: reloading");
-      location.reload();
-    }, 1000);
-  };
-  return ws;
-}
 /**
  * fake slot replacement inside the component
  * // TODO use native slot implementation
@@ -1425,7 +1244,7 @@ export function renderSlots(Onode: HTMLOgoneElement) {
  */
 export function renderNode(Onode: HTMLOgoneElement) {
   const o = Onode, oc = Onode;
-  if (!oc) return;
+  if (!Onode) return;
   if (o.isTemplate) {
     // update Props before replace the element
     OnodeUpdateProps(Onode);
@@ -1460,11 +1279,10 @@ export function renderNode(Onode: HTMLOgoneElement) {
         },
       });
     }
-  } else if (oc) {
+  } else {
     if (Onode.childNodes.length) {
       renderSlots(Onode);
     }
-    OnodeRenderTexts(Onode, true);
     Onode.replaceWith(...(o.nodes as Node[]));
   }
 }
@@ -1507,7 +1325,7 @@ export function renderRouter(Onode: HTMLOgoneElement) {
   }
   if (o.routeChanged) {
     o.replacer.innerHTML = "";
-    o.replacer.append(o.actualTemplate as unknown as Node, o.actualTemplate!.placeholder);
+    o.replacer.append(o.actualTemplate as unknown as Node, (o.actualTemplate! as HTMLOgoneElement).placeholder);
   }
   // run case router:xxx on the router component
   oc.component.runtime(`router:${o.actualRouteName || o.locationPath}`, history.state);
@@ -1521,7 +1339,7 @@ export function renderAsyncRouter(Onode: HTMLOgoneElement) {
   const filter = (t: any) => t.isComponent && t.isRouter;
   const s = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
-    const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
+    const arrayOfTemplates = Array.from(n.querySelectorAll(_ogone_node_))
       .filter(filter) as typeof s;
     for (let template of arrayOfTemplates) {
       s.push(template);
@@ -1540,7 +1358,7 @@ export function renderAsyncStores(Onode: HTMLOgoneElement) {
   const filter = (t: any) => t.isComponent && t.component && t.isStore;
   const asyncStores = o.nodes.filter(filter) as HTMLOgoneElement[];
   for (let n of o.nodes.filter((n) => n.nodeType === 1)) {
-    const arrayOfTemplates = Array.from(n.querySelectorAll("ogone-node"))
+    const arrayOfTemplates = Array.from(n.querySelectorAll(_ogone_node_))
       .filter(filter) as typeof asyncStores;
     for (let template of arrayOfTemplates) {
       asyncStores.push(template);
@@ -1560,7 +1378,7 @@ export function renderAsyncComponent(Onode: HTMLOgoneElement) {
   if (!oc || !o || !o.nodes) return;
   const filter = (t: any) => t.isComponent && t.isAsync && t.flags && t.flags.await;
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
-    const awaitingNodes = Array.from(node.querySelectorAll("ogone-node"))
+    const awaitingNodes = Array.from(node.querySelectorAll(_ogone_node_))
       .filter(filter) as HTMLOgoneElement[];
     if (
       node.isComponent && node && node.component && node.component.type === "async"
@@ -1606,7 +1424,7 @@ export function renderComponent(Onode: HTMLOgoneElement) {
   if (!o.nodes) return;
   const filter = (t: any) => t.component && t.component.type === "component";
   for (let node of o.nodes.filter((n) => n.nodeType === 1)) {
-    const components = Array.from(node.querySelectorAll("ogone-node"))
+    const components = Array.from(node.querySelectorAll(_ogone_node_))
       .filter(filter) as HTMLOgoneElement[];
     let n = (node as HTMLOgoneElement);
     if (
@@ -1734,9 +1552,10 @@ export function renderingProcess(Onode: HTMLOgoneElement) {
  * or of the parent component if it's already a component
  * the component render function will duplicate the element using the user's --for flag
  */
-export function renderContext(Onode: HTMLOgoneElement) {
+export function renderContext(Onode: HTMLOgoneElement, force?: boolean) {
   const o = Onode, oc = Onode;
-  if (!oc || !o.getContext || !o.isOriginalNode) return false;
+  if (!force && (!oc || !o.getContext || !o.isOriginalNode)) return false;
+  if (!o.getContext) return false;
   const length = o.getContext(
     { getLength: true, position: o.position },
   ) as number;
@@ -1776,36 +1595,6 @@ export function setDeps(Onode: HTMLOgoneElement) {
     renderContext(o);
   }
 }
-export function setHMRContext(Onode: HTMLOgoneElement) {
-  const o = Onode, oc = Onode;
-  // register to hmr
-  if (o.isTemplate && oc && o.uuid) {
-    Ogone.instances[o.uuid].push(oc);
-  }
-  Ogone.mod[Onode.extending!].push((pragma: string) => {
-    Ogone.render[Onode.extending!] = eval(pragma);
-    if (!o.nodes) return;
-    if (o.isTemplate) {
-      return true;
-    } else if (oc) {
-      const invalidatedNodes = o.nodes.slice();
-      const ns = Array.from(o.nodes);
-      o.renderNodes = Ogone.render[Onode.extending!];
-      renderingProcess(Onode);
-      invalidatedNodes.forEach((n, i) => {
-        if (n.extending) {
-          if (i === 0) n.firstNode.replaceWith(...ns);
-          destroy(n);
-        } else {
-          if (i === 0) n.replaceWith(...ns);
-          (n as HTMLElement).remove();
-        }
-      });
-      OnodeRenderTexts(oc, true);
-      return true;
-    }
-  });
-}
 export function routerGo(url: string, state: any) {
   if (Ogone.actualRoute === url) return;
   // protect from infinite loop
@@ -1837,12 +1626,23 @@ export function OnodeUpdate(Onode: HTMLOgoneElement, dependency?: string) {
     },
   );
 };
-export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true) {
-  if (!Onode.component.activated) return;
-  Onode.component.texts.forEach((t: Function, i: number, arr: Function[]) => {
+export function OnodeRenderTexts(Onode: HTMLOgoneElement, dependency: string | true, opts: { parent?: HTMLOgoneElement } = {}) {
+  Onode.component.texts.forEach((t: HTMLOgoneText, i: number, arr: HTMLOgoneText[]) => {
     // if there is no update of the texts
     // this can be the reason why
-    if (t && !t(dependency)) delete arr[i];
+    const { code, position, dependencies, getContext } = t;
+    if (dependencies && !dependencies.includes(dependency as string)) return;
+    if (Onode.component.activated) {
+      if (!getContext) return delete arr[i];
+      if (typeof dependency === 'string' && code.indexOf(dependency) < 0) return;
+      const v = getContext({
+        getText: code,
+        position,
+      });
+      if (t.data !== v) t.data = (v.length ? v : ' ');
+    } else {
+      delete arr[i];
+    }
   });
 };
 export function OnodeReactions(Onode: HTMLOgoneElement, dependency: string) {
@@ -2015,21 +1815,21 @@ export function OnodeListRendering(
       routes: Onode.routes,
 
       parentNodeKey: Onode.parentNodeKey,
-      ...(!callingNewComponent ? {
-        component: Onode.component,
-        nodeProps: Onode.nodeProps,
-      } : {
-          props: Onode.props,
-          dependencies: Onode.dependencies,
-          requirements: Onode.requirements,
-          params: Onode.params,
-          parentComponent: Onode.parentComponent,
-          parentCTXId: Onode.parentCTXId,
-          positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
-            .slice() : [],
-          levelInParentComponent: Onode.levelInParentComponent,
-        }),
     };
+    Object.assign(ogoneOpts, (!callingNewComponent ? {
+      component: Onode.component,
+      nodeProps: Onode.nodeProps,
+    } : {
+      props: Onode.props,
+      dependencies: Onode.dependencies,
+      requirements: Onode.requirements,
+      params: Onode.params,
+      parentComponent: Onode.parentComponent,
+      parentCTXId: Onode.parentCTXId,
+      positionInParentComponent: Onode.positionInParentComponent ? Onode.positionInParentComponent
+        .slice() : [],
+      levelInParentComponent: Onode.levelInParentComponent,
+    }));
     setOgone(node, ogoneOpts as unknown as OgoneParameters);
     ogoneOpts = null;
     Onode.placeholder.replaceWith(node, Onode.placeholder);

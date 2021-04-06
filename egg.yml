@@ -1,25 +1,21 @@
 name: Ogone
-repository: https://github.com/SRNV/Ogone
-version: 0.28.0
-description: >-
-  Web-Components compiler to create front-end modern Apps (SPA, PWA)
-stable: true
+repository: 'https://github.com/SRNV/Ogone'
+version: 0.28.10
+description: Advanced Web Composition for Future
+stable: false
 files:
+  - ./cli/**/*
   - ./docs/**/*
-  - ./classes/**/*
-  - ./enums/**/*
-  - ./workers/**/*
+  - ./deps/**/*
   - ./examples/**/*
-  - ./lib/**/*
-  - ./public/**/*
   - ./src/**/*
   - ./tests/**/*
-  - ./types/**/*
   - ./utils/**/*
-  - ./externals/**/*
-  - .d.ts
-  - deps.ts
   - mod.ts
   - README.md
-  - tsconfig.json
-  - yaml-config.ts
+  - LICENSE
+check: false
+entry: ./mod.ts
+homepage: 'https://github.com/SRNV/Ogone'
+ignore: []
+unlisted: false

@@ -3,10 +3,14 @@ import { Utils } from "./Utils.ts";
 export abstract class Configuration {
   /**
    * @property entrypoint
-   * @description path to the root component, this one has to be an untyped component
+   * @description path to the root component, this one has to be an app component
    */
   public static entrypoint: string = "/index.o3";
-
+  /**
+   * should be used with build option
+   * this will render the deploy.ts file inside the destination folder
+   */
+  public static deploySPA?: boolean;
   /**
    * @property port
    * @description which port to use for development
@@ -17,7 +21,7 @@ export abstract class Configuration {
    * @property static
    * @description allow user to serve files to client
    */
-  public static ["static"]?: string = "/public";
+  public static ["static"]?: string = "/public/";
 
   /**
    * @property modules
@@ -70,6 +74,7 @@ export abstract class Configuration {
    * if the webview is required by the end user
    */
   public static OgoneDesignerOpened: boolean = false;
+  private static savedHead?: string;
   /**
    * @param {typeof Configuration} config
    * set the current global configuration of the compiler
@@ -84,7 +89,6 @@ export abstract class Configuration {
       Configuration.entrypoint = config.entrypoint;
       Configuration.port = config.port ? config.port : 0;
       Configuration.static = config.static;
-      Configuration.head = config.head;
       Configuration.controllers = config.controllers;
       Configuration.devtool = config.devtool;
       Configuration.minifyCSS = config.minifyCSS;
@@ -92,6 +96,24 @@ export abstract class Configuration {
       Configuration.build = config.build;
       Configuration.serve = config.serve;
       Configuration.types = config.types;
+      Configuration.deploySPA = config.deploySPA;
+    } catch (err) {
+      Utils.error(`Configuration: ${err.message}
+${err.stack}`);
+    }
+  }
+  static setHead(head: string): boolean {
+    try {
+      Configuration.head = head;
+      if (!Configuration.savedHead) {
+        Configuration.savedHead = head;
+        return false;
+      }
+      if (Configuration.savedHead !== head) {
+        Configuration.savedHead = head;
+        return true;
+      }
+      return false;
     } catch (err) {
       Utils.error(`Configuration: ${err.message}
 ${err.stack}`);

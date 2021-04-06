@@ -1,56 +1,54 @@
+import type { ButtonInterface } from '../../public/modules/menu-button-types.ts';
+
 <template>
+  <style>
+    .container {
+      display: inline-flex;
+      background: var(--o-header);
+      height: 100%;
+      width:  min-content;
+      vertical-align: middle;
+      align-items: center;
+      padding: 23px;
+      text-transform: capitalize;
+      color: #afafaf;
+      cursor: pointer;
+      user-select: none;
+      &:hover {
+        background: var(--o-primary);
+        color: var(--o-background);
+      }
+    }
+    .ok, .in-progress, .todo {
+      height: 3px;
+      width: 3px;
+      padding: 3px;
+      border-radius: 20px;
+      margin: 5px;
+    }
+    .ok {
+      background: var(--o-success)
+    }
+    .todo {
+      background: var(--o-error)
+    }
+    .in-progress {
+      background: var(--o-info)
+    }
+  </style>
   <div class="container" --router-go={this.buttonOpts.route}>
     ${this.buttonOpts.name}
     <span class="ok" --if={this.buttonOpts.status === 'ok'}></span>
-    <span class="todo" --if={this.buttonOpts.status === 'todo'}></span>
-    <span class="in-progress" --if={this.buttonOpts.status === 'in-progress'}></span>
+    <span class="todo" --else-if={this.buttonOpts.status === 'todo'}></span>
+    <span class="in-progress" --else-if={this.buttonOpts.status === 'in-progress'}></span>
   </div>
 </template>
 
 <proto type="component">
   declare:
-    inherit buttonOpts: {
-      name: string;
-      route: string;
-      status: 'ok' | 'todo' | 'in-progress';
-    } = {
+    inherit buttonOpts: ButtonInterface = {
       name: 'Test',
       route: '',
       status: 'todo'
     };
 </proto>
-<style>
-  .container {
-    display: inline-flex;
-    background: var(--o-header);
-    height: 100%;
-    width:  min-content;
-    vertical-align: middle;
-    align-items: center;
-    padding: 23px;
-    text-transform: capitalize;
-    color: #afafaf;
-    cursor: pointer;
-    user-select: none;
-    &:hover {
-      background: var(--o-primary);
-      color: var(--o-background);
-    }
-  }
-  .ok, .in-progress, .todo {
-    height: 3px;
-    width: 3px;
-    padding: 3px;
-    border-radius: 20px;
-    margin: 5px;
-  }
-  .ok {
-    background: var(--o-success)
-  }
-  .todo {
-    background: var(--o-error)
-  }
-  .in-progress {
-    background: var(--o-info)
-  }
-</style>

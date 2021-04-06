@@ -1,4 +1,9 @@
 <template>
+  <style>
+    div {
+      color: red;
+    }
+  </style>
   <div> Typed: ${this.inherited.test}</div>
   <div> Typed: ${this.test}</div>
 </template>
@@ -11,8 +16,3 @@
       console.warn('TypedComponent', this.inherited);
     }, 1000);
 </proto>
-<style>
-  div {
-    color: red;
-  }
-</style>

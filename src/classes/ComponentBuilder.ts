@@ -2,7 +2,8 @@ import XMLParser from "./XMLParser.ts";
 import type { Bundle, XMLNodeDescription, Component } from "../ogone.main.d.ts";
 import MapFile, { FileDescription } from "./MapFile.ts";
 import { Utils } from "./Utils.ts";
-
+import { join, normalize } from "../../deps/deps.ts";
+import { copyN } from "https://deno.land/std@0.65.0/io/ioutil.ts";
 /**
  * @name ComponentBuilder
  * @code OCB2
@@ -19,6 +20,7 @@ import { Utils } from "./Utils.ts";
  * ```
  */
 export default class ComponentBuilder extends Utils {
+  public static mapUuid: Map<string, string> = new Map();
   /**
    * instance to parse xml
    * no xml error is thrown
@@ -29,6 +31,7 @@ export default class ComponentBuilder extends Utils {
    */
   protected XMLParser = new XMLParser();
   getComponent(
+    source: string,
     opts: Pick<Component, "rootNode" | "file" | "remote">,
   ): Component {
     try {
@@ -36,10 +39,34 @@ export default class ComponentBuilder extends Utils {
         .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "template");
       const head = template && template.childNodes
         .find((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "head");
+      const styles: XMLNodeDescription[] = [];
+      /**
+       * save styles only if they are the very firsts children
+       * of the template node
+       */
+      if (template
+        && !(template.attributes.private || template.attributes.protected)) {
+        for (let n of template.childNodes) {
+          if (n.nodeType === 1 && n.tagName === "style") {
+            template.childNodes.splice(
+              template.childNodes.indexOf(n),
+              1);
+            styles.push(n);
+          } else if (n.nodeType === 1 && n.tagName !== "head") {
+            break;
+          }
+        }
+      }
       const protos = opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "proto");
+      const uuid = ComponentBuilder.mapUuid.get(opts.file) || `o${crypto.getRandomValues(new Uint32Array(1)).join('')}`;
       return {
-        uuid: `data-${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
+        uuid,
+        source,
         isTyped: false,
+        get isRecursive() {
+          return !!this.rootNode?.nodeList.find((node) => node.nodeType === 1
+            && node.tagName === "Self");
+        },
         dynamicImportsExpressions: "",
         esmExpressions: "",
         exportsExpressions: "",
@@ -48,7 +75,9 @@ export default class ComponentBuilder extends Utils {
         scripts: {
           runtime: "function run(){};",
         },
-        imports: {},
+        imports: {
+          Self: opts.file,
+        },
         deps: [],
         flags: [],
         for: {},
@@ -66,7 +95,7 @@ export default class ComponentBuilder extends Utils {
         ...opts,
         mapStyleBundle: undefined,
         elements: {
-          styles: opts.rootNode.childNodes.filter((n: XMLNodeDescription) => n.nodeType === 1 && n.tagName === "style"),
+          styles,
           template,
           proto: protos,
           head,
@@ -108,11 +137,17 @@ ${err.stack}`);
         const overwrite = Array.from(MapFile.files).find((item: [string, FileDescription]) => item[0].endsWith(path));
         const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, overwrite ? overwrite[1].content : file);
         if (rootNode) {
-          const component = this.getComponent({
+          const component = this.getComponent(file, {
             rootNode,
             file: index,
             remote: null,
           });
+          if (!ComponentBuilder.mapUuid.get(index)) {
+            ComponentBuilder.mapUuid.set(index, component.uuid);
+            ComponentBuilder.mapUuid.set(
+              normalize(join(Deno.cwd(), index)),
+              component.uuid);
+          }
           bundle.components.set(
             index,
             component,
@@ -126,7 +161,7 @@ ${err.stack}`);
         const index = path;
         const rootNode: XMLNodeDescription | null = this.XMLParser.parse(path, file);
         if (rootNode) {
-          const component = this.getComponent({
+          const component = this.getComponent(file, {
             remote,
             rootNode,
             file: index,

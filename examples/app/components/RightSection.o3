@@ -1,6 +1,6 @@
 <template private>
   <style>
-    @const value = ${this.scrollY}px;
+    @const value = 2px;
     .container {
       position: fixed;
       top: 35%;
@@ -9,7 +9,7 @@
       right: 0;
       background: #2f3035;
       border-radius: 5px 0 0 5px;
-      filter: drop-shadow(0px $value 4px #00000086) blur(${this.scrollY / 100}px);
+      filter: drop-shadow(0px $value 4px #00000086);
     }
   </style>
   <div class="container">${this.scrollY}</div>

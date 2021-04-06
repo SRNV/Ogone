@@ -28,6 +28,10 @@ export const members: Analysis[] = [
         value: "readonly stores: { [k: string]: { [k: string]: any } };",
       },
       {
+        reg: /\bOgone.require\b/,
+        value: "readonly require: { [k: string]: any };",
+      },
+      {
         reg: /\bOgone.clients\b/,
         value: `readonly clients: [
           string,

@@ -47,6 +47,7 @@ export enum Context {
    */
   TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_FUNCTION = `{% async %} function runtime (_state: string | number, ctx: any, event: any, _once: number = 0) {
     try {
+      {% modules %}
       {% body %}
     } catch(err) {
       // @ts-ignore

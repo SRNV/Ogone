@@ -1,50 +1,52 @@
-<style>
-  @export const container = #234543F;
-  @export const rule = div {
-    color: $container;
-    a:not(.test#lmm) {
-      color: blue;
-    }
-  };
-  @const gridName = auto;
-  @const* list = [];
-  @media (width < 100px) {
-    div {
-      ...$rule;
-      grid: $gridName;
-      @media (width < 10px) {
-        grid: red;
+<template>
+  <style>
+    @export const container = #234543F;
+    @export const rule = div {
+      color: $container;
+      a:not(.test#lmm) {
+        color: blue;
+      }
+    };
+    @const gridName = auto;
+    @const* list = [];
+    @media (width < 100px) {
+      div {
+        ...$rule;
+        grid: $gridName;
+        @media (width < 10px) {
+          grid: red;
+        }
       }
     }
-  }
-  span {
-    @media (height > 10px) {
-      grid: red;
+    span {
+      @media (height > 10px) {
+        grid: red;
+      }
+      @keyframes animationName {
+        animation-duration: 1s;
+        color: blue
+          | red ;
+        background: #45FF23
+          | red ;
+        grid-template:
+          "v v"
+          "a a"
+          | "a v"
+            "a v";
+      }
+      @keyframes fade-in {
+        animation-duration: 2s;
+        animation-timing-function: ease;
+        opacity: 0 | 1;
+      }
     }
-    @keyframes animationName {
-      animation-duration: 1s;
-      color: blue
-        | red ;
-      background: #45FF23
-        | red ;
-      grid-template:
-        "v v"
-        "a a"
-        | "a v"
-          "a v";
+    @keyframes animationName2 {
+      0% {
+        color: blue;
+      }
+      100% {
+        color: red;
+      }
     }
-    @keyframes fade-in {
-      animation-duration: 2s;
-      animation-timing-function: ease;
-      opacity: 0 | 1;
-    }
-  }
-  @keyframes animationName2 {
-    0% {
-      color: blue;
-    }
-    100% {
-      color: red;
-    }
-  }
-</style>
+  </style>
+</template>

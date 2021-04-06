@@ -45,14 +45,17 @@ function readDestructuration(destructured: string, opts: {
     throw err;
   }
 }
-function* gen(i: number): Generator {
-  yield i;
+let i = 0;
+function reinit() {
+  i = 0;
+}
+function* gen(): Generator {
   while (true) {
     yield i++;
   }
 }
-const iterator: Generator = gen(0);
-const arrayAliasIterator: Generator = gen(0);
+const iterator: Generator = gen();
+const arrayAliasIterator: Generator = gen();
 iterator.next().value
 arrayAliasIterator.next().value
 /**
@@ -67,6 +70,7 @@ arrayAliasIterator.next().value
 export default class ForFlagBuilder extends Utils {
   public startAnalyze(bundle: Bundle) {
     try {
+      reinit();
       const entries = bundle.components.entries();
       for (let [path, component] of entries) {
         this.read(bundle, path, component.rootNode);
@@ -183,11 +187,13 @@ ${err.stack}`);
             const reg = /^((this\.){0,1}[\w\d]+?)(\b)(.*?)$/i;
             const arrayMatch = reg.test(array);
             const parentItem = array.replace(reg, '$1')
+            const ogoneRefsForArrays = `Ogone.arrays[${component!.uuid.replace(/\-/, '_')}_${node.id}]`;
             const preventError = `!!${parentItem}
             && ${array} || []`;
-            const declarationScript = [`const ${arrayAlias} = ${arrayMatch ? preventError : `${array}`};`, `
+            const declarationScript = [`const ${arrayAlias} = ${!component?.isRecursive ? ogoneRefsForArrays + ' ||': ''} ${arrayMatch ? preventError : `${array}`};`, `
                           let ${index} = POSITION[${contextLegacy.limit}],
                           ${item} = (${arrayAlias})[${index}];`,
+                          !component?.isRecursive ? `if (${ogoneRefsForArrays} !== ${arrayAlias}) ${ogoneRefsForArrays} = ${arrayAlias};` : '',
             aliasItem ? `const ${aliasItem} = (${arrayAlias})[${index}];` : '',
             ];
             if (contextLegacy && contextLegacy.declarationScript) {
@@ -199,7 +205,6 @@ ${err.stack}`);
       }
       if (node.childNodes?.length) {
         for (let el of node.childNodes) {
-          const i = node.childNodes.indexOf(el);
           if (component && component.data && el.nodeType === 3) {
             const data = el.rawText;
             Object.keys(component.data).forEach((key) => {

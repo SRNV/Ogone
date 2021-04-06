@@ -1,6 +1,7 @@
 import type { Bundle, ImportDescription } from "../ogone.main.d.ts";
 import { Utils } from "./Utils.ts";
 import AssetsParser from './AssetsParser.ts';
+import Dependency from "./Dependency.ts";
 /**
  * @name ImportsAnalyzer
  * @code OIA3
@@ -35,52 +36,14 @@ export default class ImportsAnalyzer extends Utils {
             const importBody = this.AssetsParser.parseImportStatement(declarations);
             if (importBody.body && importBody.body.imports) {
               const { imports } = importBody.body;
-              component.deps = (Object.values(imports) as ImportDescription[]).filter((imp: ImportDescription) => !imp.isComponent) as ImportDescription[];
-              component.dynamicImportsExpressions = Object.entries(imports)
-                .filter(([key, imp]: [string, any]) => !imp.path.endsWith('.o3'))
-                .map(
-                  ([key, imp]: [string, any]) => {
-                    // TODO fix examples/tests/modules/index.ts
-                    const hmrModule = {
-                      registry: 'Ogone.mod',
-                      variable: '',
-                      path: imp.path,
-                      isDefault: false,
-                      isAllAs: false,
-                      isMember: false,
-                    };
-                    if (imp.default) {
-                      hmrModule.variable = imp.defaultName;
-                      hmrModule.isDefault = true;
-                      component.modules.push(imp.getHmrModuleSystem(hmrModule));
-                    }
-                    if (imp.allAs) {
-                      hmrModule.variable = imp.allAsName;
-                      hmrModule.isAllAs = true;
-                      component.modules.push(imp.getHmrModuleSystem(hmrModule));
-                    }
-                    if (imp.object) {
-                      hmrModule.isMember = true;
-                      imp.members.forEach((element: any) => {
-                        hmrModule.variable = element.alias || element.name;
-                        component.modules.push(imp.getHmrModuleSystem(hmrModule));
-                      });
-                    }
-                    return imp.dynamic('Ogone.imp', component.file);
-                  },
-                ).join("\n");
-              // @ts-ignore
-              // save esm tokens for production
-              component.esmExpressions = Object.entries(imports).map(
-                ([key, imp]: [string, any]) => {
-                  if (imp.isComponent) return '';
-                  return imp.static(component.file);
-                },
-              ).join("\n");
+              component.deps = (Object.values(imports) as ImportDescription[])
+                .filter((imp: ImportDescription) => !imp.isComponent)
+                .map((imp: ImportDescription): Dependency => new Dependency(component, imp));
             }
             if (importBody.body && importBody.body.imports) {
               // @ts-ignore
-              Object.values(importBody.body.imports).forEach((item: any) => {
+              Object.values(importBody.body.imports)
+              .forEach((item: any) => {
                 if (!item.isComponent && item.path.endsWith('.o3')) {
                   this.error(`${component.file}
                     Wrong Syntax for Component importation
@@ -105,6 +68,13 @@ export default class ImportsAnalyzer extends Utils {
                   case tagName === "proto":
                     this.error(
                       `proto is a reserved tagname, don\'t use it as selector of your component.
+                      input: import component ${item.defaultName} from ${item.path}
+                      component: ${component.file}
+                    `,
+                    );
+                  case tagName === "Self":
+                    this.error(
+                      `Self is a reserved tagname, don\'t use it as selector of your component.
                       input: import component ${item.defaultName} from ${item.path}
                       component: ${component.file}
                     `,

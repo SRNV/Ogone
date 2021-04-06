@@ -10,8 +10,21 @@ export class OgoneCLI extends Utils {
     switch (command) {
       case Commands.CREATE:
         break;
-      case Commands.BUILD:
-        break;
+      case Commands.BUILD: {
+        const [, entrypoint, build] = Deno.args;
+        o3.run({
+          entrypoint,
+          build,
+        });
+      }
+      case Commands.DEPLOY: {
+        const [, entrypoint, build] = Deno.args;
+        o3.run({
+          entrypoint,
+          build,
+          deploySPA: true,
+        });
+      }
       case Commands.LINT:
         break;
       case Commands.FMT:

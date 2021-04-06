@@ -6,7 +6,6 @@ import type {
 import getDeepTranslation from "./template-recursive.ts";
 import exports from "./esm-exports.ts";
 import { getMembersKeys, getMembers } from './get-members.ts';
-import { join } from '../deps/deps.ts';
 function getHmrModuleSystem({
   variable,
   registry,
@@ -50,12 +49,15 @@ const esm: ProtocolScriptRegExpList = [
         const type = path.startsWith('.') ? 'relative' :
           path.startsWith('@') ? 'absolute':
           'remote';
+        const isRemote = path.startsWith('http://')
+          || path.startsWith('https://');
         typedExpressions.imports[id] = {
           key: id,
           uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
           value,
           path,
           type,
+          isRemote,
           ambient: true,
           allAs: false,
           object: false,
@@ -64,18 +66,6 @@ const esm: ProtocolScriptRegExpList = [
           allAsName: null,
           getHmrModuleSystem,
           members: [],
-          static: (namespace: string) => {
-            if (type === 'remote') return getDeepTranslation(value, expressions);
-            const result = getDeepTranslation(value, expressions);
-            return result;
-          },
-          dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {
-            if (type === 'remote') return `${importFn}('${path}'),`;
-            const baseUrl = new URL(import.meta.url);
-            baseUrl.pathname = join(Deno.cwd(), namespace);
-            const newUrl = new URL(path, baseUrl);
-            return `${importFn}('${path}', '${newUrl.pathname}'),`
-          },
         };
       }
       return id;
@@ -85,27 +75,33 @@ const esm: ProtocolScriptRegExpList = [
   {
     name: "all imports",
     open: false,
-    reg: /(\bimport\b)(\s+component\s+){0,1}(.+?)(\bfrom\b)(.*?)(?=(§{2}endExpression\d+§{2}|;|\n+))/i,
+    reg: /(\bimport\b)(\s+(?:component|type)\s+){0,1}(.+?)(\bfrom\b)(.*?)(?=(§{2}endExpression\d+§{2}|;|\n+))/i,
     id: (value, matches, typedExpressions, expressions) => {
       if (!expressions || !matches) {
         throw new Error("expressions or matches are missing");
       }
       const id = `§§import${gen.next().value}§§`;
-      const [input, imp, isComponent, tokens, f, str] = matches;
+      const [input, imp, importType, tokens, f, str] = matches;
       expressions[id] = value;
+      const isComponent = importType && importType.trim() === 'component' || false;
+      const isType = importType && importType.trim() === 'type' || false;
       if (typedExpressions) {
         const importDescription = getMembers(
           getDeepTranslation(tokens, expressions)
-        );
-        const path = getDeepTranslation(str, expressions).replace(/['"\s`]/gi, "");
+          );
+          const path = getDeepTranslation(str, expressions).replace(/['"\s`]/gi, "");
+        const isRemote = path.startsWith('http://')
+          || path.startsWith('https://');
         const type = path.startsWith('.') ? 'relative' :
           path.startsWith('@') ? 'absolute':
           'remote';
         typedExpressions.imports[id] = {
           key: id,
           type,
+          isComponent,
+          isType,
+          isRemote,
           uuid: `a${crypto.getRandomValues(new Uint32Array(1)).join('')}`,
-          isComponent: !!isComponent,
           ambient: false,
           allAs: importDescription.hasAllAs,
           object: importDescription.hasMembers,
@@ -113,18 +109,6 @@ const esm: ProtocolScriptRegExpList = [
           defaultName: importDescription.default.alias || importDescription.default.name || null,
           allAsName: importDescription.allAs || null,
           path,
-          static: (namespace: string) => {
-            if (type === 'remote') return getDeepTranslation(value, expressions);
-            const result = getDeepTranslation(value, expressions);
-            return result;
-          },
-          dynamic: (importFn: string = 'Ogone.imp', namespace: string = '') => {
-            if (type === 'remote') return `${importFn}('${path}'),`;
-            const baseUrl = new URL(import.meta.url);
-            baseUrl.pathname = join(Deno.cwd(), namespace);
-            const newUrl = new URL(path, baseUrl);
-            return `${importFn}('${path}', '${newUrl.pathname}'),`
-          },
           value: getDeepTranslation(value, expressions),
           members: importDescription.members,
           getHmrModuleSystem,

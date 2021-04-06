@@ -1,24 +1,28 @@
 import { Bundle, Component } from '../ogone.main.d.ts';
-import { colors, join } from '../../deps/deps.ts';
+import { colors, existsSync, } from '../../deps/deps.ts';
 import { walkSync } from '../../deps/walk.ts';
 import { ModuleErrors } from './ModuleErrors.ts';
 import { Utils } from "./Utils.ts";
+import HMR from './HMR.ts';
+
 /**
  * this class should create for each component
  * a new tsx file, it should expose the diagnostics to the end-user
  */
 let i = 0;
 export default class TSXContextCreator extends Utils {
-  static subdistFolderURL = new URL('../main/dist/', import.meta.url);
-  static globalAppContextURL = new URL('./tsx_context.ts', TSXContextCreator.subdistFolderURL);
+  static subdistFolderURL = './.ogone';
+  static createsubdistFolderURL = './.ogone';
+  static globalAppContextURL = './.ogone/ts_context.ts';
   static globalAppContextFile: string = '';
-  static mapCreatedFiles: URL[] = [];
+  static mapCreatedFiles: string[] = [];
   public static cleanDistFolder() {
-    const files = walkSync(TSXContextCreator.subdistFolderURL.pathname, {
+    const files = walkSync(TSXContextCreator.subdistFolderURL, {
       includeFiles: true,
       includeDirs: false,
     });
     for (let file of files) {
+      if (file.path.includes('.cache')) continue;
       Deno.removeSync(file.path);
     }
   }
@@ -39,37 +43,40 @@ export default class TSXContextCreator extends Utils {
         }
       }
       const diagnosticError = await this.readContext(bundle);
-      TSXContextCreator.cleanFiles();
       if (diagnosticError) {
         hasError = diagnosticError;
       }
       if (!hasError) {
         this.infos(`Type checking took ~${Math.floor(performance.now() - startPerf)} ms`);
         this.success('no type error found.');
+        HMR.postMessage({
+          type: 'resolved',
+        });
       }
     } catch (err) {
       this.error(`TSXContextCreator: ${err.message}
 ${err.stack}`);
     }
   }
-  private static async cleanFiles() {
-    TSXContextCreator.mapCreatedFiles.forEach((file) => {
-      Deno.removeSync(file);
-    })
+  public static createDistFolder() {
+    if(!existsSync('.ogone')) {
+      Deno.mkdirSync('.ogone');
+    }
   }
   private async createContext(bundle: Bundle, component: Component): Promise<void> {
-    const { green, gray } = colors;
-    const baseUrl = new URL(import.meta.url);
-    baseUrl.pathname = component.file;
-    const newpath = new URL(`./${component.uuid}.tsx`, TSXContextCreator.subdistFolderURL);
+    const newpath = `./.ogone/${component.uuid}.tsx`;
     const { protocol } = component.context;
     Deno.writeTextFileSync(newpath, protocol);
     TSXContextCreator.mapCreatedFiles.push(newpath);
+    const componentName = `comp${i++}`
     TSXContextCreator.globalAppContextFile += `
     /**
      * Context of ${component.file}
      * */
-      import comp${i++} from '${newpath}';`;
+      import ${componentName} from './${component.uuid}.tsx';
+      // @ts-ignore
+      ${componentName}['set'] = 0;
+      `;
   }
   private async readContext(bundle: Bundle): Promise<boolean> {
     try {
@@ -79,6 +86,7 @@ ${err.stack}`);
       TSXContextCreator.mapCreatedFiles.push(TSXContextCreator.globalAppContextURL);
 
       const resultEmit = await Deno.emit(TSXContextCreator.globalAppContextURL, {
+        bundle: 'esm',
         compilerOptions: {
           module: "esnext",
           target: "esnext",
@@ -86,8 +94,8 @@ ${err.stack}`);
           noFallthroughCasesInSwitch: false,
           allowJs: false,
           removeComments: false,
-          experimentalDecorators: true,
-          noImplicitAny: false,
+          experimentalDecorators: false,
+          noImplicitAny: true,
           allowUnreachableCode: false,
           jsx: "react",
           jsxFactory: "h",
@@ -96,7 +104,7 @@ ${err.stack}`);
           lib: ["dom", "esnext", "es2019"],
           inlineSourceMap: false,
           inlineSources: false,
-          alwaysStrict: false,
+          alwaysStrict: true,
           sourceMap: false,
           strictFunctionTypes: true,
         }
