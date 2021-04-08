@@ -1,4 +1,3 @@
-
 <proto type="store" namespace="user">
   declare:
     public user: null | number = null;

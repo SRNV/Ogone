@@ -83,5 +83,3 @@ import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts
     this.inp = this.openTree ? 'open' : 'closed';
     break;
 </proto>
-
-
