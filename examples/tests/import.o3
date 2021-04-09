@@ -2,6 +2,6 @@
 import component Nested from './nested.o3';
 
 <template>
-  <Nested name={'test'}/>
+  <Nested name={'test'} ></Nested>
 </template>
 <proto type="app" />

@@ -1,4 +1,6 @@
-<template>${this.name}</template>
+<template>
+  ${this.name}
+</template>
 <proto type="component">
   declare:
     inherit name: string = 'no-name';

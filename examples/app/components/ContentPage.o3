@@ -47,8 +47,12 @@
   </style>
   <div class="container">
     <div class="left">
-      <h2 class="title">${this.title}</h2>
-      <p class="text">${this.text}</p>
+      <h2 class="title">
+        ${this.title}
+      </h2>
+      <p class="text">
+        ${this.text}
+      </p>
     </div>
     <div class="right" --if={this.code}>
       <p class="page" --if={this.page}>

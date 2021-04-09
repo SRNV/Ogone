@@ -61,4 +61,3 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
     }, 1000);
     Async.resolve();
 </proto>
-

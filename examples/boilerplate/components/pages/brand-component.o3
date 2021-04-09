@@ -150,4 +150,3 @@ import component OBtn from '../atoms/button.o3';
     this.display = true;
     Async.resolve();
 </proto>
-
