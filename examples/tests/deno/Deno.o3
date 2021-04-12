@@ -12,7 +12,7 @@
       filter: drop-shadow(0px $value 4px #00000086) blur(${this.scrollY / 100}px);
     }
   </style>
-  <div class="container @{Deno.env.get('class')}">${this.scrollY}</div>
+  <div class="container @{Deno.env.get('class')}"> ${this.scrollY} </div>
 </template>
 <proto>
   def:

@@ -1,8 +1,87 @@
 <template>
+  <style>
+  /*** Démonstration de SVG ***/
+
+  /* page */
+  svg {
+    background-color: beige;
+    }
+
+  heading {
+    font-size: 24px;
+    font-weight: bold;
+    }
+
+  caption {
+    font-size: 12px;
+    }
+
+  /* flower */
+  flower:hover {
+    cursor: crosshair;
+    }
+
+  /* gradient */
+  fade-stop-1 {
+    stop-color: blue;
+    }
+
+  fade-stop-2 {
+    stop-color: white;
+    }
+
+  /* outer petals */
+  outer-petals {
+    opacity: .75;
+    }
+
+  outer-petals .segment-fill {
+    fill: azure;
+    stroke: lightsteelblue;
+    stroke-width: 1;
+    }
+
+  outer-petals .segment-edge {
+    fill: none;
+    stroke: deepskyblue;
+    stroke-width: 3;
+    }
+
+  outer-petals .segment:hover > .segment-fill {
+    fill: plum;
+    stroke: none;
+    }
+
+  outer-petals .segment:hover > .segment-edge {
+    stroke: slateblue;
+    }
+
+  /* inner petals */
+  inner-petals .segment-fill {
+    fill: yellow;
+    stroke: yellowgreen;
+    stroke-width: 1;
+    }
+
+  inner-petals .segment-edge {
+    fill: none;
+    stroke: yellowgreen;
+    stroke-width: 9;
+    }
+
+  inner-petals .segment:hover > .segment-fill {
+    fill: darkseagreen;
+    stroke: none;
+    }
+
+  inner-petals .segment:hover > .segment-edge {
+    stroke: green;
+    }
+  </style>
   <svg width="600px" height="600px" viewBox="-300 -300 600 600" version="1.1">
 
-    <title>SVG demonstration</title>
-    <desc>${this.test} Premiers pas en CSS avec Mozilla - Démonstration de SVG</desc>
+    <title> SVG demonstration </title>
+    <desc> ${this.test} Premiers pas en CSS avec Mozilla - Démonstration de SVG </desc>
 
     <defs>
     <g id="segment" class="segment">
@@ -10,17 +89,17 @@
         <path class="segment-edge" d="M0,-200 a40,40 0 0,0 -62,10"/>
         </g>
     <g id="quadrant">
-        <use xlink:href="#segment"/>
-        <use xlink:href="#segment" transform="rotate(18)"/>
-        <use xlink:href="#segment" transform="rotate(36)"/>
-        <use xlink:href="#segment" transform="rotate(54)"/>
-        <use xlink:href="#segment" transform="rotate(72)"/>
+        <use xlink:href="segment"/>
+        <use xlink:href="segment" transform="rotate(18)"/>
+        <use xlink:href="segment" transform="rotate(36)"/>
+        <use xlink:href="segment" transform="rotate(54)"/>
+        <use xlink:href="segment" transform="rotate(72)"/>
         </g>
     <g id="petals">
-        <use xlink:href="#quadrant"/>
-        <use xlink:href="#quadrant" transform="rotate(90)"/>
-        <use xlink:href="#quadrant" transform="rotate(180)"/>
-        <use xlink:href="#quadrant" transform="rotate(270)"/>
+        <use xlink:href="quadrant"/>
+        <use xlink:href="quadrant" transform="rotate(90)"/>
+        <use xlink:href="quadrant" transform="rotate(180)"/>
+        <use xlink:href="quadrant" transform="rotate(270)"/>
         </g>
     <radialGradient id="fade" cx="0" cy="0" r="200"
         gradientUnits="userSpaceOnUse">
@@ -30,16 +109,18 @@
     </defs>
 
     <text id="heading" x="-280" y="-270">
-    ${this.test}
-    SVG demonstration</text>
+      ${this.test}
+      SVG demonstration
+    </text>
     <text  id="caption" x="-280" y="-250">
-    Placez le pointeur de la souris au dessus de la fleur.</text>
+     Placez le pointeur de la souris au dessus de la fleur.
+    </text>
 
     <g id="flower">
       <circle id="overlay" cx="0" cy="0" r="200"
-          stroke="none" fill="url(#fade)"/>
-      <use id="outer-petals" xlink:href="#petals"/>
-      <use id="inner-petals" xlink:href="#petals"
+          stroke="none" fill="url(fade)"/>
+      <use id="outer-petals" xlink:href="petals"/>
+      <use id="inner-petals" xlink:href="petals"
           transform="rotate(9) scale(0.33)"/>
     </g>
   <circle cx="20" cy="20" rx="39"/>
@@ -56,82 +137,3 @@
       this.test++
     }, 500);
 </proto>
-<style>
-/*** Démonstration de SVG ***/
-
-/* page */
-svg {
-  background-color: beige;
-  }
-
-#heading {
-  font-size: 24px;
-  font-weight: bold;
-  }
-
-#caption {
-  font-size: 12px;
-  }
-
-/* flower */
-#flower:hover {
-  cursor: crosshair;
-  }
-
-/* gradient */
-#fade-stop-1 {
-  stop-color: blue;
-  }
-
-#fade-stop-2 {
-  stop-color: white;
-  }
-
-/* outer petals */
-#outer-petals {
-  opacity: .75;
-  }
-
-#outer-petals .segment-fill {
-  fill: azure;
-  stroke: lightsteelblue;
-  stroke-width: 1;
-  }
-
-#outer-petals .segment-edge {
-  fill: none;
-  stroke: deepskyblue;
-  stroke-width: 3;
-  }
-
-#outer-petals .segment:hover > .segment-fill {
-  fill: plum;
-  stroke: none;
-  }
-
-#outer-petals .segment:hover > .segment-edge {
-  stroke: slateblue;
-  }
-
-/* inner petals */
-#inner-petals .segment-fill {
-  fill: yellow;
-  stroke: yellowgreen;
-  stroke-width: 1;
-  }
-
-#inner-petals .segment-edge {
-  fill: none;
-  stroke: yellowgreen;
-  stroke-width: 9;
-  }
-
-#inner-petals .segment:hover > .segment-fill {
-  fill: darkseagreen;
-  stroke: none;
-  }
-
-#inner-petals .segment:hover > .segment-edge {
-  stroke: green;
-  }
-</style>

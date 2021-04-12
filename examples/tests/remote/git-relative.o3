@@ -1,7 +1,7 @@
 use ../denolus/index.o3 as 'relative-remote-comp';
 
 <template>
-  <h1>relative</h1>
+  <h1> relative </h1>
   <relative-remote-comp />
 </template>
 

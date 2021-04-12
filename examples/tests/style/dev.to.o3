@@ -7,7 +7,7 @@ import component StyleComponent from './style.o3';
       ...$StyleComponent.rule
     }
   </style>
-  Hello, <span {...{}} >${this.name}</span>
+  Hello, <span {...{}} > ${this.name} </span>
 </template>
 <proto>
   declare:

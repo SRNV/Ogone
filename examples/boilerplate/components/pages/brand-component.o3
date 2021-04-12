@@ -92,7 +92,9 @@ import component OBtn from '../atoms/button.o3';
     <div class="links">
       <ul>
         <li --for={item of this.links}>
-          <a href={item.href}>${item.label}</a>
+          <a href={item.href}>
+            ${item.label}
+          </a>
         </li>
       </ul>
     </div>

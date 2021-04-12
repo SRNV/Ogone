@@ -14,7 +14,7 @@ use ../tests/testdirectives.o3 as 'test-d'
     }
   </style>
   <test-d text={'test'}>
-    <h1>Test des flags</h1>
+    <h1> Test des flags </h1>
     <div --for={o of this.array.map((a, i) => i)}>
       ${this.o} t
     </div>

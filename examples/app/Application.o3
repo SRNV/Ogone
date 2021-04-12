@@ -3,7 +3,7 @@ import component AsyncLogoEl from '@/examples/app/asyncs/AsyncLogo.o3';
 import component MenuContent from '@/examples/app/components/menu/MenuContent.o3';
 import component MenuMain from '@/examples/app/components/menu/MenuMain.o3';
 import component RouterComponent from '@/examples/app/routers/Router.o3';
-import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts'
+import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
 
 /**
  *  @name Application

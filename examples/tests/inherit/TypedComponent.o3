@@ -4,8 +4,8 @@
       color: red;
     }
   </style>
-  <div> Typed: ${this.inherited.test}</div>
-  <div> Typed: ${this.test}</div>
+  <div> Typed: ${this.inherited.test} </div>
+  <div> Typed: ${this.test} </div>
 </template>
 <proto engine="inline-reaction" type="component">
   declare:

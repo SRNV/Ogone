@@ -40,7 +40,6 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
     <hr />
     <ul>
       <AsyncLiMenu
-        --allow-env
         --for={(item, i) of this.links}
         --defer={new Promise((resolve) => setTimeout(resolve, 500 * (i+1)))}
         item={item}>
