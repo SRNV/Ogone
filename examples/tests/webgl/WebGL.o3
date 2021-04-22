@@ -25,6 +25,7 @@
  * - a WebGLComponent can only import a WebGLComponent
  * - all new WebGLComponent created will start at the (0, 0, 0)
  * - the def modifier is not allowed in a WebGLComponent
+ * - by default z is up
  */
 <template>
   <style>
@@ -40,6 +41,11 @@
   <!-- a built-in sphere mesh -->
   <Sphere
     class="sphere" />
+  <!-- another sphere but not on the origin -->
+  <Sphere
+    _x={10}
+    _y={20}
+    _z={30} />
   <!-- a cube list -->
   <Cube
     --for={i of [1, 2, 3]}
@@ -47,7 +53,7 @@
     class="cubic" />
 </template>
 <proto
-  type="voxel"
+  type="vx"
   fps="20" >
   declare:
     protected _x = 0;
