@@ -26,6 +26,9 @@
  * - all new WebGLComponent created will start at the (0, 0, 0)
  * - the def modifier is not allowed in a WebGLComponent
  * - by default z is up
+ * @notes
+ * browser coordinate system is:
+ *   (0, 0) point on the left-top corner
  */
 <template>
   <style>
