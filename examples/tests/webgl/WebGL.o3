@@ -1,0 +1,83 @@
+/**
+ * @description
+ * a WebGL Component is a part of the 3D context
+ * which is basically a group of 3D objects
+ * so the idea is to make the template element a group of content
+ *                _______________
+ *               /|             /|
+ *              / |            / |
+ *             /  |           /  |
+ *            /___|__________/   |
+ *           |    |          |   |
+ *           |    |  center  |   |
+ *           |    |____o_____|___|
+ *           |   /           |   /
+ *           |  /            |  /
+ *           | /             | /
+ *           |/______________|/
+ *
+ * WebGLComponent Specifications:
+ * - a <canvas> is created only if the WebGLComponent's parent is not a WebGLComponent
+ * - every WebGLComponent should provide a box, we can call this box a `projection`
+ * - the (0,0,0) point should be on the center of the projection
+ * - the root WebGLComponent should be configurable
+ * - the root WebGLComponent will provide the fps for the WebGL Application
+ * - a WebGLComponent can only import a WebGLComponent
+ * - all new WebGLComponent created will start at the (0, 0, 0)
+ * - the def modifier is not allowed in a WebGLComponent
+ */
+<template>
+  <style>
+    .cubic {
+      color: blue;
+    }
+    .sphere {
+      color: red;
+    }
+  </style>
+  <text>static text</text>
+  <text>dynamic text ${this.count}</text>
+  <!-- a built-in sphere mesh -->
+  <Sphere
+    class="sphere" />
+  <!-- a cube list -->
+  <Cube
+    --for={i of [1, 2, 3]}
+    position={[i, i-1, 0]}
+    class="cubic" />
+</template>
+<proto
+  type="voxel"
+  fps="20" >
+  declare:
+    protected _x = 0;
+    protected _y = 0;
+    protected _z = 0;
+    protected _rotationX = 0;
+    protected _rotationY = 0;
+    protected _rotationZ = 0;
+    protected _scaleX = 0;
+    protected _scaleY = 0;
+    protected _scaleZ = 0;
+    protected _rendering = {
+      alias: null
+    };
+    public count = 0;
+  default:
+    // the default modifier is still triggered
+    // when the component is initialized
+    this.count += +10;
+    this._x = 10;
+    this._y = 10;
+    this._z = 10;
+    break;
+  case 'fps':
+    // using a global request animation frame
+    // for all WebGLComponent
+    // this case should be used on each frame
+    this.count++;
+    break;
+  case 'destroy':
+    this.count = 0;
+    break;
+</proto>
