@@ -1,6 +1,6 @@
 /**
  * @description
- * a WebGL Component is a part of the 3D context
+ * a WebGL Component is a part of the 3D world
  * which is basically a group of 3D objects
  * so the idea is to make the template element a group of content
  *                _______________
@@ -38,6 +38,9 @@
   </style>
   <text>static text</text>
   <text>dynamic text ${this.count}</text>
+  <!-- need to specify more for lights and cameras -->
+  <Light />
+  <Camera />
   <!-- a built-in sphere mesh -->
   <Sphere
     class="sphere" />
@@ -51,6 +54,13 @@
     --for={i of [1, 2, 3]}
     position={[i, i-1, 0]}
     class="cubic" />
+  <!--
+    a WebGLComponent with a model
+    this model should be transpiled
+  -->
+  <VXModelLoader src="./model.gltf" />
+  <!-- another WebGLComponent that is loading dynamically a model -->
+  <VXModelLoader src={"./model.gltf"} />
 </template>
 <proto
   type="vx"
