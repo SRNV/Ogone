@@ -5,7 +5,9 @@ import type { GLClearColorType } from './public/types.ts'
   <hr />
   <canvas ref="canvases" />
 </template>
-<proto type="app" base="./public">
+<proto
+  type="app"
+  base="./public">
   declare:
     getWebGLContext(canvas: HTMLCanvasElement): WebGLRenderingContext | WebGL2RenderingContext | never {
         // need to get the correct webgl context
@@ -23,11 +25,27 @@ import type { GLClearColorType } from './public/types.ts'
     clearWithColor(gl: WebGLRenderingContext | WebGL2RenderingContext, color: GLClearColorType): void {
       // set the color of the background
       // a VXComponent can provide it with the attribute background
-      //             R  G  B  A
-      // @ts-ignore
-      gl.clearColor(...color);
+      gl.clearColor(...color); // RGBA
       // apply the clear color to get the result
       gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+    addPoint(gl: WebGLRenderingContext | WebGL2RenderingContext) {
+      const VSHADER_PROGRAM = `
+        void main() {
+          gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+          gl_PointSize = 10.0;
+        }
+      `;
+      const FSHADER_PROGRAM = `
+        void main() {
+          gl_fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        }
+      `;
+      if (gl instanceof WebGLRenderingContext) {
+        gl.drawArrays(gl.POINTS, 0, 1);
+      } else if (gl instanceof WebGL2RenderingContext) {
+        gl.drawArraysInstanced(gl.POINTS, 0, 1, 1);
+      }
     }
   before-each:
     const [canvas] = Refs.canvases;
@@ -35,5 +53,6 @@ import type { GLClearColorType } from './public/types.ts'
   default:
     const gl = this.getWebGLContext(canvas as unknown as HTMLCanvasElement);
     this.clearWithColor(gl, BACKGROUND_COLOR);
+    this.addPoint(gl);
     break;
 </proto>
