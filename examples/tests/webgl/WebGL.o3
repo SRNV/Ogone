@@ -17,7 +17,7 @@
  *           |/______________|/
  *
  * WebGLComponent Specifications:
- * - a <canvas> is created only if the WebGLComponent's parent is not a WebGLComponent
+ * - a < canvas > is created only if the WebGLComponent's parent is not a WebGLComponent
  * - every WebGLComponent should provide a box, we can call this box a `projection`
  * - the (0,0,0) point should be on the center of the projection
  * - the root WebGLComponent should be configurable

@@ -1,7 +1,8 @@
-import type { GLClearColorType } from './public/types.ts'
+import type { GLClearColorType } from './public/types.ts';
+
 <template>
   <style></style>
-  <h1>Studies for WebGL</h1>
+  <h1> Studies for WebGL </h1>
   <hr />
   <canvas ref="canvases" />
 </template>
@@ -14,7 +15,6 @@ import type { GLClearColorType } from './public/types.ts'
       const gl = canvas.getContext('webgl2')
         || canvas.getContext('webgl')
         || canvas.getContext('experimental-webgl');
-      console.warn(canvas, gl);
       if (gl && (gl instanceof WebGLRenderingContext || gl instanceof WebGL2RenderingContext)) {
         console.log('Ogone - WebGL context retrieved');
       } else {
@@ -29,30 +29,96 @@ import type { GLClearColorType } from './public/types.ts'
       // apply the clear color to get the result
       gl.clear(gl.COLOR_BUFFER_BIT);
     }
-    addPoint(gl: WebGLRenderingContext | WebGL2RenderingContext) {
-      const VSHADER_PROGRAM = `
-        void main() {
-          gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
-          gl_PointSize = 10.0;
-        }
-      `;
-      const FSHADER_PROGRAM = `
-        void main() {
-          gl_fragColor = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-      `;
-      if (gl instanceof WebGLRenderingContext) {
-        gl.drawArrays(gl.POINTS, 0, 1);
-      } else if (gl instanceof WebGL2RenderingContext) {
-        gl.drawArraysInstanced(gl.POINTS, 0, 1, 1);
+    createVertexShader(gl: WebGLRenderingContext | WebGL2RenderingContext, source: string,): any {
+      const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+      if (!vertexShader) throw new Error('Ogone - failed to vertex shader.');
+      gl.shaderSource(vertexShader, source.trim());
+      gl.compileShader(vertexShader);
+      if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+        var info = gl.getShaderInfoLog(vertexShader);
+        throw new Error('failed to compile vertex shader.\n\n' + info);
       }
+      return vertexShader;
+    }
+    createFragmentShader(gl: WebGLRenderingContext | WebGL2RenderingContext, source: string,): any {
+      const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+      if (!fragmentShader) throw new Error('Ogone - failed to create fragment shader.');
+      gl.shaderSource(fragmentShader, source.trim());
+      gl.compileShader(fragmentShader);
+      if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        var info = gl.getShaderInfoLog(fragmentShader);
+        throw new Error('failed to compile fragment shader.\n\n' + info);
+      }
+      return fragmentShader;
+    }
+    createProgram(gl: WebGLRenderingContext | WebGL2RenderingContext, opts: [string, string] = ['', '']): WebGLProgram {
+      // the variable gl_Position is required
+      const vertexShader = this.createVertexShader(gl, opts[0]);
+      const fragmentShader = this.createFragmentShader(gl, opts[1]);
+      const program = gl.createProgram();
+      if (!program) throw new Error('Ogone - failed to create program.');
+      if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+        var info = gl.getShaderInfoLog(fragmentShader);
+        throw 'Impossible de compiler le programme WebGL.\n\n' + info;
+      }
+      gl.attachShader(program, vertexShader);
+      gl.attachShader(program, fragmentShader);
+      gl.linkProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      if (!gl.getProgramParameter( program, gl.LINK_STATUS)) {
+        const info = gl.getProgramInfoLog(program);
+        throw new Error('Could not compile WebGL program. \n\n' + info);
+      }
+      return program;
     }
   before-each:
     const [canvas] = Refs.canvases;
-    const BACKGROUND_COLOR: GLClearColorType = [0, 0, 0, 0.2];
+    const BASIC8BACKGROUND_COLOR: GLClearColorType = [0, 0, 0, 1];
+    const vertices = new Float32Array([
+      -0.5, -0.5,
+      0.5, -0.5,
+      0.0, 0,5,
+    ]);
   default:
     const gl = this.getWebGLContext(canvas as unknown as HTMLCanvasElement);
-    this.clearWithColor(gl, BACKGROUND_COLOR);
-    this.addPoint(gl);
+    this.clearWithColor(gl, BASIC8BACKGROUND_COLOR);
+    const program = this.createProgram(gl, [
+      `
+    attribute vec2 position;
+    void main() {
+      gl_Position = vec4(position, 0.0, 1);
+      gl_PointSize = 10.0;
+    }
+      `,
+      `
+    precision highp float;
+    uniform vec4 color;
+    void main() {
+      gl_FragColor = color;
+    }`]);
+    // create the shape with buffer
+    // binding it with bindBuffer and bufferData right after
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+    // use the program defined before
+    gl.validateProgram(program);
+    gl.useProgram(program);
+    // for fragment
+    const color = gl.getUniformLocation(program, 'color');
+    gl.uniform4fv(color, [0, 0.3, 1, 1.0]);
+    // for vertex
+    const position = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(position);
+    gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+    // render the program
+    if (gl instanceof WebGLRenderingContext) {
+      gl.drawArrays(gl.TRIANGLES, 0,vertices.length / 2);
+    } else if (gl instanceof WebGL2RenderingContext) {
+      gl.drawArraysInstanced(gl.TRIANGLES, 0,vertices.length / 2, 1);
+    }
     break;
 </proto>
