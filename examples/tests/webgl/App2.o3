@@ -1,4 +1,4 @@
-import type { GLClearColorType } from './public/types.ts';
+import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
 // WebGL coordinates:
 //   x: horizontal right direction is positive
 //   y: vertical top direction is positive
@@ -16,7 +16,7 @@ import type { GLClearColorType } from './public/types.ts';
   type="app"
   base="./public">
   declare:
-    getWebGLContext(canvas: HTMLCanvasElement): WebGLRenderingContext | WebGL2RenderingContext | never {
+    getWebGLContext(canvas: HTMLCanvasElement): WebGLFusionType | never {
         // need to get the correct webgl context
       const gl = canvas.getContext('webgl2')
         || canvas.getContext('webgl')
@@ -28,14 +28,14 @@ import type { GLClearColorType } from './public/types.ts';
       }
       return gl;
     }
-    setCanvasBackground(gl: WebGLRenderingContext | WebGL2RenderingContext, color: GLClearColorType): void {
+    setCanvasBackground(gl: WebGLFusionType, color: GLClearColorType): void {
       // set the color of the background
       // a VXComponent can provide it with the attribute background
       gl.clearColor(...color); // RGBA
       // apply the clear color to get the result
       gl.clear(gl.COLOR_BUFFER_BIT);
     }
-    createVertexShader(gl: WebGLRenderingContext | WebGL2RenderingContext, source: string,): any {
+    createVertexShader(gl: WebGLFusionType, source: string,): any {
       const vertexShader = gl.createShader(gl.VERTEX_SHADER);
       if (!vertexShader) throw new Error('Ogone - failed to vertex shader.');
       gl.shaderSource(vertexShader, source.trim());
@@ -46,7 +46,7 @@ import type { GLClearColorType } from './public/types.ts';
       }
       return vertexShader;
     }
-    createFragmentShader(gl: WebGLRenderingContext | WebGL2RenderingContext, source: string,): any {
+    createFragmentShader(gl: WebGLFusionType, source: string,): any {
       const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
       if (!fragmentShader) throw new Error('Ogone - failed to create fragment shader.');
       gl.shaderSource(fragmentShader, source.trim());
@@ -57,7 +57,7 @@ import type { GLClearColorType } from './public/types.ts';
       }
       return fragmentShader;
     }
-    createProgram(gl: WebGLRenderingContext | WebGL2RenderingContext, opts: [string, string] = ['', '']): WebGLProgram {
+    createProgram(gl: WebGLFusionType, opts: [string, string] = ['', '']): WebGLProgram {
       // the variable gl_Position is required
       const vertexShader = this.createVertexShader(gl, opts[0]);
       const fragmentShader = this.createFragmentShader(gl, opts[1]);
@@ -82,28 +82,49 @@ import type { GLClearColorType } from './public/types.ts';
       return program;
     }
 
-    createBufferWithVertices(gl: WebGLRenderingContext | WebGL2RenderingContext, vertices: Float32Array) {
+    createBufferWithVertices(gl: WebGLFusionType, vertices: Float32Array) {
       const buffer = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
       return buffer;
     }
-    renderPoint(gl: WebGLRenderingContext | WebGL2RenderingContext, opts: { x: number, y: number, z: number,
-      color: [number, number, number, number] }) {
-      const program = this.createProgram(gl, [
-        `
-      void main() {
-        gl_Position = vec4(${opts.x}, ${opts.y}, ${opts.z}, 1.0);
-        gl_PointSize = 10.0;
+    setVertexAttribute(gl: WebGLFusionType, opts: { values: any[]; name: string; program: WebGLProgram }) {
+      const { name, values, program } = opts;
+      // retrieve the attribute location of the attribute, in the program
+      const vertexAttributeLocation = gl.getAttribLocation(program, name);
+      // if it's under 0, it doesn't exist inside the program
+      if (!(vertexAttributeLocation >= 0)) {
+        throw new Error('failed to get the storage location of the attribute ' + name);
       }
-        `,
-        `
-      void main() {
-        gl_FragColor = vec4(${opts.color[0]}, ${opts.color[1]}, ${opts.color[2]}, ${opts.color[3] || 1});
-      }`]);
+      // 3f means like : 3 floating values
+      // vertexAttrib[1...4]f are available
+      // The vector versions of these methods are also available.
+      // Their name contains “v” (vector),
+      // and they take a typed array as a parameter.
+      // The number in the method name indicates the number of elements in the array.
+      // example:
+      //  const position = new Float32Array([1.0, 2.0, 3.0, 1.0]);
+      //  gl.vertexAttrib4fv(a_Position, position);
+      switch (values.length) {
+        case 1:
+          gl.vertexAttrib1f(vertexAttributeLocation, values[0]);
+          break;
+        case 2:
+          gl.vertexAttrib2f(vertexAttributeLocation, values[0], values[1]);
+          break;
+        case 3:
+          gl.vertexAttrib3f(vertexAttributeLocation, values[0], values[1], values[2]);
+          break;
+        default:
+        case 4:
+          gl.vertexAttrib4f(vertexAttributeLocation, values[0], values[1], values[2], values[3]);
+          break;
+      }
+      return vertexAttributeLocation;
     }
   before-each:
     const [canvas] = Refs.canvases;
+    const gl = this.getWebGLContext(canvas as unknown as HTMLCanvasElement);
     const BASIC_BACKGROUND_COLOR: GLClearColorType = [0, 0, 0, 1];
     const vertices = new Float32Array([
       -0.5, -0.5,
@@ -111,17 +132,32 @@ import type { GLClearColorType } from './public/types.ts';
       0.0, 0,5,
     ]);
   default:
-    const gl = this.getWebGLContext(canvas as unknown as HTMLCanvasElement);
+    const program = this.createProgram(gl, [
+        `
+      attribute vec4 positionAttr;
+      attribute float sizeAttr;
+      void main() {
+        gl_Position = positionAttr;
+        gl_PointSize = sizeAttr;
+      }
+        `,
+        `
+      void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }`]);
+    this.setVertexAttribute(gl, {
+      name: 'positionAttr',
+      program,
+      values: [0.5, 0.0, 0.0],
+    });
+    this.setVertexAttribute(gl, {
+      name: 'sizeAttr',
+      program,
+      values: [5.0],
+    });
     // background color should defined before anything
-    this.setCanvasBackground(gl, BASIC_BACKGROUND_COLOR);
     // need to set the background before each draw
     this.setCanvasBackground(gl, BASIC_BACKGROUND_COLOR);
-    this.renderPoint(gl, {
-      x: 0.0,
-      y: 0.0,
-      z: 0.0,
-      color: [1, 0, 0, 1]
-    });
     // only one program is usable
     // render the program
     let amount = 2;
