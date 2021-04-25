@@ -9,7 +9,9 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
     width="500px"
     height="500px"
     ref="canvases" />
-    ${this.count}
+    <div>
+      number of points: ${this.count}
+    </div>
 </template>
 <proto
   type="app"
