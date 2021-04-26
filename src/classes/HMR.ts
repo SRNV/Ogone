@@ -409,7 +409,7 @@ ${errorMessage}
           justify-content: flex-end;
           position: fixed;
           z-index: 50000;
-          background: linear-gradient(to right, #2a2a2d 38%, #2a2a2d25 100%);
+          background: #2a2a2d;
           width: 100vw;
           height: 100vh;
           padding-right: 15px;
