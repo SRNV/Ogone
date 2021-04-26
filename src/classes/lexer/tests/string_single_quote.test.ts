@@ -1,6 +1,5 @@
 import { OgoneLexer, ContextTypes } from '../OgoneLexer.ts';
 import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
-
 const url = new URL(import.meta.url);
 
 Deno.test('lexer supports double quotes', () => {

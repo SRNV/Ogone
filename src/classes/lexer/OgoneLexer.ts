@@ -9,9 +9,11 @@ export interface CursorDescriber {
   line: number;
   x: number;
 }
+export enum Reason { };
 export enum ContextTypes {
   Unexpected = 'Unexpected',
   Space = 'Space',
+  SemiColon = 'SemiColon',
   MultipleSpaces = 'MultipleSpaces',
   LineBreak = 'LineBreak',
   StringSingleQuote = 'StringSingleQuote',
@@ -21,6 +23,9 @@ export enum ContextTypes {
   Comment = 'Comment',
   CommentBlock = 'CommentBlock',
   HTMLComment = 'HTMLComment',
+  ImportAmbient = 'ImportAmbient',
+  ImportStatement = 'ImportStatement',
+  InjectAmbient = 'InjectAmbient',
   Node = 'Node',
   NodeName = 'NodeName',
   NodeOpening = 'NodeOpening',
@@ -105,6 +110,13 @@ export class OgoneLexer {
   private get prev(): string | undefined {
     return this.source[this.cursor.x - 1];
   };
+  /**
+   * the following part
+   * from the cursor index until the end of the document
+   */
+  private get nextPart(): string {
+    return this.source.slice(this.cursor.x);
+  }
   constructor(private onError: (reason: string, cursor: CursorDescriber, context: OgoneLexerContext) => any) { }
   parse(text: string, url: URL): OgoneLexerContext[] {
     try {
@@ -134,13 +146,21 @@ export class OgoneLexer {
           this.space_CTX,
           this.string_single_quoteCTX,
           this.string_double_quote_CTX,
+          this.import_ambient_CTX,
+          this.import_statements_CTX,
           // just for tests but shouldn't be supported on top level
           this.string_template_quote_CTX,
           this.html_comment_CTX,
           this.node_CTX,
         ]);
         if (!isValid) {
-          this.onError('Unexpected token', this.cursor, this.currentContexts[this.currentContexts.length - 1]);
+          const unexpected = new OgoneLexerContext(ContextTypes.Unexpected, text, {
+            start: this.cursor.x,
+            line: this.cursor.line,
+            column: this.cursor.column,
+            end: this.cursor.x + 1,
+          });
+          this.onError('Unexpected token', this.cursor, this.currentContexts[this.currentContexts.length - 1] || unexpected);
           break;
         }
       }
@@ -501,6 +521,20 @@ export class OgoneLexer {
     }
     return result;
   }
+  semicolon_CTX() {
+    let result = this.char === ';';
+    if (result) {
+      this.currentContexts.push(new OgoneLexerContext(ContextTypes.SemiColon, this.char, {
+        start: this.cursor.x,
+        end: this.cursor.x + 1,
+        line: this.cursor.line,
+        column: this.cursor.column,
+      }))
+      this.cursor.x++;
+      this.cursor.column++;
+    }
+    return result;
+  }
   line_break_CTX() {
     let result = this.char === '\n';
     if (result) {
@@ -645,14 +679,14 @@ export class OgoneLexer {
       throw err;
     }
   }
-    /**
-   * reads the tagname right after the <
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the html_comment_context
-   */
-    html_comment_CTX(unexpected: ContextReader[] = [
-      this.html_comment_CTX,
-    ]): boolean {
+  /**
+ * reads the tagname right after the <
+ * @param unexpected array of context readers which shift the cursor of the lexer
+ * those readers shouldnt participate to the html_comment_context
+ */
+  html_comment_CTX(unexpected: ContextReader[] = [
+    this.html_comment_CTX,
+  ]): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -685,6 +719,152 @@ export class OgoneLexer {
       this.currentContexts.push(context);
       if (!isClosed) {
         this.onError('the HTMLComment isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * should read all ambient import statements
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the import_ambient_CTX
+   */
+  import_ambient_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, prev, next } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (!/^import\s*(["'])(.*?)(\1)/i.test(this.nextPart)) return false;
+      let result = true;
+      let isClosed = false;
+      let note = 0;
+      const related: OgoneLexerContext[] = [];
+      /**
+       * expected next contexts
+       */
+      const nextContexts: ContextReader[] = [
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.string_double_quote_CTX,
+        this.string_single_quoteCTX,
+        this.semicolon_CTX,
+      ];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        if (this.char === " " || ['"', "'"].includes(this.char)) {
+          break;
+        }
+      }
+      nextContexts.forEach((reader: ContextReader, i: number, arr) => {
+        const reconized = reader.apply(this, []);
+        if (reconized) {
+          related.push(this.currentContexts[this.currentContexts.length - 1]);
+          delete arr[i];
+        }
+      });
+      isClosed = Boolean(related.find((context) => [
+        ContextTypes.StringDoubleQuote,
+        ContextTypes.StringSingleQuote,
+      ].includes(context.type))
+      && related.find((context) => [
+        ContextTypes.SemiColon].includes(context.type))
+      );
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.ImportAmbient, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+
+      context.related.push(...related);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the ImportAmbient isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * should read all import statements
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the html_comment_context
+   */
+  // TODO create contexts for the tokens between import and from
+  import_statements_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, next } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const sequence = char +
+        next +
+        source[x + 2] +
+        source[x + 3] +
+        source[x + 4] +
+        source[x + 5] +
+        source[x + 6];
+      if (char !== 'i'
+        || sequence !== 'import ') return false;
+      let result = true;
+      let isClosed = false;
+      const related: OgoneLexerContext[] = [];
+      const otherImportStatements: ContextReader[] = [
+        this.import_ambient_CTX
+      ];
+      /**
+       * expected next contexts
+       */
+      const nextContexts: ContextReader[] = [
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.string_double_quote_CTX,
+        this.string_single_quoteCTX,
+        this.semicolon_CTX,
+      ];
+      otherImportStatements.forEach((reader) => reader.apply(this, []));
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        const sequenceEnd = this.char
+          + this.next
+          + source[this.cursor.x + 2]
+          + source[this.cursor.x + 3];
+        if (sequenceEnd === 'from') {
+          this.cursor.x +=+ 4;
+          this.cursor.column +=+ 4;
+          break;
+        }
+      }
+      nextContexts.forEach((reader: ContextReader, i: number, arr) => {
+        const reconized = reader.apply(this, []);
+        if (reconized) {
+          related.push(this.currentContexts[this.currentContexts.length - 1]);
+          delete arr[i];
+        }
+      });
+      isClosed = Boolean(related.find((context) => [
+        ContextTypes.StringSingleQuote,
+        ContextTypes.StringDoubleQuote,].includes(context.type))
+        && related.find((context) => [
+          ContextTypes.SemiColon,].includes(context.type))
+      );
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.ImportStatement, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.related.push(...related);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the ImportStatement isnt closed', this.cursor, context);
       }
       return result;
     } catch (err) {
