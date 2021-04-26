@@ -200,11 +200,16 @@ window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
 });
 const mapProxies: Map<unknown, Object> = new Map();
+const mapFunction: Map<unknown, Object> = new Map();
 export function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   return new Proxy(target, {
     get(obj: { [k: string]: unknown }, key: string) {
       if (obj instanceof Set && typeof obj[key] === 'function') {
-        return Reflect.get(obj, key).bind(obj);
+        const func = mapFunction.get(obj[key]);
+        if (func) return func;
+        const v = Reflect.get(obj, key).bind(obj);
+        mapFunction.set(obj[key], v as Function);
+        return v;
       }
       if (key === 'prototype') {
         return Reflect.get(obj, key);

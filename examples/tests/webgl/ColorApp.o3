@@ -10,6 +10,10 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
 // there is a performance issue with mousemove and the for statement
 // drawing each time the mouse move x points is not good for performances
 // using requestAnimationFrame for draws solves the performance issue
+
+// can't use attributes on a fragment shader
+// fragment shader only accepts uniforms as properties
+// vertex shader accepts attributes as properties
 <template>
   <canvas
     width="500px"
@@ -146,7 +150,11 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
       return vertexAttributeLocation;
     }
     getUniformLocation(gl: WebGLFusionType, program: WebGLProgram, name: string) {
-      return gl.getUniformLocation(program, name);
+      const uniform = gl.getUniformLocation(program, name);
+      if (!uniform) {
+        throw new Error(`Failed to get uniform location for the uniform: ${name}`);
+      }
+      return uniform;
     }
     setUniform(gl: WebGLFusionType, program: WebGLProgram, name: string, ...values: any[]) {
       const uniform = this.getUniformLocation(gl, program, name);
