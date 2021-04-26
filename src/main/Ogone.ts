@@ -203,6 +203,9 @@ const mapProxies: Map<unknown, Object> = new Map();
 export function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   return new Proxy(target, {
     get(obj: { [k: string]: unknown }, key: string) {
+      if (obj instanceof Set && typeof obj[key] === 'function') {
+        return Reflect.get(obj, key).bind(obj);
+      }
       if (key === 'prototype') {
         return Reflect.get(obj, key);
       }
