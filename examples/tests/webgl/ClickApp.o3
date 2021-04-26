@@ -153,7 +153,7 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
     const positionAttr = gl.getAttribLocation(program, 'positionAttr');
     // save an event handler
     // before positionning a new point
-    const points: number[][] = [];
+    const points: number[] = [];
     (canvas as HTMLCanvasElement).addEventListener('mousemove', (event) => {
       const cnv: HTMLCanvasElement = canvas;
       const rect = cnv.getBoundingClientRect();
@@ -162,7 +162,7 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
 
       x = ((x - rect.left) - (cnv.width / 2)) / (cnv.width / 2);
       y = ((cnv.height / 2) - (y - rect.top)) / (cnv.height / 2);
-      points.push([x,y]);
+      points.push(x, y);
       this.count = points.length;
       // clear canvas;
       // background color should defined before anything
@@ -172,7 +172,7 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
         this.setVertexAttribute(gl, {
           program,
           name: 'positionAttr',
-          values: points[i],
+          values: [points[i], points[i+1], 0.0],
         });
         // only one program is usable
         // render the program
