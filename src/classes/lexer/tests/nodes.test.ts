@@ -2,7 +2,7 @@ import { OgoneLexer, ContextTypes } from '../OgoneLexer.ts';
 import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
-Deno.test('lexer supports nodes', () => {
+Deno.test('ogone-lexer supports nodes', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -19,7 +19,7 @@ Deno.test('lexer supports nodes', () => {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
-Deno.test('lexer can retrieve node names: template', () => {
+Deno.test('ogone-lexer can retrieve node names: template', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -36,7 +36,7 @@ Deno.test('lexer can retrieve node names: template', () => {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
-Deno.test('lexer can retrieve node names: proto', () => {
+Deno.test('ogone-lexer can retrieve node names: proto', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -53,7 +53,7 @@ Deno.test('lexer can retrieve node names: proto', () => {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
-Deno.test('lexer tagname is accessible through the related property', () => {
+Deno.test('ogone-lexer tagname is accessible through the related property', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -76,7 +76,7 @@ Deno.test('lexer tagname is accessible through the related property', () => {
   }
 });
 
-Deno.test('lexer should use the onError function when a node isnt finished', () => {
+Deno.test('ogone-lexer should use the onError function when a node isnt finished', () => {
     let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
@@ -88,7 +88,7 @@ Deno.test('lexer should use the onError function when a node isnt finished', () 
   }
 });
 
-Deno.test('lexer shouldnt consider this as a node', () => {
+Deno.test('ogone-lexer shouldnt consider this as a node', () => {
     let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
@@ -100,7 +100,7 @@ Deno.test('lexer shouldnt consider this as a node', () => {
   }
 });
 
-Deno.test('lexer shouldnt consider this as a node 2', () => {
+Deno.test('ogone-lexer shouldnt consider this as a node 2', () => {
     let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
@@ -112,7 +112,7 @@ Deno.test('lexer shouldnt consider this as a node 2', () => {
   }
 });
 
-Deno.test('lexer shouldnt consider this as a node 3', () => {
+Deno.test('ogone-lexer shouldnt consider this as a node 3', () => {
     let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
@@ -120,6 +120,33 @@ Deno.test('lexer shouldnt consider this as a node 3', () => {
   const content = `< div`;
   const contexts = lexer.parse(content, url);
   if (!result  || contexts.length) {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer should fail when anything is typed on a closing node', () => {
+    let result = false;
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    result = true;
+  });
+  const content = `<div></div nothing should appear here >`;
+  const contexts = lexer.parse(content, url);
+  if (!result) {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer should support line breaks into closing tag', () => {
+    let supported = true;
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    supported = false;
+  });
+  const content = `<div></div
+
+
+  >`;
+  const contexts = lexer.parse(content, url);
+  if (!supported) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });

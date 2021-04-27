@@ -798,10 +798,18 @@ export class OgoneLexer {
       let isProto = false;
       let isTemplate = false;
       let isStyle = false;
+      let isNodeClosing = this.nextPart.startsWith('</');
+      // console.warn(isNodeClosing);
       const subcontextEvaluatedOnce: ContextReader[] = [
         this.node_name_CTX,
       ];
-      const allSubContexts: ContextReader[] = [
+      const allSubContexts: ContextReader[] = isNodeClosing
+      ? [
+        this.line_break_CTX,
+        this.space_CTX,
+        this.multiple_spaces_CTX,
+      ]
+      : [
         this.line_break_CTX,
         this.space_CTX,
         this.multiple_spaces_CTX,
@@ -817,19 +825,36 @@ export class OgoneLexer {
         this.cursor.x++;
         this.cursor.column++;
         this.isValidChar(unexpected);
-        subcontextEvaluatedOnce.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            let context = this.currentContexts[this.currentContexts.length - 1];
-            related.push(context);
-            isNamed = context.type === ContextTypes.NodeName;
-            isProto = isNamed && context.source === 'proto';
-            isTemplate = isNamed && context.source === 'template';
-            isStyle = isNamed && context.source === 'style';
+        /**
+         * for any closing tag
+         * should ensure that after the tagname
+         * there's nothing else than spaces, line breaks, or >
+         */
+        if (isNodeClosing && isNamed) {
+          if (!([' ', '>', '\n'].includes(this.char))) {
+            const token = source.slice(x, this.cursor.x);
+            const context = new OgoneLexerContext(ContextTypes.Unexpected, token, {
+              start: x,
+              end: this.cursor.x,
+              line,
+              column,
+            });
+            this.onError(`Unexpected token ${this.char}`, this.cursor, context);
           }
-        });
-        // remove subcontextEvaluatedOnce's content
-        subcontextEvaluatedOnce.splice(0);
+        }
+        if (!isNamed) {
+          subcontextEvaluatedOnce.forEach((reader) => {
+            const recognized = reader.apply(this, []);
+            if (recognized) {
+              let context = this.currentContexts[this.currentContexts.length - 1];
+              related.push(context);
+              isNamed = context.type === ContextTypes.NodeName;
+              isProto = isNamed && context.source === 'proto';
+              isTemplate = isNamed && context.source === 'template';
+              isStyle = isNamed && context.source === 'style';
+            }
+          });
+        }
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -847,7 +872,7 @@ export class OgoneLexer {
         }
       }
       const token = source.slice(x, this.cursor.x);
-      const context = new OgoneLexerContext(ContextTypes.Node, token, {
+      const context = new OgoneLexerContext(isNodeClosing ? ContextTypes.NodeClosing : ContextTypes.Node, token, {
         start: x,
         end: this.cursor.x,
         line,
@@ -859,7 +884,8 @@ export class OgoneLexer {
         isTemplate,
         isProto,
         isStyle,
-        isAutoClosing
+        isAutoClosing,
+        isNodeClosing
       });
       this.currentContexts.push(context);
       if (!isClosed) {
@@ -1223,6 +1249,7 @@ export class OgoneLexer {
         this.string_single_quote_CTX,
         this.string_template_quote_CTX,
         this.braces_CTX,
+        this.attribute_unquoted_CTX,
       ];
       if (!isNamed) {
         isNamed = Boolean(
@@ -1295,6 +1322,45 @@ export class OgoneLexer {
       this.currentContexts.push(context);
       if (!isClosed) {
         this.onError('the AttributeName isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  attribute_unquoted_CTX(unexpected: ContextReader[] = [
+    this.array_CTX,
+    this.braces_CTX,
+    this.curly_braces_CTX,
+  ]): boolean {
+    try {
+      let { char, prev } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (prev !== '=') return false;
+      let result = true;
+      let isClosed = false;
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        if ([' ', '>', '\n'].includes(this.char)) {
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.AttributeValueUnquoted, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the AttributeValueUnquoted isnt closed', this.cursor, context);
       }
       return result;
     } catch (err) {

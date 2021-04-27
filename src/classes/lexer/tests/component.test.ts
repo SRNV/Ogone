@@ -2,8 +2,8 @@ import { OgoneLexer, ContextTypes, SupportedFlags } from '../OgoneLexer.ts';
 import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
-
-Deno.test('lexer can parse a basic component', () => {
+// TODO
+Deno.test('ogone-lexer can parse a basic component', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -17,7 +17,7 @@ Deno.test('lexer can parse a basic component', () => {
   const contexts = lexer.parse(content, url);
   if (contexts && contexts.length) {
     try {
-      console.warn(contexts);
+      // console.warn(contexts);
     } catch (err) {
       throw err;
     }

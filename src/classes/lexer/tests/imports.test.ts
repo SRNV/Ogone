@@ -2,7 +2,7 @@ import { OgoneLexer, ContextTypes } from '../OgoneLexer.ts';
 import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
-Deno.test('lexer supports import ambient statement', () => {
+Deno.test('ogone-lexer supports import ambient statement', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -14,7 +14,7 @@ Deno.test('lexer supports import ambient statement', () => {
   }
 });
 
-Deno.test('lexer supports all import statements', () => {
+Deno.test('ogone-lexer supports all import statements', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });

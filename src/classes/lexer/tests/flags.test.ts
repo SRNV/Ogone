@@ -3,7 +3,7 @@ import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
 
-Deno.test('lexer can retrieve node flags', () => {
+Deno.test('ogone-lexer can retrieve node flags', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -25,7 +25,7 @@ Deno.test('lexer can retrieve node flags', () => {
   }
 });
 
-Deno.test('lexer flag name is accessible through related', () => {
+Deno.test('ogone-lexer flag name is accessible through related', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -49,7 +49,7 @@ Deno.test('lexer flag name is accessible through related', () => {
   }
 });
 
-Deno.test('lexer can retrieve flags value', () => {
+Deno.test('ogone-lexer can retrieve flags value', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });

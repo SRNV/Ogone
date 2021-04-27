@@ -3,7 +3,7 @@ import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
 
-Deno.test('lexer supports spaces', () => {
+Deno.test('ogone-lexer supports spaces', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -20,7 +20,7 @@ Deno.test('lexer supports spaces', () => {
   }
 });
 
-Deno.test('lexer supports multiple spaces', () => {
+Deno.test('ogone-lexer supports multiple spaces', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -37,7 +37,7 @@ Deno.test('lexer supports multiple spaces', () => {
   }
 });
 
-Deno.test('lexer supports line break', () => {
+Deno.test('ogone-lexer supports line break', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });

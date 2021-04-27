@@ -3,7 +3,7 @@ import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
 
-Deno.test('lexer supports template quotes', () => {
+Deno.test('ogone-lexer supports template quotes', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -22,7 +22,7 @@ Deno.test('lexer supports template quotes', () => {
   }
 });
 
-Deno.test('lexer should not use escaped template quotes to close quotes', () => {
+Deno.test('ogone-lexer should not use escaped template quotes to close quotes', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -41,7 +41,7 @@ Deno.test('lexer should not use escaped template quotes to close quotes', () => 
   }
 });
 
-Deno.test('lexer should use the onError function, when the StringTemplateQuote is not finished', () => {
+Deno.test('ogone-lexer should use the onError function, when the StringTemplateQuote is not finished', () => {
   let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     // true because the quote isn't closed
@@ -56,7 +56,7 @@ Deno.test('lexer should use the onError function, when the StringTemplateQuote i
   }
 });
 
-Deno.test('lexer should use the onError function, when the StringTemplateQuoteEval is not finished', () => {
+Deno.test('ogone-lexer should use the onError function, when the StringTemplateQuoteEval is not finished', () => {
   let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     // true because the quote isn't closed
@@ -71,7 +71,7 @@ Deno.test('lexer should use the onError function, when the StringTemplateQuoteEv
   }
 });
 
-Deno.test('lexer supports template concatenation inside template quotes', () => {
+Deno.test('ogone-lexer supports template concatenation inside template quotes', () => {
   let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
@@ -94,7 +94,7 @@ Deno.test('lexer supports template concatenation inside template quotes', () => 
 });
 
 
-Deno.test('lexer supports recursive template concatenation', () => {
+Deno.test('ogone-lexer supports recursive template concatenation', () => {
   let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
