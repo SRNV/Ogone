@@ -2,6 +2,8 @@
  * we will use this lexer in different engine
  * it shouldn't import anything
  * to make it isomorphic with Node and Deno
+ *
+ * for this this file shouldn't use the Deno namespace
  */
 export type ContextReader = (contexts?: ContextReader[]) => boolean;
 export interface CursorDescriber {
@@ -10,6 +12,59 @@ export interface CursorDescriber {
   x: number;
 }
 export enum Reason { };
+
+export const SupportedFlags = [
+  /**
+   * structural flags
+   */
+  '--for',
+  '--await',
+  '--if',
+  '--else-if',
+  '--else',
+  /**
+   * DOM L3 events
+   */
+  '--click',
+  '--dblclick',
+  '--mouseenter',
+  '--mouseover',
+  '--mousemove',
+  '--mousedown',
+  '--mouseup',
+  '--mouseleave',
+  '--keypress',
+  '--keydown',
+  '--keyup',
+  '--wheel',
+  /**
+   * custom event flags
+   */
+  '--event',
+  /**
+   * style flags
+   */
+  '--class',
+  '--style',
+  '--keyframes',
+  /**
+   * value flags
+   */
+  '--bind',
+  /**
+   * router flags
+   */
+  '--router-go',
+  '--router-dev-tool',
+  /**
+   * async flags
+   */
+  '--defer',
+  '--then',
+  '--finally',
+  '--catch',
+];
+
 export enum ContextTypes {
   Unexpected = 'Unexpected',
   Space = 'Space',
@@ -22,6 +77,9 @@ export enum ContextTypes {
   StringTemplateQuoteEval = 'StringTemplateQuoteEval',
   Comment = 'Comment',
   CommentBlock = 'CommentBlock',
+  Braces = 'Braces',
+  CurlyBraces = 'CurlyBraces',
+  Array = 'Array',
   HTMLComment = 'HTMLComment',
   ImportAmbient = 'ImportAmbient',
   ImportStatement = 'ImportStatement',
@@ -34,10 +92,8 @@ export enum ContextTypes {
   NodeClosingEnd = 'NodeClosingEnd',
   Flag = 'Flag',
   FlagName = 'FlagName',
-  FlagEqual = 'FlagEqual',
   Attribute = 'Attribute',
   AttributeName = 'AttributeName',
-  AttributeEqual = 'AttributeEqual',
   AttributeValueQuoteSingle = 'AttributeValueQuoteSingle',
   AttributeValueQuoteDouble = 'AttributeValueQuoteDouble',
   AttributeValueQuoteTemplate = 'AttributeValueQuoteTemplate',
@@ -148,7 +204,7 @@ export class OgoneLexer {
           this.line_break_CTX,
           this.multiple_spaces_CTX,
           this.space_CTX,
-          this.string_single_quoteCTX,
+          this.string_single_quote_CTX,
           this.string_double_quote_CTX,
           this.import_ambient_CTX,
           this.import_statements_CTX,
@@ -294,7 +350,7 @@ export class OgoneLexer {
    * @param unexpected array of context readers which shift the cursor of the lexer
    * those readers shouldnt participate to the string_single_quote_context
    */
-  string_single_quoteCTX(unexpected: ContextReader[] = [
+  string_single_quote_CTX(unexpected: ContextReader[] = [
     this.line_break_CTX
   ]): boolean {
     try {
@@ -480,6 +536,168 @@ export class OgoneLexer {
     }
   }
   /**
+   * should match with ( ... ) and is recursive
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the braces_context
+   */
+  braces_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (char !== "(") return false;
+      let result = true;
+      let isClosed = false;
+      const allSubContexts = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.braces_CTX,
+      ];
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.currentContexts[this.currentContexts.length - 1]);
+          }
+        });
+        if (this.char === ")") {
+          this.cursor.x++;
+          this.cursor.column++;
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.Braces, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError(`the Braces isn't closed`, this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * should match with {...} and is recursive
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the braces_context
+   */
+   curly_braces_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (char !== "{") return false;
+      let result = true;
+      let isClosed = false;
+      const allSubContexts = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.curly_braces_CTX,
+      ];
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.currentContexts[this.currentContexts.length - 1]);
+          }
+        });
+        if (this.char === "}") {
+          this.cursor.x++;
+          this.cursor.column++;
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.CurlyBraces, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError(`the CurlyBraces isn't closed`, this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * should match with [...] and is recursive
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the braces_context
+   */
+   array_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (char !== "[") return false;
+      let result = true;
+      let isClosed = false;
+      const allSubContexts = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.array_CTX,
+      ];
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.currentContexts[this.currentContexts.length - 1]);
+          }
+        });
+        if (this.char === "]") {
+          this.cursor.x++;
+          this.cursor.column++;
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.Array, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError(`the Array isn't closed`, this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
    * reads if the cursor's character is a space
    * @param unexpected array of context readers which shift the cursor of the lewer
    * those readers shouldnt participate to the multiple_spaces_context
@@ -587,7 +805,7 @@ export class OgoneLexer {
         this.line_break_CTX,
         this.space_CTX,
         this.multiple_spaces_CTX,
-        // this.attribute_CTX,
+        this.attributes_CTX,
         this.flag_CTX,
       ];
       const children: OgoneLexerContext[] = [];
@@ -751,7 +969,6 @@ export class OgoneLexer {
       if (!/^import\s*(["'])(.*?)(\1)/i.test(this.nextPart)) return false;
       let result = true;
       let isClosed = false;
-      let note = 0;
       const related: OgoneLexerContext[] = [];
       /**
        * expected next contexts
@@ -760,7 +977,7 @@ export class OgoneLexer {
         this.multiple_spaces_CTX,
         this.space_CTX,
         this.string_double_quote_CTX,
-        this.string_single_quoteCTX,
+        this.string_single_quote_CTX,
         this.semicolon_CTX,
       ];
       while (!this.isEOF) {
@@ -782,8 +999,8 @@ export class OgoneLexer {
         ContextTypes.StringDoubleQuote,
         ContextTypes.StringSingleQuote,
       ].includes(context.type))
-      && related.find((context) => [
-        ContextTypes.SemiColon].includes(context.type))
+        && related.find((context) => [
+          ContextTypes.SemiColon].includes(context.type))
       );
       const token = source.slice(x, this.cursor.x);
       const context = new OgoneLexerContext(ContextTypes.ImportAmbient, token, {
@@ -836,7 +1053,7 @@ export class OgoneLexer {
         this.multiple_spaces_CTX,
         this.space_CTX,
         this.string_double_quote_CTX,
-        this.string_single_quoteCTX,
+        this.string_single_quote_CTX,
         this.semicolon_CTX,
       ];
       otherImportStatements.forEach((reader) => reader.apply(this, []));
@@ -849,8 +1066,8 @@ export class OgoneLexer {
           + source[this.cursor.x + 2]
           + source[this.cursor.x + 3];
         if (sequenceEnd === 'from') {
-          this.cursor.x +=+ 4;
-          this.cursor.column +=+ 4;
+          this.cursor.x += + 4;
+          this.cursor.column += + 4;
           break;
         }
       }
@@ -885,13 +1102,11 @@ export class OgoneLexer {
     }
   }
   /**
- * reads the flags after the tag name
- * @param unexpected array of context readers which shift the cursor of the lexer
- * those readers shouldnt participate to the html_comment_context
- */
-  flag_CTX(unexpected: ContextReader[] = [
-    this.flag_CTX,
-  ]): boolean {
+   * reads the flags after the tag name
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the flag_context
+   */
+  flag_CTX(unexpected: ContextReader[] = []): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -899,12 +1114,29 @@ export class OgoneLexer {
       if (char !== '-' || next !== '-') return false;
       let result = true;
       let isClosed = false;
+      let isNamed = false;
       const children: OgoneLexerContext[] = [];
+      const related: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = [
+        this.curly_braces_CTX,
+        this.braces_CTX,
+      ];
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
         this.isValidChar(unexpected);
-        if (this.char === ' ' || this.char === '>') {
+        if (!isNamed) {
+          isNamed = Boolean(
+            this.flag_name_CTX()
+            && related.push(this.currentContexts[this.currentContexts.length - 1]));
+        }
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.currentContexts[this.currentContexts.length - 1]);
+          }
+        });
+        if ([' ', '>', '\n'].includes(this.char)) {
           isClosed = true;
           break;
         }
@@ -916,11 +1148,153 @@ export class OgoneLexer {
         line,
         column,
       });
-      console.warn(context);
+      context.children.push(...children);
+      context.related.push(...related);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the Flag isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  flag_name_CTX(unexpected: ContextReader[] = [
+    this.array_CTX,
+    this.braces_CTX,
+    this.curly_braces_CTX,
+  ]): boolean {
+    try {
+      let { char, prev, next } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (char === '-') return false;
+      let result = true;
+      let isClosed = false;
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        if ([' ', '>', '=', '\n'].includes(this.char)) {
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+
+      const context = new OgoneLexerContext(ContextTypes.FlagName, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the HTMLComment isnt closed', this.cursor, context);
+        this.onError('the FlagName isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * reads the flags after the tag name
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the flag_context
+   */
+  attributes_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, prev, next } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (prev
+          && prev !== ' '
+        || char
+          && !(/[a-zA-Z0-9\$\_]/i.test(char))) return false;
+      let result = true;
+      let isClosed = false;
+      let isNamed = false;
+      const children: OgoneLexerContext[] = [];
+      const related: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = [
+        this.string_double_quote_CTX,
+        this.string_single_quote_CTX,
+        this.string_template_quote_CTX,
+        this.braces_CTX,
+      ];
+      if (!isNamed) {
+        isNamed = Boolean(
+          this.attribute_name_CTX()
+          && related.push(this.currentContexts[this.currentContexts.length - 1]));
+      }
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.currentContexts[this.currentContexts.length - 1]);
+          }
+        });
+        if ([' ', '>', '\n'].includes(this.char)) {
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.Attribute, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      context.related.push(...related);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the Attribute isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  attribute_name_CTX(unexpected: ContextReader[] = [
+    this.array_CTX,
+    this.braces_CTX,
+    this.curly_braces_CTX,
+  ]): boolean {
+    try {
+      let { char } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (char === '-') return false;
+      let result = true;
+      let isClosed = false;
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        if ([' ', '>', '=', '\n'].includes(this.char)) {
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.AttributeName, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the AttributeName isnt closed', this.cursor, context);
       }
       return result;
     } catch (err) {

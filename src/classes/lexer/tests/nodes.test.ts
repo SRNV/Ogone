@@ -75,22 +75,6 @@ Deno.test('lexer tagname is accessible through the related property', () => {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
-Deno.test('lexer can retrieve node flags', () => {
-  const lexer = new OgoneLexer((reason, cursor, context) => {
-    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
-  });
-  const content = `<proto --flag --b></proto>`;
-  const contexts = lexer.parse(content, url);
-  if (contexts && contexts.length) {
-    try {
-
-    } catch (err) {
-      throw err;
-    }
-  } else {
-    throw new Error('OgoneLexer - Failed to retrieve Node Context');
-  }
-});
 
 Deno.test('lexer should use the onError function when a node isnt finished', () => {
     let result = false;
