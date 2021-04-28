@@ -91,3 +91,65 @@ Deno.test('ogone-lexer can retrieve flags value', () => {
   }
 });
 
+Deno.test('ogone-lexer can retrieve spread value', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto { ...this.spread }></proto>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const flag = contexts.find((context) => context.type === ContextTypes.FlagSpread);
+      if (!flag) {
+        throw new Error(`Failed to retrieve spread value`);
+      }
+      assertEquals(flag.position, { start: 7, end: 25, line: 0, column: 7 });
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Flag Context');
+  }
+});
+
+Deno.test('ogone-lexer can retrieve spread value on a auto-closing tag', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto { ...this.spread }/>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const flag = contexts.find((context) => context.type === ContextTypes.FlagSpread);
+      if (!flag) {
+        throw new Error(`Failed to retrieve spread value`);
+      }
+      assertEquals(flag.position, { start: 7, end: 25, line: 0, column: 7 });
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Flag Context');
+  }
+});
+
+Deno.test('ogone-lexer can retrieve spread value without spaces', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto {...this.spread}/>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const flag = contexts.find((context) => context.type === ContextTypes.FlagSpread);
+      if (!flag) {
+        throw new Error(`Failed to retrieve spread value`);
+      }
+      assertEquals(flag.position, { start: 7, end: 23, line: 0, column: 7 });
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Flag Context');
+  }
+});

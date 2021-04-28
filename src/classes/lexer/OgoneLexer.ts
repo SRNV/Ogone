@@ -94,6 +94,7 @@ export enum ContextTypes {
   NodeClosingEnd = 'NodeClosingEnd',
   Flag = 'Flag',
   FlagName = 'FlagName',
+  FlagSpread = 'FlagSpread',
   Attribute = 'Attribute',
   AttributeName = 'AttributeName',
   AttributeBoolean = 'AttributeBoolean',
@@ -182,11 +183,18 @@ export class OgoneLexer {
     return this.source.slice(this.cursor.x);
   }
   /**
+   * the following part
+   * from the cursor index until the end of the document
+   */
+  private get previousPart(): string {
+    return this.source.slice(0, this.cursor.x);
+  }
+  /**
    * should return the previously defined context
    */
   private get lastContext(): OgoneLexerContext {
     const last = this.currentContexts[this.currentContexts.length - 1]
-    ||
+      ||
       new OgoneLexerContext(ContextTypes.Unexpected, this.source.slice(this.cursor.x), {
         start: this.cursor.x,
         line: this.cursor.line,
@@ -235,7 +243,7 @@ export class OgoneLexer {
         }
       }
       if (this.openTags.length) {
-        const lastNode = this.openTags[this.openTags.length -1];
+        const lastNode = this.openTags[this.openTags.length - 1];
         this.onError('Unexpected: Remaining open tag without closing tag', this.cursor, lastNode);
       }
       return this.currentContexts;
@@ -884,6 +892,7 @@ export class OgoneLexer {
           this.line_break_CTX,
           this.space_CTX,
           this.multiple_spaces_CTX,
+          this.flag_spread_CTX,
           this.attribute_boolean_CTX,
           this.attributes_CTX,
           this.flag_CTX,
@@ -928,9 +937,6 @@ export class OgoneLexer {
           });
         }
         // TODO fix autoclosing tags
-        if (isNamed && this.char === '>' && this.prev === '/') {
-          isAutoClosing = true;
-        }
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -943,6 +949,7 @@ export class OgoneLexer {
           this.cursor.x++;
           this.cursor.column++;
           isClosed = true;
+          isAutoClosing = this.previousPart.endsWith('/>');
           break;
         }
       }
@@ -964,24 +971,26 @@ export class OgoneLexer {
       });
       this.currentContexts.push(context);
       // start resolving open and closing tags
-      if (isClosed
-        && !isAutoClosing
-        && !isNodeClosing) {
+      if (!isAutoClosing) {
+        if (isClosed
+          && !isNodeClosing) {
           this.openTags.push(context);
-      } else if (isClosed && isNodeClosing) {
-        const openTag = this.openTags
-          .slice()
-          .reverse()
-          .find((nodeContext) => nodeContext.related[0]
-            && nodeContext.related[0].type === ContextTypes.NodeName
-            && nodeContext.related[0].source === context.related[0].source);
-        if (!openTag) {
-          this.onError(`cannot close an element that is not open`, this.cursor, context);
-        } else {
-          const index = this.openTags.indexOf(openTag);
-          this.openTags.splice(index, 1);
-          // save the closing tag
-          openTag.related.push(context);
+        } else if (isClosed
+          && isNodeClosing) {
+          const openTag = this.openTags
+            .slice()
+            .reverse()
+            .find((nodeContext) => nodeContext.related[0]
+              && nodeContext.related[0].type === ContextTypes.NodeName
+              && nodeContext.related[0].source === context.related[0].source);
+          if (!openTag) {
+            this.onError(`cannot close an element that is not open`, this.cursor, context);
+          } else {
+            const index = this.openTags.indexOf(openTag);
+            this.openTags.splice(index, 1);
+            // save the closing tag
+            openTag.related.push(context);
+          }
         }
       }
       if (!isClosed) {
@@ -999,7 +1008,7 @@ export class OgoneLexer {
    */
   node_name_CTX(unexpected: ContextReader[] = []): boolean {
     try {
-      let { char, prev, next } = this;
+      let { char } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
       if ([' ', '[', '!', '-', '\n', '/'].includes(char)) return false;
@@ -1011,6 +1020,7 @@ export class OgoneLexer {
         this.isValidChar(unexpected);
         if ([
           ' ',
+          '/',
           '<',
           '\n',
           '>'
@@ -1321,6 +1331,56 @@ export class OgoneLexer {
       throw err;
     }
   }
+  flag_spread_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, next } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      if (char !== '{' || !/^\{(\s*)(\.){3}/i.test(this.nextPart)) return false;
+      let result = true;
+      let isClosed = false;
+      const children: OgoneLexerContext[] = [];
+      const readers: ContextReader[] = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.array_CTX,
+        this.curly_braces_CTX,
+      ];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        readers.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.lastContext);
+          }
+        });
+        if (['}',].includes(this.char)) {
+          this.cursor.x++;
+          this.cursor.column++;
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.FlagSpread, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError('the FlagSpread isnt closed', this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
   /**
    * reads the flags after the tag name
    * @param unexpected array of context readers which shift the cursor of the lexer
@@ -1394,7 +1454,7 @@ export class OgoneLexer {
       let { char } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
-      if (char === '-' || !/^([^\s=\<\>]+?)(\s|\n|\>)/i.test(this.nextPart)) return false;
+      if (char === '-' || !/^([^\s=\<\>\/]+?)(\s|\n|\>)/i.test(this.nextPart)) return false;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
@@ -1402,7 +1462,7 @@ export class OgoneLexer {
         this.cursor.x++;
         this.cursor.column++;
         this.isValidChar(unexpected);
-        if ([' ', '>', '<', '\n'].includes(this.next!)) {
+        if ([' ', '/', '>', '<', '\n'].includes(this.next!)) {
           this.cursor.x++;
           this.cursor.column++;
           isClosed = true;
@@ -1443,7 +1503,7 @@ export class OgoneLexer {
         this.cursor.x++;
         this.cursor.column++;
         this.isValidChar(unexpected);
-        if ([' ', '>', '=', '\n'].includes(this.char)) {
+        if ([' ', '/', '>', '=', '\n'].includes(this.char)) {
           isClosed = true;
           break;
         }

@@ -164,12 +164,155 @@ Deno.test('ogone-lexer should support line breaks into closing tag', () => {
 
 Deno.test('ogone-lexer should use onError function when a node is not closed', () => {
   let result = false;
-  const lexer = new OgoneLexer((reason, cursor, context) => {
+  new OgoneLexer(() => {
     result = true;
-  });
-  const content = `<div></div><div><p><p></p></p>`;
-  const contexts = lexer.parse(content, url);
+  }).parse(`<div></div><div><p><p></p></p>`, url);
   if (!result) {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer supports auto closing tags', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto/>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const proto = contexts.find((context) =>
+        context.type === ContextTypes.Node
+        && context.related[0].source === 'proto');
+      if (!proto) {
+        throw new Error('Failed to retrieve Node Context');
+      }
+      assertEquals(proto.position, { start: 0, end: 8, line: 0, column: 0 });
+      assertEquals(proto.data.isAutoClosing, true);
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer supports auto closing tags 2', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto />`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const proto = contexts.find((context) =>
+        context.type === ContextTypes.Node
+        && context.related[0].source === 'proto');
+      if (!proto) {
+        throw new Error('Failed to retrieve Node Context');
+      }
+      assertEquals(proto.position, { start: 0, end: 9, line: 0, column: 0 });
+      assertEquals(proto.data.isAutoClosing, true);
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer supports auto closing tags 3', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto
+    attribute
+    test
+    with
+    attributes
+  />`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const proto = contexts.find((context) =>
+        context.type === ContextTypes.Node
+        && context.related[0].source === 'proto');
+      if (!proto) {
+        throw new Error('Failed to retrieve Node Context');
+      }
+      assertEquals(proto.data.isAutoClosing, true);
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer supports auto closing tags 4 (ending with an attribute)', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto ending/>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const proto = contexts.find((context) =>
+        context.type === ContextTypes.Node
+        && context.related[0].source === 'proto');
+      if (!proto) {
+        throw new Error('Failed to retrieve Node Context');
+      }
+      assertEquals(proto.data.isAutoClosing, true);
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer supports auto closing tags 4 (ending with a flag)', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto --await/>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const proto = contexts.find((context) =>
+        context.type === ContextTypes.Node
+        && context.related[0].source === 'proto');
+      if (!proto) {
+        throw new Error('Failed to retrieve Node Context');
+      }
+      assertEquals(proto.data.isAutoClosing, true);
+    } catch (err) {
+      throw err;
+    }
+  } else {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer supports auto closing tags 4 (ending with a flag and a value)', () => {
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const content = `<proto --await={}/>`;
+  const contexts = lexer.parse(content, url);
+  if (contexts && contexts.length) {
+    try {
+      const proto = contexts.find((context) =>
+        context.type === ContextTypes.Node
+        && context.related[0].source === 'proto');
+      if (!proto) {
+        throw new Error('Failed to retrieve Node Context');
+      }
+      assertEquals(proto.data.isAutoClosing, true);
+    } catch (err) {
+      throw err;
+    }
+  } else {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
