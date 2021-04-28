@@ -77,7 +77,7 @@ Deno.test('ogone-lexer tagname is accessible through the related property', () =
 });
 
 Deno.test('ogone-lexer should use the onError function when a node isnt finished', () => {
-    let result = false;
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
   });
@@ -89,7 +89,7 @@ Deno.test('ogone-lexer should use the onError function when a node isnt finished
 });
 
 Deno.test('ogone-lexer shouldnt consider this as a node', () => {
-    let result = false;
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
   });
@@ -101,31 +101,31 @@ Deno.test('ogone-lexer shouldnt consider this as a node', () => {
 });
 
 Deno.test('ogone-lexer shouldnt consider this as a node 2', () => {
-    let result = false;
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
   });
   const content = `<!div`;
   const contexts = lexer.parse(content, url);
-  if (!result  || contexts.length) {
+  if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
 
 Deno.test('ogone-lexer shouldnt consider this as a node 3', () => {
-    let result = false;
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
   });
   const content = `< div`;
   const contexts = lexer.parse(content, url);
-  if (!result  || contexts.length) {
+  if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });
 
-Deno.test('ogone-lexer should fail when anything is typed on a closing node', () => {
-    let result = false;
+Deno.test('ogone-lexer should use onError when anything is typed on a closing node', () => {
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
   });
@@ -136,17 +136,40 @@ Deno.test('ogone-lexer should fail when anything is typed on a closing node', ()
   }
 });
 
-Deno.test('ogone-lexer should support line breaks into closing tag', () => {
-    let supported = true;
+Deno.test('ogone-lexer should fail when anything is typed on a closing node 2', () => {
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
-    supported = false;
+    result = true;
   });
+  const content = `<div></div a>`;
+  const contexts = lexer.parse(content, url);
+  if (!result) {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer should support line breaks into closing tag', () => {
+  let supported = true;
   const content = `<div></div
 
 
-  >`;
-  const contexts = lexer.parse(content, url);
+    >`;
+  new OgoneLexer((reason, cursor, context) => {
+    supported = false;
+  }).parse(content, url);
   if (!supported) {
+    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+  }
+});
+
+Deno.test('ogone-lexer should use onError function when a node is not closed', () => {
+  let result = false;
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    result = true;
+  });
+  const content = `<div></div><div><p><p></p></p>`;
+  const contexts = lexer.parse(content, url);
+  if (!result) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
 });

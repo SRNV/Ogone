@@ -21,7 +21,7 @@ Deno.test('ogone-lexer can retrieve node flags', () => {
       throw err;
     }
   } else {
-    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+    throw new Error('OgoneLexer - Failed to retrieve Flag Context');
   }
 });
 
@@ -45,7 +45,7 @@ Deno.test('ogone-lexer flag name is accessible through related', () => {
       throw err;
     }
   } else {
-    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+    throw new Error('OgoneLexer - Failed to retrieve Flag Context');
   }
 });
 
@@ -87,7 +87,7 @@ Deno.test('ogone-lexer can retrieve flags value', () => {
       throw err;
     }
   } else {
-    throw new Error('OgoneLexer - Failed to retrieve Node Context');
+    throw new Error('OgoneLexer - Failed to retrieve Flag Context');
   }
 });
 

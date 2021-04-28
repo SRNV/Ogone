@@ -73,8 +73,10 @@ Deno.test('ogone-lexer supports comment blocks with multi lines', () => {
   `;
   const contexts = lexer.parse(content, url);
   if (contexts && contexts.length) {
-    const [,commentBlock] = contexts;
-    assertEquals(commentBlock.type, ContextTypes.CommentBlock);
+    const commentBlock = contexts.find((comment) => comment.type === ContextTypes.CommentBlock);
+    if (!commentBlock) {
+      throw new Error('Failed to retrieve the comment block')
+    }
     assertEquals(commentBlock.source, content.trim());
     assertEquals(commentBlock.position, { start: 1, end: 130, line: 1, column: 0 });
   } else {
@@ -82,7 +84,7 @@ Deno.test('ogone-lexer supports comment blocks with multi lines', () => {
   }
 });
 Deno.test('ogone-lexer should use the onError function when a html comment isnt finished', () => {
-    let result = false;
+  let result = false;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     result = true;
   });
