@@ -11,6 +11,7 @@ export interface CursorDescriber {
   line: number;
   x: number;
 }
+
 export enum Reason { };
 
 export const SupportedFlags = [
