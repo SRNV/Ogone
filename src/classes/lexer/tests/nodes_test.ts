@@ -7,7 +7,7 @@ Deno.test('ogone-lexer supports nodes', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<div></div>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [tagname, node,] = contexts;
     assertEquals(tagname.source, 'div');
@@ -24,7 +24,7 @@ Deno.test('ogone-lexer can retrieve node names: template', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<template></template>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [tagname, node,] = contexts;
     assertEquals(tagname.source, 'template');
@@ -41,7 +41,7 @@ Deno.test('ogone-lexer can retrieve node names: proto', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto></proto>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [tagname, node,] = contexts;
     assertEquals(tagname.source, 'proto');
@@ -58,7 +58,7 @@ Deno.test('ogone-lexer tagname is accessible through the related property', () =
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto></proto>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const [, node,] = contexts;
@@ -82,7 +82,7 @@ Deno.test('ogone-lexer should use the onError function when a node isnt finished
     result = true;
   });
   const content = `<div`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -94,7 +94,7 @@ Deno.test('ogone-lexer shouldnt consider this as a node', () => {
     result = true;
   });
   const content = `<:div`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -106,7 +106,7 @@ Deno.test('ogone-lexer shouldnt consider this as a node 2', () => {
     result = true;
   });
   const content = `<!div`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -118,7 +118,7 @@ Deno.test('ogone-lexer shouldnt consider this as a node 3', () => {
     result = true;
   });
   const content = `< div`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -130,7 +130,7 @@ Deno.test('ogone-lexer should use onError when anything is typed on a closing no
     result = true;
   });
   const content = `<div></div nothing should appear here >`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -142,7 +142,7 @@ Deno.test('ogone-lexer should fail when anything is typed on a closing node 2', 
     result = true;
   });
   const content = `<div></div a>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -156,7 +156,7 @@ Deno.test('ogone-lexer should support line breaks into closing tag', () => {
     >`;
   new OgoneLexer((reason, cursor, context) => {
     supported = false;
-  }).parse(content, url);
+  }).parse(content, { type: 'component' });
   if (!supported) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -166,7 +166,7 @@ Deno.test('ogone-lexer should use onError function when a node is not closed', (
   let result = false;
   new OgoneLexer(() => {
     result = true;
-  }).parse(`<div></div><div><p><p></p></p>`, url);
+  }).parse(`<div></div><div><p><p></p></p>`, { type: 'component' });
   if (!result) {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
   }
@@ -177,7 +177,7 @@ Deno.test('ogone-lexer supports auto closing tags', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto/>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const proto = contexts.find((context) =>
@@ -201,7 +201,7 @@ Deno.test('ogone-lexer supports auto closing tags 2', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto />`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const proto = contexts.find((context) =>
@@ -230,7 +230,7 @@ Deno.test('ogone-lexer supports auto closing tags 3', () => {
     with
     attributes
   />`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const proto = contexts.find((context) =>
@@ -253,7 +253,7 @@ Deno.test('ogone-lexer supports auto closing tags 4 (ending with an attribute)',
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto ending/>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const proto = contexts.find((context) =>
@@ -276,7 +276,7 @@ Deno.test('ogone-lexer supports auto closing tags 4 (ending with a flag)', () =>
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto --await/>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const proto = contexts.find((context) =>
@@ -299,7 +299,7 @@ Deno.test('ogone-lexer supports auto closing tags 4 (ending with a flag and a va
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto --await={}/>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const proto = contexts.find((context) =>

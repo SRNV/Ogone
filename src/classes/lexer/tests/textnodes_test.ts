@@ -8,7 +8,7 @@ Deno.test('ogone-lexer supports textnodes', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const textnodes = contexts.filter((context) => context.type === ContextTypes.TextNode);
     const [text1, text2] = textnodes;
@@ -28,7 +28,7 @@ Deno.test('ogone-lexer supports textnodes with template', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const textnodes = contexts.filter((context) => context.type === ContextTypes.TextNode);
     const [text1] = textnodes;
@@ -55,7 +55,7 @@ Deno.test('ogone-lexer should use onError function when an unsupported textnode 
       && context.source === content;
     assertEquals(context.position, { start: 0, line: 0, column: 0, end: 1 });
   })
-  .parse(content, url);
+  .parse(content, { type: 'component' });
   if (!result) {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.TextNode} context`);
   }

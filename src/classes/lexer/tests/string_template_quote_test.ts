@@ -8,7 +8,7 @@ Deno.test('ogone-lexer supports template quotes', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = "` test support `";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'lexer' });
   if (contexts && contexts.length) {
     const [doubleQuote] = contexts;
     assertEquals(doubleQuote.type, ContextTypes.StringTemplateQuote);
@@ -27,7 +27,7 @@ Deno.test('ogone-lexer should not use escaped template quotes to close quotes', 
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = "` test support \\` should display the whole string`";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'lexer' });
   if (contexts && contexts.length) {
     const [doubleQuote] = contexts;
     assertEquals(doubleQuote.type, ContextTypes.StringTemplateQuote);
@@ -48,7 +48,7 @@ Deno.test('ogone-lexer should use the onError function, when the StringTemplateQ
     result = true;
   });
   const content = "`";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'lexer' });
   if (contexts && contexts.length) {
     assertEquals(result, true);
   } else {
@@ -63,7 +63,7 @@ Deno.test('ogone-lexer should use the onError function, when the StringTemplateQ
     result = true;
   });
   const content = "`${";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'lexer' });
   if (contexts && contexts.length) {
     assertEquals(result, true);
   } else {
@@ -77,7 +77,7 @@ Deno.test('ogone-lexer supports template concatenation inside template quotes', 
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = "`${supported}`";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'lexer' });
   if (contexts && contexts.length) {
     const [templateEval, templateQuote] = contexts;
     assertEquals(true, templateQuote.children.includes(templateEval));
@@ -100,7 +100,7 @@ Deno.test('ogone-lexer supports recursive template concatenation', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = "`${supported `test ${name}`}`";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'lexer' });
   if (contexts && contexts.length) {
     const [space, templateQuoteEval, templateQuote, templateQuoteEvalOnTop, templateQuoteOnTop] = contexts;
     assertEquals(true, templateQuote.children.includes(templateQuoteEval));

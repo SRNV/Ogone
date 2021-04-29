@@ -7,7 +7,7 @@ Deno.test('ogone-lexer supports import ambient statement', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `import'my_stuff.js';`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
   } else {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');
@@ -33,7 +33,7 @@ Deno.test('ogone-lexer supports all import statements', () => {
       bar
     } from "name-module/chemin/vers/fichier-non-exporte";
   `;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
   } else {
     throw new Error('OgoneLexer - Failed to retrieve Node Context');

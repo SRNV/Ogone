@@ -11,7 +11,7 @@ Deno.test('ogone-lexer can retrieve node flags', () => {
     ${SupportedFlags.join('\n    ')}
     not-a-flag
     ></proto>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const { length } = SupportedFlags;
@@ -31,7 +31,7 @@ Deno.test('ogone-lexer flag name is accessible through related', () => {
   });
   const source = 'then:flag:name';
   const content = `<proto --${source}></proto>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const flag = contexts.find((context) => context.type === ContextTypes.Flag);
@@ -54,7 +54,7 @@ Deno.test('ogone-lexer can retrieve flags value', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto --if={true}></proto>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const flag = contexts.find((context) => context.type === ContextTypes.Flag);
@@ -96,7 +96,7 @@ Deno.test('ogone-lexer can retrieve spread value', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto { ...this.spread }></proto>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const flag = contexts.find((context) => context.type === ContextTypes.FlagSpread);
@@ -117,7 +117,7 @@ Deno.test('ogone-lexer can retrieve spread value on a auto-closing tag', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto { ...this.spread }/>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const flag = contexts.find((context) => context.type === ContextTypes.FlagSpread);
@@ -138,7 +138,7 @@ Deno.test('ogone-lexer can retrieve spread value without spaces', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<proto {...this.spread}/>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const flag = contexts.find((context) => context.type === ContextTypes.FlagSpread);

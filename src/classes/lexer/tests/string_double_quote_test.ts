@@ -8,7 +8,7 @@ Deno.test('ogone-lexer supports single quotes', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = "' single quotes are supported '";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [singleQuote] = contexts;
     assertEquals(singleQuote.type, ContextTypes.StringSingleQuote);
@@ -27,7 +27,7 @@ Deno.test('ogone-lexer should not use escaped quotes to close quotes', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = "' single quotes are supported \\' is escaped but still open'";
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [singleQuote] = contexts;
     assertEquals(singleQuote.type, ContextTypes.StringSingleQuote);
@@ -49,7 +49,7 @@ Deno.test('ogone-lexer should use the onError function', () => {
   });
   const content = `'
   '`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     assertEquals(result, true);
   } else {
@@ -64,7 +64,7 @@ Deno.test('ogone-lexer should use the onError function, when the StringSingleQuo
     result = true;
   });
   const content = `'`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     assertEquals(result, true);
   } else {

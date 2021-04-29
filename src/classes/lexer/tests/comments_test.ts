@@ -8,7 +8,7 @@ Deno.test('ogone-lexer supports comments', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = '//';
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [comment] = contexts;
     assertEquals(comment.type, ContextTypes.Comment);
@@ -30,7 +30,7 @@ Deno.test('ogone-lexer supports multiple comments', () => {
   // 2
   // 3
   `;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [,, comment,, comment2,, comment3] = contexts;
     assertEquals(comment.type, ContextTypes.Comment);
@@ -50,7 +50,7 @@ Deno.test('ogone-lexer supports comment blocks', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `/** supported! */`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [commentBlock] = contexts;
     assertEquals(commentBlock.type, ContextTypes.CommentBlock);
@@ -71,7 +71,7 @@ Deno.test('ogone-lexer supports comment blocks with multi lines', () => {
  * to make it isomorphic with Node and Deno
  */
   `;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const commentBlock = contexts.find((comment) => comment.type === ContextTypes.CommentBlock);
     if (!commentBlock) {
@@ -89,7 +89,7 @@ Deno.test('ogone-lexer should use the onError function when a html comment isnt 
     result = true;
   });
   const content = `<!--`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result) {
     throw new Error('OgoneLexer - Failed to retrieve Space context');
   }
@@ -101,7 +101,7 @@ Deno.test('ogone-lexer not a comment', () => {
     result = true;
   });
   const content = `<! --`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Space context');
   }
@@ -114,7 +114,7 @@ Deno.test('ogone-lexer not a comment 2', () => {
     result = true;
   });
   const content = `<!- -`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (!result || contexts.length) {
     throw new Error('OgoneLexer - Failed to retrieve Space context');
   }
@@ -126,7 +126,7 @@ Deno.test('ogone-lexer supports html comments', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<!-- -->`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [comment] = contexts;
     assertEquals(comment.type, ContextTypes.HTMLComment);
@@ -142,7 +142,7 @@ Deno.test('ogone-lexer - only one html comment', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<!-- 'nothing else' "// " -->`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length && contexts.length === 1) {
     const [comment] = contexts;
     assertEquals(comment.type, ContextTypes.HTMLComment);
@@ -157,7 +157,7 @@ Deno.test('ogone-lexer supports compact html comments', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const content = `<!---->`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length && contexts.length === 1) {
     const [comment] = contexts;
     assertEquals(comment.type, ContextTypes.HTMLComment);
@@ -176,7 +176,7 @@ Deno.test('ogone-lexer supports multiple comments', () => {
 <!--
     with line breaks
 -->`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     const [comment,,comment2,,comment3] = contexts;
     assertEquals(comment.type, ContextTypes.HTMLComment);

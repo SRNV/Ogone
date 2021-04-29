@@ -11,6 +11,25 @@ export interface CursorDescriber {
   line: number;
   x: number;
 }
+export interface OgooneLexerParseOptions {
+  /**
+   * url of the current document
+   */
+  url?: URL;
+  /**
+   * optional contexts
+   * to use with the type custom
+   */
+  contexts?: ContextReader[];
+  /**
+   * the type of the document
+   */
+  type: 'component'
+    | 'lexer'
+    | 'custom'
+    | 'stylesheet'
+    | 'protocol';
+}
 
 export enum Reason { };
 
@@ -108,6 +127,21 @@ export enum ContextTypes {
   AttributeValueContent = 'AttributeValueContent',
   AttributeValueStart = 'AttributeValueStart',
   AttributeValueEnd = 'AttributeValueEnd',
+  /**
+   * all contexts involved into protocol
+   */
+  Protocol = 'Protocol',
+  /**
+   * all contexts involved into stylesheet
+   */
+  StyleSheet = 'StyleSheet',
+  StyleSheetRule = 'StyleSheetRule',
+  StyleSheetAtRule = 'StyleSheetAtRule',
+  StyleSheetConst = 'StyleSheetConst',
+  StyleSheetConstValue = 'StyleSheetConstValue',
+  StyleSheetExportConst = 'StyleSheetExportConst',
+  StyleSheetCurlyBraces = 'StyleSheetCurlyBraces',
+  StyleSheetSelector = 'StyleSheetSelector',
 }
 export class OgoneLexerContext {
   public children: OgoneLexerContext[] = [];
@@ -207,8 +241,36 @@ export class OgoneLexer {
   private get nodeContextStarted(): boolean {
     return Boolean(this.currentContexts.find((context) => [ContextTypes.Node].includes(context.type)))
   }
+  private scopedTopLevel: Record<OgooneLexerParseOptions['type'], ContextReader[]> = {
+    lexer: [
+      this.string_template_quote_CTX,
+    ],
+    component: [
+      this.comment_CTX,
+      this.comment_block_CTX,
+      this.line_break_CTX,
+      this.multiple_spaces_CTX,
+      this.space_CTX,
+      this.string_single_quote_CTX,
+      this.string_double_quote_CTX,
+      this.import_ambient_CTX,
+      this.import_statements_CTX,
+      this.html_comment_CTX,
+      this.node_CTX,
+      this.protocol_CTX,
+      this.stylesheet_CTX,
+      this.textnode_CTX,
+    ],
+    stylesheet: [
+      this.stylesheet_CTX,
+    ],
+    protocol: [
+      this.protocol_CTX,
+    ],
+    custom: [],
+  }
   constructor(private onError: (reason: string, cursor: CursorDescriber, context: OgoneLexerContext) => any) { }
-  parse(text: string, url: URL): OgoneLexerContext[] {
+  parse(text: string, opts: OgooneLexerParseOptions): OgoneLexerContext[] {
     try {
       const item = OgoneLexer.mapDocuments.get(text);
       if (item) return item;
@@ -218,25 +280,19 @@ export class OgoneLexer {
        * used internally
        */
       this.source = text;
+      /**
+       * retrieve the top level contexts
+       * if custom is used as the opts.type of the method
+       * push the opts.contexts or an empty array
+       */
+      const toplevel = this.scopedTopLevel[opts.type];
+      if (opts.type === 'custom') {
+        toplevel.push(...(opts.contexts || []));
+      }
       while (!this.isEOF) {
         // we are at the top level
         // start using context readers
-        const isValid = this.topCTX([
-          this.comment_CTX,
-          this.comment_block_CTX,
-          this.line_break_CTX,
-          this.multiple_spaces_CTX,
-          this.space_CTX,
-          this.string_single_quote_CTX,
-          this.string_double_quote_CTX,
-          this.import_ambient_CTX,
-          this.import_statements_CTX,
-          // just for tests but shouldn't be supported on top level
-          this.string_template_quote_CTX,
-          this.html_comment_CTX,
-          this.node_CTX,
-          this.textnode_CTX,
-        ]);
+        const isValid = this.topCTX(toplevel);
         if (!isValid) {
           this.onError('Unexpected token', this.cursor, this.lastContext);
           break;
@@ -459,7 +515,7 @@ export class OgoneLexer {
    * @param unexpected array of context readers which shift the cursor of the lexer
    * those readers shouldnt participate to the string_template_quote_context
    */
-  string_template_quote_CTX(unexpected: ContextReader[]): boolean {
+  string_template_quote_CTX(unexpected: ContextReader[] = []): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -990,6 +1046,7 @@ export class OgoneLexer {
             this.openTags.splice(index, 1);
             // save the closing tag
             openTag.related.push(context);
+            openTag.data.closed = true;
           }
         }
       }
@@ -1559,6 +1616,122 @@ export class OgoneLexer {
       if (!isClosed) {
         this.onError('the AttributeValueUnquoted isnt closed', this.cursor, context);
       }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * special section for the component's protcol
+   */
+  /**
+   * reads the textnodes that should match (protocol)> ... </(protocol)
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the protocol_context
+   */
+   protocol_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const lastIsAStyleNode = this.currentContexts.find((context) => context.type === ContextTypes.Node
+        && context.related.find((node) => node.type === ContextTypes.NodeName
+          && node.source === 'proto')
+        && !context.related.find((node) => node.type === ContextTypes.NodeClosing));
+      const isValid = !!lastIsAStyleNode;
+      if (!isValid) return false;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      const allSubContexts = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+      ];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.lastContext);
+          }
+        });
+        if ([
+          '<',
+        ].includes(this.char)) {
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.Protocol, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * special section for css stylesheet
+   * and the custom css preprocessor
+   *
+   * please note that here are only accepted
+   * all the context that are used for styling
+   */
+  /**
+   * reads the textnodes that should match (style)> ... </(style)
+   * @param unexpected array of context readers which shift the cursor of the lexer
+   * those readers shouldnt participate to the stylesheet_context
+   */
+  stylesheet_CTX(unexpected: ContextReader[] = []): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const lastIsAStyleNode = this.currentContexts.find((context) => context.type === ContextTypes.Node
+        && context.related.find((node) => node.type === ContextTypes.NodeName
+          && node.source === 'style')
+        && !context.related.find((node) => node.type === ContextTypes.NodeClosing));
+      const isValid = !!lastIsAStyleNode;
+      if (!isValid) return false;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      const allSubContexts = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+      ];
+      while (!this.isEOF) {
+        this.cursor.x++;
+        this.cursor.column++;
+        this.isValidChar(unexpected);
+        allSubContexts.forEach((reader) => {
+          const recognized = reader.apply(this, []);
+          if (recognized) {
+            children.push(this.lastContext);
+          }
+        });
+        if ([
+          '<',
+        ].includes(this.char)) {
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheet, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
       return result;
     } catch (err) {
       throw err;

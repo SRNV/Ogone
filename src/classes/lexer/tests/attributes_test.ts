@@ -9,7 +9,7 @@ Deno.test('ogone-lexer can parse attribute unquoted', () => {
   });
   const source = 'a=value';
   const content = `<div ${source}></div>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const attribute = contexts.find((context) => context.type === ContextTypes.Attribute);
@@ -50,7 +50,7 @@ Deno.test('ogone-lexer can parse boolean attributes and a space after', () => {
   });
   const source = 'hidden'
   const content = `<div ${source} ></div>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const attribute = contexts.find((context) => context.type === ContextTypes.AttributeBoolean);
@@ -83,7 +83,7 @@ Deno.test('ogone-lexer can parse multiple boolean attributes', () => {
   });
   const sources = ['hidden', 'named', 'href', 'src-p'];
   const content = `<div ${sources.join('\n\t')} ></div>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const targets = [
@@ -128,7 +128,7 @@ Deno.test('ogone-lexer can parse boolean attributes and without space after', ()
   });
   const source = 'hidden'
   const content = `<div ${source}></div>`;
-  const contexts = lexer.parse(content, url);
+  const contexts = lexer.parse(content,  { type: 'component' });
   if (contexts && contexts.length) {
     try {
       const attribute = contexts.find((context) => context.type === ContextTypes.AttributeBoolean);

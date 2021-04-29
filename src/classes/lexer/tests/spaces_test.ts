@@ -7,7 +7,7 @@ Deno.test('ogone-lexer supports spaces', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
-  const contexts = lexer.parse(' ', url);
+  const contexts = lexer.parse(' ', { type: 'component' });
   if (contexts && contexts.length) {
     const [space] = contexts;
     assertEquals(space.type, ContextTypes.Space);
@@ -24,7 +24,7 @@ Deno.test('ogone-lexer supports multiple spaces', () => {
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
-  const contexts = lexer.parse('  ', url);
+  const contexts = lexer.parse('  ', { type: 'component' });
   if (contexts && contexts.length) {
     const [space] = contexts;
     assertEquals(space.type, ContextTypes.MultipleSpaces);
@@ -42,7 +42,7 @@ Deno.test('ogone-lexer supports line break', () => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const contexts = lexer.parse(`
-  `, url);
+  `, { type: 'component' });
   if (contexts && contexts.length) {
     const [lineBreak] = contexts;
     assertEquals(lineBreak.type, ContextTypes.LineBreak);
