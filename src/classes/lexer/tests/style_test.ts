@@ -63,8 +63,7 @@ Deno.test('ogone-lexer stylesheet supports type rule assignment', () => {
   const content = `
   @<myTrait>  div {
     color: red;
-  }
-  `;
+  }`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
@@ -93,18 +92,12 @@ Deno.test('ogone-lexer stylesheet supports type rule assignment', () => {
  * @export const
  * we should be able to expose primitive types
  */
-/*
 Deno.test('ogone-lexer stylesheet supports @const statement', () => {
-  const content = `
-  <template>
-    <style>
-      @const myVar: type = #000000;
-    </style>
-  </template>`;
+  const content = `@const myVar: type = #000000;`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
-  const contexts = lexer.parse(content,  { type: 'component' });
+  const contexts = lexer.parse(content,  { type: 'stylesheet' });
   if (contexts && contexts.length) {
     const constant = contexts.find((context) => context.type === ContextTypes.StyleSheetConst);
     if (!constant) {
@@ -115,6 +108,7 @@ Deno.test('ogone-lexer stylesheet supports @const statement', () => {
   }
 });
 
+/*
 
 Deno.test('ogone-lexer stylesheet supports @export statement', () => {
   const content = `

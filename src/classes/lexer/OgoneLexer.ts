@@ -712,12 +712,11 @@ export class OgoneLexer {
       if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
-      const allSubContexts = [
+      const allSubContexts = opts?.contexts || [
         this.line_break_CTX,
         this.multiple_spaces_CTX,
         this.space_CTX,
         this.curly_braces_CTX,
-        ...(opts?.contexts || []),
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
@@ -1667,6 +1666,17 @@ export class OgoneLexer {
   private isEndOfStylesheet(): boolean {
     return this.isStartingNode() && this.nextPart.startsWith('</style');
   }
+  /**
+   * all regular at rules
+   * that aren't followed by curly braces
+   */
+  private regularAtRulesNames: string[] = [
+    'charset',
+    'import',
+    'namespace',
+    'const',
+    'export'
+  ];
   stylesheet_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next, lastContext } = this;
@@ -1721,6 +1731,7 @@ export class OgoneLexer {
       if (opts?.checkOnly) return true;
       let result = true;
       let isTyped = false;
+      let isClosed = false;
       const children: OgoneLexerContext[] = [];
       const describers: ContextReader[] = [
         this.stylesheet_at_rule_name_CTX,
@@ -1730,19 +1741,27 @@ export class OgoneLexer {
       const related: OgoneLexerContext[] = [];
       this.saveContextsTo(describers, related);
       isTyped = !!related.find((context) => context.type === ContextTypes.StyleSheetTypeAssignment);
+      // retrieve the atrule name
+      const atRuleName = related.find((context) => context.type === ContextTypes.StyleSheetAtRuleName);
+      const shouldEndWithCurlyBraces = atRuleName
+        && !this.regularAtRulesNames.includes(atRuleName.source)
+        || !atRuleName;
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
         this.saveContextsTo(allSubContexts, children);
-        if (this.char === '{' || this.isEndOfStylesheet()) {
+        if (shouldEndWithCurlyBraces && this.char === '{'
+          || !shouldEndWithCurlyBraces && this.char === ';'
+          || this.isEndOfStylesheet()) {
           break;
         }
       }
       /**
        * the at rule should be followed by curly bras
        */
-      const isClosed = this.curly_braces_CTX({
-        contexts: [],
+      const subCurlyBracesContexts: ContextReader[] = [];
+      isClosed = this.curly_braces_CTX({
+        contexts: subCurlyBracesContexts,
       });
       if (isClosed) {
         const { lastContext } = this;
