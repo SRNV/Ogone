@@ -34,16 +34,11 @@ Deno.test('ogone-lexer can retrieve nested css', () => {
 });
 
 Deno.test('ogone-lexer can parse at-rules', () => {
-  const content = `
-  <template>
-    <style>
-      @media screen and (min-width: 100px) {}
-    </style>
-  </template>`;
+  const content = ` @media screen and (min-width: 100px) {} `;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
-  const contexts = lexer.parse(content,  { type: 'component' });
+  const contexts = lexer.parse(content,  { type: 'stylesheet' });
   if (contexts && contexts.length) {
     const constant = contexts.find((context) => context.type === ContextTypes.StyleSheetConst);
     if (!constant) {
@@ -62,6 +57,7 @@ Deno.test('ogone-lexer can parse at-rules', () => {
  * @export const
  * we should be able to expose primitive types
  */
+/*
 Deno.test('ogone-lexer stylesheet supports @const statement', () => {
   const content = `
   <template>
@@ -104,3 +100,4 @@ Deno.test('ogone-lexer stylesheet supports @export statement', () => {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
   }
 });
+*/

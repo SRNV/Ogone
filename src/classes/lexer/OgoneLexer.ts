@@ -1,11 +1,18 @@
 /**
+ * author: Rudy Alula
+ *
  * we will use this lexer in different engine
  * it shouldn't import anything
  * to make it isomorphic with Node and Deno
  *
  * for this this file shouldn't use the Deno namespace
  */
-export type ContextReader = (contexts?: ContextReader[]) => boolean;
+export interface ContextReaderOptions {
+  contexts?: ContextReader[],
+  unexpected?: ContextReader[],
+  checkOnly?: boolean,
+}
+export type ContextReader = (this: OgoneLexer, opts?: ContextReaderOptions) => boolean;
 export interface CursorDescriber {
   column: number;
   line: number;
@@ -137,8 +144,10 @@ export enum ContextTypes {
   StyleSheet = 'StyleSheet',
   StyleSheetRule = 'StyleSheetRule',
   StyleSheetAtRule = 'StyleSheetAtRule',
+  StyleSheetAtRuleName = 'StyleSheetAtRuleName',
   StyleSheetConst = 'StyleSheetConst',
   StyleSheetConstValue = 'StyleSheetConstValue',
+  StyleSheetExportConstValue = 'StyleSheetExportConstValue',
   StyleSheetExportConst = 'StyleSheetExportConst',
   StyleSheetCurlyBraces = 'StyleSheetCurlyBraces',
   StyleSheetSelector = 'StyleSheetSelector',
@@ -159,6 +168,7 @@ export class OgoneLexerContext {
   ) { }
 }
 /**
+ * @README
  * this class exists to improve the performances
  * of the Ogone Compiler
  * it should provide all the contexts of an Ogone Component
@@ -167,6 +177,7 @@ export class OgoneLexerContext {
  * 0.29.0: a component can't reach 250 lines without performance issues
  *
  * so this lexer should go quick without any issues
+ *
  */
 export class OgoneLexer {
   /**
@@ -319,8 +330,9 @@ export class OgoneLexer {
    */
   isValidChar(unexpected?: ContextReader[]) {
     if (!unexpected) return;
+    const opts = { checkOnly: true };
     for (let reader of unexpected) {
-      const isUnexpected = reader.apply(this, [[]]);
+      const isUnexpected = reader.apply(this, [opts]);
       if (isUnexpected) {
         this.onError(`Unexpected token: ${this.char}`, this.cursor, this.lastContext);
       }
@@ -341,10 +353,8 @@ export class OgoneLexer {
   }
   /**
    * will parse any comment blocks starting with /* and ending with * /
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the comment_block_context
    */
-  comment_block_CTX(unexpected: ContextReader[] = []): boolean {
+  comment_block_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -359,7 +369,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -392,10 +402,8 @@ export class OgoneLexer {
   }
   /**
    * will parse any comment blocks starting with /* and ending with * /
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the comment_block_context
    */
-  comment_CTX(unexpected: ContextReader[] = []): boolean {
+  comment_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -405,7 +413,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         if (this.char === "\n") {
           this.cursor.x++;
           this.cursor.column++;
@@ -428,12 +436,8 @@ export class OgoneLexer {
   }
   /**
    * reads the all strings starting with a '
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the string_single_quote_context
    */
-  string_single_quote_CTX(unexpected: ContextReader[] = [
-    this.line_break_CTX
-  ]): boolean {
+  string_single_quote_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       let { source } = this;
@@ -444,7 +448,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.line_break_CTX
+        ]);
         if (this.char === "'" && this.prev !== '\\') {
           this.cursor.x++;
           this.cursor.column++;
@@ -470,12 +476,8 @@ export class OgoneLexer {
   }
   /**
    * reads the all strings starting with a "
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the string_double_quote_context
    */
-  string_double_quote_CTX(unexpected: ContextReader[] = [
-    this.line_break_CTX
-  ]): boolean {
+  string_double_quote_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       let { source } = this;
@@ -486,7 +488,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.line_break_CTX
+        ]);
         if (this.char === "\"" && this.prev !== '\\') {
           this.cursor.x++;
           this.cursor.column++;
@@ -512,10 +516,8 @@ export class OgoneLexer {
   }
   /**
    * reads the all strings starting with a `
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the string_template_quote_context
    */
-  string_template_quote_CTX(unexpected: ContextReader[] = []): boolean {
+  string_template_quote_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -531,7 +533,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -564,10 +566,8 @@ export class OgoneLexer {
   }
   /**
    * checks inside a string_template_quote_context if there's an evaluation
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the string_template_quote_context
    */
-  string_template_quote_eval_CTX(unexpected: ContextReader[] = []): boolean {
+  string_template_quote_eval_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -585,7 +585,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -618,10 +618,8 @@ export class OgoneLexer {
   }
   /**
    * should match with ( ... ) and is recursive
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the braces_context
    */
-  braces_CTX(unexpected: ContextReader[] = []): boolean {
+  braces_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, } = this;
       const { x, line, column } = this.cursor;
@@ -639,7 +637,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -672,10 +670,8 @@ export class OgoneLexer {
   }
   /**
    * should match with {...} and is recursive
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the braces_context
    */
-  curly_braces_CTX(unexpected: ContextReader[] = []): boolean {
+  curly_braces_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, } = this;
       const { x, line, column } = this.cursor;
@@ -693,7 +689,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -726,10 +722,8 @@ export class OgoneLexer {
   }
   /**
    * should match with [...] and is recursive
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the braces_context
    */
-  array_CTX(unexpected: ContextReader[] = []): boolean {
+  array_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, } = this;
       const { x, line, column } = this.cursor;
@@ -747,7 +741,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -780,11 +774,9 @@ export class OgoneLexer {
   }
   /**
    * reads if the cursor's character is a space
-   * @param unexpected array of context readers which shift the cursor of the lewer
-   * those readers shouldnt participate to the multiple_spaces_context
    * @returns true if the current character and the next characters are spaces
    */
-  multiple_spaces_CTX(unexpected: ContextReader[] = []): boolean {
+  multiple_spaces_CTX(opts?: ContextReaderOptions): boolean {
     try {
       const { char, next, source } = this;
       if (char !== ' ' || next !== ' ') return false;
@@ -793,7 +785,7 @@ export class OgoneLexer {
       while (this.char === ' ') {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
       }
       result = x !== this.cursor.x;
       if (result) {
@@ -855,10 +847,8 @@ export class OgoneLexer {
   }
   /**
    * reads the textnodes that should match (node)> ... <(node)
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the textnode_context
    */
-  textnode_CTX(unexpected: ContextReader[] = []): boolean {
+  textnode_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
@@ -881,7 +871,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -911,14 +901,8 @@ export class OgoneLexer {
   /**
    * should output all the html in the document
    * any sequence starting with a < and that is followed by a character is a node
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the node_context
    */
-  node_CTX(unexpected: ContextReader[] = [
-    // shouldn't start a new node
-    this.node_CTX,
-    this.html_comment_CTX,
-  ]): boolean {
+  node_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -978,7 +962,11 @@ export class OgoneLexer {
         }
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          // shouldn't start a new node
+          this.node_CTX,
+          this.html_comment_CTX,
+        ]);
         if (!isNamed) {
           subcontextEvaluatedOnce.forEach((reader) => {
             const recognized = reader.apply(this, []);
@@ -1060,10 +1048,8 @@ export class OgoneLexer {
   }
   /**
    * reads the tagname right after the <
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the node_name_context
    */
-  node_name_CTX(unexpected: ContextReader[] = []): boolean {
+  node_name_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char } = this;
       const { x, line, column } = this.cursor;
@@ -1074,7 +1060,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         if ([
           ' ',
           '/',
@@ -1101,12 +1087,8 @@ export class OgoneLexer {
   }
   /**
    * reads the tagname right after the <
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the html_comment_context
    */
-  html_comment_CTX(unexpected: ContextReader[] = [
-    this.html_comment_CTX,
-  ]): boolean {
+  html_comment_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -1120,7 +1102,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.html_comment_CTX,
+        ]);
         if (this.char === ">" && this.prev === '-' && source[this.cursor.x - 2] === '-') {
           this.cursor.x++;
           this.cursor.column++;
@@ -1147,10 +1131,8 @@ export class OgoneLexer {
   }
   /**
    * should read all ambient import statements
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the import_ambient_CTX
    */
-  import_ambient_CTX(unexpected: ContextReader[] = []): boolean {
+  import_ambient_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -1172,7 +1154,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         if (this.char === " " || ['"', "'"].includes(this.char)) {
           break;
         }
@@ -1211,11 +1193,9 @@ export class OgoneLexer {
   }
   /**
    * should read all import statements
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the html_comment_context
    */
   // TODO create contexts for the tokens between import and from
-  import_statements_CTX(unexpected: ContextReader[] = []): boolean {
+  import_statements_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, next } = this;
       const { x, line, column } = this.cursor;
@@ -1249,7 +1229,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         const sequenceEnd = this.char
           + this.next
           + source[this.cursor.x + 2]
@@ -1292,10 +1272,8 @@ export class OgoneLexer {
   }
   /**
    * reads the flags after the tag name
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the flag_context
    */
-  flag_CTX(unexpected: ContextReader[] = []): boolean {
+  flag_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -1313,7 +1291,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         if (!isNamed) {
           isNamed = Boolean(
             this.flag_name_CTX()
@@ -1348,11 +1326,7 @@ export class OgoneLexer {
       throw err;
     }
   }
-  flag_name_CTX(unexpected: ContextReader[] = [
-    this.array_CTX,
-    this.braces_CTX,
-    this.curly_braces_CTX,
-  ]): boolean {
+  flag_name_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -1364,7 +1338,11 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.array_CTX,
+          this.braces_CTX,
+          this.curly_braces_CTX,
+        ]);
         if ([' ', '>', '=', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1388,7 +1366,7 @@ export class OgoneLexer {
       throw err;
     }
   }
-  flag_spread_CTX(unexpected: ContextReader[] = []): boolean {
+  flag_spread_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, next } = this;
       const { x, line, column } = this.cursor;
@@ -1407,7 +1385,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         readers.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -1440,10 +1418,8 @@ export class OgoneLexer {
   }
   /**
    * reads the flags after the tag name
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the flag_context
    */
-  attributes_CTX(unexpected: ContextReader[] = []): boolean {
+  attributes_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next } = this;
       const { x, line, column } = this.cursor;
@@ -1472,7 +1448,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -1502,11 +1478,7 @@ export class OgoneLexer {
       throw err;
     }
   }
-  attribute_boolean_CTX(unexpected: ContextReader[] = [
-    this.array_CTX,
-    this.braces_CTX,
-    this.curly_braces_CTX,
-  ]): boolean {
+  attribute_boolean_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char } = this;
       const { x, line, column } = this.cursor;
@@ -1518,7 +1490,11 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.array_CTX,
+          this.braces_CTX,
+          this.curly_braces_CTX,
+        ]);
         if ([' ', '/', '>', '<', '\n'].includes(this.next!)) {
           this.cursor.x++;
           this.cursor.column++;
@@ -1543,11 +1519,7 @@ export class OgoneLexer {
       throw err;
     }
   }
-  attribute_name_CTX(unexpected: ContextReader[] = [
-    this.array_CTX,
-    this.braces_CTX,
-    this.curly_braces_CTX,
-  ]): boolean {
+  attribute_name_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char } = this;
       const { x, line, column } = this.cursor;
@@ -1559,7 +1531,11 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.array_CTX,
+          this.braces_CTX,
+          this.curly_braces_CTX,
+        ]);
         if ([' ', '/', '>', '=', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1582,11 +1558,7 @@ export class OgoneLexer {
       throw err;
     }
   }
-  attribute_unquoted_CTX(unexpected: ContextReader[] = [
-    this.array_CTX,
-    this.braces_CTX,
-    this.curly_braces_CTX,
-  ]): boolean {
+  attribute_unquoted_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev } = this;
       const { x, line, column } = this.cursor;
@@ -1598,7 +1570,11 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected || [
+          this.array_CTX,
+          this.braces_CTX,
+          this.curly_braces_CTX,
+        ]);
         if ([' ', '>', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1623,13 +1599,18 @@ export class OgoneLexer {
   }
   /**
    * special section for the component's protcol
+   * note that all the following context readers should
+   * participate to the proto element
+   * ```
+   * <proto>
+   *   ... (all the contexts)
+   * </proto>
+   * ```
    */
   /**
-   * reads the textnodes that should match (protocol)> ... </(protocol)
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the protocol_context
+   * reads the textnode that should match (protocol)> ... </(protocol)
    */
-   protocol_CTX(unexpected: ContextReader[] = []): boolean {
+   protocol_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
@@ -1650,7 +1631,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
@@ -1686,10 +1667,8 @@ export class OgoneLexer {
    */
   /**
    * reads the textnodes that should match (style)> ... </(style)
-   * @param unexpected array of context readers which shift the cursor of the lexer
-   * those readers shouldnt participate to the stylesheet_context
    */
-  stylesheet_CTX(unexpected: ContextReader[] = []): boolean {
+  stylesheet_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
@@ -1710,7 +1689,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.cursor.x++;
         this.cursor.column++;
-        this.isValidChar(unexpected);
+        this.isValidChar(opts?.unexpected);
         allSubContexts.forEach((reader) => {
           const recognized = reader.apply(this, []);
           if (recognized) {
