@@ -301,7 +301,7 @@ export class OgoneLexer {
    * find through the first argument the children context
    * will push the contexts to the second argument
    */
-  getChildren(
+  saveContextsTo(
     /**
      * the contexts to check
      */
@@ -428,10 +428,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === "/" && this.prev === '*') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -469,8 +468,8 @@ export class OgoneLexer {
         this.isValidChar(opts?.unexpected);
         if (this.char === "\n") {
           this.cursor.x++;
-          this.cursor.column++;
           this.cursor.line++;
+          this.cursor.column = 0;
           break;
         }
       }
@@ -505,8 +504,7 @@ export class OgoneLexer {
           this.line_break_CTX
         ]);
         if (this.char === "'" && this.prev !== '\\') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -545,8 +543,7 @@ export class OgoneLexer {
           this.line_break_CTX
         ]);
         if (this.char === "\"" && this.prev !== '\\') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -587,10 +584,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === "`" && this.prev !== '\\') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -634,10 +630,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === "}" && this.prev !== '\\') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -681,10 +676,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === ")") {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -723,15 +717,15 @@ export class OgoneLexer {
         this.multiple_spaces_CTX,
         this.space_CTX,
         this.curly_braces_CTX,
+        ...(opts?.contexts || []),
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === "}") {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -775,10 +769,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === "]") {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -899,7 +892,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.isStartingNode()) {
           break;
         }
@@ -1001,12 +994,11 @@ export class OgoneLexer {
           });
         }
         // TODO fix autoclosing tags
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === "<") {
           break;
         } else if (this.char === ">") {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           isAutoClosing = this.previousPart.endsWith('/>');
           break;
@@ -1121,8 +1113,7 @@ export class OgoneLexer {
           this.html_comment_CTX,
         ]);
         if (this.char === ">" && this.prev === '-' && source[this.cursor.x - 2] === '-') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -1312,7 +1303,7 @@ export class OgoneLexer {
             this.flag_name_CTX()
             && related.push(this.lastContext));
         }
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if ([' ', '>', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1396,15 +1387,9 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        readers.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.saveContextsTo(readers, children);
         if (['}',].includes(this.char)) {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -1459,7 +1444,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if ([' ', '>', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1501,8 +1486,7 @@ export class OgoneLexer {
           this.curly_braces_CTX,
         ]);
         if ([' ', '/', '>', '<', '\n'].includes(this.next!)) {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -1603,6 +1587,8 @@ export class OgoneLexer {
     }
   }
   /**
+   * ====================================================
+   *
    * special section for the component's protcol
    * note that all the following context readers should
    * participate to the proto element
@@ -1611,6 +1597,7 @@ export class OgoneLexer {
    *   ... (all the contexts)
    * </proto>
    * ```
+   * ====================================================
    */
   /**
    * reads the textnode that should match (protocol)> ... </(protocol)
@@ -1637,7 +1624,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.isStartingNode() && this.nextPart.startsWith('</proto')) {
           break;
         }
@@ -1657,11 +1644,15 @@ export class OgoneLexer {
     }
   }
   /**
+   * ====================================================
+   *
    * special section for css stylesheet
    * and the custom css preprocessor
    *
    * please note that here are only accepted
    * all the context that are used for styling
+   *
+   * ====================================================
    */
 
   /**
@@ -1696,11 +1687,11 @@ export class OgoneLexer {
         this.space_CTX,
         this.stylesheet_at_rule_CTX,
       ];
-      this.getChildren(allSubContexts, children);
+      this.saveContextsTo(allSubContexts, children);
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.isEndOfStylesheet()) {
           break;
         }
@@ -1729,6 +1720,7 @@ export class OgoneLexer {
       if (!isValid) return false;
       if (opts?.checkOnly) return true;
       let result = true;
+      let isTyped = false;
       const children: OgoneLexerContext[] = [];
       const describers: ContextReader[] = [
         this.stylesheet_at_rule_name_CTX,
@@ -1736,20 +1728,28 @@ export class OgoneLexer {
       ];
       const allSubContexts: ContextReader[] = [];
       const related: OgoneLexerContext[] = [];
-      describers.forEach((reader) => {
-        const valid = reader.apply(this, []);
-        if (valid) {
-          related.push(this.lastContext);
-        }
-      });
+      this.saveContextsTo(describers, related);
+      isTyped = !!related.find((context) => context.type === ContextTypes.StyleSheetTypeAssignment);
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === '{' || this.isEndOfStylesheet()) {
           break;
         }
       }
+      /**
+       * the at rule should be followed by curly bras
+       */
+      const isClosed = this.curly_braces_CTX({
+        contexts: [],
+      });
+      if (isClosed) {
+        const { lastContext } = this;
+        lastContext.type = ContextTypes.StyleSheetCurlyBraces;
+        children.push(lastContext);
+      }
+      // create and finish the current context
       const token = source.slice(x, this.cursor.x);
       const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRule, token, {
         start: x,
@@ -1759,7 +1759,11 @@ export class OgoneLexer {
       });
       context.children.push(...children);
       context.related.push(...related);
+      context.data.isTyped = isTyped;
       this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError(`the ${ContextTypes.StyleSheetAtRule} isn\'t closed`, this.cursor, context);
+      }
       return result;
     } catch (err) {
       throw err;
@@ -1785,10 +1789,9 @@ export class OgoneLexer {
           this.stylesheet_type_assignment_CTX,
           this.stylesheet_at_rule_CTX,
         ]);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === '>') {
-          this.cursor.x++;
-          this.cursor.column++;
+          this.shift(1);
           isClosed = true;
           break;
         }
@@ -1824,7 +1827,7 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.getChildren(allSubContexts, children);
+        this.saveContextsTo(allSubContexts, children);
         if (this.char === ' ') {
           break;
         }

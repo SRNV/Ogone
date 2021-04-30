@@ -1,5 +1,5 @@
 import { OgoneLexer, ContextTypes } from '../OgoneLexer.ts';
-import { assertEquals } from "https://deno.land/std@0.95.0/testing/asserts.ts";
+import { assertEquals, assert } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
 
@@ -44,7 +44,6 @@ Deno.test('ogone-lexer can parse at-rules', () => {
     if (!atrule) {
       throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
     }
-    console.warn(atrule.related);
     const name = atrule.related.find((context) =>
       context.type === ContextTypes.StyleSheetAtRuleName
       && context.source === 'media');
@@ -52,30 +51,40 @@ Deno.test('ogone-lexer can parse at-rules', () => {
       throw new Error(`OgoneLexer - Failed to retrieve the name of the at rule`);
     }
     assertEquals(name.position, { start: 2, end: 7, line: 0, column: 2 });
-    assertEquals(atrule.position, { start: 2, end: 38, line: 0, column: 2 });
+    assertEquals(atrule.position, { start: 2, end: 40, line: 0, column: 2 });
+    assert(atrule.source.endsWith('}'))
+    assert(atrule.children.find((ctx) => ctx.type === ContextTypes.StyleSheetCurlyBraces));
   } else {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
   }
 });
 
 Deno.test('ogone-lexer stylesheet supports type rule assignment', () => {
-  const content = `@< myTrait>  div {
+  const content = `
+  @<myTrait>  div {
     color: red;
-  }`;
+  }
+  `;
   const lexer = new OgoneLexer((reason, cursor, context) => {
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const contexts = lexer.parse(content,  { type: 'stylesheet' });
-  console.warn(contexts);
   if (contexts && contexts.length) {
-    const constant = contexts.find((context) => context.type === ContextTypes.StyleSheetTypeAssignment);
-    if (!constant) {
+    const atRule = contexts.find((context) => context.type === ContextTypes.StyleSheetAtRule);
+    const typeRule = contexts.find((context) => context.type === ContextTypes.StyleSheetTypeAssignment);
+    if (!atRule) {
       throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetTypeAssignment} context`);
     }
+    if (!typeRule) {
+      throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetTypeAssignment} context`);
+    }
+    assert(atRule.data.isTyped);
+    assert(atRule.children.find((ctx) => ctx.type === ContextTypes.StyleSheetCurlyBraces));
   } else {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetTypeAssignment} context`);
   }
 });
+// TODO retrieve all types inside StyleSheetTypeAssignment
 /**
  * being able to type a variable
  * with the statements
