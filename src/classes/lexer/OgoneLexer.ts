@@ -12,6 +12,7 @@ export interface ContextReaderOptions {
   unexpected?: ContextReader[],
   checkOnly?: boolean,
 }
+export const checkOnlyOptions: ContextReaderOptions = { checkOnly: true };
 export type ContextReader = (this: OgoneLexer, opts?: ContextReaderOptions) => boolean;
 export interface CursorDescriber {
   column: number;
@@ -281,6 +282,13 @@ export class OgoneLexer {
     custom: [],
   }
   constructor(private onError: (reason: string, cursor: CursorDescriber, context: OgoneLexerContext) => any) { }
+  isStartingNode(): boolean {
+    return [
+      '<',
+    ].includes(this.char)
+    && (this.node_CTX(checkOnlyOptions)
+    || this.html_comment_CTX(checkOnlyOptions));
+  }
   parse(text: string, opts: OgooneLexerParseOptions): OgoneLexerContext[] {
     try {
       const item = OgoneLexer.mapDocuments.get(text);
@@ -360,6 +368,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "/" || char === "/" && next !== '*') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const allSubContexts: ContextReader[] = [
@@ -409,6 +418,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "/" || char === "/" && next !== '/') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       while (!this.isEOF) {
         this.cursor.x++;
@@ -443,6 +453,7 @@ export class OgoneLexer {
       let { source } = this;
       const { x, column, line } = this.cursor;
       if (char !== "'" || char === "'" && prev === '\\') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       while (!this.isEOF) {
@@ -483,6 +494,7 @@ export class OgoneLexer {
       let { source } = this;
       const { x, column, line } = this.cursor;
       if (char !== "\"" || char === "\"" && prev === '\\') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       while (!this.isEOF) {
@@ -523,6 +535,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "`" || char === "`" && prev === '\\') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const allSubContexts = [
@@ -573,6 +586,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "$" || char === "$" && prev === '\\' || char === "$" && next !== '{') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const allSubContexts = [
@@ -625,6 +639,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "(") return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const allSubContexts = [
@@ -677,6 +692,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "{") return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const allSubContexts = [
@@ -729,6 +745,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "[") return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const allSubContexts = [
@@ -856,10 +873,11 @@ export class OgoneLexer {
       const lastIsANode = Boolean(lastContext && [ContextTypes.Node, ContextTypes.NodeClosing, ContextTypes.HTMLComment].includes(lastContext.type));
       const isValid = prev && ['>'].includes(prev) && lastIsANode ||
         char !== '<'
-        && !this.import_statements_CTX()
-        && !this.node_CTX()
-        && !this.comment_CTX();
+        && !this.import_statements_CTX(checkOnlyOptions)
+        && !this.node_CTX(checkOnlyOptions)
+        && !this.comment_CTX(checkOnlyOptions);
       if (!isValid || !this.nodeContextStarted) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       const children: OgoneLexerContext[] = [];
       const allSubContexts = [
@@ -878,9 +896,7 @@ export class OgoneLexer {
             children.push(this.lastContext);
           }
         });
-        if ([
-          '<',
-        ].includes(this.char)) {
+        if (this.isStartingNode()) {
           break;
         }
       }
@@ -911,6 +927,7 @@ export class OgoneLexer {
         || char === "<" && [' ', '<', '!'].includes(next!)
         || next && /([^a-zA-Z0-9\[\/])/i.test(next)
       ) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       let isAutoClosing = false;
@@ -1055,6 +1072,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if ([' ', '[', '!', '-', '\n', '/'].includes(char)) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
@@ -1096,7 +1114,8 @@ export class OgoneLexer {
       const sequence = [char, next, source[x + 2], source[x + 3]];
       if (char !== '<'
         || sequence.join('') !== '<!--') return false;
-      let result = true;
+      if (opts?.checkOnly) return true;
+        let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
@@ -1138,6 +1157,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (!/^import\s*(["'])(.*?)(\1)/i.test(this.nextPart)) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const related: OgoneLexerContext[] = [];
@@ -1209,7 +1229,8 @@ export class OgoneLexer {
         source[x + 6];
       if (char !== 'i'
         || sequence !== 'import ') return false;
-      let result = true;
+      if (opts?.checkOnly) return true;
+        let result = true;
       let isClosed = false;
       const related: OgoneLexerContext[] = [];
       const otherImportStatements: ContextReader[] = [
@@ -1279,6 +1300,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== '-' || next !== '-') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       let isNamed = false;
@@ -1332,6 +1354,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char === '-') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
@@ -1372,6 +1395,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== '{' || !/^\{(\s*)(\.){3}/i.test(this.nextPart)) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
@@ -1428,7 +1452,8 @@ export class OgoneLexer {
         && prev !== ' '
         || char
         && !(/[a-zA-Z0-9\$\_]/i.test(char))) return false;
-      let result = true;
+        if (opts?.checkOnly) return true;
+        let result = true;
       let isClosed = false;
       let isNamed = false;
       const children: OgoneLexerContext[] = [];
@@ -1484,6 +1509,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char === '-' || !/^([^\s=\<\>\/]+?)(\s|\n|\>)/i.test(this.nextPart)) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
@@ -1525,6 +1551,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char === '-') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
@@ -1564,6 +1591,7 @@ export class OgoneLexer {
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (prev !== '=') return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
@@ -1621,6 +1649,7 @@ export class OgoneLexer {
         && !context.related.find((node) => node.type === ContextTypes.NodeClosing));
       const isValid = !!lastIsAStyleNode;
       if (!isValid) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       const children: OgoneLexerContext[] = [];
       const allSubContexts = [
@@ -1638,9 +1667,7 @@ export class OgoneLexer {
             children.push(this.lastContext);
           }
         });
-        if ([
-          '<',
-        ].includes(this.char)) {
+        if (this.isStartingNode()) {
           break;
         }
       }
@@ -1679,6 +1706,7 @@ export class OgoneLexer {
         && !context.related.find((node) => node.type === ContextTypes.NodeClosing));
       const isValid = !!lastIsAStyleNode;
       if (!isValid) return false;
+      if (opts?.checkOnly) return true;
       let result = true;
       const children: OgoneLexerContext[] = [];
       const allSubContexts = [
@@ -1696,9 +1724,7 @@ export class OgoneLexer {
             children.push(this.lastContext);
           }
         });
-        if ([
-          '<',
-        ].includes(this.char)) {
+        if (this.isStartingNode()) {
           break;
         }
       }
