@@ -60,3 +60,19 @@ Deno.test('ogone-lexer should use onError function when an unsupported textnode 
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.TextNode} context`);
   }
 });
+
+Deno.test('ogone-lexer supports textnodes using < but not starting a new node', () => {
+  const source = 'is a correct textnode <<<<';
+  const content = `<div> ${source}</div>`;
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const contexts = lexer.parse(content,  { type: 'component' });
+  if (contexts && contexts.length) {
+    const textnodes = contexts.filter((context) => context.type === ContextTypes.TextNode);
+    const [text1] = textnodes;
+    assertEquals(text1.source, source);
+  } else {
+    throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.TextNode} context`);
+  }
+});

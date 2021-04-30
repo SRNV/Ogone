@@ -146,6 +146,7 @@ export enum ContextTypes {
   StyleSheetRule = 'StyleSheetRule',
   StyleSheetAtRule = 'StyleSheetAtRule',
   StyleSheetAtRuleName = 'StyleSheetAtRuleName',
+  StyleSheetTypeAssignment = 'StyleSheetTypeAssignment',
   StyleSheetConst = 'StyleSheetConst',
   StyleSheetConstValue = 'StyleSheetConstValue',
   StyleSheetExportConstValue = 'StyleSheetExportConstValue',
@@ -186,7 +187,7 @@ export class OgoneLexer {
    * where the key is the text
    * if the text match, should return all the retrieved contexts
    */
-  static mapDocuments: Map<string, OgoneLexerContext[]> = new Map();
+  static mapContexts: Map<string, OgoneLexerContext[]> = new Map();
   /**
    * you should save here all the retrieved context
    * of the document
@@ -255,6 +256,11 @@ export class OgoneLexer {
   }
   private scopedTopLevel: Record<OgooneLexerParseOptions['type'], ContextReader[]> = {
     lexer: [
+      this.comment_CTX,
+      this.comment_block_CTX,
+      this.line_break_CTX,
+      this.multiple_spaces_CTX,
+      this.space_CTX,
       this.string_template_quote_CTX,
     ],
     component: [
@@ -274,14 +280,46 @@ export class OgoneLexer {
       this.textnode_CTX,
     ],
     stylesheet: [
+      this.comment_CTX,
+      this.comment_block_CTX,
+      this.line_break_CTX,
+      this.multiple_spaces_CTX,
+      this.space_CTX,
       this.stylesheet_CTX,
     ],
     protocol: [
+      this.line_break_CTX,
+      this.multiple_spaces_CTX,
+      this.space_CTX,
       this.protocol_CTX,
     ],
     custom: [],
-  }
+  };
+  private parseOptions: OgooneLexerParseOptions | null = null;
   constructor(private onError: (reason: string, cursor: CursorDescriber, context: OgoneLexerContext) => any) { }
+  /**
+   * find through the first argument the children context
+   * will push the contexts to the second argument
+   */
+  getChildren(
+    /**
+     * the contexts to check
+     */
+    fromContexts: ContextReader[],
+    /**
+     * the array used to save the children contexts
+     */
+    to: OgoneLexerContext[]) {
+    fromContexts.forEach((reader) => {
+      const recognized = reader.apply(this, []);
+      if (recognized) {
+        to.push(this.lastContext);
+      }
+    });
+  }
+  /**
+   * returns if the current character is starting a new element
+   */
   isStartingNode(): boolean {
     return [
       '<',
@@ -289,10 +327,23 @@ export class OgoneLexer {
     && (this.node_CTX(checkOnlyOptions)
     || this.html_comment_CTX(checkOnlyOptions));
   }
+  /**
+   * move the cursor and the column,
+   * this method is used during parsing step
+   */
+  shift(movement: number = 1) {
+    this.cursor.x += + movement;
+    this.cursor.column += + movement;
+  }
+  /**
+   * parse the text and retrieve all the contexts
+   */
   parse(text: string, opts: OgooneLexerParseOptions): OgoneLexerContext[] {
     try {
-      const item = OgoneLexer.mapDocuments.get(text);
-      if (item) return item;
+      /**
+       * save the options argument
+       */
+      this.parseOptions = opts;
       /**
        * save the current parsed text
        * to source
@@ -338,9 +389,8 @@ export class OgoneLexer {
    */
   isValidChar(unexpected?: ContextReader[]) {
     if (!unexpected) return;
-    const opts = { checkOnly: true };
     for (let reader of unexpected) {
-      const isUnexpected = reader.apply(this, [opts]);
+      const isUnexpected = reader.apply(this, [checkOnlyOptions]);
       if (isUnexpected) {
         this.onError(`Unexpected token: ${this.char}`, this.cursor, this.lastContext);
       }
@@ -376,15 +426,9 @@ export class OgoneLexer {
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === "/" && this.prev === '*') {
           this.cursor.x++;
           this.cursor.column++;
@@ -421,8 +465,7 @@ export class OgoneLexer {
       if (opts?.checkOnly) return true;
       let result = true;
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
         if (this.char === "\n") {
           this.cursor.x++;
@@ -457,8 +500,7 @@ export class OgoneLexer {
       let result = true;
       let isClosed = false;
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.line_break_CTX
         ]);
@@ -498,8 +540,7 @@ export class OgoneLexer {
       let result = true;
       let isClosed = false;
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.line_break_CTX
         ]);
@@ -544,15 +585,9 @@ export class OgoneLexer {
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === "`" && this.prev !== '\\') {
           this.cursor.x++;
           this.cursor.column++;
@@ -597,15 +632,9 @@ export class OgoneLexer {
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === "}" && this.prev !== '\\') {
           this.cursor.x++;
           this.cursor.column++;
@@ -650,15 +679,9 @@ export class OgoneLexer {
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === ")") {
           this.cursor.x++;
           this.cursor.column++;
@@ -703,15 +726,9 @@ export class OgoneLexer {
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === "}") {
           this.cursor.x++;
           this.cursor.column++;
@@ -756,15 +773,9 @@ export class OgoneLexer {
       ];
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === "]") {
           this.cursor.x++;
           this.cursor.column++;
@@ -800,8 +811,7 @@ export class OgoneLexer {
       const { x, column, line } = this.cursor;
       let result = false;
       while (this.char === ' ') {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
       }
       result = x !== this.cursor.x;
@@ -887,15 +897,9 @@ export class OgoneLexer {
         this.string_template_quote_eval_CTX,
       ];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.isStartingNode()) {
           break;
         }
@@ -977,8 +981,7 @@ export class OgoneLexer {
             this.onError(`Unexpected token ${this.char}`, this.cursor, context);
           }
         }
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           // shouldn't start a new node
           this.node_CTX,
@@ -998,12 +1001,7 @@ export class OgoneLexer {
           });
         }
         // TODO fix autoclosing tags
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if (this.char === "<") {
           break;
         } else if (this.char === ">") {
@@ -1076,8 +1074,7 @@ export class OgoneLexer {
       let result = true;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
         if ([
           ' ',
@@ -1119,8 +1116,7 @@ export class OgoneLexer {
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.html_comment_CTX,
         ]);
@@ -1172,8 +1168,7 @@ export class OgoneLexer {
         this.semicolon_CTX,
       ];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
         if (this.char === " " || ['"', "'"].includes(this.char)) {
           break;
@@ -1248,8 +1243,7 @@ export class OgoneLexer {
       ];
       otherImportStatements.forEach((reader) => reader.apply(this, []));
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
         const sequenceEnd = this.char
           + this.next
@@ -1311,20 +1305,14 @@ export class OgoneLexer {
         this.braces_CTX,
       ];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
         if (!isNamed) {
           isNamed = Boolean(
             this.flag_name_CTX()
             && related.push(this.lastContext));
         }
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if ([' ', '>', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1359,8 +1347,7 @@ export class OgoneLexer {
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.array_CTX,
           this.braces_CTX,
@@ -1407,8 +1394,7 @@ export class OgoneLexer {
         this.curly_braces_CTX,
       ];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
         readers.forEach((reader) => {
           const recognized = reader.apply(this, []);
@@ -1471,15 +1457,9 @@ export class OgoneLexer {
           && related.push(this.lastContext));
       }
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
+        this.getChildren(allSubContexts, children);
         if ([' ', '>', '\n'].includes(this.char)) {
           isClosed = true;
           break;
@@ -1514,8 +1494,7 @@ export class OgoneLexer {
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.array_CTX,
           this.braces_CTX,
@@ -1556,8 +1535,7 @@ export class OgoneLexer {
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.array_CTX,
           this.braces_CTX,
@@ -1596,8 +1574,7 @@ export class OgoneLexer {
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.array_CTX,
           this.braces_CTX,
@@ -1658,16 +1635,10 @@ export class OgoneLexer {
         this.space_CTX,
       ];
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
-        if (this.isStartingNode()) {
+        this.getChildren(allSubContexts, children);
+        if (this.isStartingNode() && this.nextPart.startsWith('</proto')) {
           break;
         }
       }
@@ -1692,44 +1663,174 @@ export class OgoneLexer {
    * please note that here are only accepted
    * all the context that are used for styling
    */
+
+  /**
+   * returns true if the parse method is configured has stylesheet
+   */
+  get isParsingStylesheet(): boolean {
+    return Boolean(this.parseOptions && this.parseOptions.type === 'stylesheet');
+  }
   /**
    * reads the textnodes that should match (style)> ... </(style)
    */
+  private isEndOfStylesheet(): boolean {
+    return this.isStartingNode() && this.nextPart.startsWith('</style');
+  }
   stylesheet_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
       const lastIsAStyleNode = this.currentContexts.find((context) => context.type === ContextTypes.Node
-        && context.related.find((node) => node.type === ContextTypes.NodeName
-          && node.source === 'style')
-        && !context.related.find((node) => node.type === ContextTypes.NodeClosing));
-      const isValid = !!lastIsAStyleNode;
+      && context.related.find((node) => node.type === ContextTypes.NodeName
+      && node.source === 'style')
+      && !context.related.find((node) => node.type === ContextTypes.NodeClosing));
+      const isValid = !!lastIsAStyleNode || this.isParsingStylesheet;
       if (!isValid) return false;
-      if (opts?.checkOnly) return true;
+      if (opts?.checkOnly) return !this.isEndOfStylesheet();
       let result = true;
       const children: OgoneLexerContext[] = [];
-      const allSubContexts = [
+      const allSubContexts: ContextReader[] = [
         this.line_break_CTX,
         this.multiple_spaces_CTX,
         this.space_CTX,
+        this.stylesheet_at_rule_CTX,
       ];
+      this.getChildren(allSubContexts, children);
       while (!this.isEOF) {
-        this.cursor.x++;
-        this.cursor.column++;
+        this.shift(1);
         this.isValidChar(opts?.unexpected);
-        allSubContexts.forEach((reader) => {
-          const recognized = reader.apply(this, []);
-          if (recognized) {
-            children.push(this.lastContext);
-          }
-        });
-        if (this.isStartingNode()) {
+        this.getChildren(allSubContexts, children);
+        if (this.isEndOfStylesheet()) {
           break;
         }
       }
       const token = source.slice(x, this.cursor.x);
       const context = new OgoneLexerContext(ContextTypes.StyleSheet, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_at_rule_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = Boolean(prev === '@'
+        && char !== ' ');
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      const describers: ContextReader[] = [
+        this.stylesheet_at_rule_name_CTX,
+        this.stylesheet_type_assignment_CTX,
+      ];
+      const allSubContexts: ContextReader[] = [];
+      const related: OgoneLexerContext[] = [];
+      describers.forEach((reader) => {
+        const valid = reader.apply(this, []);
+        if (valid) {
+          related.push(this.lastContext);
+        }
+      });
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        this.getChildren(allSubContexts, children);
+        if (this.char === '{' || this.isEndOfStylesheet()) {
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRule, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      context.related.push(...related);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_type_assignment_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = char === '<' && prev === '@';
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      let isClosed = false;
+      const children: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = (opts?.contexts || [
+        // this.stylesheet_type_name_CTX,
+      ]);
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected || [
+          this.stylesheet_type_assignment_CTX,
+          this.stylesheet_at_rule_CTX,
+        ]);
+        this.getChildren(allSubContexts, children);
+        if (this.char === '>') {
+          this.cursor.x++;
+          this.cursor.column++;
+          isClosed = true;
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetTypeAssignment, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      if (!isClosed) {
+        this.onError(`the ${ContextTypes.StyleSheetTypeAssignment} isn\'t closed`, this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_at_rule_name_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = ![' ', '@', '<'].includes(char);
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = (opts?.contexts || []);
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        this.getChildren(allSubContexts, children);
+        if (this.char === ' ') {
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleName, token, {
         start: x,
         end: this.cursor.x,
         line,

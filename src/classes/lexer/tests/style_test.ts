@@ -40,15 +40,42 @@ Deno.test('ogone-lexer can parse at-rules', () => {
   });
   const contexts = lexer.parse(content,  { type: 'stylesheet' });
   if (contexts && contexts.length) {
-    const constant = contexts.find((context) => context.type === ContextTypes.StyleSheetConst);
-    if (!constant) {
+    const atrule = contexts.find((context) => context.type === ContextTypes.StyleSheetAtRule);
+    if (!atrule) {
       throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
     }
+    console.warn(atrule.related);
+    const name = atrule.related.find((context) =>
+      context.type === ContextTypes.StyleSheetAtRuleName
+      && context.source === 'media');
+    if (!name) {
+      throw new Error(`OgoneLexer - Failed to retrieve the name of the at rule`);
+    }
+    assertEquals(name.position, { start: 2, end: 7, line: 0, column: 2 });
+    assertEquals(atrule.position, { start: 2, end: 38, line: 0, column: 2 });
   } else {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
   }
 });
 
+Deno.test('ogone-lexer stylesheet supports type rule assignment', () => {
+  const content = `@< myTrait>  div {
+    color: red;
+  }`;
+  const lexer = new OgoneLexer((reason, cursor, context) => {
+    throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
+  });
+  const contexts = lexer.parse(content,  { type: 'stylesheet' });
+  console.warn(contexts);
+  if (contexts && contexts.length) {
+    const constant = contexts.find((context) => context.type === ContextTypes.StyleSheetTypeAssignment);
+    if (!constant) {
+      throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetTypeAssignment} context`);
+    }
+  } else {
+    throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetTypeAssignment} context`);
+  }
+});
 /**
  * being able to type a variable
  * with the statements
