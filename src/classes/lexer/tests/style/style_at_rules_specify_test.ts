@@ -4,8 +4,9 @@ import { assertEquals, assert } from "https://deno.land/std@0.95.0/testing/asser
 const url = new URL(import.meta.url);
 /**
  * specifications in css
- *
+ * provide a way for teams to limit features on styles
  */
+/*
 Deno.test('ogone-lexer stylesheet supports specs statement', () => {
   const content = `
   @specify {
@@ -42,3 +43,4 @@ Deno.test('ogone-lexer stylesheet supports specs statement', () => {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetTypeAssignment} context`);
   }
 });
+*/

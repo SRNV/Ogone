@@ -1,4 +1,4 @@
-import { OgoneLexer, ContextTypes } from '../../OgoneLexer.ts';
+import { OgoneLexer, ContextTypes, SupportedStyleSheetAtRuleConstantTypes } from '../../OgoneLexer.ts';
 import { assertEquals, assert } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
@@ -16,7 +16,6 @@ Deno.test('ogone-lexer stylesheet supports @const statement, and it can retrieve
   const constName = 'myColor'
   const content = ` @const ${constName}<hex>= #001000;`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
-    console.log(context);
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const contexts = lexer.parse(content,  { type: 'stylesheet' });
@@ -46,7 +45,6 @@ Deno.test('ogone-lexer stylesheet supports @const statement, and it can retrieve
     </style>
   </template>`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
-    // console.log(context);
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const contexts = lexer.parse(content,  { type: 'component' });
@@ -68,9 +66,8 @@ Deno.test('ogone-lexer stylesheet supports @const statement, and it can retrieve
 });
 
 Deno.test('ogone-lexer stylesheet supports @export statement', () => {
-  const content = `@export const myVar<type> = #000000;`;
+  const content = `@export const myVar<hex> = #000000;`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
-    console.log(context);
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const contexts = lexer.parse(content,  { type: 'stylesheet' });
@@ -83,3 +80,4 @@ Deno.test('ogone-lexer stylesheet supports @export statement', () => {
     throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetAtRuleConst} context`);
   }
 });
+// TODO implement types tests

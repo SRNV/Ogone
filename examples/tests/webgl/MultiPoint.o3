@@ -57,7 +57,7 @@ import type { GLClearColorType, WebGLFusionType } from './public/types.ts';
         if (gl && (gl instanceof WebGLRenderingContext || gl instanceof WebGL2RenderingContext)) {
           console.log('Ogone - WebGL context retrieved');
         } else {
-          throw new Error('Ogone is not able to get WebGL context, your browser or device may not support WebGL.')
+          throw new Error('Ogone is not able to retrieve the WebGL context, your browser or device may not support WebGL.')
         }
         return gl;
       } catch (err) {
