@@ -39,7 +39,34 @@ export interface OgooneLexerParseOptions {
   | 'protocol';
 }
 
-export enum Reason { };
+export enum Reason {
+  UnexpectedToken = 1436,
+  HTMLTagNotClosed = 1443,
+  CommentBlockOpen = 1519,
+  StringSingleQuoteOpen = 1593,
+  StringDoubleQuoteOpen = 1633,
+  StringTemplateQuoteOpen = 1678,
+  StringTemplateQuoteEvaluationOpen = 1725,
+  BracesOpen = 1773,
+  CurlyBracesOpen = 1819,
+  ArrayOpen = 1866,
+  HTMLClosingTagWithoutOpening = 2116,
+  HTMLTagNotFinish = 2128,
+  HTMLCommentOpen = 2211,
+  ImportAmbientStringMissing = 2274,
+  ImportStatementNotFinish = 2354,
+  OgoneFlagNotFinish = 2406,
+  OgoneSpreadFlagNotClosed = 2491,
+  HTMLAttributeNotClosed = 2549,
+  HTMLBooleanAttributeNotClosed = 2590,
+  HTMLAttributeNameNotClosed = 2630,
+  HTMLAttributeValueUnquotedNotClosed = 2670,
+  StyleSheetAtRuleCharsetInvalid = 2887,
+  StyleSheetAtRuleCharsetStringIsMissing = 2890,
+  StyleSheetAtRuleCharsetNotFinish = 2894,
+  StyleSheetAtRuleCurlyBracesAreMissing = 2960,
+  StyleSheetTypeAssignmentNotFinish = 3004,
+};
 
 export const SupportedStyleSheetPseudoElements = [
   'after',
@@ -820,6 +847,293 @@ export const SupportedStyleSheetColors = [
   'yellowgreen',
 ];
 
+export const SupportedStyleSheetCharset = [
+  'US-ASCII',
+  'ISO_8859-1:1987',
+  'ISO_8859-2:1987',
+  'ISO_8859-3:1988',
+  'ISO_8859-4:1988',
+  'ISO_8859-5:1988',
+  'ISO_8859-6:1987',
+  'ISO_8859-7:1987',
+  'ISO_8859-8:1988',
+  'ISO_8859-9:1989',
+  'ISO-8859-10',
+  'ISO_6937-2-add',
+  'JIS_X0201',
+  'JIS_Encoding',
+  'Shift_JIS',
+  'Extended_UNIX_Code_Packed_Format_for_Japanese',
+  'Extended_UNIX_Code_Fixed_Width_for_Japanese',
+  'BS_4730',
+  'SEN_850200_C',
+  'IT',
+  'ES',
+  'DIN_66003',
+  'NS_4551-1',
+  'NF_Z_62-010',
+  'ISO-10646-UTF-1',
+  'ISO_646.basic:1983',
+  'INVARIANT',
+  'ISO_646.irv:1983',
+  'NATS-SEFI',
+  'NATS-SEFI-ADD',
+  'NATS-DANO',
+  'NATS-DANO-ADD',
+  'SEN_850200_B',
+  'KS_C_5601-1987',
+  'ISO-2022-KR',
+  'EUC-KR',
+  'ISO-2022-JP',
+  'ISO-2022-JP-2',
+  'JIS_C6220-1969-jp',
+  'JIS_C6220-1969-ro',
+  'PT',
+  'greek7-old',
+  'latin-greek',
+  'NF_Z_62-010_(1973)',
+  'Latin-greek-1',
+  'ISO_5427',
+  'JIS_C6226-1978',
+  'BS_viewdata',
+  'INIS',
+  'INIS-8',
+  'INIS-cyrillic',
+  'ISO_5427:1981',
+  'ISO_5428:1980',
+  'GB_1988-80',
+  'GB_2312-80',
+  'NS_4551-2',
+  'videotex-suppl',
+  'PT2',
+  'ES2',
+  'MSZ_7795.3',
+  'JIS_C6226-1983',
+  'greek7',
+  'ASMO_449',
+  'iso-ir-90',
+  'JIS_C6229-1984-a',
+  'JIS_C6229-1984-b',
+  'JIS_C6229-1984-b-add',
+  'JIS_C6229-1984-hand',
+  'JIS_C6229-1984-hand-add',
+  'JIS_C6229-1984-kana',
+  'ISO_2033-1983',
+  'ANSI_X3.110-1983',
+  'T.61-7bit',
+  'T.61-8bit',
+  'ECMA-cyrillic',
+  'CSA_Z243.4-1985-1',
+  'CSA_Z243.4-1985-2',
+  'CSA_Z243.4-1985-gr',
+  'ISO_8859-6-E',
+  'ISO_8859-6-I',
+  'T.101-G2',
+  'ISO_8859-8-E',
+  'ISO_8859-8-I',
+  'CSN_369103',
+  'JUS_I.B1.002',
+  'IEC_P27-1',
+  'JUS_I.B1.003-serb',
+  'JUS_I.B1.003-mac',
+  'greek-ccitt',
+  'NC_NC00-10:81',
+  'ISO_6937-2-25',
+  'GOST_19768-74',
+  'ISO_8859-supp',
+  'ISO_10367-box',
+  'latin-lap',
+  'JIS_X0212-1990',
+  'DS_2089',
+  'us-dk',
+  'dk-us',
+  'KSC5636',
+  'UNICODE-1-1-UTF-7',
+  'ISO-2022-CN',
+  'ISO-2022-CN-EXT',
+  'UTF-8',
+  'ISO-8859-13',
+  'ISO-8859-14',
+  'ISO-8859-15',
+  'ISO-8859-16',
+  'GBK',
+  'GB18030',
+  'OSD_EBCDIC_DF04_15',
+  'OSD_EBCDIC_DF03_IRV',
+  'OSD_EBCDIC_DF04_1',
+  'ISO-11548-1',
+  'KZ-1048',
+  'ISO-10646-UCS-2',
+  'ISO-10646-UCS-4',
+  'ISO-10646-UCS-Basic',
+  'ISO-10646-Unicode-Latin1',
+  'ISO-10646-J-1',
+  'ISO-Unicode-IBM-1261',
+  'ISO-Unicode-IBM-1268',
+  'ISO-Unicode-IBM-1276',
+  'ISO-Unicode-IBM-1264',
+  'ISO-Unicode-IBM-1265',
+  'UNICODE-1-1',
+  'SCSU',
+  'UTF-7',
+  'UTF-16BE',
+  'UTF-16LE',
+  'UTF-16',
+  'CESU-8',
+  'UTF-32',
+  'UTF-32BE',
+  'UTF-32LE',
+  'BOCU-1',
+  'UTF-7-IMAP',
+  'ISO-8859-1-Windows-3.0-Latin-1',
+  'ISO-8859-1-Windows-3.1-Latin-1',
+  'ISO-8859-2-Windows-Latin-2',
+  'ISO-8859-9-Windows-Latin-5',
+  'hp-roman8',
+  'Adobe-Standard-Encoding',
+  'Ventura-US',
+  'Ventura-International',
+  'DEC-MCS',
+  'IBM850',
+  'PC8-Danish-Norwegian',
+  'IBM862',
+  'PC8-Turkish',
+  'IBM-Symbols',
+  'IBM-Thai',
+  'HP-Legal',
+  'HP-Pi-font',
+  'HP-Math8',
+  'Adobe-Symbol-Encoding',
+  'HP-DeskTop',
+  'Ventura-Math',
+  'Microsoft-Publishing',
+  'Windows-31J',
+  'GB2312',
+  'Big5',
+  'macintosh',
+  'IBM037',
+  'IBM038',
+  'IBM273',
+  'IBM274',
+  'IBM275',
+  'IBM277',
+  'IBM278',
+  'IBM280',
+  'IBM281',
+  'IBM284',
+  'IBM285',
+  'IBM290',
+  'IBM297',
+  'IBM420',
+  'IBM423',
+  'IBM424',
+  'IBM437',
+  'IBM500',
+  'IBM851',
+  'IBM852',
+  'IBM855',
+  'IBM857',
+  'IBM860',
+  'IBM861',
+  'IBM863',
+  'IBM864',
+  'IBM865',
+  'IBM868',
+  'IBM869',
+  'IBM870',
+  'IBM871',
+  'IBM880',
+  'IBM891',
+  'IBM903',
+  'IBM904',
+  'IBM905',
+  'IBM918',
+  'IBM1026',
+  'EBCDIC-AT-DE',
+  'EBCDIC-AT-DE-A',
+  'EBCDIC-CA-FR',
+  'EBCDIC-DK-NO',
+  'EBCDIC-DK-NO-A',
+  'EBCDIC-FI-SE',
+  'EBCDIC-FI-SE-A',
+  'EBCDIC-FR',
+  'EBCDIC-IT',
+  'EBCDIC-PT',
+  'EBCDIC-ES',
+  'EBCDIC-ES-A',
+  'EBCDIC-ES-S',
+  'EBCDIC-UK',
+  'EBCDIC-US',
+  'UNKNOWN-8BIT',
+  'MNEMONIC',
+  'MNEM',
+  'VISCII',
+  'VIQR',
+  'KOI8-R',
+  'HZ-GB-2312',
+  'IBM866',
+  'IBM775',
+  'KOI8-U',
+  'IBM00858',
+  'IBM00924',
+  'IBM01140',
+  'IBM01141',
+  'IBM01142',
+  'IBM01143',
+  'IBM01144',
+  'IBM01145',
+  'IBM01146',
+  'IBM01147',
+  'IBM01148',
+  'IBM01149',
+  'Big5-HKSCS',
+  'IBM1047',
+  'PTCP154',
+  'Amiga-1251',
+  'KOI7-switched',
+  'BRF',
+  'TSCII',
+  'CP51932',
+  'windows-874',
+  'windows-1250',
+  'windows-1251',
+  'windows-1252',
+  'windows-1253',
+  'windows-1254',
+  'windows-1255',
+  'windows-1256',
+  'windows-1257',
+  'windows-1258',
+  'TIS-620',
+  'CP50220',
+  'Alexander Uskov',
+  'Alexei Veremeev',
+  'Chris Wendt',
+  'Florian Weimer',
+  'Hank Nussbacher',
+  'Internet Assigned Numbers Authority',
+  'Jun Murai',
+  'Katya Lazhintseva',
+  'Keld Simonsen',
+  'Keld Simonsen',
+  'Kuppuswamy Kalyanasundaram',
+  'Mark Davis',
+  'Markus Scherer',
+  'Masataka Ohta',
+  'Nicky Yick',
+  'Reuel Robrigado',
+  'Rick Pond',
+  'Sairan M. Kikkarin',
+  'Samuel Thibault',
+  'Shawn Steele',
+  'Tamer Mahdi',
+  'Toby Phipps',
+  'Trin Tantsetthi',
+  'Vladas Tumasonis',
+  'Woohyong Choi',
+  'Yui Naruse'
+];
+
 export const SupportedFlags = [
   /**
    * structural flags
@@ -925,6 +1239,7 @@ export enum ContextTypes {
   StyleSheetRule = 'StyleSheetRule',
   StyleSheetAtRule = 'StyleSheetAtRule',
   StyleSheetAtRuleName = 'StyleSheetAtRuleName',
+  StyleSheetAtRuleCharset = 'StyleSheetAtRuleCharset',
   StyleSheetTypeAssignment = 'StyleSheetTypeAssignment',
   StyleSheetConst = 'StyleSheetConst',
   StyleSheetConstValue = 'StyleSheetConstValue',
@@ -1075,7 +1390,7 @@ export class OgoneLexer {
     custom: [],
   };
   private parseOptions: OgooneLexerParseOptions | null = null;
-  constructor(private onError: (reason: string, cursor: CursorDescriber, context: OgoneLexerContext) => any) { }
+  constructor(private onError: (reason: Reason, cursor: CursorDescriber, context: OgoneLexerContext) => any) { }
   /**
    * find through the first argument the children context
    * will push the contexts to the second argument
@@ -1143,13 +1458,13 @@ export class OgoneLexer {
         // start using context readers
         const isValid = this.topCTX(toplevel);
         if (!isValid) {
-          this.onError('Unexpected token', this.cursor, this.lastContext);
+          this.onError(Reason.UnexpectedToken, this.cursor, this.lastContext);
           break;
         }
       }
       if (this.openTags.length) {
         const lastNode = this.openTags[this.openTags.length - 1];
-        this.onError('Unexpected: Remaining open tag without closing tag', this.cursor, lastNode);
+        this.onError(Reason.HTMLTagNotClosed, this.cursor, lastNode);
       }
       return this.currentContexts;
     } catch (err) {
@@ -1171,7 +1486,7 @@ export class OgoneLexer {
     for (let reader of unexpected) {
       const isUnexpected = reader.apply(this, [checkOnlyOptions]);
       if (isUnexpected) {
-        this.onError(`Unexpected token: ${this.char}`, this.cursor, this.lastContext);
+        this.onError(Reason.UnexpectedToken, this.cursor, this.lastContext);
       }
     }
   }
@@ -1224,7 +1539,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the CommentBlock isn\'t closed', this.cursor, context);
+        this.onError(Reason.CommentBlockOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1297,7 +1612,7 @@ export class OgoneLexer {
       });
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the StringSingleQuote isn't closed`, this.cursor, context);
+        this.onError(Reason.StringSingleQuoteOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1336,7 +1651,7 @@ export class OgoneLexer {
       });
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the StringDoubleQuote isn't closed`, this.cursor, context);
+        this.onError(Reason.StringDoubleQuoteOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1380,7 +1695,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the StringTemplateQuote isn't closed`, this.cursor, context);
+        this.onError(Reason.StringTemplateQuoteOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1426,7 +1741,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the StringTemplateQuoteEval isn\'t closed', this.cursor, context);
+        this.onError(Reason.StringTemplateQuoteEvaluationOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1472,7 +1787,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the Braces isn't closed`, this.cursor, context);
+        this.onError(Reason.BracesOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1518,7 +1833,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the CurlyBraces isn't closed`, this.cursor, context);
+        this.onError(Reason.CurlyBracesOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1564,7 +1879,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the Array isn't closed`, this.cursor, context);
+        this.onError(Reason.ArrayOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1749,7 +2064,7 @@ export class OgoneLexer {
               line,
               column,
             });
-            this.onError(`Unexpected token ${this.char}`, this.cursor, context);
+            this.onError(Reason.UnexpectedToken, this.cursor, context);
           }
         }
         this.shift(1);
@@ -1813,7 +2128,7 @@ export class OgoneLexer {
               && nodeContext.related[0].type === ContextTypes.NodeName
               && nodeContext.related[0].source === context.related[0].source);
           if (!openTag) {
-            this.onError(`cannot close an element that is not open`, this.cursor, context);
+            this.onError(Reason.HTMLClosingTagWithoutOpening, this.cursor, context);
           } else {
             const index = this.openTags.indexOf(openTag);
             this.openTags.splice(index, 1);
@@ -1824,7 +2139,7 @@ export class OgoneLexer {
         }
       }
       if (!isClosed) {
-        this.onError(`the Node isn't closed`, this.cursor, context);
+        this.onError(Reason.HTMLTagNotFinish, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1906,7 +2221,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the HTMLComment isnt closed', this.cursor, context);
+        this.onError(Reason.HTMLCommentOpen, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -1968,7 +2283,7 @@ export class OgoneLexer {
       context.related.push(...related);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the ImportAmbient isnt closed', this.cursor, context);
+        this.onError(Reason.ImportAmbientStringMissing, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2047,7 +2362,7 @@ export class OgoneLexer {
       context.related.push(...related);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the ImportStatement isnt closed', this.cursor, context);
+        this.onError(Reason.ImportStatementNotFinish, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2098,7 +2413,7 @@ export class OgoneLexer {
       context.related.push(...related);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the Flag isnt closed', this.cursor, context);
+        this.onError(Reason.OgoneFlagNotFinish, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2138,7 +2453,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the FlagName isnt closed', this.cursor, context);
+        this.onError(Reason.OgoneFlagNotFinish, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2182,7 +2497,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the FlagSpread isnt closed', this.cursor, context);
+        this.onError(Reason.OgoneSpreadFlagNotClosed, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2239,7 +2554,7 @@ export class OgoneLexer {
       context.related.push(...related);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the Attribute isnt closed', this.cursor, context);
+        this.onError(Reason.HTMLAttributeNotClosed, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2279,7 +2594,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the AttributeBoolean isnt closed', this.cursor, context);
+        this.onError(Reason.HTMLBooleanAttributeNotClosed, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2318,7 +2633,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the AttributeName isnt closed', this.cursor, context);
+        this.onError(Reason.HTMLAttributeNameNotClosed, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2357,7 +2672,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError('the AttributeValueUnquoted isnt closed', this.cursor, context);
+        this.onError(Reason.HTMLAttributeValueUnquotedNotClosed, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2453,8 +2768,6 @@ export class OgoneLexer {
     'charset',
     'import',
     'namespace',
-    'const',
-    'export'
   ];
   stylesheet_CTX(opts?: ContextReaderOptions): boolean {
     try {
@@ -2474,7 +2787,10 @@ export class OgoneLexer {
         this.line_break_CTX,
         this.multiple_spaces_CTX,
         this.space_CTX,
-        this.stylesheet_at_rule_CTX,
+        // at-rules specs
+        // last should be the default at rule
+        this.stylesheet_charset_at_rule_CTX,
+        this.stylesheet_default_at_rule_CTX,
       ];
       this.saveContextsTo(allSubContexts, children);
       while (!this.isEOF) {
@@ -2499,7 +2815,90 @@ export class OgoneLexer {
       throw err;
     }
   }
-  stylesheet_at_rule_CTX(opts?: ContextReaderOptions): boolean {
+  /**
+   * reader for the at-rule @charset
+   * @charset should be followed by a string (double or single);
+   */
+  stylesheet_charset_at_rule_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const sequence = [
+        char, // c
+        next, // h
+        source[x + 2], // a
+        source[x + 3], // r
+        source[x + 4], // s
+        source[x + 5], // e
+        source[x + 6], // t
+      ].join('');
+      const isValid = Boolean(prev === '@'
+        && sequence === 'charset');
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      let isClosed = false;
+      const children: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = [
+        this.line_break_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.string_double_quote_CTX,
+        this.string_single_quote_CTX,
+      ];
+      // retrieve the atrule name
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        this.saveContextsTo(allSubContexts, children);
+        if (this.char === ';') {
+          this.shift(1);
+          isClosed = Boolean(children.length && children.find((context) => [
+            ContextTypes.StringSingleQuote,
+            ContextTypes.StringDoubleQuote
+          ].includes(context.type)));
+          break;
+        }
+      }
+      // create and finish the current context
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleCharset, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      // now check if everything is good with the charset
+      const str = children.find((context) => [
+        ContextTypes.StringSingleQuote,
+        ContextTypes.StringDoubleQuote
+      ].includes(context.type));
+      if (str) {
+        let isValidCharset = false;
+        const strCharset = str.source.slice(1, -1);
+        SupportedStyleSheetCharset.forEach((charset) => {
+          if (charset.toLowerCase() === strCharset || charset === strCharset) {
+            isValidCharset = true;
+          }
+        });
+        if (!isValidCharset) {
+          this.onError(Reason.StyleSheetAtRuleCharsetInvalid, this.cursor, context)
+        }
+      } else {
+        this.onError(Reason.StyleSheetAtRuleCharsetStringIsMissing, this.cursor, context);
+      }
+      if (!isClosed) {
+        this.onError(Reason.StyleSheetAtRuleCharsetNotFinish, this.cursor, context);
+      }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_default_at_rule_CTX(opts?: ContextReaderOptions): boolean {
     try {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
@@ -2522,15 +2921,12 @@ export class OgoneLexer {
       isTyped = !!related.find((context) => context.type === ContextTypes.StyleSheetTypeAssignment);
       // retrieve the atrule name
       const atRuleName = related.find((context) => context.type === ContextTypes.StyleSheetAtRuleName);
-      const shouldEndWithCurlyBraces = atRuleName
-        && !this.regularAtRulesNames.includes(atRuleName.source)
-        || !atRuleName;
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
         this.saveContextsTo(allSubContexts, children);
-        if (shouldEndWithCurlyBraces && this.char === '{'
-          || !shouldEndWithCurlyBraces && this.char === ';'
+        if (this.char === '{'
+          || this.char === ';'
           || this.isEndOfStylesheet()) {
           break;
         }
@@ -2560,7 +2956,7 @@ export class OgoneLexer {
       context.data.isTyped = isTyped;
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the ${ContextTypes.StyleSheetAtRule} isn\'t closed`, this.cursor, context);
+        this.onError(Reason.StyleSheetAtRuleCurlyBracesAreMissing, this.cursor, context);
       }
       return result;
     } catch (err) {
@@ -2585,7 +2981,7 @@ export class OgoneLexer {
         this.shift(1);
         this.isValidChar(opts?.unexpected || [
           this.stylesheet_type_assignment_CTX,
-          this.stylesheet_at_rule_CTX,
+          this.stylesheet_default_at_rule_CTX,
         ]);
         this.saveContextsTo(allSubContexts, children);
         if (this.char === '>') {
@@ -2604,7 +3000,7 @@ export class OgoneLexer {
       context.children.push(...children);
       this.currentContexts.push(context);
       if (!isClosed) {
-        this.onError(`the ${ContextTypes.StyleSheetTypeAssignment} isn\'t closed`, this.cursor, context);
+        this.onError(Reason.StyleSheetTypeAssignmentNotFinish, this.cursor, context);
       }
       return result;
     } catch (err) {

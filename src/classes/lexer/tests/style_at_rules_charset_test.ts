@@ -10,8 +10,11 @@ Deno.test('ogone-lexer can parse @charset', () => {
   });
   const contexts = lexer.parse(content,  { type: 'stylesheet' });
   if (contexts && contexts.length) {
-    console.warn(contexts);
+    const charset = contexts.find((context) => context.type === ContextTypes.StyleSheetAtRuleCharset);
+    if (!charset) {
+      throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetAtRuleCharset} context`);
+    }
   } else {
-    throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
+    throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetAtRuleCharset} context`);
   }
 });
