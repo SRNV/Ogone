@@ -1,4 +1,4 @@
-import { OgoneLexer, ContextTypes } from '../OgoneLexer.ts';
+import { OgoneLexer, ContextTypes } from '../../OgoneLexer.ts';
 import { assertEquals, assert } from "https://deno.land/std@0.95.0/testing/asserts.ts";
 
 const url = new URL(import.meta.url);
@@ -7,16 +7,8 @@ Deno.test('ogone-lexer can retrieve nested css', () => {
   const content = `
   <template>
     <style>
-      .container {
-        color: red;
-        .container:hover {
-          color: blue;
-          ul,
-          li {
-            color: yellow;
-          }
-        }
-      }
+    /** comments */
+      @charset 'utf-8';
     </style>
   </template>`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
@@ -42,7 +34,7 @@ Deno.test('ogone-lexer can parse at-rules', () => {
   if (contexts && contexts.length) {
     const atrule = contexts.find((context) => context.type === ContextTypes.StyleSheetAtRule);
     if (!atrule) {
-      throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
+      throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetAtRuleConst} context`);
     }
     const name = atrule.related.find((context) =>
       context.type === ContextTypes.StyleSheetAtRuleName
@@ -55,6 +47,6 @@ Deno.test('ogone-lexer can parse at-rules', () => {
     assert(atrule.source.endsWith('}'))
     assert(atrule.children.find((ctx) => ctx.type === ContextTypes.StyleSheetCurlyBraces));
   } else {
-    throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetConst} context`);
+    throw new Error(`OgoneLexer - Failed to retrieve ${ContextTypes.StyleSheetAtRuleConst} context`);
   }
 });

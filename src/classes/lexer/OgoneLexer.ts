@@ -11,6 +11,10 @@ export interface ContextReaderOptions {
   contexts?: ContextReader[],
   unexpected?: ContextReader[],
   checkOnly?: boolean,
+  /**
+   * pass custom data to context readers
+   */
+  data?: { [k: string]: unknown },
 }
 export const checkOnlyOptions: ContextReaderOptions = { checkOnly: true };
 export type ContextReader = (this: OgoneLexer, opts?: ContextReaderOptions) => boolean;
@@ -255,7 +259,38 @@ export const SupportedStyleSheetFunctionalNotations = [
   'url',
   'var'
 ];
-
+export const SupportedStyleSheetUnits = [
+  'px', // pixels
+  'vh', // viewport height
+  'vw', // viewport with
+  'vmin', // viewport min
+  'vmax', // viewport max
+  'em',
+  'percent', // percentage
+  'Q', // quarter
+  'in', // inches
+  'pc', // picas
+  'pt', // points
+  'ex',
+  'ch',
+  'rem',
+  '1h',
+  'fr', // grid fragment
+  'auto',
+];
+// available constants types
+export const SupportedStyleSheetAtRuleConstantTypes = [
+  // functions
+  ...SupportedStyleSheetFunctionalNotations,
+  // colors
+  'color',
+  'hex',
+  'basic-color',
+  // units
+  ...SupportedStyleSheetUnits,
+  // rules
+  'rule',
+]
 export const SupportedStyleSheetProperties = [
   'align-content',
   'align-items',
@@ -1241,10 +1276,13 @@ export enum ContextTypes {
   StyleSheetAtRuleName = 'StyleSheetAtRuleName',
   StyleSheetAtRuleCharset = 'StyleSheetAtRuleCharset',
   StyleSheetTypeAssignment = 'StyleSheetTypeAssignment',
-  StyleSheetConst = 'StyleSheetConst',
-  StyleSheetConstValue = 'StyleSheetConstValue',
-  StyleSheetExportConstValue = 'StyleSheetExportConstValue',
-  StyleSheetExportConst = 'StyleSheetExportConst',
+  StyleSheetAtRuleConst = 'StyleSheetAtRuleConst',
+  StyleSheetAtRuleConstName = 'StyleSheetAtRuleConstName',
+  StyleSheetAtRuleConstType = 'StyleSheetAtRuleConstType',
+  StyleSheetAtRuleConstEqual = 'StyleSheetAtRuleConstEqual',
+  StyleSheetAtRuleConstValue = 'StyleSheetAtRuleConstValue',
+  StyleSheetAtRuleExport = 'StyleSheetAtRuleExport',
+  StyleSheetType = 'StyleSheetType',
   StyleSheetCurlyBraces = 'StyleSheetCurlyBraces',
   StyleSheetSelector = 'StyleSheetSelector',
 }
@@ -1333,15 +1371,17 @@ export class OgoneLexer {
   /**
    * should return the previously defined context
    */
+  private get unexpected(): OgoneLexerContext {
+    return new OgoneLexerContext(ContextTypes.Unexpected, this.source.slice(this.cursor.x), {
+      start: this.cursor.x,
+      line: this.cursor.line,
+      column: this.cursor.column,
+      end: this.cursor.x + 1,
+    });
+  }
   private get lastContext(): OgoneLexerContext {
     const last = this.currentContexts[this.currentContexts.length - 1]
-      ||
-      new OgoneLexerContext(ContextTypes.Unexpected, this.source.slice(this.cursor.x), {
-        start: this.cursor.x,
-        line: this.cursor.line,
-        column: this.cursor.column,
-        end: this.cursor.x + 1,
-      });
+      || this.unexpected;
     return last;
   }
   // returns if a node context has been declared
@@ -1369,8 +1409,8 @@ export class OgoneLexer {
       this.import_statements_CTX,
       this.html_comment_CTX,
       this.node_CTX,
-      this.protocol_CTX,
       this.stylesheet_CTX,
+      this.protocol_CTX,
       this.textnode_CTX,
     ],
     stylesheet: [
@@ -1403,13 +1443,40 @@ export class OgoneLexer {
     /**
      * the array used to save the children contexts
      */
-    to: OgoneLexerContext[]) {
+    to: OgoneLexerContext[],
+    opts?: ContextReaderOptions) {
     fromContexts.forEach((reader) => {
-      const recognized = reader.apply(this, []);
+      const recognized = reader.apply(this, [opts || {}]);
       if (recognized) {
         to.push(this.lastContext);
       }
     });
+  }
+  /**
+   * same as saveContextsTo but if no context is found,
+   * the function onError iscalled
+   */
+  saveStrictContextsTo(
+    /**
+     * the contexts to check
+     */
+    fromContexts: ContextReader[],
+    /**
+     * the array used to save the children contexts
+     */
+    to: OgoneLexerContext[],
+    opts?: ContextReaderOptions) {
+    const { length } = to;
+    fromContexts.forEach((reader) => {
+      const recognized = reader.apply(this, [opts || {}]);
+      if (recognized) {
+        to.push(this.lastContext);
+      }
+    });
+    // no changes
+    if (to.length === length && !this.isEOF) {
+      this.onError(Reason.UnexpectedToken, this.cursor, this.unexpected);
+    }
   }
   /**
    * returns if the current character is starting a new element
@@ -1428,6 +1495,15 @@ export class OgoneLexer {
   shift(movement: number = 1) {
     this.cursor.x += + movement;
     this.cursor.column += + movement;
+  }
+  shiftUntilEndOf(text: string): boolean {
+    if (!this.nextPart.startsWith(text)) return false;
+    let result = '';
+    while (result !== text) {
+      result += this.char;
+      this.shift(1);
+    }
+    return true;
   }
   /**
    * parse the text and retrieve all the contexts
@@ -2010,7 +2086,7 @@ export class OgoneLexer {
    */
   node_CTX(opts?: ContextReaderOptions): boolean {
     try {
-      let { char, prev, next } = this;
+      let { char, prev, next, nextPart } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
       if (char !== "<"
@@ -2124,14 +2200,20 @@ export class OgoneLexer {
           const openTag = this.openTags
             .slice()
             .reverse()
-            .find((nodeContext) => nodeContext.related[0]
-              && nodeContext.related[0].type === ContextTypes.NodeName
-              && nodeContext.related[0].source === context.related[0].source);
+            .find((nodeContext) => {
+              const name = nodeContext.related.find((related) => related.type === ContextTypes.NodeName);
+              const targetName = context.related.find((related) => related.type === ContextTypes.NodeName)
+              return name
+              && targetName
+              && !nodeContext.data.closed
+              && name.type === ContextTypes.NodeName
+              && name.source === targetName.source
+            });
           if (!openTag) {
             this.onError(Reason.HTMLClosingTagWithoutOpening, this.cursor, context);
           } else {
             const index = this.openTags.indexOf(openTag);
-            this.openTags.splice(index, 1);
+            const deleted = this.openTags.splice(index, 1);
             // save the closing tag
             openTag.related.push(context);
             openTag.data.closed = true;
@@ -2787,16 +2869,20 @@ export class OgoneLexer {
         this.line_break_CTX,
         this.multiple_spaces_CTX,
         this.space_CTX,
+        this.comment_block_CTX,
+        this.comment_CTX,
         // at-rules specs
         // last should be the default at rule
         this.stylesheet_charset_at_rule_CTX,
+        this.stylesheet_const_at_rule_CTX,
+        this.stylesheet_export_at_rule_CTX,
         this.stylesheet_default_at_rule_CTX,
       ];
       this.saveContextsTo(allSubContexts, children);
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        this.saveContextsTo(allSubContexts, children);
+        this.saveStrictContextsTo(allSubContexts, children);
         if (this.isEndOfStylesheet()) {
           break;
         }
@@ -2853,14 +2939,15 @@ export class OgoneLexer {
         this.isValidChar(opts?.unexpected);
         this.saveContextsTo(allSubContexts, children);
         if (this.char === ';') {
-          this.shift(1);
-          isClosed = Boolean(children.length && children.find((context) => [
-            ContextTypes.StringSingleQuote,
-            ContextTypes.StringDoubleQuote
-          ].includes(context.type)));
           break;
         }
       }
+      // check if the at rule is ending correctly
+      const isClosedBySemicolon = this.semicolon_CTX();
+      isClosed = Boolean(isClosedBySemicolon && children.length && children.find((context) => [
+        ContextTypes.StringSingleQuote,
+        ContextTypes.StringDoubleQuote
+      ].includes(context.type)));
       // create and finish the current context
       const token = source.slice(x, this.cursor.x);
       const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleCharset, token, {
@@ -2893,6 +2980,210 @@ export class OgoneLexer {
       if (!isClosed) {
         this.onError(Reason.StyleSheetAtRuleCharsetNotFinish, this.cursor, context);
       }
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * reader for the at-rule @export
+   * should retrieve all the exportable token
+   */
+  stylesheet_export_at_rule_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const sequence = [
+        char, // e
+        next, // x
+        source[x + 2], // p
+        source[x + 3], // o
+        source[x + 4], // r
+        source[x + 5], // t
+        source[x + 6], // space
+      ].join('');
+      const isValid = Boolean(prev === '@'
+        && sequence === 'export ');
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = [
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.stylesheet_const_at_rule_CTX,
+      ];
+      // shift until end of export
+      const shifted = this.shiftUntilEndOf('export');
+      if (!shifted) return false;
+      // retrieve the atrule name
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        this.saveStrictContextsTo(allSubContexts, children, {
+          data: {
+            isExportStatement: true
+          }
+        });
+        if (this.char === ';' || this.prev === ';') {
+          break;
+        }
+      }
+      // create and finish the current context
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleExport, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  /**
+   * reader for the at-rule @const
+   * the rule should follow this pattern
+   * @const <name> : <type> = <value>;
+   *
+   * where name type and value are required
+   */
+  stylesheet_const_at_rule_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const sequence = [
+        char, // c
+        next, // o
+        source[x + 2], // n
+        source[x + 3], // s
+        source[x + 4], // t
+        source[x + 5], // space
+      ].join('');
+      const isValid = Boolean((prev === '@' || opts?.data?.isExportStatement)
+        && sequence === 'const ');
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      let isNamed = false;
+      const children: OgoneLexerContext[] = [];
+      const related: OgoneLexerContext[] = [];
+      const allSubContexts: ContextReader[] = [
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+      ];
+      const describers: ContextReader[] = [
+        this.stylesheet_const_at_rule_name_CTX,
+        this.stylesheet_type_assignment_CTX,
+        this.multiple_spaces_CTX,
+        this.space_CTX,
+        this.stylesheet_const_at_rule_equal_CTX,
+      ];
+      //  shift cursor until the end of the const
+      const shifted = this.shiftUntilEndOf('const');
+      if (!shifted) return false;
+      // retrieve the atrule name
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        if (!isNamed) {
+          // retrieve name
+          this.saveContextsTo(describers, related, {
+            data: {
+              // force type assignment
+              force_type_assignment_context: true,
+            }
+          });
+          isNamed = Boolean(related.find((context) => context.type === ContextTypes.StyleSheetAtRuleConstName));
+        } else {
+          this.saveContextsTo(allSubContexts, children);
+        }
+        if (this.char === ';') {
+          break;
+        }
+      }
+      // create and finish the current context
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleConst, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      context.related.push(...related);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_const_at_rule_name_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { nextPart } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = /^[a-zA-Z]/i.test(nextPart);
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      // retrieve the atrule name
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        if (/[^a-zA-Z0-9_]/i.test(this.char)) {
+          break;
+        }
+      }
+      // create and finish the current context
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleConstName, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_const_at_rule_equal_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, next } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = char === '=' && next !== '=';
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      const children : OgoneLexerContext[] = [];
+      const subs: ContextReader[] = [];
+      // retrieve the atrule name
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        this.saveContextsTo(subs, children);
+        if (this.semicolon_CTX() || this.next === ';') {
+          break;
+        }
+      }
+      // create and finish the current context
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetAtRuleConstEqual, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
       return result;
     } catch (err) {
       throw err;
@@ -2968,14 +3259,15 @@ export class OgoneLexer {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
-      const isValid = char === '<' && prev === '@';
+      const isValid = char === '<' && (prev === '@' || opts?.data?.force_type_assignment_context);
       if (!isValid) return false;
       if (opts?.checkOnly) return true;
       let result = true;
       let isClosed = false;
       const children: OgoneLexerContext[] = [];
       const allSubContexts: ContextReader[] = (opts?.contexts || [
-        // this.stylesheet_type_name_CTX,
+        // TODO
+        // this.stylesheet_type_list_CTX,
       ]);
       while (!this.isEOF) {
         this.shift(1);
