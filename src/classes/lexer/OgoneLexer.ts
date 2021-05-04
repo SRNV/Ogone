@@ -1288,6 +1288,11 @@ export enum ContextTypes {
   StyleSheetSelector = 'StyleSheetSelector',
   StyleSheetSelectorList = 'StyleSheetSelectorList',
   StyleSheetSelectorHTMLElement = 'StyleSheetSelectorHTMLElement',
+  StyleSheetSelectorClass = 'StyleSheetSelectorClass',
+  StyleSheetSelectorId = 'StyleSheetSelectorId',
+  StyleSheetSelectorAttribute = 'StyleSheetSelectorAttribute',
+  StyleSheetSelectorPseudoClass = 'StyleSheetSelectorPseudoClass',
+  StyleSheetSelectorPseudoElement = 'StyleSheetSelectorPseudoElement',
 }
 export class OgoneLexerContext {
   public children: OgoneLexerContext[] = [];
@@ -2895,6 +2900,8 @@ export class OgoneLexer {
         this.stylesheet_export_at_rule_CTX,
         this.stylesheet_default_at_rule_CTX,
         this.stylesheet_selector_list_CTX,
+        // TODO implement property list
+        this.curly_braces_CTX,
       ];
       this.saveContextsTo(allSubContexts, children);
       while (!this.isEOF) {
@@ -3355,19 +3362,22 @@ export class OgoneLexer {
    */
   stylesheet_selector_list_CTX(opts?: ContextReaderOptions): boolean {
     try {
-      let { char, prev, next, lastContext } = this;
+      let { char, prev, next, lastContext, nextPart } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
-      const isValid = ![','].includes(char);
+      const isValid = ![',', '@'].includes(char) && nextPart.match(/^([^;\{]+?)(\{)/mi);
       if (!isValid) return false;
-      console.warn(char);
       if (opts?.checkOnly) return true;
       let result = true;
+      const supportedSelectors: ContextReader[] = [
+        this.stylesheet_selector_element_CTX,
+        this.stylesheet_selector_class_CTX,
+      ];
       const children: OgoneLexerContext[] = [];
       const allSubContexts: ContextReader[] = (opts?.contexts || [
         this.multiple_spaces_CTX,
         this.space_CTX,
-        this.stylesheet_selector_element_CTX,
+        ...supportedSelectors,
         this.multiple_spaces_CTX,
         this.space_CTX,
         this.line_break_CTX,
@@ -3375,7 +3385,7 @@ export class OgoneLexer {
         this.line_break_CTX,
       ]);
       this.saveStrictContextsTo([
-        this.stylesheet_selector_element_CTX,
+        ...supportedSelectors,
         this.multiple_spaces_CTX,
         this.space_CTX,
         this.line_break_CTX,
@@ -3411,7 +3421,7 @@ export class OgoneLexer {
       let { char, prev, next, lastContext } = this;
       const { x, line, column } = this.cursor;
       let { source } = this;
-      const isValid = !['#', '.', '[', ' '].includes(char) && !this.isEndOfStylesheet();
+      const isValid = !['#', '.', '[', ' ', '@', '{'].includes(char);
       if (!isValid) return false;
       if (opts?.checkOnly) return true;
       let result = true;
@@ -3419,12 +3429,74 @@ export class OgoneLexer {
       while (!this.isEOF) {
         this.shift(1);
         this.isValidChar(opts?.unexpected);
-        if (['#', '.', '[', ',', ' ',].includes(this.char) || this.isEndOfStylesheet()) {
+        if (['#', '.', '[', ',', ' ', '{'].includes(this.char) || this.isEndOfStylesheet()) {
           break;
         }
       }
       const token = source.slice(x, this.cursor.x);
       const context = new OgoneLexerContext(ContextTypes.StyleSheetSelectorHTMLElement, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_selector_class_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = char === '.';
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        if (['#', '[', ',', ' ', '{'].includes(this.char) || this.isEndOfStylesheet()) {
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetSelectorClass, token, {
+        start: x,
+        end: this.cursor.x,
+        line,
+        column,
+      });
+      context.children.push(...children);
+      this.currentContexts.push(context);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+  stylesheet_selector_id_CTX(opts?: ContextReaderOptions): boolean {
+    try {
+      let { char, prev, next, lastContext } = this;
+      const { x, line, column } = this.cursor;
+      let { source } = this;
+      const isValid = char === '#' && !this.isEndOfStylesheet();
+      if (!isValid) return false;
+      if (opts?.checkOnly) return true;
+      let result = true;
+      const children: OgoneLexerContext[] = [];
+      while (!this.isEOF) {
+        this.shift(1);
+        this.isValidChar(opts?.unexpected);
+        if (['.', '[', ',', ' ',].includes(this.char) || this.isEndOfStylesheet()) {
+          break;
+        }
+      }
+      const token = source.slice(x, this.cursor.x);
+      const context = new OgoneLexerContext(ContextTypes.StyleSheetSelectorId, token, {
         start: x,
         end: this.cursor.x,
         line,

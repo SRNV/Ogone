@@ -12,6 +12,7 @@ Deno.test('ogone-lexer can retrieve nested css', () => {
     </style>
   </template>`;
   const lexer = new OgoneLexer((reason, cursor, context) => {
+    console.warn(context);
     throw new Error(`${reason} ${context.position.line}:${context.position.column}`);
   });
   const contexts = lexer.parse(content,  { type: 'component' });
