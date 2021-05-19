@@ -125,7 +125,7 @@ export class OgoneBaseClass extends HTMLElement {
       oc.contexts.for[o.key!] = {
         list: [this],
         parentNode: (this as unknown as HTMLOgoneElement).parentNode,
-        name: this.name,
+        name: _ogone_node_,
       };
     }
     return oc.contexts.for[o.key!];
@@ -200,22 +200,31 @@ window.addEventListener('popstate', (event: Event) => {
   routerGo(location.pathname, (event as PopStateEvent).state);
 });
 const mapProxies: Map<unknown, Object> = new Map();
+const mapFunction: Map<unknown, Object> = new Map();
 export function setReactivity(target: Object, updateFunction: Function, parentKey: string = ''): Object {
   return new Proxy(target, {
-    get(obj: { [k: string]: unknown }, key: string, ...args: unknown[]) {
-      let v;
-      const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
+    get(obj: { [k: string]: unknown }, key: string) {
       if (key === 'prototype') {
-        v = Reflect.get(obj, key, ...args)
-      } else if (mapProxies.get(obj[key])) {
-        return mapProxies.get(obj[key]);
-      } else if ((obj[key] instanceof Object || Array.isArray(obj[key])) && !mapProxies.has(obj[key])) {
-        v = setReactivity(obj[key] as Object, updateFunction, id);
-        mapProxies.set(obj[key], v);
-      } else {
-        v = Reflect.get(obj, key, ...args);
+        return Reflect.get(obj, key);
       }
-      return v;
+      if (obj instanceof Set && typeof obj[key] === 'function') {
+        const func = mapFunction.get(obj[key]);
+        if (func) return func;
+        const v = Reflect.get(obj, key).bind(obj);
+        mapFunction.set(obj[key], v as Function);
+        return v;
+      }
+      const itemProxy = mapProxies.get(obj[key]);
+      if (itemProxy) return itemProxy;
+      if ((obj[key] instanceof Object
+        || Array.isArray(obj[key]))
+        && !itemProxy) {
+        const id = `${parentKey}.${key.toString()}`.replace(/^[^\w]+/i, '');
+        let v = setReactivity(obj[key] as Object, updateFunction, id);
+        mapProxies.set(obj[key], v);
+        return v;
+      }
+      return obj[key];
     },
     set(obj: { [k: string]: unknown }, key: string, value: unknown, ...args: unknown[]) {
       if (obj[key] === value) return true;

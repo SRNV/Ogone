@@ -7,7 +7,9 @@
   </style>
   <div
     --for={(c, i) of this.counts}
-    --click:increase> click ${c}</div>
+    --click:increase>
+    click ${c}
+  </div>
 </template>
 
 <proto>

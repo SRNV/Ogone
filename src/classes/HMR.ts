@@ -128,7 +128,7 @@ export default class HMR {
         window.location.reload();
         return;
       }
-      if (type === 'resolved') {
+      if (type === 'resolved' && !this.isInErrorState) {
         this.isInErrorState = false;
         this.hideHMRMessage();
         return;
@@ -218,11 +218,20 @@ ${errorMessage}
         }
       });
       if (output) {
-        const replacement = eval(`((Ogone) => {
+        const replacement = eval(`((Ogone, displayError) => {
+          this.isErrorState = false;
           ${output}
           console.warn('[Ogone] references are updated.');
         })`);
-        replacement(Ogone);
+        // @ts-ignore
+        replacement(Ogone, (message: string, errorType: string, errorObject: Error) => {
+          this.isInErrorState = true;
+          return this.showHMRMessage(`
+          ${message}
+          <span class="critic">${errorType}</span>
+          <span class="critic">${errorObject && errorObject.message ? errorObject.message : ''}</span>
+          `, 'error')
+        });
       }
       console.warn('[Ogone] rendering new components.');
       setComponentToRerender.forEach((component) => {
@@ -408,6 +417,10 @@ ${errorMessage}
           margin: 0;
           overflow: auto;
           list-style: none;
+        }
+        .hmr--panel *::selection {
+          color: white;
+          background-color: #2e2faa;
         }
         .hmr--message {
           padding: 5px;

@@ -1,5 +1,5 @@
 <template>
-  <p>Hello ${this.name}</p>
+  <p> Hello ${this.name} </p>
 </template>
 
 <proto>

@@ -12,7 +12,9 @@
       filter: drop-shadow(0px $value 4px #00000086);
     }
   </style>
-  <div class="container">${this.scrollY}</div>
+  <div class="container">
+    ${this.scrollY}
+  </div>
 </template>
 <proto>
   def:

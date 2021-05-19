@@ -2,7 +2,7 @@ import component StoreComponent from "@/examples/tests/async/reloading/store.o3"
 
 <template>
   <store-component namespace="user"/>
-  <div> Welcome ${this.user ? this.user.username : ''}</div>
+  <div> Welcome ${this.user ? this.user.username : ''} </div>
   <img src="public/ogone.svg"  --await />
 </template>
 

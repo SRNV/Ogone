@@ -8,7 +8,7 @@ import component RouterMain from './routers/RouterMain.o3';
  */
 <template private>
   <head>
-    <title>Ogone - Next generation composition</title>
+    <title> Ogone - Next generation composition </title>
     <style>
       * {
         --background: #242c31;

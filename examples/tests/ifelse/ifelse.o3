@@ -4,7 +4,9 @@ import component Test from '@/examples/tests/click.o3';
 test
   <p>${this.count}</p>
   <Test
-    --for={t of this.art}>3eme doit remplacer la Test 1 ${t}</Test>
+    --for={t of this.art}>
+    3eme doit remplacer la Test 1 ${t}
+  </Test>
 </template>
 
 <proto type="app">
