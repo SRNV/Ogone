@@ -242,10 +242,15 @@ ${err.stack}`);
         : this.getReactivity({ text: runtime });
       // save it into the map
       // will serve at the end to build the global runtime
+      const scriptProtoBlock = `
+      if (Onode.uuid === '${component.uuid}') {
+        ${component.scripts.runtime}
+      }
+      `;
       if (['async', 'store', 'controller'].includes(component.type)) {
-        this.mapRuntime.set(component.uuid, component.scripts.runtime);
+        this.mapRuntime.set(component.uuid, scriptProtoBlock);
       } else {
-        this.mapRuntimeSync.set(component.uuid, component.scripts.runtime);
+        this.mapRuntimeSync.set(component.uuid, scriptProtoBlock);
       }
       this.updateGlobalRuntimes();
     } catch (err) {
@@ -256,13 +261,7 @@ ${err.stack}`);
   public updateGlobalRuntimes() {
     const entriesSync = Array.from(this.mapRuntimeSync.values());
     const entries = Array.from(this.mapRuntime.values());
-    MapOutput.outputs.globalRuntime = `
-    switch (Onode.uuid) {
-      ${entries.join('\n')}
-    }`;
-    MapOutput.outputs.globalRuntimeSync = `
-    switch (Onode.uuid) {
-      ${entriesSync.join('\n')}
-    }`;
+    MapOutput.outputs.globalRuntime = entries.join('\n');
+    MapOutput.outputs.globalRuntimeSync = entriesSync.join('\n');
   }
 }

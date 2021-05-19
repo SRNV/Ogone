@@ -75,7 +75,12 @@ async function initControllers(data: { controllers: Controllers }): Promise<void
   for await (const [key, controller] of entries) {
     const protocol = await TSTranspiler.transpile(controller.protocol);
     controllers[key].protocol = (eval(protocol));
-    const run = eval(controller.runtime);
+    console.warn(controller.runtime);
+    const run = eval(`
+    async function controllers() {
+      ${controller.runtime}
+    }
+    `);
     if (typeof run === 'function') {
       const instance = new controllers[key].protocol();
       controllers[key].runtime = run.bind(instance);

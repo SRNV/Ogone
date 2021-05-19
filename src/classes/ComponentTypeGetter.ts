@@ -125,7 +125,7 @@ ${err.stack}`);
             const comp = {
               namespace: component.namespace,
               protocol: `(${component.context.protocolClass})`,
-              runtime: `(${component.scripts.runtime})`,
+              runtime: `${component.scripts.runtime}`,
               file: component.file,
             };
             if (registry[bundle.uuid] && registry[bundle.uuid][comp.namespace as string]) {

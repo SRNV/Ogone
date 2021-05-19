@@ -46,14 +46,12 @@ export enum Context {
    * template for the runtime of the component
    */
   TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_A_CASE = `
-  case {% uuid %}: {
-    try {
-      {% modules %}
-      {% body %}
-    } catch(err) {
-      // @ts-ignore
-      displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
-      throw err;
-    }
+  try {
+    {% modules %}
+    {% body %}
+  } catch(err) {
+    // @ts-ignore
+    displayError('Error in the component: \\n\\t {% file %}' ,err.message, err);
+    throw err;
   }`,
 }

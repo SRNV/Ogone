@@ -105,16 +105,20 @@ export default abstract class MapOutput {
     });
   }
   static getGlobalRuntimes(): string {
+    console.warn(`
+    Ogone.run = async function (Onode, _state, ctx, event) {
+      ${this.outputs.globalRuntime}
+    }
+    Ogone.runSync = function (Onode, _state, ctx, event) {
+      ${this.outputs.globalRuntimeSync}
+    }
+        `);
     return `
 Ogone.run = async function (Onode, _state, ctx, event) {
-  switch(Onode.uuid) {
-    ${this.outputs.globalRuntime}
-  }
+  ${this.outputs.globalRuntime}
 }
 Ogone.runSync = function (Onode, _state, ctx, event) {
-  switch(Onode.uuid) {
-    ${this.outputs.globalRuntimeSync}
-  }
+  ${this.outputs.globalRuntimeSync}
 }
     `;
   }
