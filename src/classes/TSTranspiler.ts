@@ -32,7 +32,7 @@ export default class TSTranspiler extends Utils {
     try {
       this.trace('before emit');
       let result = (await Deno.emit(url, {
-        bundle: 'esm',
+        bundle: 'module',
         check: true,
         compilerOptions: this.bundleCompilerOptions,
       }));
@@ -51,7 +51,7 @@ export default class TSTranspiler extends Utils {
     try {
       Deno.writeTextFileSync(url, text);
       let result = (await Deno.emit(url, {
-        bundle: 'esm',
+        bundle: 'module',
         check: false,
         compilerOptions: this.bundleCompilerOptions,
       }));

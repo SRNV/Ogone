@@ -86,7 +86,7 @@ ${err.stack}`);
       TSXContextCreator.mapCreatedFiles.push(TSXContextCreator.globalAppContextURL);
 
       const resultEmit = await Deno.emit(TSXContextCreator.globalAppContextURL, {
-        bundle: 'esm',
+        bundle: 'module',
         compilerOptions: {
           module: "esnext",
           target: "esnext",

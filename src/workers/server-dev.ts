@@ -1,7 +1,6 @@
 import { getHeaderContentTypeOf } from "../../utils/extensions-resolution.ts";
 import { existsSync } from "../../utils/exists.ts";
-// import HMR from "../lib/hmr/index.ts";
-import { serve, absolute, fetchRemoteRessource } from "../../deps/deps.ts";
+import { serve } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
