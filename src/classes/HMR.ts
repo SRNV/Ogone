@@ -119,6 +119,10 @@ export default class HMR {
     this.client.onmessage = (evt: any) => {
       const payload = JSON.parse(evt.data);
       const { uuid, output, error, errorFile, diagnostics, type, pathToModule, uuidReq, port } = payload;
+      if (type === 'update_runtime') {
+        this.updateWithOutput(output);
+        return;
+      }
       if (type === 'server') {
         const { search,pathname } = window.location
         window.location.assign(`http://localhost:${port}${pathname}${search}`);
@@ -199,6 +203,22 @@ ${errorMessage}
     }
     return result;
   }
+  static updateWithOutput(output: string) {
+    const replacement = eval(`((Ogone, displayError) => {
+      this.isErrorState = false;
+      ${output}
+      console.warn('[Ogone] references are updated.');
+    })`);
+    // @ts-ignore
+    replacement(Ogone, (message: string, errorType: string, errorObject: Error) => {
+      this.isInErrorState = true;
+      return this.showHMRMessage(`
+      ${message}
+      <span class="critic">${errorType}</span>
+      <span class="critic">${errorObject && errorObject.message ? errorObject.message : ''}</span>
+      `, 'error')
+    });
+  }
   static rerenderComponents(uuid: string, output?: string) {
     const savedComponents = this.components[uuid];
     if (savedComponents) {
@@ -218,20 +238,7 @@ ${errorMessage}
         }
       });
       if (output) {
-        const replacement = eval(`((Ogone, displayError) => {
-          this.isErrorState = false;
-          ${output}
-          console.warn('[Ogone] references are updated.');
-        })`);
-        // @ts-ignore
-        replacement(Ogone, (message: string, errorType: string, errorObject: Error) => {
-          this.isInErrorState = true;
-          return this.showHMRMessage(`
-          ${message}
-          <span class="critic">${errorType}</span>
-          <span class="critic">${errorObject && errorObject.message ? errorObject.message : ''}</span>
-          `, 'error')
-        });
+        this.updateWithOutput(output);
       }
       console.warn('[Ogone] rendering new components.');
       setComponentToRerender.forEach((component) => {

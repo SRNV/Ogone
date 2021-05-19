@@ -1,5 +1,6 @@
 import { Bundle } from "../ogone.main.d.ts";
 import TSTranspiler from './TSTranspiler.ts';
+import HMR from './HMR.ts';
 
 interface ComponentOutput {
   /**
@@ -105,13 +106,17 @@ export default abstract class MapOutput {
     });
   }
   static getGlobalRuntimes(): string {
-    return `
-Ogone.run = async function (Onode, _state, ctx, event) {
-  ${this.outputs.globalRuntime}
-}
-Ogone.runSync = function (Onode, _state, ctx, event) {
-  ${this.outputs.globalRuntimeSync}
-}
-    `;
+    const result = `
+    Ogone.run = async function (Onode, _state, ctx, event) {
+      ${this.outputs.globalRuntime}
+    }
+    Ogone.runSync = function (Onode, _state, ctx, event) {
+      ${this.outputs.globalRuntimeSync}
+    }`;
+    HMR.postMessage({
+      output: result,
+      type: 'update_runtime',
+    });
+    return result;
   }
 }
