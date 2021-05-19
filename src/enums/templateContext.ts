@@ -45,7 +45,7 @@ export enum Context {
     /**
    * template for the runtime of the component
    */
-  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_A_CASE = `
+  TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_TRY_CATCH = `
   try {
     {% modules %}
     {% body %}

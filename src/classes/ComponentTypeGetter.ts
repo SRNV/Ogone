@@ -187,8 +187,11 @@ ${err.stack}`);
       const [proto] = component.elements.proto;
       result = proto.attributes.base as string;
       if (result) {
-        result = absolute(component.file, result);
         const position = MapPosition.mapNodes.get(proto)!;
+        if (!result.startsWith('.')) {
+          this.error(`${component.file}:${position.line}:${position.column}\n\t path to base folder has to be relative to the component.`)
+        }
+        result = absolute(component.file, result);
         if (!existsSync(result)) {
           this.error(`${component.file}:${position.line}:${position.column}\n\t base folder does not exist.`);
         }
@@ -198,6 +201,11 @@ ${err.stack}`);
         }
       }
     }
-    Configuration.static = result ? `${result.replace(/\/$/, '')}/` : Configuration.static;
+    Configuration.static = result ? `${
+      result
+        .replace(/^\.+/, '')
+        .replace(/\/$/, '')
+        .replace(/^\//, '')
+    }/` : Configuration.static;
   }
 }

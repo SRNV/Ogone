@@ -216,7 +216,7 @@ ${err.stack}`);
       let casesValue = component.modifiers.cases
         .map((modifier: ModifierContext) => `${modifier.token} ${modifier.argument}: ${modifier.value}`)
         .join('\n');
-      let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_AS_A_CASE,
+      let script: string = this.template(Context.TEMPLATE_COMPONENT_RUNTIME_PROTOCOL_TRY_CATCH,
         {
           modules: component.deps
             .map((dep) => dep.destructuredOgoneRequire)
@@ -244,6 +244,7 @@ ${err.stack}`);
       // will serve at the end to build the global runtime
       const scriptProtoBlock = `
       if (Onode.uuid === '${component.uuid}') {
+        const { Async, Store, Controllers, Refs } = Onode.apis;
         ${component.scripts.runtime}
       }
       `;

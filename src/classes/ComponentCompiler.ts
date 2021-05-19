@@ -169,7 +169,12 @@ ${err.stack}`);
             const data = {% data %};
             return {
               data,
-              Refs,
+              apis: {
+                Refs,
+                {% AsyncAPI.length ? 'Async,' : 'Async: void 0,'%}
+                {% ControllersAPI.length ? 'Controllers,' : 'Controllers: void 0,'%}
+                {% StoreAPI.length ? 'Store,' : 'Store: void 0,' %}
+              }
             }
           };
           `;
@@ -180,7 +185,6 @@ ${err.stack}`);
           modules: component.deps
             .map((dep) => dep.destructuredOgoneRequire)
             .join('\n'),
-          AsyncAPI: component.type === "async" ? AsyncAPI : "let Async;",
           protocol: component.protocol ? component.protocol : "",
           dataSource: component.isTyped
             ? `new Ogone.protocols[{% componentVar %}]`
@@ -192,13 +196,14 @@ ${err.stack}`);
             `setReactivity({% dataSource %}, (prop) => OnodeUpdate(Onode, prop))`
             // if the end user uses the def modifier, the reactivity is inline
             : '{% dataSource %}',
-          ControllersAPI: component.type === "store" ? ControllersAPI : "let Controllers;",
           refs: Object.entries(component.refs).length
             ? Object.entries(component.refs).map(([key, value]) =>
               `'${key}': '${value}',`
             )
             : "",
-          StoreAPI: !!component.hasStore ? store : "let Store;",
+          AsyncAPI: component.type === "async" ? AsyncAPI : "",
+          StoreAPI: !!component.hasStore ? store : "",
+          ControllersAPI: component.type === "store" ? ControllersAPI : "",
           protocolDeclarationForTypedComponent: component.isTyped ? `
           Ogone.protocols[{% componentVar %}] = Ogone.protocols[{% componentVar %}] || ${component.context.protocolClass}
           ` : '',
@@ -238,7 +243,7 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  static async sendChanges(opts: { component: Component; output: string; variable: string}) {
+  static async sendChanges(opts: { component: Component; output: string; variable: string }) {
     const { component, output, variable } = opts;
     if (this.mapData.has(component.uuid)) {
       const item = this.mapData.get(component.uuid)!;

@@ -72,6 +72,7 @@ export interface HTMLOgoneElement extends HTMLTemplateElement, OnodeComponent, O
   routerCalling?: HTMLOgoneElement;
   component: HTMLOgoneElement;
   refs: {[k: string]: HTMLElement[]},
+  apis: OgoneComponentsRegistry['apis'];
   props: any;
   nodeProps?: [string, string][];
   params?: any;
@@ -243,8 +244,13 @@ type OgoneContexts = { [componentId: string]: OgoneContext };
 type OgoneComponentsRegistry = { [componentId: string]: (Onode: HTMLOgoneElement) => ({
   data: OnodeComponent['data'];
   runtime: OnodeComponent['runtime'];
-  Refs: {
-    [k: string]: HTMLElement[];
+  apis: {
+    Refs: {
+      [k: string]: HTMLElement[];
+    },
+    Async: unknown;
+    Controllers: unknown;
+    Store: unknown;
   }
 }) };
 /**

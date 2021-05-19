@@ -291,12 +291,13 @@ export function construct(Onode: HTMLOgoneElement) {
   if (!o.type) return;
   Onode.dependencies = o.dependencies;
   if (Onode.isComponent) {
-    const { data, runtime, Refs } = Ogone.components[o.uuid as string](Onode);
+    const { data, runtime, apis } = Ogone.components[o.uuid as string](Onode);
     Onode.data = data;
     Onode.component = Onode;
     Onode.runtime = runtime;
     Onode.component.runtime = runtime;
-    Onode.component.refs = Refs;
+    Onode.component.apis = apis;
+    Onode.component.refs = apis.Refs;
     Onode.requirements = o.requirements;
     Onode.props = o.props;
     Onode.type = Ogone.types[Onode.extending!]!;

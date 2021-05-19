@@ -76,11 +76,13 @@ async function initControllers(data: { controllers: Controllers }): Promise<void
   for await (const [key, controller] of entries) {
     const protocol = await TSTranspiler.transpile(controller.protocol);
     controllers[key].protocol = (eval(protocol));
-    console.warn(controller.runtime);
     const run = eval(`
-    async function controllers() {
+    (async function controllers(_state, ctx, event, once) {
+      const displayError = (...args) => {
+        console.error('Error in Controller', ...args);
+      };
       ${controller.runtime}
-    }
+    })
     `);
     if (typeof run === 'function') {
       const instance = new controllers[key].protocol();
