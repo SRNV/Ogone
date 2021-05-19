@@ -1,5 +1,5 @@
 // import HMR from "../lib/hmr/index.ts";
-import { serve, join, fetchRemoteRessource } from "../../deps/deps.ts";
+import { serve } from "../../deps/deps.ts";
 import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 

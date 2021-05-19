@@ -6,6 +6,7 @@ import { Utils } from '../classes/Utils.ts';
 import Workers from '../enums/workers.ts';
 import TSTranspiler from "../classes/TSTranspiler.ts";
 import transformPathFileToUUID from '../../utils/transformPathFileToUUID.ts';
+import WebviewEngine from '../classes/WebviewEngine.ts';
 
 Utils.infos('worker for dev server created.');
 
@@ -162,14 +163,7 @@ self.onmessage = async (e: any): Promise<void> => {
   }
   Utils.trace(`Worker: Dev Server available on http://localhost:${port}/`);
   Utils.exposeSession(port, Configuration.entrypoint)
-  self.postMessage({
-    type: Workers.SERVICE_DEV_READY
-  });
-  self.postMessage({
-    type: Workers.SERVICE_DEV_GET_PORT,
-    port,
-  });
-
+  WebviewEngine.updateDevServerPortFile(port);
   for await (const req of server) {
     const pathToPublic: string = `${Deno.cwd()}/${getPublicPath(req.url, Configuration.static)}`.replace(/\/+/gi, '/');
     const params = new URLSearchParams('?' + req.url.split("?")[1]);
@@ -185,6 +179,9 @@ self.onmessage = async (e: any): Promise<void> => {
     let isUrlFile: boolean = existsSync(pathToPublic);
     const realUrl = req.url.split('?')[0];
     switch (true) {
+      case component && port === parseFloat(keyPort as string):
+        req.respond({ body: registry.webview_application });
+        break;
       case !!serveModule:
         req.respond({
           body: await TSTranspiler.bundle(serveModule!),
@@ -203,9 +200,6 @@ self.onmessage = async (e: any): Promise<void> => {
             getHeaderContentTypeOf(realUrl!),
           ]),
         });
-        break;
-      case component && port === parseFloat(keyPort as string):
-        req.respond({ body: registry.webview_application });
         break;
       case isUrlFile && Deno.statSync(pathToPublic).isFile:
         if (Deno.build.os !== "windows") {

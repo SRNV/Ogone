@@ -1,6 +1,6 @@
 import Ogone from '../main/OgoneBase.ts';
 import { Document, HTMLIFrameElement, HTMLUListElement } from '../ogone.dom.d.ts';
-import { WebSocketServer, WebSocketAcceptedClient } from '../../deps/ws.ts';
+import { WebSocketServer, WebSocketAcceptedClient } from '../../lib/websocket/index.ts';
 import { HTMLOgoneElement } from '../ogone.main.d.ts';
 declare const document: Document;
 declare const window: any;
@@ -64,23 +64,26 @@ export default class HMR {
   static components: { [k: string]: HTMLOgoneElement[] } = {};
   static server?: WebSocketServer;
   static client?: WebSocket;
+  static error?: string;
   /**
    * only Deno side
    */
   static clients: Map<string, Client> = new Map();
   static ogone?: typeof Ogone;
+  static diagnostics: ModuleErrorsDiagnostic[] = [];
   static listeners: Map<string, ModuleGraph> = new Map();
   static get connect (): string {
     return `ws://0.0.0.0:${this.port}/`
-  }
-  static startHandshake() {
-
   }
   static async sendError(error: string, diagnostics: ModuleErrorsDiagnostic[]) {
     this.postMessage({
       error,
       diagnostics,
     });
+  }
+  static removeErrors() {
+    this.diagnostics.splice(0);
+    this.error = void 0;
   }
   static get isInBrowser(): boolean {
     return typeof document !== 'undefined';
@@ -209,6 +212,11 @@ ${errorMessage}
           setComponentToRerender.add(component.original);
         }
       });
+      savedComponents.forEach((component) => {
+        if (component.isRoot) {
+          setComponentToRerender.add(component);
+        }
+      });
       if (output) {
         const replacement = eval(`((Ogone) => {
           ${output}
@@ -217,9 +225,6 @@ ${errorMessage}
         replacement(Ogone);
       }
       console.warn('[Ogone] rendering new components.');
-      /**
-       * remove previously generated components
-       */
       setComponentToRerender.forEach((component) => {
         if (component) component.rerender();
       });
@@ -273,6 +278,9 @@ ${errorMessage}
     this.server = server;
     this.server.on('connection', (ws: WebSocketAcceptedClient) => {
       this.cleanClients();
+      if (this.diagnostics.length && this.error) {
+        this.sendError(this.error, this.diagnostics);
+      }
       const key = `client_${crypto.getRandomValues(new Uint16Array(10)).join('')}`;
       HMR.clients.set(key, {
         ready: false,
@@ -285,7 +293,7 @@ ${errorMessage}
     this.cleanClients();
     const message = JSON.stringify(obj);
     const entries = Array.from(this.clients.entries());
-    entries.forEach(([key, client]) => {
+    entries.forEach(async ([key, client]) => {
       if (client?.connection.state !== 1
         && !client.connection.isClosed
         && !this.FIFOMessages.includes(message)) {
@@ -295,7 +303,7 @@ ${errorMessage}
       }
       if (client && !client.connection.isClosed) {
         try {
-          client.connection.send(message);
+          await client.connection.send(message);
         } catch (err) {}
       }
     })
@@ -312,11 +320,12 @@ ${errorMessage}
     // if (this.client?.readyState !== 1) return;
     const entries = Array.from(this.clients.entries())
       .filter(([key, client]) => !client.ready && key === id)
-    entries.forEach(([key, client]) => {
-      this.FIFOMessages.forEach((m: string) => {
-        client.connection.send(m);
-        client.ready = client.connection.state === 1
-          && true;
+    entries.forEach(async ([key, client]) => {
+      this.FIFOMessages.forEach(async (m: string) => {
+        if (!client.connection.isClosed) {
+          await client.connection.send(m);
+          client.ready = client.connection.state === 1;
+        }
       });
     });
   }
@@ -354,6 +363,7 @@ ${errorMessage}
   static checkHeartBeat(): boolean {
     let heartbeat = true;
     if (this.client) {
+      if (this.client.readyState === 0) return true;
       if (this.client.readyState > 1) {
         heartbeat = false;
       } else {

@@ -1,5 +1,7 @@
 import { Utils } from "../Utils.ts";
 import Document from "./Document.ts";
+import Property from "./Property.ts";
+import PseudoProperty from "./PseudoProperty.ts";
 
 /**
  * lets the user write properties with sugar syntax like following
@@ -8,24 +10,6 @@ import Document from "./Document.ts";
  *   background::media(blue; black: 300px)
  * }
  */
-export class PseudoProperty {
-  constructor(
-    /**
-     * the rule that is used
-     */
-    public parent: Rules,
-    /**
-     * the property to transform
-     */
-    public readonly property: string,
-    /**
-     * the name of the pseudo property
-     */
-    public readonly name: string,
-    public readonly opts: { values: string[][] }) {
-  }
-}
-
 export interface RulesOptions {
   readonly id: string;
   source: string;
@@ -43,7 +27,7 @@ export default class Rules extends Utils {
   /**
    * all the properties used inside the current rule
    */
-  private _data: { [k: string]: string } = {};
+  private _data: { [k: string]: Property } = {};
   public children: Rules[] = [];
   mapPseudoProperties: Map<string, PseudoProperty> = new Map();
   constructor(public opts: RulesOptions) {
@@ -308,7 +292,12 @@ export default class Rules extends Utils {
         // a property/value group is captured by the regexp
         if (match.groups.property) {
           // save the value and property into the private data object
-          this._data[match.groups.property] = match.groups.value;
+          this._data[match.groups.property] = new Property(
+            match[0],
+            match.groups.property,
+            match.groups.value,
+            this,
+          );
         }
         // user can spread variables and rules's children into the current rule
         // by using the following syntax ...$Spreaded;
@@ -320,11 +309,20 @@ export default class Rules extends Utils {
             && !(value instanceof String));
           const keys = entries.map(([key]) => key);
           const values = entries.map(([, value]) => value);
-          console.warn(obj);
           // create the util to spread all the variables
           if (keys.length) {
-            const assignFunction = new Function('$$origin', ...keys, `return Object.assign($$origin, ${spreaded || '{}'});`);
-            assignFunction(this._data, ...values);
+            const assignFunction = new Function('$$origin', ...keys, `
+            try {
+              if (typeof ${spreaded} === 'string') return true;
+              Object.assign($$origin, ${spreaded || '{}'});
+              return true;
+            } catch(err) {
+              return false;
+            }`);
+            const isAssigned = assignFunction(this._data, ...values);
+            if (!isAssigned) {
+              this.warn(`cannot spread ${spreaded} in style.`)
+            }
           }
 
           // now start spreading rules's children
@@ -334,10 +332,10 @@ export default class Rules extends Utils {
 
           // create the util function to spread the children
           if (keysRules.length) {
+            console.warn('keysRules', keysRules);
             const spreadChildrenFunction = new Function('currentRule', 'constructor', ...keysRules, `
-                            if (typeof ${spreaded} === undefined || !(${spreaded} instanceof constructor)) return;
-                            return currentRule.push(...(${spreaded || '{ children: [] }'}).children);
-                        `);
+              if (typeof ${spreaded} === undefined || !(${spreaded} instanceof constructor)) return;
+              return currentRule.push(...(${spreaded || '{ children: [] }'}).children);`);
             spreadChildrenFunction(this, Rules, ...valuesRules);
           }
         }
@@ -370,48 +368,15 @@ export default class Rules extends Utils {
     }
   }
   /**
-   * transformed data with
-   * - parent references
-   * - self references
-   */
-  get data() {
-    const newObj = Object.assign({}, this._data);
-    for (let key in newObj) {
-      let match;
-      let data = newObj[key];
-      let reg = /(\$)(?<varname>([^\{\[\(\n\r\#\s]+)+?)/;
-      let result = '';
-      while ((match = data.match(reg))) {
-        if (match.groups?.varname) {
-          const { varname } = match.groups;
-          const obj = Object.assign({}, ...this.dataRessources);
-          const sourceEntries = Object.entries(obj);
-          const entries = sourceEntries.filter(([, value]: [string, unknown]) => !(value instanceof Rules)
-            && !(value instanceof String));
-          const keys = entries.map(([key]) => key);
-          const values = entries.map(([, value]) => value);
-          // create the util to get the required value
-          if (keys.length) {
-            const getter = new Function(...keys, `return (${varname || 'undefined'});`);
-            result = getter(...values);
-          }
-        }
-        data = data.replace(reg, result);
-      }
-      newObj[key] = data;
-    }
-    return newObj;
-  }
-  /**
    * returns the output of the current rule
    */
   render(opts: { minify?: boolean }): string {
     let result = '';
     const { query } = this;
-    const properties = Array.from(
-      Object.entries(this.data)
-    )
-      .map(([key, property]) => `  ${key}: ${property}`)
+    const properties = (Array.from(
+      Object.entries(this._data)
+    ) as [string, Property][])
+      .map(([key, property]) => property.render && property.render())
       .join(';\n');
     switch (true) {
       case this.isNotToRender: return '';

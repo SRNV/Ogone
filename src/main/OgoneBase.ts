@@ -53,7 +53,7 @@ export const Ogone: OgoneInterface = {
     },
   },
   get isDeno() {
-    return typeof Deno !== "undefined"
+    return "Deno" in globalThis
       && !!Deno.chmod
   },
   runSync(Onode, state) {},

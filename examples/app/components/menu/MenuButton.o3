@@ -39,8 +39,8 @@ import type { ButtonInterface } from '../../public/modules/menu-button-types.ts'
   <div class="container" --router-go={this.buttonOpts.route}>
     ${this.buttonOpts.name}
     <span class="ok" --if={this.buttonOpts.status === 'ok'}></span>
-    <span class="todo" --if={this.buttonOpts.status === 'todo'}></span>
-    <span class="in-progress" --if={this.buttonOpts.status === 'in-progress'}></span>
+    <span class="todo" --else-if={this.buttonOpts.status === 'todo'}></span>
+    <span class="in-progress" --else-if={this.buttonOpts.status === 'in-progress'}></span>
   </div>
 </template>
 

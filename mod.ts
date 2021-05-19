@@ -19,6 +19,7 @@ import { MapPosition } from './src/classes/MapPosition.ts';
 import StylesheetBuilder from './src/classes/StylesheetBuilder.ts';
 import { Utils } from './src/classes/Utils.ts';
 import TSXContextCreator from './src/classes/TSXContextCreator.ts';
+import WebviewEngine from './src/classes/WebviewEngine.ts';
 
 export {
   Ogone,

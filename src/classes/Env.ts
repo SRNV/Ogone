@@ -9,26 +9,28 @@ import type {
   ProductionFile,
 } from "./../ogone.main.d.ts";
 import { join, colors } from "../../deps/deps.ts";
+import { existsSync } from "../../deps/deps.ts";
 import { copy } from "../../deps/fs.ts";
 import { walkSync } from '../../deps/walk.ts';
 import Constructor from "./Constructor.ts";
 import { Configuration } from "./Configuration.ts";
 import TSXContextCreator from "./TSXContextCreator.ts";
 import Workers from "../enums/workers.ts";
-import MapFile from "./MapFile.ts";
 import MapOutput from "./MapOutput.ts";
 import TSTranspiler from './TSTranspiler.ts';
-import { WebSocketServer } from "../../deps/ws.ts";
+import { WebSocketServer } from "../../lib/websocket/index.ts";
 import HMR from "./HMR.ts";
 import Ogone from "../main/OgoneBase.ts";
 import ComponentBuilder from './ComponentBuilder.ts';
 import Dependency from "./Dependency.ts";
 import Deployer from "../enums/deployer.ts";
+import WebviewEngine from './WebviewEngine.ts';
 
 export default class Env extends Constructor {
   protected bundle: Bundle | null = null;
   public env: Environment = "development";
   public devtool?: boolean;
+  public applicationUpdatedCount = 0;
   public static _devtool?: boolean;
   public static _env: Environment = "development";
   protected TSXContextCreator: TSXContextCreator = new TSXContextCreator();
@@ -95,7 +97,7 @@ export default class Env extends Constructor {
   /**
    * Compile your application by giving the path to the root component.
    * @param entrypoint path to root component
-   * @param shouldBundle set the bundle of the component after compilation
+   * @param shouldBundle overwrite bundle
    */
   public async compile(
     entrypoint: string,
@@ -146,29 +148,18 @@ ${err.stack}`);
   /**
    * @name listenLSPHSEServer
    */
-  public async listenLSPHSEServer(port: number): Promise<void> {
+  public async listenLSPHSEServer(): Promise<void> {
     try {
       /**
        * open the server for LSP
        * HOT Scoped Editor for HSE
        */
       Configuration.OgoneDesignerOpened = true;
-      this.lspHSEServer.postMessage({
-        type: Workers.INIT_MESSAGE_SERVICE_DEV,
-        port,
-      });
-      this.trace('LSP HSE Server opened.')
-      this.lspHSEServer.addEventListener('message', async (event) => {
-        const { data } = event;
-        switch (data.type) {
-          default: break;
-          case Workers.LSP_UPDATE_CURRENT_COMPONENT:
-            if (this.timeoutBeforeSendingLSPRequests) {
-              clearTimeout(this.timeoutBeforeSendingLSPRequests);
-            }
-            this.timeoutBeforeSendingLSPRequests = setTimeout(() => this.updateLSPCurrentComponent(data), 50);
-            break;
-        }
+      WebviewEngine.subscribe('update LSP current Component', (content: string) => {
+        const data = JSON.parse(content);
+        console.clear();
+        this.infos(`compiling...`);
+        this.updateLSPCurrentComponent(data);
       });
     } catch (err) {
       this.error(`Env: ${err.message}
@@ -180,13 +171,6 @@ ${err.stack}`);
     const file = this.template(BoilerPlate.ROOT_COMPONENT_PREVENT_COMPONENT_TYPE_ERROR, {
       filePath: filePath.replace(Deno.cwd(), '@'),
     });
-    // save the content of the file to overwrite
-    // this allows the live editor
-    MapFile.files.set(filePath, {
-      content: data.text,
-      original: Deno.readTextFileSync(data.path),
-      path: data.path,
-    });
     const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_webview', suffix: '.o3' });
     Deno.writeTextFileSync(tmpFile, file);
     this.compile(tmpFile)
@@ -197,18 +181,14 @@ ${err.stack}`);
         this.serviceDev.postMessage({
           type: Workers.LSP_UPDATE_SERVER_COMPONENT,
           application,
-        })
-        this.lspHSEServer.postMessage({
-          type: Workers.LSP_CURRENT_COMPONENT_RENDERED,
-        })
-        this.success(`Hot Scoped Editor - updated`);
+        });
+        WebviewEngine.updateDevServerApplicationFile(application);
+        Deno.removeSync(tmpFile);
+        console.clear();
         this.exposeSession();
         await this.TSXContextCreator.read(bundle, {
           checkOnly: filePath.replace(Deno.cwd(), ''),
         });
-      })
-      .then(() => {
-        Deno.remove(tmpFile);
       })
       .catch((error) => {
         Deno.remove(tmpFile);
@@ -251,6 +231,7 @@ ${err.stack}`);
     });
     try {
       this.hmrContext.addEventListener('message', async (event) => {
+        console.warn('message from hmr context', event.data);
         if (event.data.isOgone) {
           console.clear();
           this.infos('HMR - running tasks...');
@@ -276,14 +257,6 @@ ${err.stack}`);
           filePath: filePath.replace(Deno.cwd(), '@'),
         });
         if (data.isOgone) {
-          // save the content of the file to overwrite
-          // this allows the live edition
-          const content = Deno.readTextFileSync(data.path);
-          MapFile.files.set(filePath, {
-            content,
-            original: content,
-            path: data.path,
-          });
           const tmpFile = Deno.makeTempFileSync({ prefix: 'ogone_boilerplate_hmr', suffix: '.o3' });
           Deno.writeTextFileSync(tmpFile, file);
           let startPerf = performance.now();
@@ -321,30 +294,26 @@ ${err.stack}`);
   }
   private updateRootComponent(event: MessageEvent) {
     const { data } = event;
-    switch (data.type) {
-      case Workers.WS_FILE_UPDATED:
-        let startPerf = performance.now();
-        this.compile(Configuration.entrypoint, true)
-          .then(async (completeBundle) => {
-            console.clear();
-            if (HMR.client) {
-              this.infos(`HMR - sending output.`);
-              HMR.postMessage({
-                output: completeBundle.output,
-                uuid: ComponentBuilder.mapUuid.get(data.path)
-              });
-              this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
-            } else {
-              this.warn(`HMR - no connection...`);
-            }
-            await this.sendNewApplicationToServer();
-            this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
-            this.exposeSession();
-            // start typechecking
-            await this.TSXContextCreator.read(completeBundle);
+    let startPerf = performance.now();
+    this.compile(Configuration.entrypoint, true)
+      .then(async (completeBundle) => {
+        console.clear();
+        if (HMR.clients.size) {
+          this.infos(`HMR - sending output.`);
+          HMR.postMessage({
+            output: completeBundle.output,
+            uuid: ComponentBuilder.mapUuid.get(data.path),
           });
-        break;
-    }
+          this.infos(`HMR - application updated. ~${Math.floor(performance.now() - startPerf)} ms`);
+        } else {
+          this.warn(`HMR - no connection...`);
+        }
+        await this.sendNewApplicationToServer(true);
+        this.infos(`HMR - tasks completed. ~${Math.floor(performance.now() - startPerf)} ms`);
+        this.exposeSession();
+        // start typechecking
+        await this.TSXContextCreator.read(completeBundle);
+      });
   }
   async initServer(): Promise<void> {
     try {
@@ -361,7 +330,7 @@ ${err.stack}`);
 ${err.stack}`);
     }
   }
-  async sendNewApplicationToServer(): Promise<void> {
+  async sendNewApplicationToServer(allowReload?: boolean): Promise<void> {
     try {
       this.serviceDev.postMessage({
         type: Workers.UPDATE_APPLICATION,
@@ -371,6 +340,14 @@ ${err.stack}`);
           ...Configuration
         },
       });
+      this.applicationUpdatedCount++;
+      if (allowReload && this.applicationUpdatedCount > 10) {
+        this.applicationUpdatedCount = 0;
+        this.infos(`sync: reloading application`);
+        HMR.postMessage({
+          type: 'reload'
+        });
+      }
     } catch (err) {
       this.error(`EnvServer: ${err.message}
 ${err.stack}`);
@@ -633,15 +610,10 @@ ${versions}
     }
   }
   public async deploySPA(app: ProductionFiles) {
-    const { html, js, css } = app;
     const { blue, cyan, gray } = colors;
     const dest = join(Configuration.build!, 'static')
-    const encoder = new TextEncoder();
     let perf = performance.now();
     const project = this.template(Deployer.App, {
-      HTML: encoder.encode(html.source).join(),
-      CSS: encoder.encode(css.source).join(),
-      JS: encoder.encode(js.source).join(),
       ressources: app.ressources,
       static: dest,
       requests: app.ressources.map((file: ProductionFile) => {

@@ -51,7 +51,7 @@ import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts
     --class={{ close: !this.isOpen }}>
     <div class="header">
       <LogoEl --click:toggle-menu></LogoEl>
-      <div>0.1.0</div>
+      <div>0.29.0</div>
     </div>
     <div class="tree">
       <TreeRecursive --for={item of this.menu} item={item} />

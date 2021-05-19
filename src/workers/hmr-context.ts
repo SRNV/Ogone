@@ -11,7 +11,9 @@ self.onmessage = async (ev: any): Promise<void> => {
       const watcher = Deno.watchFs(Deno.cwd(), { recursive: true });
       for await (let event of watcher) {
         if (event.kind === 'access') {
-          event.paths.forEach((path) => {
+          event.paths
+            .filter((path) => path.endsWith('.o3'))
+            .forEach((path) => {
             self.postMessage({
               path,
               type: Workers.WS_FILE_UPDATED,

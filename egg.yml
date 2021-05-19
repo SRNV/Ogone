@@ -1,15 +1,15 @@
 name: Ogone
 repository: 'https://github.com/SRNV/Ogone'
-version: 0.28.10
+version: 0.29.0
 description: Advanced Web Composition for Future
 stable: false
 files:
   - ./cli/**/*
-  - ./docs/**/*
   - ./deps/**/*
+  - ./docs/**/*
   - ./examples/**/*
+  - ./lib/**/*
   - ./src/**/*
-  - ./tests/**/*
   - ./utils/**/*
   - mod.ts
   - README.md

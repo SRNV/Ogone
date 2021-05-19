@@ -41,9 +41,13 @@ ${err.stack}`);
         if (head && head.getInnerHTML) {
           const headHasChanged = Configuration.setHead(head.getInnerHTML());
           if (headHasChanged) {
-            HMR.postMessage({
-              type: 'reload',
-            });
+            this.infos('head element has changed. waiting 1 second before reloading application.');
+            setTimeout(() => {
+              this.infos('head element changed, reloading.');
+              HMR.postMessage({
+                type: 'reload',
+              });
+            }, 1000);
           }
           if (template) {
             // remove the head in the template
