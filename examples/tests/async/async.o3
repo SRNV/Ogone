@@ -1,14 +1,16 @@
-<template>
-  <img --await src="public/ogone.svg" width="200" />
-</template>
+<Async>
+  <template>
+    <img --await src="public/ogone.svg" width="200" />
+  </template>
 
-<proto type="async">
-  def:
-    user: null
-  default:
-    setTimeout(() => {
-      // should trigger the then case of parent
-    }, 0);
-      Async.resolve(true);
-    break;
-</proto>
+  <proto type="async">
+    def:
+      user: null
+    default:
+      setTimeout(() => {
+        // should trigger the then case of parent
+      }, 0);
+        Async.resolve(true);
+      break;
+  </proto>
+</Async>

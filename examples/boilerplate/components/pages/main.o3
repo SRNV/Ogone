@@ -1,35 +1,37 @@
 import component AsyncLeftMenuComponent from '../organism/left-menu.o3';
 import component ContentComponent from '../organism/content.o3';
 
-<template>
-  <style>
-    .container {
-      display: grid;
-      height: 100%;
-      width: 100%;
-      grid-template-areas:
-        "menu content content"
-        "menu content content"
-        "menu content content"
-        "menu content content";
-      grid-template-columns: minmax(80px, 220px) 1fr 2fr;
-      grid-template-rows: 1fr 1fr 1fr 1fr;
-      .menu {
-        grid-area: menu;
+<Main>
+  <template>
+    <style>
+      .container {
+        display: grid;
+        height: 100%;
+        width: 100%;
+        grid-template-areas:
+          "menu content content"
+          "menu content content"
+          "menu content content"
+          "menu content content";
+        grid-template-columns: minmax(80px, 220px) 1fr 2fr;
+        grid-template-rows: 1fr 1fr 1fr 1fr;
+        .menu {
+          grid-area: menu;
+        }
+        .content {
+          grid-area: content;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
       }
-      .content {
-        grid-area: content;
-        overflow-y: auto;
-        overflow-x: hidden;
-      }
-    }
-  </style>
-  <div class="container">
-    <div class="menu">
-      <AsyncLeftMenuComponent />
+    </style>
+    <div class="container">
+      <div class="menu">
+        <AsyncLeftMenuComponent />
+      </div>
+      <div class="content">
+        <ContentComponent />
+      </div>
     </div>
-    <div class="content">
-      <ContentComponent />
-    </div>
-  </div>
-</template>
+  </template>
+</Main>

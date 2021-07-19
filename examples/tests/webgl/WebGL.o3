@@ -30,73 +30,75 @@
  * browser coordinate system is:
  *   (0, 0) point on the left-top corner
  */
-<template>
-  <style>
-    .cubic {
-      color: blue;
-    }
-    .sphere {
-      color: red;
-    }
-  </style>
-  <text>static text</text>
-  <text>dynamic text ${this.count}</text>
-  <!-- need to specify more for lights and cameras -->
-  <Light />
-  <Camera />
-  <!-- a built-in sphere mesh -->
-  <Sphere
-    class="sphere" />
-  <!-- another sphere but not on the origin -->
-  <Sphere
-    _x={10}
-    _y={20}
-    _z={30} />
-  <!-- a cube list -->
-  <Cube
-    --for={i of [1, 2, 3]}
-    position={[i, i-1, 0]}
-    class="cubic" />
-  <!--
-    a WebGLComponent with a model
-    this model should be transpiled
-  -->
-  <VXModelLoader src="./model.gltf" />
-  <!-- another WebGLComponent that is loading dynamically a model -->
-  <VXModelLoader src={"./model.gltf"} />
-</template>
-<proto
-  type="vx"
-  fps="20" >
-  declare:
-    protected _x = 0;
-    protected _y = 0;
-    protected _z = 0;
-    protected _rotationX = 0;
-    protected _rotationY = 0;
-    protected _rotationZ = 0;
-    protected _scaleX = 0;
-    protected _scaleY = 0;
-    protected _scaleZ = 0;
-    protected _rendering = {
-      alias: null
-    };
-    public count = 0;
-  default:
-    // the default modifier is still triggered
-    // when the component is initialized
-    this.count += +10;
-    this._x = 10;
-    this._y = 10;
-    this._z = 10;
-    break;
-  case 'fps':
-    // using a global request animation frame
-    // for all WebGLComponent
-    // this case should be used on each frame
-    this.count++;
-    break;
-  case 'destroy':
-    this.count = 0;
-    break;
-</proto>
+<WebGL>
+  <template>
+    <style>
+      .cubic {
+        color: blue;
+      }
+      .sphere {
+        color: red;
+      }
+    </style>
+    <text>static text</text>
+    <text>dynamic text ${this.count} </text>
+    <!-- need to specify more for lights and cameras -->
+    <Light />
+    <Camera />
+    <!-- a built-in sphere mesh -->
+    <Sphere
+      class="sphere" />
+    <!-- another sphere but not on the origin -->
+    <Sphere
+      _x={10}
+      _y={20}
+      _z={30} />
+    <!-- a cube list -->
+    <Cube
+      --for(i of [1, 2, 3])
+      position={[i, i-1, 0]}
+      class="cubic" />
+    <!--
+      a WebGLComponent with a model
+      this model should be transpiled
+    -->
+    <VXModelLoader src="./model.gltf" />
+    <!-- another WebGLComponent that is loading dynamically a model -->
+    <VXModelLoader src={"./model.gltf"} />
+  </template>
+  <proto
+    type="vx"
+    fps="20" >
+    declare:
+      protected _x = 0;
+      protected _y = 0;
+      protected _z = 0;
+      protected _rotationX = 0;
+      protected _rotationY = 0;
+      protected _rotationZ = 0;
+      protected _scaleX = 0;
+      protected _scaleY = 0;
+      protected _scaleZ = 0;
+      protected _rendering = {
+        alias: null
+      };
+      public count = 0;
+    default:
+      // the default modifier is still triggered
+      // when the component is initialized
+      this.count += +10;
+      this._x = 10;
+      this._y = 10;
+      this._z = 10;
+      break;
+    case 'fps':
+      // using a global request animation frame
+      // for all WebGLComponent
+      // this case should be used on each frame
+      this.count++;
+      break;
+    case 'destroy':
+      this.count = 0;
+      break;
+  </proto>
+</WebGL>

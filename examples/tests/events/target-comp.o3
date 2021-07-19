@@ -1,16 +1,19 @@
-<template>
-  <style>
-    .title {
-      background: grey;
-      color: white;
-    }
-  </style>
-  <div>
-    <div class="title">
-      target component
-    </div>
+
+<TargetComponent>
+  <template>
+    <style>
+      .title {
+        background: grey;
+        color: white;
+      }
+    </style>
     <div>
-      <slot />
+      <div class="title">
+        target component
+      </div>
+      <div>
+        <slot />
+      </div>
     </div>
-  </div>
-</template>
+  </template>
+</TargetComponent>

@@ -1,3 +1,4 @@
+
 import component UserController from '@/examples/app/controllers/ControllerUser.o3'
 
 /**
@@ -11,15 +12,17 @@ import component UserController from '@/examples/app/controllers/ControllerUser.
       endpoints:
         / => Hello ${UserController.name}!
  */
-<proto type="store" namespace="menu">
-  declare:
-    public isOpen: boolean = false;
-  before-each:
-    const { UserController } = Controllers;
-  case 'action:toggle':
-    this.isOpen = !this.isOpen;
-    break;
-  case 'action:checkController':
-    const res = await UserController.get('/');
-    return res;
-</proto>
+<StoreMenu>
+  <proto type="store" namespace="menu">
+    declare:
+      public isOpen: boolean = false;
+    before-each:
+      const { UserController } = Controllers;
+    case 'action:toggle':
+      this.isOpen = !this.isOpen;
+      break;
+    case 'action:checkController':
+      const res = await UserController.get('/');
+      return res;
+  </proto>
+</StoreMenu>

@@ -1,3 +1,5 @@
-<template>
-    <!-- -->
-</template>
+<Empty>
+    <template>
+        <!-- -->
+    </template>
+</Empty>

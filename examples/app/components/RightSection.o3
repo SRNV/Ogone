@@ -1,22 +1,26 @@
-<template private>
-  <style>
-    @const value = 2px;
-    .container {
-      position: fixed;
-      top: 35%;
-      width: 40px;
-      height: 300px;
-      right: 0;
-      background: #2f3035;
-      border-radius: 5px 0 0 5px;
-      filter: drop-shadow(0px $value 4px #00000086);
-    }
-  </style>
-  <div class="container">
-    ${this.scrollY}
-  </div>
-</template>
-<proto>
-  def:
-    inherit scrollY: 0
-</proto>
+
+<RightSection
+  scrollY={number}>
+  <template private>
+    <style>
+      @const value = 2px;
+      .container {
+        position: fixed;
+        top: 35%;
+        width: 40px;
+        height: 300px;
+        right: 0;
+        background: #2f3035;
+        border-radius: 5px 0 0 5px;
+        filter: drop-shadow(0px $value 4px #00000086);
+      }
+    </style>
+    <div class="container">
+      ${this.scrollY}
+    </div>
+  </template>
+  <proto>
+    def:
+      scrollY: 0
+  </proto>
+</RightSection>

@@ -6,29 +6,31 @@ import component RouterMain from './routers/RouterMain.o3';
  * @description
  * Application for Ogone website
  */
-<template private>
-  <head>
-    <title> Ogone - Next generation composition </title>
-    <style>
-      * {
-        --background: #242c31;
-        --primary: #8494e1;
-        --secondary: #9cd0ef;
-        --dark: #152937;
-      }
-      body {
-        margin: 0px;
-        padding: 0px;
-        background: var(--background);
-      }
-    </style>
-  </head>
-  <RouterMain namespace="main" />
-</template>
-<proto type="app">
-  declare:
-    readonly title: string = 'Ogone';
-  default:
-    // initialization
-    break;
-</proto>
+<App>
+  <template private>
+    <head>
+      <title> Ogone - Next generation composition </title>
+      <style>
+        * {
+          --background: #242c31;
+          --primary: #8494e1;
+          --secondary: #9cd0ef;
+          --dark: #152937;
+        }
+        body {
+          margin: 0px;
+          padding: 0px;
+          background: var(--background);
+        }
+      </style>
+    </head>
+    <RouterMain namespace="main" />
+  </template>
+  <proto type="app">
+    declare:
+      readonly title: string = 'Ogone';
+    default:
+      // initialization
+      break;
+  </proto>
+</App>

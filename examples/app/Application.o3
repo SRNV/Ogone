@@ -10,89 +10,91 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
  *  @description
  *    example of an Ogone web app
  */
-<template>
-  <head>
-    <link href="./style.css" rel="stylesheet"/>
-    <link rel="icon" href="./favicon.ico" />
-    <link href="./animations.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.2/styles/night-owl.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
-  </head>
-  <style>
-    h1, h2, h3, h4 {
-      color: #193b48;
-    }
-    .open-dev-tool {
-      display: inline-flex;
-      background: var(--o-header);
-      height: 100%;
-      vertical-align: middle;
-      align-items: center;
-      padding: 23px;
-      text-transform: capitalize;
-      color: #afafaf;
-      cursor: pointer;
-      user-select: none;
-    }
-    .logo {
-      flex: 2;
-      display: inline-flex;
-      flex-direction: row;
-      max-width: 124px;
-      min-width: 124px;
-      min-height: 65px;
-      cursor: pointer;
-    }
-    .header {
-      background: var(--o-header);
-      padding: 10px;
-      filter: drop-shadow(0px 10px 5px #00000033);
-      display: flex;
-      position: fixed;
-      width: 99%;
-      top: 0px;
-      left: @top;
-      transition: top 0.5s ease;
-      overflow: hidden;
-      z-index: 500;
-    }
-    .title {
-      margin: auto;
-      letter-spacing: 3px;
-    }
-  </style>
-  <div ref="head" class="header">
-    <div class="logo">
-      <AsyncLogoEl --router-go={'/'}></AsyncLogoEl>
-    </div>
-    <div --router-dev-tool class="open-dev-tool"> Dev </div>
-    <MenuContent />
-  </div>
-  <RouterComponent namespace="new" />
-  <MenuMain />
-  <RightSection {...this} />
-</template>
-<proto
-  type="app"
-  base="./public/">
-  declare:
-    public readonly test: any = Obj;
-    public scrollY: number = 0;
-    public setScrollY(n: number) {
-      this.scrollY = n;
-    }
-  default:
-    const [header] = Refs.head;
-    this.setScrollY(window.scrollY);
-    window.addEventListener('scroll', (ev) => {
-      if (header) {
-        if (window.scrollY > this.scrollY) {
-          header.style.top = '-100px';
-        } else {
-          header.style.top = '0px';
-        }
+<Application>
+  <template>
+    <head>
+      <link href="./style.css" rel="stylesheet"/>
+      <link rel="icon" href="./favicon.ico" />
+      <link href="./animations.css" rel="stylesheet"/>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.2/styles/night-owl.min.css">
+      <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round" rel="stylesheet"></link>
+    </head>
+    <style>
+      h1, h2, h3, h4 {
+        color: #193b48;
       }
+      .open-dev-tool {
+        display: inline-flex;
+        background: var(--o-header);
+        height: 100%;
+        vertical-align: middle;
+        align-items: center;
+        padding: 23px;
+        text-transform: capitalize;
+        color: #afafaf;
+        cursor: pointer;
+        user-select: none;
+      }
+      .logo {
+        flex: 2;
+        display: inline-flex;
+        flex-direction: row;
+        max-width: 124px;
+        min-width: 124px;
+        min-height: 65px;
+        cursor: pointer;
+      }
+      .header {
+        background: var(--o-header);
+        padding: 10px;
+        filter: drop-shadow(0px 10px 5px #00000033);
+        display: flex;
+        position: fixed;
+        width: 99%;
+        top: 0px;
+        left: @top;
+        transition: top 0.5s ease;
+        overflow: hidden;
+        z-index: 500;
+      }
+      .title {
+        margin: auto;
+        letter-spacing: 3px;
+      }
+    </style>
+    <div ref="head" class="header">
+      <div class="logo">
+        <AsyncLogoEl --router-go={'/'}></AsyncLogoEl>
+      </div>
+      <div --router-dev-tool class="open-dev-tool"> Dev </div>
+      <MenuContent />
+    </div>
+    <RouterComponent namespace="new" />
+    <MenuMain />
+    <RightSection {...this} />
+  </template>
+  <proto
+    type="app"
+    base="./public/">
+    declare:
+      public readonly test: any = Obj;
+      public scrollY: number = 0;
+      public setScrollY(n: number) {
+        this.scrollY = n;
+      }
+    default:
+      const [header] = Refs.head;
       this.setScrollY(window.scrollY);
-    });
-    break;
-</proto>
+      window.addEventListener('scroll', (ev) => {
+        if (header) {
+          if (window.scrollY > this.scrollY) {
+            header.style.top = '-100px';
+          } else {
+            header.style.top = '0px';
+          }
+        }
+        this.setScrollY(window.scrollY);
+      });
+      break;
+  </proto>
+</Application>

@@ -1,4 +1,3 @@
-
 /**
  *  @name AsyncLogo
  *  @description
@@ -6,19 +5,21 @@
  *  @example
       Async.resolve(undefined)
  */
-<template private>
-  <style>
-    .img, .container {
-      width: 60px;
-      height: auto;
-    }
-  </style>
-  <div class="container">
-    <img --await class="img" src="./ogone.svg"/>
-  </div>
-</template>
-<proto type="async">
-  default:
-    Async.resolve();
-    break;
-</proto>
+<AsyncLogo>
+  <template private>
+    <style>
+      .img, .container {
+        width: 60px;
+        height: auto;
+      }
+    </style>
+    <div class="container">
+      <img --await class="img" src="./ogone.svg"/>
+    </div>
+  </template>
+  <proto type="async">
+    default:
+      Async.resolve();
+      break;
+  </proto>
+</AsyncLogo>

@@ -1,29 +1,30 @@
-<template>
-  <style>
-    .container {
-      background: #f1f1f1;
-      border-radius: 21px;
-      text-transform: capitalize;
-      border: 1px solid #00000012;
-      display: inline-block;
-      padding: 9px;
-      transition: 1s ease box-shadow;
-      box-shadow: -6px 6px 5px #00000045;
-      user-select: none;
-      cursor: pointer;
-      &:hover {
+<Button text={string}>
+  <template>
+    <style>
+      .container {
+        background: #f1f1f1;
+        border-radius: 21px;
+        text-transform: capitalize;
+        border: 1px solid #00000012;
+        display: inline-block;
+        padding: 9px;
         transition: 1s ease box-shadow;
-        border: 1px solid #00000000;
-        box-shadow: inset -6px 6px 5px #00000045;
+        box-shadow: -6px 6px 5px #00000045;
+        user-select: none;
+        cursor: pointer;
+        &:hover {
+          transition: 1s ease box-shadow;
+          border: 1px solid #00000000;
+          box-shadow: inset -6px 6px 5px #00000045;
+        }
       }
-    }
-  </style>
-  <div class="container">
-    ${this.text}
-  </div>
-</template>
-
-<proto type="component">
-  declare:
-    inherit text: string = 'Untitled';
-</proto>
+    </style>
+    <div class="container">
+      ${this.text}
+    </div>
+  </template>
+  <proto type="component">
+    declare:
+      text: string = 'Untitled';
+  </proto>
+</Button>

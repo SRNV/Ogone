@@ -1,32 +1,33 @@
-<template>
-  <p --for={item of this.position.test}>
-    ${item}
-  </p>
-</template>
-
-<proto type="app">
-  declare:
-    x: number =  0;
-    y: number = 0;
-    position: { name: string; origin: number; test: number[] } = {
-      name: 'Test',
-      origin: 0,
-      test: [],
-    };
-  compute:
-    //  this is a reflection
-    this.position.origin => this.x;
-    // you can reflect any property of your data
-    this.position.test[this.position.origin -1] => this.position.origin;
-    this.position.test[this.position.origin] => 0;
-    // or
-    this.position.name => {
-      return `${this.x}, test ${this.y}`;
-    };
-  default:
-    setInterval(() => {
-      this.x++;
-      this.y--;
-    }, 500);
-    break;
-</proto>
+<Index>
+  <template>
+    <p --for(item of this.position.test)>
+      ${item}
+    </p>
+  </template>
+  <proto type="app">
+    declare:
+      x: number =  0;
+      y: number = 0;
+      position: { name: string; origin: number; test: number[] } = {
+        name: 'Test',
+        origin: 0,
+        test: [],
+      };
+    compute:
+      //  this is a reflection
+      this.position.origin => this.x;
+      // you can reflect any property of your data
+      this.position.test[this.position.origin -1] => this.position.origin;
+      this.position.test[this.position.origin] => 0;
+      // or
+      this.position.name => {
+        return `${this.x}, test ${this.y}`;
+      };
+    default:
+      setInterval(() => {
+        this.x++;
+        this.y--;
+      }, 500);
+      break;
+  </proto>
+</Index>

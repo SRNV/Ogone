@@ -1,120 +1,85 @@
 import component TargetComponent from '@/examples/tests/events/target-comp.o3';
 
-<template>
-  <h1 --router-dev-tool>Dev Tool</h1>
-  <div --click:increase> click ${this.countClick} </div>
-  <div --dblclick:increase> dblclick ${this.countDblClick} </div>
-  <div --mouseenter:increase> mouseEnter ${this.countmouseEnter} </div>
-  <div --mouseover:increase> mouseOver ${this.countmouseOver} </div>
-  <div --mousemove:increase> mouseMove ${this.countmouseMove} </div>
-  <div --mousedown:increase> mouseDown ${this.countmouseDown} </div>
-  <div --mouseup:increase> mouseUp ${this.countmouseUp} </div>
-  <div --mouseleave:increase> mouseLeave ${this.countmouseLeave} </div>
-  <div --keypress:increase> keypress ${this.countKeypress} </div>
-  <div --keydown:increase> keydown ${this.countKeyDown} </div>
-  <div --keydown:increaseSpace={'space'}> keydown space ${this.countKeyDownSpace} </div>
-  <div --keyup:increaseSpace={'space'}> keyup space ${this.countKeyUpSpace} </div>
-  <div --keyup:increase> keyup ${this.countKeyUp} </div>
-  <div --wheel:increase> wheel ${this.wheelCount} </div>
-  <div --wheel:increaseDown={'down'}> wheel down ${this.wheelDownCount} </div>
-  <div --wheel:increaseUp={'up'}> wheel up ${this.wheelUpCount} </div>
-  <div --wheel:increaseLeft={'left'}> wheel left ${this.wheelLeftCount} </div>
-  <div --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </div>
+<Events>
+  <template>
+    <h1 --router-dev-tool>Dev Tool</h1>
+    <div --click:increase> click ${this.countClick} </div>
+    <div --dblclick:increase> dblclick ${this.countDblClick} </div>
+    <div --mouseenter:increase> mouseEnter ${this.countmouseEnter} </div>
+    <div --mouseover:increase> mouseOver ${this.countmouseOver} </div>
+    <div --mousemove:increase> mouseMove ${this.countmouseMove} </div>
+    <div --mousedown:increase> mouseDown ${this.countmouseDown} </div>
+    <div --mouseup:increase> mouseUp ${this.countmouseUp} </div>
+    <div --mouseleave:increase> mouseLeave ${this.countmouseLeave} </div>
+    <div --keypress:increase> keypress ${this.countKeypress} </div>
+    <div --keydown:increase> keydown ${this.countKeyDown} </div>
+    <div --keydown:increaseSpace={'space'}> keydown space ${this.countKeyDownSpace} </div>
+    <div --keyup:increaseSpace={'space'}> keyup space ${this.countKeyUpSpace} </div>
+    <div --keyup:increase> keyup ${this.countKeyUp} </div>
+    <div --wheel:increase> wheel ${this.wheelCount} </div>
+    <div --wheel:increaseDown={'down'}> wheel down ${this.wheelDownCount} </div>
+    <div --wheel:increaseUp={'up'}> wheel up ${this.wheelUpCount} </div>
+    <div --wheel:increaseLeft={'left'}> wheel left ${this.wheelLeftCount} </div>
+    <div --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </div>
 
-  <h1> Components </h1>
+    <h1> Components </h1>
 
-  <TargetComponent --click:increase> click ${this.countClick} </TargetComponent>
-  <TargetComponent --dblclick:increase> dblclick ${this.countDblClick} </TargetComponent>
-  <TargetComponent --mouseenter:increase> mouseEnter ${this.countmouseEnter} </TargetComponent>
-  <TargetComponent --mouseover:increase> mouseOver ${this.countmouseOver} </TargetComponent>
-  <TargetComponent --mousemove:increase> mouseMove ${this.countmouseMove} </TargetComponent>
-  <TargetComponent --mousedown:increase> mouseDown ${this.countmouseDown} </TargetComponent>
-  <TargetComponent --mouseup:increase> mouseUp ${this.countmouseUp} </TargetComponent>
-  <TargetComponent --mouseleave:increase> mouseLeave ${this.countmouseLeave} </TargetComponent>
-  <TargetComponent --keypress:increase={'a'}> keypress ${this.countKeypress} </TargetComponent>
-  <TargetComponent --keydown:increase> keydown ${this.countKeyDown} </TargetComponent>
-  <TargetComponent --keydown:increaseSpace={'space'}> keydown space ${this.countKeyDownSpace} </TargetComponent>
-  <TargetComponent --keyup:increaseSpace={'space'}> keyup space ${this.countKeyUpSpace} </TargetComponent>
-  <TargetComponent --keyup:increase> keyup ${this.countKeyUp} </TargetComponent>
-  <TargetComponent --wheel:increase> wheel ${this.wheelCount} </TargetComponent>
-  <TargetComponent --wheel:increaseDown={'down'}> wheel down ${this.wheelDownCount} </TargetComponent>
-  <TargetComponent --wheel:increaseUp={'up'}> wheel up ${this.wheelUpCount} </TargetComponent>
-  <TargetComponent --wheel:increaseLeft={'left'}> wheel left ${this.wheelLeftCount} </TargetComponent>
-  <TargetComponent --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </TargetComponent>
-</template>
-
-<proto type="app" engine="proxy-reaction">
-  declare:
-    countClick: number = 20
-    countDblClick: number = 0
-    countmouseOver: number = 0
-    countmouseEnter: number = 0
-    countmouseLeave: number = 0
-    countmouseMove: number = 0
-    countmouseDown: number = 0
-    countmouseUp: number = 0
-    countKeypress: number = 0
-    countKeyUp: number = 0
-    countKeyDown: number = 0
-    countKeyDownSpace: number = 0
-    countKeyUpSpace: number = 0
-    wheelCount: number = 0
-    wheelDownCount: number = 0
-    wheelRightCount: number = 0
-    wheelLeftCount: number = 0
-    wheelUpCount: number = 0
-  case 'click:increase':
-    this.countClick++;
-  break;
-  case 'dblclick:increase':
-    this.countDblClick++;
-  break;
-  case 'mouseover:increase':
-    this.countmouseOver++;
-  break;
-  case 'mousemove:increase':
-    this.countmouseMove++;
-  break;
-  case 'mouseenter:increase':
-    this.countmouseEnter++;
-  break;
-  case 'mouseleave:increase':
-    this.countmouseLeave++;
-  break;
-  case 'mouseup:increase':
-    this.countmouseUp++;
-  break;
-  case 'mousedown:increase':
-    this.countmouseDown++;
-  break;
-  case 'keyup:increase':
-    this.countKeyUp++;
-  break;
-  case 'keypress:increase':
-    this.countKeypress++;
-  break;
-  case 'keydown:increase':
-    this.countKeyDown++;
-  break;
-  case 'keydown:increaseSpace':
-    this.countKeyDownSpace++;
-  break;
-  case 'keyup:increaseSpace':
-    this.countKeyUpSpace++;
-  break;
-  case 'wheel:increase':
-    this.wheelCount++;
-  break;
-  case 'wheel:increaseDown':
-    this.wheelDownCount++;
-  break;
-  case 'wheel:increaseUp':
-    this.wheelUpCount++;
-  break;
-  case 'wheel:increaseLeft':
-    this.wheelLeftCount++;
-  break;
-  case 'wheel:increaseRight':
-    this.wheelRightCount++;
-  break;
-</proto>
+    <TargetComponent --click:increase> click ${this.countClick} </TargetComponent>
+    <TargetComponent --dblclick:increase> dblclick ${this.countDblClick} </TargetComponent>
+    <TargetComponent --mouseenter:increase> mouseEnter ${this.countmouseEnter} </TargetComponent>
+    <TargetComponent --mouseover:increase> mouseOver ${this.countmouseOver} </TargetComponent>
+    <TargetComponent --mousemove:increase> mouseMove ${this.countmouseMove} </TargetComponent>
+    <TargetComponent --mousedown:increase> mouseDown ${this.countmouseDown} </TargetComponent>
+    <TargetComponent --mouseup:increase> mouseUp ${this.countmouseUp} </TargetComponent>
+    <TargetComponent --mouseleave:increase> mouseLeave ${this.countmouseLeave} </TargetComponent>
+    <TargetComponent --keypress:increase={'a'}> keypress ${this.countKeypress} </TargetComponent>
+    <TargetComponent --keydown:increase> keydown ${this.countKeyDown} </TargetComponent>
+    <TargetComponent --keydown:increaseSpace={'space'}> keydown space ${this.countKeyDownSpace} </TargetComponent>
+    <TargetComponent --keyup:increaseSpace={'space'}> keyup space ${this.countKeyUpSpace} </TargetComponent>
+    <TargetComponent --keyup:increase> keyup ${this.countKeyUp} </TargetComponent>
+    <TargetComponent --wheel:increase> wheel ${this.wheelCount} </TargetComponent>
+    <TargetComponent --wheel:increaseDown={'down'}> wheel down ${this.wheelDownCount} </TargetComponent>
+    <TargetComponent --wheel:increaseUp={'up'}> wheel up ${this.wheelUpCount} </TargetComponent>
+    <TargetComponent --wheel:increaseLeft={'left'}> wheel left ${this.wheelLeftCount} </TargetComponent>
+    <TargetComponent --wheel:increaseRight={'right'}> wheel right ${this.wheelRightCount} </TargetComponent>
+  </template>
+  <proto type="app" engine="proxy-reaction">
+    declare:
+      countClick: number = 20
+      countDblClick: number = 0
+      countmouseOver: number = 0
+      countmouseEnter: number = 0
+      countmouseLeave: number = 0
+      countmouseMove: number = 0
+      countmouseDown: number = 0
+      countmouseUp: number = 0
+      countKeypress: number = 0
+      countKeyUp: number = 0
+      countKeyDown: number = 0
+      countKeyDownSpace: number = 0
+      countKeyUpSpace: number = 0
+      wheelCount: number = 0
+      wheelDownCount: number = 0
+      wheelRightCount: number = 0
+      wheelLeftCount: number = 0
+      wheelUpCount: number = 0
+    case 'click:increase': this.countClick++; break;
+    case 'dblclick:increase': this.countDblClick++; break;
+    case 'mouseover:increase': this.countmouseOver++; break;
+    case 'mousemove:increase': this.countmouseMove++; break;
+    case 'mouseenter:increase': this.countmouseEnter++; break;
+    case 'mouseleave:increase': this.countmouseLeave++; break;
+    case 'mouseup:increase': this.countmouseUp++; break;
+    case 'mousedown:increase': this.countmouseDown++; break;
+    case 'keyup:increase': this.countKeyUp++; break;
+    case 'keypress:increase': this.countKeypress++; break;
+    case 'keydown:increase': this.countKeyDown++; break;
+    case 'keydown:increaseSpace': this.countKeyDownSpace++; break;
+    case 'keyup:increaseSpace': this.countKeyUpSpace++; break;
+    case 'wheel:increase': this.wheelCount++; break;
+    case 'wheel:increaseDown': this.wheelDownCount++; break;
+    case 'wheel:increaseUp': this.wheelUpCount++; break;
+    case 'wheel:increaseLeft': this.wheelLeftCount++; break;
+    case 'wheel:increaseRight': this.wheelRightCount++; break;
+  </proto>
+</Events>

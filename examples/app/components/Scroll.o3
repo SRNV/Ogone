@@ -1,25 +1,28 @@
-<template>
-  <style>
-    .container {
-      overflow: hidden;
-      display: flex;
-      flex-direction: row-reverse;
-      .view {
-        flex: 18;
-        overflow: auto;
-        .content {
+
+<Scroll >
+  <template>
+    <style>
+      .container {
+        overflow: hidden;
+        display: flex;
+        flex-direction: row-reverse;
+        .view {
           flex: 18;
+          overflow: auto;
+          .content {
+            flex: 18;
+          }
         }
       }
-    }
-  </style>
-  <div class="container">
-    <div
-      ref="view"
-      class="view">
-      <div ref="content" class="content">
-        <slot></slot>
+    </style>
+    <div class="container">
+      <div
+        ref="view"
+        class="view">
+        <div ref="content" class="content">
+          <slot></slot>
+        </div>
       </div>
     </div>
-  </div>
-</template>
+  </template>
+</Scroll>

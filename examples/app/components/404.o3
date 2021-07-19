@@ -7,48 +7,50 @@
  * this will no more rotate
  * remove this comment if no more needed
  */
-<template private>
-  <style>
-    .container {
-      display: flex;
-      justify-content: center;
-      margin: auto;
-      flex-direction: column;
-      height: 100vh;
-      .text {
-        font-weight: 400;
-        font-size: 24pt;
-        text-align: center;
-        color: #9e9e9e;
-        margin: 40px;
+<NotFound>
+  <template private>
+    <style>
+      .container {
+        display: flex;
+        justify-content: center;
+        margin: auto;
+        flex-direction: column;
+        height: 100vh;
+        .text {
+          font-weight: 400;
+          font-size: 24pt;
+          text-align: center;
+          color: #9e9e9e;
+          margin: 40px;
+        }
       }
-    }
-    .logo-back {
-      filter: drop-shadow(2px 4px 6px var(--o-primary));
-      border-radius: 100%;
-      padding: 56px;
-      animation-name: popup;
-      animation-duration: 0.5s;
-      animation-timing-function: cubic-bezier(0.1, -0.6, 0.2, 0);
-      max-width: 500px;
-      margin: auto;
-      img.logo {
-        width: 500px;
-        height: auto;
-        animation-name: rotate;
-        animation-duration: 5s;
-        animation-timing-function: ease;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
+      .logo-back {
+        filter: drop-shadow(2px 4px 6px var(--o-primary));
+        border-radius: 100%;
+        padding: 56px;
+        animation-name: popup;
+        animation-duration: 0.5s;
+        animation-timing-function: cubic-bezier(0.1, -0.6, 0.2, 0);
+        max-width: 500px;
+        margin: auto;
+        img.logo {
+          width: 500px;
+          height: auto;
+          animation-name: rotate;
+          animation-duration: 5s;
+          animation-timing-function: ease;
+          animation-iteration-count: infinite;
+          animation-direction: alternate;
+        }
       }
-    }
-  </style>
-  <div class="container">
-    <div class="logo-back">
-      <img class="logo" src="./ogone.svg" />
+    </style>
+    <div class="container">
+      <div class="logo-back">
+        <img class="logo" src="./ogone.svg" />
+      </div>
+      <div class="text">
+        404 route not found.
+      </div>
     </div>
-    <div class="text">
-      404 route not found.
-    </div>
-  </div>
-</template>
+  </template>
+</NotFound>

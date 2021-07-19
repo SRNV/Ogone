@@ -1,14 +1,16 @@
-<template protected>
-  <style>
-    .container {
-      margin-top: 25%;
-      margin-bottom: 25%;
-      .logo {
-          height: 56%;
+<Router404>
+  <template protected>
+    <style>
+      .container {
+        margin-top: 25%;
+        margin-bottom: 25%;
+        .logo {
+            height: 56%;
+        }
       }
-    }
-  </style>
-  <div class="container">
-    <img class="logo" src="/src/public/ogone.svg" />
-  </div>
-</template>
+    </style>
+    <div class="container">
+      <img class="logo" src="/src/public/ogone.svg" />
+    </div>
+  </template>
+</Router404>

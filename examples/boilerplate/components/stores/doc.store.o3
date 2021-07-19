@@ -1,12 +1,14 @@
-<proto type="store" namespace="pages">
-  declare:
-    public page = 'loading...';
-  case 'action:getPage':
-    try {
-      this.page = `/${ctx.route}.html`;
-    } catch (error) {
-      this.page = `${error.message}`;
-      return '';
-    }
-    break;
-</proto>
+<DocStore>
+  <proto type="store" namespace="pages">
+    declare:
+      public page = 'loading...';
+    case 'action:getPage':
+      try {
+        this.page = `/${ctx.route}.html`;
+      } catch (error) {
+        this.page = `${error.message}`;
+        return '';
+      }
+      break;
+  </proto>
+</DocStore>

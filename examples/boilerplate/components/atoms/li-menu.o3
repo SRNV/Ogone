@@ -1,36 +1,36 @@
-<template>
-  <style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
-    li {
-      color: black;
-      font-size: 10pt;
-      list-style: decimal;
-      margin: 5px;
-      cursor: pointer;
-      &:hover {
-        color: cadetblue;
-      }
-    }
-    ul {
-      padding-left: 15px;
-    }
-  </style>
-  <li
-    --event:animationend:fade-in-bottom
-    --router-go={this.item.route}
-    class="fade-in-bottom">
-    ${this.item?.label}
-  </li>
-  <ul>
-    <Self
-      --for={(item, i) of this.item?.children}
-      --defer={new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))}
-      item={item}/>
-  </ul>
-</template>
 
-<proto type="async">
-  declare:
-    inherit item?: { label: string; route: string; children: any[]; };
-  default:
-    Async.resolve();
-</proto>
+<LiMenu item?={{ label: string; route: string; children: any[]; }}>
+  <template>
+    <style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
+      li {
+        color: black;
+        font-size: 10pt;
+        list-style: decimal;
+        margin: 5px;
+        cursor: pointer;
+        &:hover {
+          color: cadetblue;
+        }
+      }
+      ul {
+        padding-left: 15px;
+      }
+    </style>
+    <li
+      --event:animationend:fade-in-bottom
+      --router-go={this.item.route}
+      class="fade-in-bottom">
+      ${this.item?.label}
+    </li>
+    <ul>
+      <Self
+        --for((item, i) of this.item?.children)
+        --defer={new Promise((resolve) => setTimeout(resolve, 30 * (i+1)))}
+        item={item}/>
+    </ul>
+  </template>
+  <proto type="async">
+    default:
+      Async.resolve();
+  </proto>
+</LiMenu>

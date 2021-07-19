@@ -1,29 +1,30 @@
 import component StoreComponent from "@/examples/tests/async/reloading/store.o3";
 
-<template>
-  <store-component namespace="user"/>
-  <div> Welcome ${this.user ? this.user.username : ''} </div>
-  <img src="public/ogone.svg"  --await />
-</template>
-
-<proto type="async">
-  def:
-    inherit id: 0
-    user: null
-  before-each:
-    const getUser = () => {
-      Store.dispatch('user/getUser', this.id)
-        .then((user) => {
-          this.user = user;
-          if (_state !== 'async:update') {
-            // when we have the data of the user
-            // warn the parent component that we are ready to render
-            // we send the user as context to the parent component
-            Async.resolve(user);
-          }
-        });
-    };
-  case 'async:update':
-  default:
-    getUser();
-</proto>
+<Async id={number}>
+  <template>
+    <store-component namespace="user"/>
+    <div> Welcome ${this.user ? this.user.username : ''} </div>
+    <img src="public/ogone.svg"  --await />
+  </template>
+  <proto type="async">
+    def:
+      id: 0
+      user: null
+    before-each:
+      const getUser = () => {
+        Store.dispatch('user/getUser', this.id)
+          .then((user) => {
+            this.user = user;
+            if (_state !== 'async:update') {
+              // when we have the data of the user
+              // warn the parent component that we are ready to render
+              // we send the user as context to the parent component
+              Async.resolve(user);
+            }
+          });
+      };
+    case 'async:update':
+    default:
+      getUser();
+  </proto>
+</Async>

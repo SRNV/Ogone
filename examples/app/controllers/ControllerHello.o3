@@ -1,6 +1,8 @@
-<proto type="controller" namespace="hello">
-  declare:
-    public name: string = "SRNV";
-  case 'GET:/':
-    return `hello ${this.name}`;
-</proto>
+<ControllerHello>
+  <proto type="controller" namespace="hello">
+    declare:
+      public name: string = "SRNV";
+    case 'GET:/':
+      return `hello ${this.name}`;
+  </proto>
+</ControlllerHello>

@@ -3,69 +3,71 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
 import component LogoEl from '@/examples/app/components/Logo.o3';
 import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
-<template>
-  <style>
-    .left-menu {
-      height: 100vh;
-      width: 300px;
-      min-width: 300px;
-      max-width: 300px;
-      position: fixed;
-      top: 0px;
-      transition: left 0.5s ease;
-      left: 0px;
-      background: var(--o-header);
-      z-index: 2000;
-      display: flex;
-      filter: drop-shadow(0px 0px 10px #000000);
-      flex-direction: column;
-    }
-    .close {
-      left: -100%;
-    }
-    .darken {
-      background: #00000090;
-      width: 100vw;
-      height: 100vh;
-      top: 0px;
-      left: 0px;
-      position: fixed;
-      z-index: 1999;
-    }
-    .header {
-      padding: 10px;
-      display: flex;
-      vertical-align: middle;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #4e4e4e;
-    }
-    .tree {
-      overflow-x: hidden;
-      overflow-y: auto;
-    }
-  </style>
-  <StoreMenu namespace="menu" />
-  <div
-    class="left-menu"
-    --class={{ close: !this.isOpen }}>
-    <div class="header">
-      <LogoEl --click:toggle-menu></LogoEl>
-      <div>
-        0.29.0
+<MenuMain>
+  <template>
+    <style>
+      .left-menu {
+        height: 100vh;
+        width: 300px;
+        min-width: 300px;
+        max-width: 300px;
+        position: fixed;
+        top: 0px;
+        transition: left 0.5s ease;
+        left: 0px;
+        background: var(--o-header);
+        z-index: 2000;
+        display: flex;
+        filter: drop-shadow(0px 0px 10px #000000);
+        flex-direction: column;
+      }
+      .close {
+        left: -100%;
+      }
+      .darken {
+        background: #00000090;
+        width: 100vw;
+        height: 100vh;
+        top: 0px;
+        left: 0px;
+        position: fixed;
+        z-index: 1999;
+      }
+      .header {
+        padding: 10px;
+        display: flex;
+        vertical-align: middle;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #4e4e4e;
+      }
+      .tree {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
+    </style>
+    <StoreMenu namespace="menu" />
+    <div
+      class="left-menu"
+      --class={{ close: !this.isOpen }}>
+      <div class="header">
+        <LogoEl --click:toggle-menu></LogoEl>
+        <div>
+          0.29.0
+        </div>
+      </div>
+      <div class="tree">
+        <TreeRecursive --for={item of this.menu} item={item} />
       </div>
     </div>
-    <div class="tree">
-      <TreeRecursive --for={item of this.menu} item={item} />
-    </div>
-  </div>
-  <div --class={{ darken: this.isOpen }} --click:toggle-menu></div>
-</template>
+    <div --class={{ darken: this.isOpen }} --click:toggle-menu></div>
+  </template>
 
-<proto def="examples/app/defs/menu-main.yml">
-  def:
-    isOpen: false
-  case 'click:toggle-menu':
-    Store.dispatch('menu/toggle');
-    break;
-</proto>
+  <proto def="examples/app/defs/menu-main.yml">
+    def:
+      isOpen: false
+    case 'click:toggle-menu':
+      Store.dispatch('menu/toggle');
+      break;
+  </proto>
+</MenuMain>

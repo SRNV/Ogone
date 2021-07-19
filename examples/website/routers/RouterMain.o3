@@ -1,10 +1,14 @@
 import component Route404 from '../pages/Route404.o3';
 
-<proto type="router" namespace="main">
-  def:
-    routes:
-      - path: 404
-        name: 404
-        component: Route404
-        title: Ogone - Next generation composition - 404 route not found
-</proto>
+<RouterMain>
+  <proto
+    type="router"
+    namespace="main">
+    def:
+      routes:
+        - path: 404
+          name: 404
+          component: Route404
+          title: Ogone - Next generation composition - 404 route not found
+  </proto>
+</RouterMain>
