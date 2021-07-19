@@ -1,4 +1,5 @@
 import getDeepTranslation from "../../../utils/template-recursive.ts";
+import { Utils } from '../Utils.ts';
 
 let id;
 function getId(type: string): string {
@@ -15,7 +16,7 @@ function getId(type: string): string {
  * it returns a string with rules edited like ```div[data-xu1dg2] a[data-xu1dg2] {}```
  * this class shouldn't scope the at-rules like keyframes, media, import, etc...
  */
-export default class CSSScoper {
+export default class CSSScoper extends Utils {
   private preserveRegexp(
     str: string,
     expressions: any,
@@ -26,17 +27,24 @@ export default class CSSScoper {
     let result = str;
     // preserve all blocks
     while (result.match(reg)) {
+      this.trace('first while in preserveRegExp')
       // @ts-ignore
       const [input] = result.match(reg);
       const key = getId("block");
       const content = input;
       expressions[key] = content;
       result = result.replace(content, key);
+      this.trace('end first while in preserveRegExp')
+
     }
     const regExp = /(block\d+)/gi;
     const matches = result.match(regExp);
     if (matches) {
+      this.trace('start getting matches in preserveRegExp')
+
       matches.forEach((block, i, arr) => {
+        this.trace('start using matches in preserveRegExp')
+
         const endIndex = result.indexOf(block) + block.length;
         const previousBlock = arr[i - 1];
         let startIndex = previousBlock ? result.indexOf(
@@ -46,14 +54,19 @@ export default class CSSScoper {
           startIndex = 0;
         }
         let rule = result.slice(startIndex, endIndex);
+        let m = rule.match(kReg);
+        this.trace('before while in using matches in preserveRegExp');
         // preserve keyframe
-        while (rule.match(kReg)) {
-          const [input] = rule.match(kReg);
+        while (m) {
+          this.trace('second while in preserveRegExp')
+          const [input] = m;
           const key = getId("reserved");
           expressions[key] = input;
           result = result.replace(input, key);
           rule = rule.replace(input, key);
+          m = rule.match(kReg);
         }
+        this.trace('end using matches in preserveRegExp')
       });
     }
     // replace only blocks
@@ -62,6 +75,8 @@ export default class CSSScoper {
         k,
       ) => result.indexOf(k) > -1)
     ) {
+      this.trace('third while in preserveRegExp')
+
       const key = Object.keys(expressions).filter((k) =>
         k.startsWith("block")
       )
@@ -70,7 +85,9 @@ export default class CSSScoper {
         const expression = expressions[key];
         result = result.replace(key, expression);
       }
+      this.trace('end of third whie preserveRegExp')
     }
+    this.trace('end of preserveRegExp')
     return result;
   }
   private preserve(str: string, expressions: any, template: string[]): string {
@@ -91,45 +108,59 @@ export default class CSSScoper {
     let result: string = cssStr;
     let expressions = {};
     // preserve all attributes
+    this.trace('preserving brackets');
     result = this.preserve(result, expressions, ["(", ")"]);
     result = this.preserve(result, expressions, ["[", "]"]);
     // preserve all keyframe statement
+    this.trace('preserving @keyframes');
+
     result = this.preserveRegexp(
       result,
       expressions,
       /(\@keyframes)([\s\w\d\-]*)+(block\d+)/,
     );
     // preserve all font-feature-values statement
+    this.trace('preserving @font-feature-values');
+
     result = this.preserveRegexp(
       result,
       expressions,
       /(\@font-feature-values)([\s\w\d\-]*)+(block\d+)/,
     );
     // preserve all font-face statement
+    this.trace('preserving @font-face');
+
     result = this.preserveRegexp(
       result,
       expressions,
       /(\@font-face)([\s\w\d\-]*)+(block\d+)/,
     );
     // preserve all counter-style statement
+    this.trace('preserving @counter-style');
+
     result = this.preserveRegexp(
       result,
       expressions,
       /(\@counter-style)([\s\w\d\-]*)+(block\d+)/,
     );
     // preserve all page statement
+    this.trace('preserving @page');
+
     result = this.preserveRegexp(
       result,
       expressions,
       /(\@page)([\s\w\d\-]*)+(block\d+)/,
     );
     // preserve pseudo elements
+    this.trace('preserving pseudo elements');
+
     result = this.preserveRegexp(
       result,
       expressions,
       /(?=(:{2}))([^\s]*)+/,
     );
 
+    this.trace('getting selector list');
     const match = result.match(/([^\{\}])+(?=\{)/gi);
     const matches = match
       ? match.filter((s) => !s.trim().startsWith("@"))

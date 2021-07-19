@@ -20,6 +20,7 @@ export default class ProtocolClassConstructor extends ProtocolReactivity {
   private mapProtocols: Map<string, ProtocolClassConstructorItem> = new Map();
   private mapRuntimeSync: Map<string, string> = new Map();
   private mapRuntime: Map<string, string> = new Map();
+  static mapRuntimeComparaison: Map<string, string> = new Map();
   public setItem(component: Component) {
     try {
       this.mapProtocols.set(component.uuid, {
@@ -254,6 +255,7 @@ ${err.stack}`);
         this.mapRuntimeSync.set(component.uuid, scriptProtoBlock);
       }
       this.updateGlobalRuntimes();
+      ProtocolClassConstructor.compareScripts(component, scriptProtoBlock);
     } catch (err) {
       this.error(`ProtocolClassConstructor: ${err.message}
 ${err.stack}`);
@@ -264,5 +266,14 @@ ${err.stack}`);
     const entries = Array.from(this.mapRuntime.values());
     MapOutput.outputs.globalRuntime = entries.join('\n');
     MapOutput.outputs.globalRuntimeSync = entriesSync.join('\n');
+  }
+  static compareScripts(component: Component, text: string) {
+    if (!this.mapRuntimeComparaison.has(component.uuid)) {
+      this.mapRuntimeComparaison.set(component.uuid, text);
+    }
+    const item = this.mapRuntimeComparaison.get(component.uuid);
+    if (item !== text) {
+      MapOutput.changedComponentsRuntime.push(component.uuid);
+    }
   }
 }

@@ -44,6 +44,7 @@ interface ComponentOutput {
   globalRuntimeSync: string;
 }
 export default abstract class MapOutput {
+  static changedComponentsRuntime: string[] = [];
   static outputs: ComponentOutput = {
     vars: [],
     render: [],
@@ -113,10 +114,19 @@ export default abstract class MapOutput {
     Ogone.runSync = function (Onode, _state, ctx, event) {
       ${this.outputs.globalRuntimeSync}
     }`;
-    HMR.postMessage({
-      output: result,
-      type: 'update_runtime',
+    this.changedComponentsRuntime.forEach((uuid) => {
+      // send the new runtime
+      HMR.postMessage({
+        output: result,
+        type: 'update_runtime',
+      });
+      // force rerendering
+      HMR.postMessage({
+        type: 'render',
+        uuid,
+      })
     });
+    this.changedComponentsRuntime.splice(0);
     return result;
   }
 }

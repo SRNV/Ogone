@@ -50,13 +50,18 @@ import component AsyncLiMenu from '../atoms/li-menu.o3';
 
 <proto type="async">
   declare:
+    public interval?: number;
     public readonly links: ({label: string; route: string; children: any[] })[] = [
-      { label: 'Ogone', route: '/ogone', children: [
-      ]},
+      { label: 'Ogone', route: '/ogone', children: []},
     ];
   default:
-    setInterval(() => {
-      this.links.push({ label: 'Test Reactive Array', route: '/ogone/test', children: []})
+    this.interval = setInterval(() => {
+      this.links.push({ label: 'Test Reactive Array', route: '/ogone/test', children: [
+        { label: 'Ogone', route: '/ogone', children: []},
+      ]})
     }, 1000);
     Async.resolve();
+  case 'destroy':
+    clearInterval(this.interval);
+    break;
 </proto>

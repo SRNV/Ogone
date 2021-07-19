@@ -109,8 +109,10 @@ export default class StylesheetBuilder extends Utils {
             component.mapStyleBundle = this.Style.mapStyleBundle;
             const css = isGlobal ? compiledCss : this.CSSScoper.transform(compiledCss, component.uuid);
             component.style.push(css);
+            this.trace('done before sending changes');
             // send only if there's a change
             StylesheetBuilder.sendChanges(component, css);
+            this.trace('after sending changes');
           }
         }
       }

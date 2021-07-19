@@ -10,5 +10,5 @@
       // should trigger the then case of parent
     }, 0);
       Async.resolve(true);
-  break;
+    break;
 </proto>

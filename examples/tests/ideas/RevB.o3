@@ -1,0 +1,14 @@
+import { M } from './M.o3';
+
+<Greeting
+  name:string={'World'}
+  fullname:string={this.name + 'yup'}>
+  <template>
+    Hello ${this.name}
+    <M name="test" />
+  </template>
+  <proto type="app">
+    default:
+      console.warn(this.fullname);
+  </proto>
+</Greeting>

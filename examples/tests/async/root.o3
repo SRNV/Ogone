@@ -21,7 +21,7 @@ use @/examples/tests/async/async.o3 as 'async-promise';
   break;
   case 'then:act':
     console.warn('resolved', ctx);
-  break;
+    break;
   case 'catch:err':
     console.warn('catched err', ctx);
   break;

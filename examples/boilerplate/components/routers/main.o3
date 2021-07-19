@@ -25,10 +25,10 @@ import component StoreDocComponent from '../stores/doc.store.o3';
     Store.dispatch('pages/getPage', {
       route: 'examples/boilerplate/public/main',
     })
-  break;
+    break;
   case 'router:examples':
     Store.dispatch('pages/getPage', {
       route: 'examples/boilerplate/public/examples',
     })
-  break;
+    break;
 </proto>
