@@ -1,17 +1,20 @@
-<template>
-  <style>
-    div {
-      color: blue;
-    }
-  </style>
-  <div> Not Typed: ${this.inherited.test} </div>
-</template>
-<proto type="component">
-  def:
-    inherit inherited:
-      test: not Working
-  default:
-    setInterval(() => {
-      console.warn('DefComponent', this.inherited);
-    }, 1000);
-</proto>
+<DefComponent
+  inherited={any}>
+  <template>
+    <style>
+      div {
+        color: blue;
+      }
+    </style>
+    <div> Not Typed: ${this.inherited.test} </div>
+  </template>
+  <proto type="component">
+    def:
+      inherited:
+        test: not Working
+    default:
+      setInterval(() => {
+        console.warn('DefComponent', this.inherited);
+      }, 1000);
+  </proto>
+</DefComponent>

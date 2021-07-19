@@ -1,11 +1,13 @@
-<template>
+<TestDirectives>
+  <template>
     <div>
-        <slot></slot>
-        <slot name="test"></slot>
-        ${this.text}
+      <slot></slot>
+      <slot name="test"></slot>
+      ${this.text}
     </div>
-</template>
-<proto type="component">
-  declare:
-    inherit text: string = 'no text';
-</proto>
+  </template>
+  <proto type="component">
+    declare:
+      text: string = 'no text';
+  </proto>
+</TestDirectives>

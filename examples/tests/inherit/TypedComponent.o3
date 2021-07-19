@@ -1,18 +1,22 @@
-<template>
-  <style>
-    div {
-      color: red;
-    }
-  </style>
-  <div> Typed: ${this.inherited.test} </div>
-  <div> Typed: ${this.test} </div>
-</template>
-<proto engine="inline-reaction" type="component">
-  declare:
-    inherit inherited: { test: string } = { test: 'not working' };
-    inherit test: string = 'nor working as well';
-  default:
-    setInterval(() => {
-      console.warn('TypedComponent', this.inherited);
-    }, 1000);
-</proto>
+<TypedComponent
+  test={string}
+  inherited={{ test: string }}>
+  <template>
+    <style>
+      div {
+        color: red;
+      }
+    </style>
+    <div> Typed: ${this.inherited.test} </div>
+    <div> Typed: ${this.test} </div>
+  </template>
+  <proto engine="inline-reaction" type="component">
+    declare:
+      inherited = { test: 'not working' };
+      test = 'nor working as well';
+    default:
+      setInterval(() => {
+        console.warn('TypedComponent', this.inherited);
+      }, 1000);
+  </proto>
+</TypedComponent>
