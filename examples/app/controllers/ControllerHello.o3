@@ -1,4 +1,4 @@
-<ControllerHello>
+component <ControllerHello>
   <proto type="controller" namespace="hello">
     declare:
       public name: string = "SRNV";

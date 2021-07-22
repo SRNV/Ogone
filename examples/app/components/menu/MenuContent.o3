@@ -1,7 +1,7 @@
 import component Burger from '@/examples/app/components/Burger.o3';
 import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
 
-<MenuContent>
+component <MenuContent>
   <template>
     <style>
       .menu {

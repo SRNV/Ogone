@@ -1,5 +1,4 @@
-
-<RightSection
+component <RightSection
   scrollY={number}>
   <template private>
     <style>

@@ -1,5 +1,4 @@
-
-<Scroll >
+component <Scroll >
   <template>
     <style>
       .container {

@@ -1,7 +1,7 @@
 import component GithubBadges from '../atoms/github-badges.o3';
 import component OBtn from '../atoms/button.o3';
 
-<BrandComponent>
+component <BrandComponent>
   <template>
     <!-- style is by default scoped, use the attribute global if you want to make the style general -->
     <style --keyframes={[

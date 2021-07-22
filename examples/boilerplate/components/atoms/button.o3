@@ -1,4 +1,4 @@
-<Button text={string}>
+component <Button text={string}>
   <template>
     <style>
       .container {

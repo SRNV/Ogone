@@ -1,5 +1,5 @@
-<Empty>
-    <template>
-        <!-- -->
-    </template>
+component <Empty>
+  <template>
+      <!-- -->
+  </template>
 </Empty>

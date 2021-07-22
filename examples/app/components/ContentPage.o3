@@ -1,5 +1,4 @@
-
-<ContentPage
+component <ContentPage
   title={string}
   text={string}
   code={string}

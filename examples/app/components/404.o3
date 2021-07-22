@@ -7,7 +7,7 @@
  * this will no more rotate
  * remove this comment if no more needed
  */
-<NotFound>
+component <NotFound>
   <template private>
     <style>
       .container {

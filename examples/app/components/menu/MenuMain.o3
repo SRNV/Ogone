@@ -3,7 +3,7 @@ import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiv
 import component LogoEl from '@/examples/app/components/Logo.o3';
 import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
-<MenuMain>
+component <MenuMain>
   <template>
     <style>
       .left-menu {

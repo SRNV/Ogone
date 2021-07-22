@@ -1,5 +1,4 @@
-
-<Logo >
+component <Logo >
   <template private>
     <style>
       .container {

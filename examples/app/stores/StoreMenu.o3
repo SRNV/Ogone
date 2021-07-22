@@ -12,7 +12,7 @@ import component UserController from '@/examples/app/controllers/ControllerUser.
       endpoints:
         / => Hello ${UserController.name}!
  */
-<StoreMenu>
+component <StoreMenu>
   <proto type="store" namespace="menu">
     declare:
       public isOpen: boolean = false;

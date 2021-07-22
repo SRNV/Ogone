@@ -1,5 +1,9 @@
-
-<LiMenu item?={{ label: string; route: string; children: any[]; }}>
+component <LiMenu
+  item={{
+    label: string;
+    route: string;
+    children: any[];
+  }}>
   <template>
     <style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
       li {

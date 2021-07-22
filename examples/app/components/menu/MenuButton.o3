@@ -1,6 +1,6 @@
 import type { ButtonInterface } from '../../public/modules/menu-button-types.ts';
 
-<MenuButton
+component <MenuButton
   buttonOpts={ButtonInterface}>
   <template>
     <style>

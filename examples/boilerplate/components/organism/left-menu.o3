@@ -1,6 +1,6 @@
 import component AsyncLiMenu from '../atoms/li-menu.o3';
 
-<LeftMenu>
+component <LeftMenu>
   <template>
     <style>
       hr {

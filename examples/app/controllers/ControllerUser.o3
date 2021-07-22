@@ -1,5 +1,4 @@
-
-<ControllerUser >
+component <ControllerUser >
   <proto type="controller" namespace="test">
     declare:
       public name: string = "SRNV";

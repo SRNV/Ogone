@@ -1,4 +1,4 @@
-<DocStore>
+component <DocStore>
   <proto type="store" namespace="pages">
     declare:
       public page = 'loading...';

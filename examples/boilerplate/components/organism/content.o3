@@ -1,7 +1,7 @@
 import component Nav from './nav.o3';
 import component StoreDocComponent from '../stores/doc.store.o3';
 
-<Content>
+component <Content>
   <template>
     <style>
       iframe {

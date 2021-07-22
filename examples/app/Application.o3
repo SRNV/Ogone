@@ -10,7 +10,7 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
  *  @description
  *    example of an Ogone web app
  */
-<Application>
+component <Application>
   <template>
     <head>
       <link href="./style.css" rel="stylesheet"/>
@@ -74,7 +74,7 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
     <RightSection {...this} />
   </template>
   <proto
-    type="app"
+    type=app
     base="./public/">
     declare:
       public readonly test: any = Obj;
