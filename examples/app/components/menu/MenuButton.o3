@@ -1,7 +1,7 @@
 import type { ButtonInterface } from '../../public/modules/menu-button-types.ts';
 
 export component <MenuButton
-  private[ButtonInterface]:buttonOpts={{
+  private[ButtonInterface] buttonOpts={{
     name: 'Test',
     route: '',
     status: 'todo'

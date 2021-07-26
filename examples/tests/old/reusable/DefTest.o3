@@ -3,8 +3,7 @@
   <!-- nodetypes 1, 3, 8 supported -->
   test reacitivty: ${this.count}
 </template>
-<proto type="component"
-    engine="proxy-reaction">
+<proto engine="proxy-reaction">
   def:
     count: 0
   default:

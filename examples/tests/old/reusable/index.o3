@@ -8,7 +8,7 @@ import Enum from 'https://deno.land/x/enum/index.js'
   <br />
   <DefTest />
 </template>
-<proto type="component">
+<proto>
   declare:
     prop = {
       name: 'test',

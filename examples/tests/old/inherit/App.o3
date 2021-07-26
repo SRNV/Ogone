@@ -8,7 +8,7 @@ import component TypedComponent from './TypedComponent.o3';
     test={this.leg.test} />
 </template>
 
-<proto type="component">
+<proto>
   declare:
     leg: { test: string } = { test: "working" };
 </proto>

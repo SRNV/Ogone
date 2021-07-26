@@ -1,7 +1,8 @@
 import component Nav from './nav.o3';
 import component StoreDocComponent from '../stores/doc.store.o3';
 
-component <Content>
+component <Content
+  private[string] page="">
   <template>
     <style>
       iframe {
@@ -54,8 +55,4 @@ component <Content>
       <Nav />
     </div>
   </template>
-  <proto>
-    declare:
-      public page: string = '';
-  </proto>
 </Content>

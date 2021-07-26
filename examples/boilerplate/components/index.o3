@@ -1,6 +1,6 @@
 import component RouterMain from './routers/main.o3';
 
-export component <Index>
+export app <Index>
   <template>
     <style global>
       body {
@@ -70,5 +70,4 @@ export component <Index>
     </style>
     <RouterMain namespace="global"/>
   </template>
-  <proto type="app" />
 </Index>

@@ -4,7 +4,7 @@ import component LogoEl from '@/examples/app/components/Logo.o3';
 import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
 export component <MenuMain
-  private:isOpen={false}>
+  isOpen={false}>
   <template>
     <style>
       .left-menu {

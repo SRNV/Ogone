@@ -1,9 +1,9 @@
 
-export component <Greeting public:name=SRNV>
+export app <Greeting
+  public name=SRNV>
   <template>
     <Second message={`Hello ${this.name}`}/>
   </template>
-  <proto type=app></proto>
 </Greeting>
 
 component <Second

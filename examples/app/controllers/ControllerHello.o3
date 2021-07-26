@@ -1,6 +1,6 @@
-export component <ControllerHello
-  mutable[string]:name={'SRNV'}>
-  <proto type="controller" namespace="hello">
+export controller <ControllerHello
+  mutable[string] name={'SRNV'}>
+  <proto namespace="hello">
     case 'GET:/':
       return `hello ${this.name}`;
   </proto>

@@ -4,7 +4,6 @@
   <template is="test-el:div">
   </template>
   <proto
-    type="component"
     engine="proxy-reaction sync-template">
     declare:
       count: number = 0;

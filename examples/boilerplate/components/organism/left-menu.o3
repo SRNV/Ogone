@@ -1,6 +1,10 @@
 import component AsyncLiMenu from '../atoms/li-menu.o3';
 
-export component <LeftMenu>
+export async <LeftMenu
+  private[number] interval
+  internal[{ label: string; route: string; children: any[] }[]] links={[
+    { label: 'Ogone', route: '/ogone', children: []},
+  ]}>
   <template>
     <style>
       hr {
@@ -48,12 +52,7 @@ export component <LeftMenu>
       </ul>
     </div>
   </template>
-  <proto type="async">
-    declare:
-      public interval?: number;
-      public readonly links: ({label: string; route: string; children: any[] })[] = [
-        { label: 'Ogone', route: '/ogone', children: []},
-      ];
+  <proto>
     default:
       this.interval = setInterval(() => {
         this.links.push({ label: 'Test Reactive Array', route: '/ogone/test', children: [

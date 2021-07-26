@@ -1,6 +1,6 @@
-export component <ControllerUser
-  private[string]:name={'SRNV'}>
-  <proto type="controller" namespace="test">
+export controller <ControllerUser
+  private name=SRNV>
+  <proto namespace="test">
     case 'GET:/':
       return `Hello ${this.name}`;
     case 'GET:/2':

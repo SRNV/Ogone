@@ -11,9 +11,9 @@ import component UserController from '@/examples/app/controllers/ControllerUser.
         endpoints:
           / => Hello ${UserController.name}!
  */
-export component <StoreMenu
-  input[boolean]:isOpen={false}>
-  <proto type="store" namespace="menu">
+export store <StoreMenu
+  input[boolean] isOpen={false}>
+  <proto namespace="menu">
     case 'action:toggle':
       this.isOpen = !this.isOpen;
       break;

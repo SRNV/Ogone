@@ -1,8 +1,8 @@
 export component <ContentPage
-  private:text={'no text'}
-  private:title=untitled
-  private:code=...
-  private:page=...>
+  private text={'no text'}
+  private title=untitled
+  private code=...
+  private page=...>
   <template>
     <style>
       @const screen = 965px;
@@ -71,5 +71,4 @@ export component <ContentPage
       </div>
     </div>
   </template>
-  <proto engine="inline-reaction"></proto>
 </ContentPage>

@@ -10,7 +10,7 @@
     <div> Typed: ${this.inherited.test} </div>
     <div> Typed: ${this.test} </div>
   </template>
-  <proto engine="inline-reaction" type="component">
+  <proto engine="inline-reaction">
     declare:
       inherited = { test: 'not working' };
       test = 'nor working as well';

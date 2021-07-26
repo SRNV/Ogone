@@ -4,7 +4,7 @@ import attr from '../public/modules/attr.ts';
 import type { isOpenType } from '../public/modules/type.ts';
 
 export component <Burger
-  private[boolean]:isOpenType={false}>
+  private[boolean] isOpenType={false}>
   <template>
     <style>
       @const shadowColor = #00000045;

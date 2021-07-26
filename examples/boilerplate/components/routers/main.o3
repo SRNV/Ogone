@@ -2,11 +2,11 @@ import component MainPage from '../pages/main.o3';
 import component BrandComponent from '../pages/brand-component.o3';
 import component StoreDocComponent from '../stores/doc.store.o3';
 
-export component <Main>
+export router <Main>
   <template>
     <StoreDocComponent namespace="pages"/>
   </template>
-  <proto type="router">
+  <proto>
     def:
       routes:
         - path: /ogone

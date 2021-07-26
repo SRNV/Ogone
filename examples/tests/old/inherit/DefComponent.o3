@@ -8,7 +8,7 @@
     </style>
     <div> Not Typed: ${this.inherited.test} </div>
   </template>
-  <proto type="component">
+  <proto>
     def:
       inherited:
         test: not Working

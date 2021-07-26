@@ -1,7 +1,7 @@
 
 export component <OgoneRevB
-  public:message='Hello Ogone'
-  private:show>
+  public message='Hello Ogone'
+  private show>
   <template>
     <span --if(this.show)> ${ this.message } </span>
   </template>

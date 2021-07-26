@@ -2,7 +2,7 @@
   <template>
     ${this.name}
   </template>
-  <proto type="component">
+  <proto>
     declare:
       name = 'no-name';
   </proto>

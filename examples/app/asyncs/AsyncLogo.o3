@@ -5,7 +5,7 @@
  *  @example
       Async.resolve(undefined)
  */
-export component <AsyncLogo>
+export async <AsyncLogo>
   <template private>
     <style>
       .img, .container {
@@ -17,7 +17,7 @@ export component <AsyncLogo>
       <img --await class="img" src="./ogone.svg"/>
     </div>
   </template>
-  <proto type="async">
+  <proto>
     default:
       Async.resolve();
       break;

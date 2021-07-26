@@ -1,6 +1,6 @@
-export component <Store
-  private[null | number]:user={null}>
-  <proto type="store" namespace="user">
+export store <Store
+  private[null | number] user={null}>
+  <proto namespace="user">
     case 'action:setUser':
       this.user = ctx.user;
       break;

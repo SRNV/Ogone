@@ -1,4 +1,4 @@
-<TestDirectives>
+export component <TestDirectives>
   <template>
     <div>
       <slot></slot>
@@ -6,7 +6,7 @@
       ${this.text}
     </div>
   </template>
-  <proto type="component">
+  <proto>
     declare:
       text: string = 'no text';
   </proto>

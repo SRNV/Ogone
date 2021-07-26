@@ -1,7 +1,7 @@
 
 
 component <Name
-  public:name={'SRNV'}>
+  public name={'SRNV'}>
   <template>
     Hello ${ this.name }
   </template>

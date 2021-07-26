@@ -6,7 +6,8 @@ import component RouterMain from './routers/RouterMain.o3';
  * @description
  * Application for Ogone website
  */
-<App>
+export app <App
+  private[string] title=Ogone>
   <template private>
     <head>
       <title> Ogone - Next generation composition </title>
@@ -26,9 +27,7 @@ import component RouterMain from './routers/RouterMain.o3';
     </head>
     <RouterMain namespace="main" />
   </template>
-  <proto type="app">
-    declare:
-      readonly title: string = 'Ogone';
+  <proto>
     default:
       // initialization
       break;

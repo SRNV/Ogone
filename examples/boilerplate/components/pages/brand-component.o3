@@ -1,7 +1,32 @@
 import component GithubBadges from '../atoms/github-badges.o3';
 import component OBtn from '../atoms/button.o3';
 
-export component <BrandComponent>
+export async <BrandComponent
+  private message="Welcome to your first Ogone application."
+  private visible={true}
+  private display={true}
+  internal[{ label: string; href: string }[]] links={[
+    {
+      label: 'Repository',
+      href: 'https://github.com/SRNV/Ogone',
+    },
+    {
+      label: 'Introduction',
+      href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md',
+    },
+    {
+      label: 'Examples',
+      href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md',
+    },
+    {
+      label: 'Learn How to use Ogone',
+      href: 'https://dev.to/srnv/deno-learn-how-to-use-ogone-486c',
+    },
+    {
+      label: 'Ogone\'s JSX',
+      href: 'https://dev.to/srnv/deno-ogone-s-jsx-output-1k8l',
+    },
+  ]}>
   <template>
     <!-- style is by default scoped, use the attribute global if you want to make the style general -->
     <style --keyframes={[
@@ -110,33 +135,7 @@ export component <BrandComponent>
       Ogone - Web Components Compiler for Deno
     </marquee>
   </template>
-  <proto type="async">
-    declare:
-      public visible: boolean = true;
-      public display: boolean = true;
-      public message: string = 'Welcome to your first Ogone application.';
-      public links: { label: string; href: string }[] = [
-        {
-          label: 'Repository',
-          href: 'https://github.com/SRNV/Ogone',
-        },
-        {
-          label: 'Introduction',
-          href: 'https://github.com/SRNV/Ogone/blob/master/docs/introduction.md',
-        },
-        {
-          label: 'Examples',
-          href: 'https://github.com/SRNV/Ogone/blob/master/docs/examples.md',
-        },
-        {
-          label: 'Learn How to use Ogone',
-          href: 'https://dev.to/srnv/deno-learn-how-to-use-ogone-486c',
-        },
-        {
-          label: 'Ogone\'s JSX',
-          href: 'https://dev.to/srnv/deno-ogone-s-jsx-output-1k8l',
-        },
-      ];
+  <proto>
     case 'event:animationend:fade-out-bottom':
       const [marquee] = Refs.marquee
       marquee.classList.add('fade-out');

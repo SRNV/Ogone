@@ -1,5 +1,5 @@
-component <LiMenu
-  public:item={{
+export async <LiMenu
+  public item={{
     label: string;
     route: string;
     children: any[];
@@ -37,7 +37,7 @@ component <LiMenu
         item={item}/>
     </ul>
   </template>
-  <proto type="async">
+  <proto>
     default:
       Async.resolve();
   </proto>

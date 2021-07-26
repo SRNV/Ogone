@@ -1,5 +1,5 @@
 export component <RightSection
-  private[number]:scrollY={0}>
+  private[number] scrollY={0}>
   <template private>
     <style>
       @const value = 2px;
