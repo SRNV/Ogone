@@ -7,8 +7,8 @@ export app <Greeting
 </Greeting>
 
 component <Second
-  private:show={true}
-  public:message=test>
+  private show={true}
+  public message=test>
   <template>
     <style>
       div {
