@@ -1,4 +1,4 @@
-component <Logo >
+export component <Logo>
   <template private>
     <style>
       .container {

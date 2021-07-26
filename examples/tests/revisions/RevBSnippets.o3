@@ -1,0 +1,11 @@
+
+export component <OgoneRevB
+  public:message='Hello Ogone'
+  private:show>
+  <template>
+    <span --if(this.show)> ${ this.message } </span>
+  </template>
+  <proto>
+    default: break;
+  </proto>
+</OgoneRevB>

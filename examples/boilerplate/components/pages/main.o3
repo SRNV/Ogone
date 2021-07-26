@@ -1,7 +1,7 @@
 import component AsyncLeftMenuComponent from '../organism/left-menu.o3';
 import component ContentComponent from '../organism/content.o3';
 
-component <Main>
+export component <Main>
   <template>
     <style>
       .container {

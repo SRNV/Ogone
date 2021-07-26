@@ -1,7 +1,7 @@
 import component Burger from '@/examples/app/components/Burger.o3';
 import component MenuButton from '@/examples/app/components/menu/MenuButton.o3';
 
-component <MenuContent>
+export component <MenuContent>
   <template>
     <style>
       .menu {
@@ -20,7 +20,7 @@ component <MenuContent>
     </style>
     <div id="test" class="menu">
       <div class="displayButtons">
-        <MenuButton --for={t of this.menu} buttonOpts={t} />
+        <MenuButton --for(t of this.menu) buttonOpts={t} />
       </div>
       <div>
         <Burger />

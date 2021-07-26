@@ -5,7 +5,7 @@
  *  @example
       Async.resolve(undefined)
  */
-component <AsyncLogo>
+export component <AsyncLogo>
   <template private>
     <style>
       .img, .container {

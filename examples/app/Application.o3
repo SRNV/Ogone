@@ -10,7 +10,12 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
  *  @description
  *    example of an Ogone web app
  */
-component <Application>
+export component <Application
+  input[any]:test={obj}
+  private[number]:scrollY={0}
+  void[(n: number) => void]:setScrollY={(n: number) => {
+    this.scrollY = n;
+  }}>
   <template>
     <head>
       <link href="./style.css" rel="stylesheet"/>
@@ -76,12 +81,6 @@ component <Application>
   <proto
     type=app
     base="./public/">
-    declare:
-      public readonly test: any = Obj;
-      public scrollY: number = 0;
-      public setScrollY(n: number) {
-        this.scrollY = n;
-      }
     default:
       const [header] = Refs.head;
       this.setScrollY(window.scrollY);

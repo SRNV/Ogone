@@ -1,4 +1,4 @@
-component <Nav>
+export component <Nav>
   <template>
     <style>
       .container {

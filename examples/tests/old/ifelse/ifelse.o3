@@ -2,9 +2,9 @@ import component Test from '@/examples/tests/click.o3';
 
 <template>
 test
-  <p>${this.count}</p>
+  <p> ${this.count} </p>
   <Test
-    --for={t of this.art}>
+    --for(t of this.art)>
     3eme doit remplacer la Test 1 ${t}
   </Test>
 </template>

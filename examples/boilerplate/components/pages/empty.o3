@@ -1,4 +1,4 @@
-component <Empty>
+export component <Empty>
   <template>
       <!-- -->
   </template>

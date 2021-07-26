@@ -1,4 +1,4 @@
-component <Scroll >
+export component <Scroll >
   <template>
     <style>
       .container {

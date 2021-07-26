@@ -1,6 +1,6 @@
 import component AsyncLiMenu from '../atoms/li-menu.o3';
 
-component <LeftMenu>
+export component <LeftMenu>
   <template>
     <style>
       hr {
@@ -41,7 +41,7 @@ component <LeftMenu>
       <hr />
       <ul>
         <AsyncLiMenu
-          --for={(item, i) of this.links}
+          --for((item, i) of this.links)
           --defer={new Promise((resolve) => setTimeout(resolve, 500 * (i+1)))}
           item={item}>
         </AsyncLiMenu>

@@ -1,0 +1,32 @@
+
+export component <Greeting public:name=SRNV>
+  <template>
+    <Second message={`Hello ${this.name}`}/>
+  </template>
+  <proto type=app></proto>
+</Greeting>
+
+component <Second
+  private:show={true}
+  public:message=test>
+  <template>
+    <style>
+      div {
+        color: red;
+      }
+    </style>
+    ${this.message}
+    <div --if(this.show)>
+      ${ this.message }
+      <ul >
+        <li --for(el of elements)>
+          ${this.move(el)}
+        </li>
+      </ul>
+    </div>
+  </template>
+  <proto>
+    default: break;
+    case fun: break;
+  </proto>
+</Second>

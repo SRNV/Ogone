@@ -1,6 +1,6 @@
 import component RouterMain from './routers/main.o3';
 
-component <Index>
+export component <Index>
   <template>
     <style global>
       body {

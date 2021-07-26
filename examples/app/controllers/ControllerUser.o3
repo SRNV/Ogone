@@ -1,7 +1,6 @@
-component <ControllerUser >
+export component <ControllerUser
+  private[string]:name={'SRNV'}>
   <proto type="controller" namespace="test">
-    declare:
-      public name: string = "SRNV";
     case 'GET:/':
       return `Hello ${this.name}`;
     case 'GET:/2':

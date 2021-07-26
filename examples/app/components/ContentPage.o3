@@ -1,8 +1,8 @@
-component <ContentPage
-  title={string}
-  text={string}
-  code={string}
-  page={string}>
+export component <ContentPage
+  private:text={'no text'}
+  private:title=untitled
+  private:code=...
+  private:page=...>
   <template>
     <style>
       @const screen = 965px;
@@ -71,11 +71,5 @@ component <ContentPage
       </div>
     </div>
   </template>
-  <proto engine="inline-reaction">
-    declare:
-      title: string = 'untitled';
-      text: string = 'no text';
-      code: string = "...";
-      page: string = "";
-  </proto>
+  <proto engine="inline-reaction"></proto>
 </ContentPage>

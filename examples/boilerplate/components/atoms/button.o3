@@ -1,4 +1,5 @@
-component <Button text={string}>
+export component <Button
+  input:text=Untitled>
   <template>
     <style>
       .container {
@@ -23,8 +24,5 @@ component <Button text={string}>
       ${this.text}
     </div>
   </template>
-  <proto type="component">
-    declare:
-      text: string = 'Untitled';
-  </proto>
+  <proto type="component"></proto>
 </Button>

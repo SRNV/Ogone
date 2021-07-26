@@ -3,7 +3,8 @@ import print from '../public/modules/print.ts';
 import attr from '../public/modules/attr.ts';
 import type { isOpenType } from '../public/modules/type.ts';
 
-component <Burger>
+export component <Burger
+  private[boolean]:isOpenType={false}>
   <template>
     <style>
       @const shadowColor = #00000045;
@@ -43,8 +44,6 @@ component <Burger>
     </div>
   </template>
   <proto engine="inline-reaction">
-    declare:
-      public isOpen: isOpenType = false;
     case 'click:openMenu':
       // TODO use StoreMenu.dispatch('toggle')
       // TODO use StoreMenu.dispatch('checkController')

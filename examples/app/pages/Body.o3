@@ -1,6 +1,6 @@
 import component ContentPage from '@/examples/app/components/ContentPage.o3';
 
-component <Body>
+export component <Body>
   <template>
     <style>
       .container {

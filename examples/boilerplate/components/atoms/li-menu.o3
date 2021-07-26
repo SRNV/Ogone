@@ -1,11 +1,15 @@
 component <LiMenu
-  item={{
+  public:item={{
     label: string;
     route: string;
     children: any[];
   }}>
   <template>
-    <style --keyframes={get('fade-in-bottom', { time: 1, style: 'ease-in-out', })}>
+    <style --keyframes={
+      get('fade-in-bottom', {
+        time: 1,
+        style: 'ease-in-out',
+      })}>
       li {
         color: black;
         font-size: 10pt;

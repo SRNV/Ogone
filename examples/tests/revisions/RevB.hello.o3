@@ -1,0 +1,8 @@
+
+
+component <Name
+  public:name={'SRNV'}>
+  <template>
+    Hello ${ this.name }
+  </template>
+</Name>

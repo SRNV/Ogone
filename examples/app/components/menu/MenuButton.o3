@@ -1,7 +1,11 @@
 import type { ButtonInterface } from '../../public/modules/menu-button-types.ts';
 
-component <MenuButton
-  buttonOpts={ButtonInterface}>
+export component <MenuButton
+  private[ButtonInterface]:buttonOpts={{
+    name: 'Test',
+    route: '',
+    status: 'todo'
+  }}>
   <template>
     <style>
       .container {
@@ -45,12 +49,4 @@ component <MenuButton
       <span class="in-progress" --else-if={this.buttonOpts.status === 'in-progress'}></span>
     </div>
   </template>
-  <proto type="component">
-    declare:
-      buttonOpts = {
-        name: 'Test',
-        route: '',
-        status: 'todo'
-      };
-  </proto>
 </MenuButton>

@@ -1,23 +1,38 @@
+
 component <RevB>
   <template>
     <!-- nodetypes 1, 3, 8 supported -->
   </template>
   <proto type=app>
-    declare:
-      // Typescript data
     default:
       // initialization
       break;
   </proto>
 </RevB>
+
+component <AppI >
+  <template></template>
+</AppI>
+
+
 component <App>
   <template>
     <!-- nodetypes 1, 3, 8 supported -->
   </template>
   <proto type=app>
-    declare:
-      // constructor part
     default:
       // initialization
   </proto>
 </App>
+
+export component <Name
+  message={'Hello World'}>
+  <template>
+    ${ this.message }
+  </template>
+</Name>
+
+export component <Element>
+  <template></template>
+  <proto></proto>
+</Element>

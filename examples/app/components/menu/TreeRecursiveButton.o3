@@ -1,7 +1,15 @@
 import component ScrollComponent from '@/examples/app/components/Scroll.o3';
 import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
-component <TreeRecursive item={TreeRecursive}>
+export component <TreeRecursive
+  private[string]:inp=closed
+  private[boolean]:openTree={false}
+  private[TreeRecursive]:item={{
+    name: 'no name',
+    route: '',
+    status: 'todo',
+    children: []
+  }}>
   <template>
     <style>
       .container {
@@ -67,17 +75,13 @@ component <TreeRecursive item={TreeRecursive}>
         --class={{ 'child-open': this.openTree }}>
         <ScrollComponent>
           <Self
-            --for={child of this.item.children}
+            --for(child of this.item.children)
             item={child} />
         </ScrollComponent>
       </div>
     </div>
   </template>
   <proto>
-    declare:
-      public openTree: boolean = false;
-      public inp: string = this.openTree ? 'open' : 'closed';
-      public item: TreeRecursive = { name: 'no name', route: '', status: 'todo', children: []};
     case 'click:toggle':
       this.openTree = !this.openTree;
       this.inp = this.openTree ? 'open' : 'closed';

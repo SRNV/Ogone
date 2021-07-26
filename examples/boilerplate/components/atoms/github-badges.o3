@@ -1,4 +1,4 @@
-component <GithubBadges>
+export component <GithubBadges>
   <template>
     <!-- style is by default scoped, use the attribute global if you want to make the style general -->
     <style>

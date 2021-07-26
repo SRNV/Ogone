@@ -1,27 +1,24 @@
-
 import component UserController from '@/examples/app/controllers/ControllerUser.o3'
 
 /**
   @name StoreMenu
-  @description
-    component that helps opening the menu
-    by setting the property isOpen
-  @deps UserController
     @description
-      UserController is a ControllerComponent
-      endpoints:
-        / => Hello ${UserController.name}!
+      component that helps opening the menu
+      by setting the property isOpen
+    @deps UserController
+      @description
+        UserController is a ControllerComponent
+        endpoints:
+          / => Hello ${UserController.name}!
  */
-component <StoreMenu>
+export component <StoreMenu
+  input[boolean]:isOpen={false}>
   <proto type="store" namespace="menu">
-    declare:
-      public isOpen: boolean = false;
-    before-each:
-      const { UserController } = Controllers;
     case 'action:toggle':
       this.isOpen = !this.isOpen;
       break;
     case 'action:checkController':
+      const { UserController } = Controllers;
       const res = await UserController.get('/');
       return res;
   </proto>

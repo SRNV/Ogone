@@ -1,5 +1,5 @@
-component <RightSection
-  scrollY={number}>
+export component <RightSection
+  private[number]:scrollY={0}>
   <template private>
     <style>
       @const value = 2px;
@@ -18,8 +18,4 @@ component <RightSection
       ${this.scrollY}
     </div>
   </template>
-  <proto>
-    def:
-      scrollY: 0
-  </proto>
 </RightSection>
