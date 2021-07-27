@@ -1,4 +1,4 @@
-import component RouterMain from './routers/main.o3';
+import component { RouterMain } from './routers/main.o3';
 
 export app <Index>
   <template>

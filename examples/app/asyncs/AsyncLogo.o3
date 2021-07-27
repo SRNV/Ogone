@@ -17,9 +17,7 @@ export async <AsyncLogo>
       <img --await class="img" src="./ogone.svg"/>
     </div>
   </template>
-  <proto>
-    default:
-      Async.resolve();
-      break;
-  </proto>
+  <script>
+    default: Async.resolve();
+  </script>
 </AsyncLogo>

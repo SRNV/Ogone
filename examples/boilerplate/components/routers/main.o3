@@ -1,12 +1,12 @@
-import component MainPage from '../pages/main.o3';
-import component BrandComponent from '../pages/brand-component.o3';
-import component StoreDocComponent from '../stores/doc.store.o3';
+import component { MainPage } from '../pages/main.o3';
+import component { BrandComponent } from '../pages/brand-component.o3';
+import component { StoreDocComponent } from '../stores/doc.store.o3';
 
 export router <Main>
   <template>
     <StoreDocComponent namespace="pages"/>
   </template>
-  <proto>
+  <script>
     def:
       routes:
         - path: /ogone
@@ -31,5 +31,5 @@ export router <Main>
         route: 'examples/boilerplate/public/examples',
       })
       break;
-  </proto>
+  </script>
 </Main>

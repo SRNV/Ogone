@@ -1,5 +1,5 @@
 
-import component RouterMain from './routers/RouterMain.o3';
+import component { RouterMain } from './routers/RouterMain.o3';
 // inject * from './components/';
 /**
  * @author Rudy Alula
@@ -27,9 +27,4 @@ export app <App
     </head>
     <RouterMain namespace="main" />
   </template>
-  <proto>
-    default:
-      // initialization
-      break;
-  </proto>
 </App>

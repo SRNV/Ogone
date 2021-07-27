@@ -1,4 +1,4 @@
-import component AsyncLiMenu from '../atoms/li-menu.o3';
+import component { AsyncLiMenu } from '../atoms/li-menu.o3';
 
 export async <LeftMenu
   private[number] interval
@@ -52,7 +52,7 @@ export async <LeftMenu
       </ul>
     </div>
   </template>
-  <proto>
+  <script>
     default:
       this.interval = setInterval(() => {
         this.links.push({ label: 'Test Reactive Array', route: '/ogone/test', children: [
@@ -63,5 +63,5 @@ export async <LeftMenu
     case 'destroy':
       clearInterval(this.interval);
       break;
-  </proto>
+  </script>
 </LeftMenu>

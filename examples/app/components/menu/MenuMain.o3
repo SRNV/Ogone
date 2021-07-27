@@ -1,6 +1,6 @@
-import component StoreMenu from '@/examples/app/stores/StoreMenu.o3';
-import component TreeRecursive from '@/examples/app/components/menu/TreeRecursiveButton.o3';
-import component LogoEl from '@/examples/app/components/Logo.o3';
+import component { StoreMenu } from '@/examples/app/stores/StoreMenu.o3';
+import component { TreeRecursive } from '@/examples/app/components/menu/TreeRecursiveButton.o3';
+import component { LogoEl } from '@/examples/app/components/Logo.o3';
 import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
 export component <MenuMain
@@ -63,9 +63,9 @@ export component <MenuMain
     </div>
     <div --class={{ darken: this.isOpen }} --click:toggle-menu></div>
   </template>
-  <proto def="examples/app/defs/menu-main.yml">
+  <script def="examples/app/defs/menu-main.yml">
     case 'click:toggle-menu':
-      Store.dispatch('menu/toggle');
+      Store.dispatch('menu/toggle') as HTLLK;
       break;
-  </proto>
+  </script>
 </MenuMain>

@@ -1,6 +1,7 @@
-import component ContentPage from '@/examples/app/components/ContentPage.o3';
+import component { ContentPage } from '@/examples/app/components/ContentPage.o3';
 
-export component <Body>
+export component <Body
+  config def="examples/app/defs/body.script.yml">
   <template>
     <style>
       .container {
@@ -19,5 +20,4 @@ export component <Body>
         {...article} />
     </div>
   </template>
-  <proto def="examples/app/defs/body.proto.yml" />
 </Body>

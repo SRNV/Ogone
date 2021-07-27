@@ -3,11 +3,11 @@ export app <RevB>
   <template>
     <!-- nodetypes 1, 3, 8 supported -->
   </template>
-  <proto>
+  <script>
     default:
       // initialization
       break;
-  </proto>
+  </script>
 </RevB>
 
 component <AppI >
@@ -19,20 +19,17 @@ export app <App>
   <template>
     <!-- nodetypes 1, 3, 8 supported -->
   </template>
-  <proto>
+  <script>
     default:
       // initialization
-  </proto>
+  </script>
 </App>
 
-export component <Name
-  message={'Hello World'}>
-  <template>
-    ${ this.message }
-  </template>
+export component <Name public message={'Hello World'}>
+  ${ this.message }
 </Name>
 
 export component <Element>
   <template></template>
-  <proto></proto>
+  <script></script>
 </Element>

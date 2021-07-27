@@ -1,8 +1,18 @@
 
 
-export component <Name
-  public name={'SRNV'}>
-  <template>
-    Hello ${ this.name }
-  </template>
+export app <Name
+  name=SRNV
+  mutable count={0}
+  mutable interval={0}>
+  Hello ${ this.name } ${ this.count }
+  <script>
+    case 'destroy':
+      clearInterval(this.interval);
+      break;
+    default:
+      this.interval = setInterval(() => {
+        this.count++;
+      }, 1000);
+      break;
+  </script>
 </Name>

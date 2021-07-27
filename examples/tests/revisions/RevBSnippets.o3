@@ -5,7 +5,7 @@ export component <OgoneRevB
   <template>
     <span --if(this.show)> ${ this.message } </span>
   </template>
-  <proto>
+  <script>
     default: break;
-  </proto>
+  </script>
 </OgoneRevB>

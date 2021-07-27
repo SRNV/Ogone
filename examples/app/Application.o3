@@ -1,8 +1,8 @@
-import component RightSection from '@/examples/app/components/RightSection.o3';
-import component AsyncLogoEl from '@/examples/app/asyncs/AsyncLogo.o3';
-import component MenuContent from '@/examples/app/components/menu/MenuContent.o3';
-import component MenuMain from '@/examples/app/components/menu/MenuMain.o3';
-import component RouterComponent from '@/examples/app/routers/Router.o3';
+import component { RightSection } from '@/examples/app/components/RightSection.o3';
+import component { AsyncLogoEl } from '@/examples/app/asyncs/AsyncLogo.o3';
+import component { MenuContent } from '@/examples/app/components/menu/MenuContent.o3';
+import component { MenuMain } from '@/examples/app/components/menu/MenuMain.o3';
+import component { RouterComponent } from '@/examples/app/routers/Router.o3';
 import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
 
 /**
@@ -11,10 +11,10 @@ import { Obj } from 'https://deno.land/x/obj@0.0.1/mod.ts';
  *    example of an Ogone web app
  */
 export app <Example
-  internal base=./public/
+  config base=./public/
   input test={obj}
   private[number] scrollY={0}
-  void[(n: number) => void ] setScrollY={
+  void setScrollY={
     (n: number) => { this.scrollY = n; }
   }>
   <template>
@@ -79,7 +79,7 @@ export app <Example
     <MenuMain />
     <RightSection {...this} />
   </template>
-  <proto>
+  <script>
     default:
       const [header] = Refs.head;
       this.setScrollY(window.scrollY);
@@ -94,5 +94,5 @@ export app <Example
         this.setScrollY(window.scrollY);
       });
       break;
-  </proto>
+  </script>
 </Example>

@@ -1,9 +1,9 @@
 export controller <ControllerUser
   private name=SRNV>
-  <proto namespace="test">
+  <script namespace="test">
     case 'GET:/':
       return `Hello ${this.name}`;
     case 'GET:/2':
       return ' <h1> test </h1> ';
-  </proto>
+  </script>
 </ControllerUser>

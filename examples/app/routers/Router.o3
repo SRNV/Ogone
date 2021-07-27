@@ -1,22 +1,18 @@
-import component Route2 from '@/examples/app/pages/Body.o3';
-import component Route404 from '@/examples/app/components/404.o3';
+import component { Route2 } from '@/examples/app/pages/Body.o3';
+import component { Route404 } from '@/examples/app/components/404.o3';
 
 export router <Router>
-  <proto>
-    def:
-      routes:
-        - path: /doc
-          name: documentation
-          component: Route2
-          title: Ogone - documentation
+  - path: /doc
+    name: documentation
+    component: Route2
+    title: Ogone - documentation
 
-        - path: /todos/:id
-          component: Route404
-          name: todo
+  - path: /todos/:id
+    component: Route404
+    name: todo
 
-        - path: 404
-          name: 404
-          component: Route404
-          title: 404 route not found
-  </proto>
+  - path: 404
+    name: 404
+    component: Route404
+    title: 404 route not found
 </Router>

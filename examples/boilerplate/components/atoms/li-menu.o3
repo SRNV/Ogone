@@ -37,8 +37,7 @@ export async <LiMenu
         item={item}/>
     </ul>
   </template>
-  <proto>
-    default:
-      Async.resolve();
-  </proto>
+  <script>
+    default: Async.resolve();
+  </script>
 </LiMenu>

@@ -1,5 +1,5 @@
-import component GithubBadges from '../atoms/github-badges.o3';
-import component OBtn from '../atoms/button.o3';
+import component { GithubBadges } from '../atoms/github-badges.o3';
+import component { OBtn } from '../atoms/button.o3';
 
 export async <BrandComponent
   private message="Welcome to your first Ogone application."
@@ -135,7 +135,7 @@ export async <BrandComponent
       Ogone - Web Components Compiler for Deno
     </marquee>
   </template>
-  <proto>
+  <script>
     case 'event:animationend:fade-out-bottom':
       const [marquee] = Refs.marquee
       marquee.classList.add('fade-out');
@@ -150,5 +150,5 @@ export async <BrandComponent
     default:
       this.display = true;
       Async.resolve();
-  </proto>
+  </script>
 </BrandComponent>

@@ -1,6 +1,6 @@
 export store <DocStore
   private[string] page=loading...>
-  <proto namespace="pages">
+  <script namespace="pages">
     case 'action:getPage':
       try {
         this.page = `/${ctx.route}.html`;
@@ -9,5 +9,5 @@ export store <DocStore
         return '';
       }
       break;
-  </proto>
+  </script>
 </DocStore>

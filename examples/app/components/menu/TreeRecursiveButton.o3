@@ -1,4 +1,4 @@
-import component ScrollComponent from '@/examples/app/components/Scroll.o3';
+import component { ScrollComponent } from '@/examples/app/components/Scroll.o3';
 import type { TreeRecursive } from '../../public/modules/tree-recursive-types.ts';
 
 export component <TreeRecursive
@@ -81,10 +81,10 @@ export component <TreeRecursive
       </div>
     </div>
   </template>
-  <proto>
+  <script>
     case 'click:toggle':
       this.openTree = !this.openTree;
       this.inp = this.openTree ? 'open' : 'closed';
       break;
-  </proto>
+  </script>
 </TreeRecursive>

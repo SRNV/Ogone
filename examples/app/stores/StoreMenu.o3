@@ -1,4 +1,4 @@
-import component UserController from '@/examples/app/controllers/ControllerUser.o3'
+import component { UserController } from '@/examples/app/controllers/ControllerUser.o3'
 
 /**
   @name StoreMenu
@@ -13,13 +13,12 @@ import component UserController from '@/examples/app/controllers/ControllerUser.
  */
 export store <StoreMenu
   input[boolean] isOpen={false}>
-  <proto namespace="menu">
+  <script namespace="menu">
     case 'action:toggle':
       this.isOpen = !this.isOpen;
       break;
     case 'action:checkController':
-      const { UserController } = Controllers;
       const res = await UserController.get('/');
       return res;
-  </proto>
+  </script>
 </StoreMenu>

@@ -1,7 +1,7 @@
 export controller <ControllerHello
   mutable[string] name={'SRNV'}>
-  <proto namespace="hello">
+  <script namespace="hello">
     case 'GET:/':
       return `hello ${this.name}`;
-  </proto>
+  </script>
 </ControlllerHello>
